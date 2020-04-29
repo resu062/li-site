@@ -1,0 +1,61 @@
+<script type="module" src="./li-nav.js"></script>
+<script type="module" src="../icon/icons/li-icons.js"></script>
+<script type="module" src="../icon/li-icon.js"></script>
+<script type="module" src="../button/li-button.js"></script>
+
+<script src="../../lib/pouchdb/pouchdb-7.1.1.js"></script>
+
+<link rel="stylesheet" href="../../lib/tabulator/css/tabulator_simple.min.css">
+<script type="text/javascript" src="../../lib/tabulator/js/tabulator.min.js"></script>
+
+<link rel="stylesheet" href="../../lib/awesome-notifications/style.css"></link>
+<script src="../../lib/awesome-notifications/modern.var.js"></script>
+
+
+<body id="nav" style="margin:0">
+    <li-nav>
+        <div slot="nav-left">
+            <div style="display:flex;margin:6px 2px;">
+                <li-button name="add"></li-button>
+                <li-button name="close"></li-button>
+                <li-button name="refresh"></li-button>
+                <li-button name="settings"></li-button>
+                <li-button name="apps"></li-button>
+                <li-button name="code"></li-button>
+                <li-button name="menu"></li-button>
+            </div>
+            <div style="display:flex;margin:6px 2px;">
+                <li-button name="add"></li-button>
+                <li-button name="close"></li-button>
+                <li-button name="refresh"></li-button>
+                <li-button name="settings"></li-button>
+                <li-button name="apps"></li-button>
+                <li-button name="code"></li-button>
+                <li-button name="menu"></li-button>
+            </div>
+            <hr style="background-color:lightgray;border:0;height:1px">
+        </div>
+
+        <div slot="nav-top" style="display:flex; align-items: center; justify-content: center;">
+            li-Navigator
+        </div>
+
+        <li-icons slot="nav-right"></li-icons>
+
+        <div slot="nav-bottom" style="display:flex;; align-items: center; justify-content: left;">
+            <li-button size=28 name="home" fill="gray" style="padding:2px" br="none:50%"></li-button>
+            <div style="flex:1"></div>
+            <li-button size=28 name="cloud-queue" fill="gray" style="padding:2px" br="none:50%" style="border-radius:4px;"></li-button>
+            <li-button size=28 name="settings" fill="gray" style="padding:2px" br="none:50%"></li-button>
+            <li-button size=28 name="help-outline" fill="gray" style="padding:2px" br="none:50%"></li-button>
+        </div>
+
+        <div slot="nav-main">
+
+        </div>
+    </li-nav>
+</body>
+
+<script>
+    var db = new PouchDB('http://admin:54321@localhost:5984/li-test');
+</script>

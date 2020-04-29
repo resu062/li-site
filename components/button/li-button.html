@@ -1,0 +1,66 @@
+<script type="module" src="./li-button.js"></script>
+
+
+<p>
+<li-button label="1234567890" width="200px" name="close"></li-button>1234567890
+<li-button label="1234567890" width="200px" name="none"></li-button>
+<li-button icon='{"name":"android"}' size=128 radius="10px" color="red" speed=10 rotate=45></li-button>
+<li-icon fill="lightblue" scale="-1,1" speed=1 name="redo"></li-icon>
+<li-icon icon='{"name":"refresh", "fill":"red", "speed":1, "blink":1}'>slot slot slot</li-icon>
+
+</p>
+<div style="display:flex;align-items:flex-start">
+    <li-button label="1234567890" width="200px"></li-button>1234567890
+    <li-button label="1234567890" width="200px" name="none"></li-button>
+    <li-button icon='{"name":"android"}' size=128 radius="10px" color="green" speed=-10 rotate=45></li-button>
+</div>
+
+<div style="display:flex;align-items:center">
+    <li-button label="1234567890" width="200px"></li-button>1234567890
+    <li-button label="1234567890" width="200px" name="none"></li-button>
+
+    <li-button icon='{"name":"android"}' size=128 radius="10px" color="red" speed=10 rotate=45></li-button>
+</div>
+<div style="display:flex;align-items:flex-end">
+    <li-button label="1234567890" width="200px"></li-button>1234567890
+    <li-button label="1234567890" width="200px" name="none"></li-button>
+
+    <li-button icon='{"name":"android", "color":"green"}' size=128 radius="10px" color="blue" blink=5></li-button>
+</div>
+<br />
+<li-button name="close" fill="darkgray" size=64 radius='8px' color="darkgray"></li-button>
+<br />
+<li-button icon='{"name":"undo", "fill":"red"}' label="Undo" swh="28:140:28" br='2px:4px' iconColor="green"></li-button>
+<li-button icon='{"name":"redo", "size":28, "fill":"red"}' swh="28:140:28" br='2px:4px' iconColor="green"></li-button>
+<br />
+<li-button icon='{"name":"undo", "fill":"darkgray"}' size=28 radius="50%"></li-button>
+<li-button icon='{"name":"redo", "fill":"darkgray"}' size=28 radius="50%"></li-button>
+<br />
+<div style="display:flex">
+    <li-button label="_" size=32 style="margin-right:4px" radius='4px' hide=true></li-button>
+    <li-button label="[ ]" size=32 style="margin-right:4px" radius='4px' hide=true></li-button>
+    <li-button label="X" size=32 radius='4px' hide=true></li-button>
+    <li-button label=" Test buttons" width=132 height=32 radius=4 style="margin-left:4px" hide=true></li-button>
+</div>
+<div style="display:flex; margin-top:20px; font-size:12px">
+    <li-button label="_" size=20 style="margin-right:2px" radius='4px' hide=true></li-button>
+    <li-button label="[ ]" size=20 style="margin-right:2px" radius='4px' hide=true></li-button>
+    <li-button label="X" size=20 radius='2px' hide=true></li-button>
+    <li-button label=" Test buttons" width=132 height=20 radius=2 style="margin-left:4px" hide=true></li-button>
+</div>
+<br />
+<li-button width="80" iconColor="red" size=24>redo</li-button>
+<div style="display:flex;width:600px;flex-direction:column;border:1px solid lightgray">
+    <li-button id="test" label="1234567890" width="auto" back="lightyellow" onclick="console.log('1234567890')"></li-button>
+    <li-button label="1234567890" width="auto" back="lightgray"></li-button>
+    <li-button label="1234567890" width="auto"></li-button>
+    <li-button label="1234567890" width="auto"></li-button>
+</div>
+<script>
+    setTimeout(() => {
+        test.name ="android"
+        test.color = "green"
+        test.size = 64
+        test.speed = 10
+    }, 2000);
+</script>
