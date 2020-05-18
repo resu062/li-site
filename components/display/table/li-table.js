@@ -38,7 +38,7 @@ class LiTable extends LitElement {
         this.$table = new Tabulator(this.shadowRoot.getElementById('table'), this.options);
         setTimeout(() => {
             this.hidden = false;
-        }, 10);
+        }, 300);
     }
 }
 
