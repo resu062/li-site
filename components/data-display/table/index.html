@@ -1,6 +1,7 @@
 <script type="module" src="./li-table.js"></script>
 
-<li-table id="table"></li-table>
+<li-table id="table" label="Таблица 1"></li-table>
+<li-table id="table2" label="Таблица 2"></li-table>
 
 <script tpe="module">
     let columns = [
@@ -75,12 +76,21 @@
     table.options = {
         maxHeight: "99%",
         minHeight: 200,
-        height: "99%",
+        height: "30%",
         data: data,
         layout: "fitColumns",
         //autoColumns: true,
-        columns: columns,
-        showFooter: true
+        columns: columns
+        //rowClick: function(e, row) { alert("Row " + row.getData().id + " Clicked!!!!"); }
+    };
+    table2.options = {
+        maxHeight: "99%",
+        minHeight: 200,
+        height: "40%",
+        data: data,
+        layout: "fitColumns",
+        //autoColumns: true,
+        columns: columns
         //rowClick: function(e, row) { alert("Row " + row.getData().id + " Clicked!!!!"); }
     };
 </script>
