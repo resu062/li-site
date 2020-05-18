@@ -1,4 +1,4 @@
-import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { LitElement, html, css } from '../../../lib/lit-element/lit-element.js';
 import '../icon/li-icon.js'
 
 class LiButton extends LitElement {

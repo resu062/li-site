@@ -1,5 +1,5 @@
 
-import { LitElement, html } from '../../../lib/lit-element/lit-element.js';
+import { LitElement, html } from '../../../../lib/lit-element/lit-element.js';
 import './icons.js';
 import '../li-icon.js';
 

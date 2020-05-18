@@ -1,13 +1,9 @@
 <!doctype html>
 <html>
 
-    <head>
-        <script src="https://unpkg.com/@webcomponents/webcomponentsjs@latest/webcomponents-loader.js"></script>
-    </head>
-
     <body>
         <script type="module">
-            import { LitElement, html, css } from 'https://unpkg.com/lit-element/lit-element.js?module';
+            import { LitElement, html, css } from '../../../../lib/lit-element/lit-element.js';
 
             class LiIconSpinner extends LitElement {
                 static get properties() {
@@ -58,7 +54,6 @@
         <li-icon-spinner></li-icon-spinner>
         <li-icon-spinner color="lightgreen"></li-icon-spinner>
         <li-icon-spinner color="pink"></li-icon-spinner>
-        </li-icon-spinner>
 
     </body>
 
