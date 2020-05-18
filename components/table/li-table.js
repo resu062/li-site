@@ -25,7 +25,7 @@ class LiTable extends LitElement {
     render() {
         return html`
             <div id="table">...</div>
-        `
+        `;
     }
 
     firstUpdated() {
