@@ -80,12 +80,12 @@ class LiNav extends LitElement {
         let body = html``,
             border = '1px solid lightgray',
             leftPanel = this.hide.includes('l') ? '' : html`
-                <div class="${this._hl}" style="border-right: ${border}; width: ${this.widthL}px; overflow: auto; flex: 0 0 ${this.widthL}px; transition: all .3s ease;">
+                <div class="${this._hl}" style="border-right: ${border}; width: ${this.widthL}px; overflow: auto; flex: 0 0 ${this.widthL}px;">
                     <slot name="nav-left"></slot>
                 </div>
             `,
             rightPanel = this.hide.includes('r') ? '' : html`
-                <div class="${this._hr}" style="border-left: ${border}; width: ${this.widthR}px; overflow: auto; flex: 0 0 ${this.widthR}px; transition: all .3s ease;">
+                <div class="${this._hr}" style="border-left: ${border}; width: ${this.widthR}px; overflow: auto; flex: 0 0 ${this.widthR}px;">
                     <slot name="nav-right"></slot>
                 </div>
             `,
