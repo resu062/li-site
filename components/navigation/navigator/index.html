@@ -306,8 +306,10 @@
     });
 
     let d = [];
-    for (let i = 0; i < 1000; i++) {
-        d.push(...tabledata);
+    for (let i = 0; i < 10000; i++) {
+        tabledata.forEach(k => {
+            d.push({...k});
+        });
 
     }
     let c = 0;

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Alcatraz Accordion</title>
+        <script type="module" src="./accordion.js"></script>
+        <script type="module" src="./panel.js"></script>
+        <!-- 
+        Use CSS custom properties to alter styles within the component.
+    -->
+        <style>
+            :root {
+                /* Accordion */
+                --alcatraz-accordion-border: 2px solid #ddd;
+                --alcatraz-accordion-border-radius: 4px;
+                /* Item */
+                --alcatraz-accordion-item-padding: 1rem;
+                --alcatraz-accordion-button-bg-color: #fff;
+                --alcatraz-accordion-button-font-size: 20px;
+                --alcatraz-accordion-button-text-align: left;
+                --alcatraz-accordion-panel-margin-top: 1rem;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div style="width: 600px;">
+            <alcatraz-accordion>
+                <alcatraz-accordion-panel label="K2" expanded="true">
+                    <img src="./1.jpg" alt="K2 enjoying a sunny day" style='height: 100%; width: 100%; object-fit: contain'>
+                    <p>Age: 13</p>
+                    <p>Color: gray</p>
+                </alcatraz-accordion-panel>
+                <alcatraz-accordion-panel label="Whitney">
+                    <img src="./2.jpg" alt="Whitney" style='height: 100%; width: 100%; object-fit: contain'>
+                    <p>Age: 13</p>
+                    <p>Color: orange</p>
+                </alcatraz-accordion-panel>
+                <alcatraz-accordion-panel label="Minnie Mitzie">
+                    <img src="./3.jpg" alt="Minnie Mitzie" style='height: 100%; width: 100%; object-fit: contain'>
+                    <p>Age: 4</p>
+                    <p>Color: gray</p>
+                </alcatraz-accordion-panel>
+                <alcatraz-accordion-panel label="Paul">
+                    <img src="./4.jpg" alt="Paul" style='height: 100%; width: 100%; object-fit: contain'>
+                    <p>Age: 3</p>
+                    <p>Color: orange</p>
+                </alcatraz-accordion-panel>
+            </alcatraz-accordion>
+        </div>
+    </body>
+
+</html>
