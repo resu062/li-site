@@ -15,15 +15,18 @@ class LiButton extends LitElement {
     }
     constructor() {
         super();
-        let prop = {
-            icon: undefined, hide: false,
-            name: '', fill: '', size: 24, scale: 0.9, rotate: 0,
-            label: '', color: 'gray', back: '#fdfdfd',
-            rotate: 0, speed: 0, blink: 0, blval: '1;0;0;1',
-            path: '',
-            width: '', height: '', border: '1px', radius: '2px', br: '', toggled: '', _toggled: false
+        this._props = {
+            properties: customElements.get(this.localName).properties,
+            defaults: {
+                icon: undefined, hide: false,
+                name: '', fill: '', size: 24, scale: 0.9, rotate: 0,
+                label: '', color: 'gray', back: '#fdfdfd',
+                rotate: 0, speed: 0, blink: 0, blval: '1;0;0;1',
+                path: '',
+                width: '', height: '', border: '1px', radius: '2px', br: '', toggled: '', _toggled: false
+            }
         }
-        for (let i in prop) this[i] = prop[i];
+        for (let i in this._props.defaults) this[i] = this._props.defaults[i];       
     }
     clickHandler() {
         this._toggled = !this._toggled;
@@ -45,11 +48,11 @@ class LiButton extends LitElement {
             }
             .li-btn:hover {
                 transition: .3s;
-                filter: brightness(80%);
+                filter: brightness(85%);
             }
             .li-btn:active {
                 transition: .1s;
-                filter: brightness(105%);
+                filter: brightness(70%);
             }
             .li-btn:focus {
                 outline:none;
@@ -86,7 +89,7 @@ class LiButton extends LitElement {
         this.fill = this.fill || this.color;
         this.size = this.size || this.height || this.width;
         if (this.icon) _icon = JSON.stringify(this.icon);
-        return html`<li-icon class="${this._toggled? this.toggled : 'notoggled'}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
+        return html`<li-icon class="${this._toggled ? this.toggled : 'notoggled'}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
             rotate="${this.rotate}" speed="${this.speed}" blink="${this.blink}" blval="${this.blval}" path="${this.path}"></li-icon>`;
     }
     render() {
@@ -108,5 +111,10 @@ class LiButton extends LitElement {
             </div>       
         `;
     }
+
+    firstUpdated() {
+        this.dispatchEvent(new CustomEvent('liel-ready', { detail: { message: this.localName } }));
+    }
 }
+
 customElements.define('li-button', LiButton);

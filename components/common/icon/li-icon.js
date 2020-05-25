@@ -11,7 +11,7 @@ class LiIcon extends LitElement {
             height: { type: String },
             width: { type: String },
             viewbox: { type: String },
-            fill: { type: String },
+            fill: { type: String, list: ['red', 'blue', 'green'] },
             stroke: { type: String },
             strokeWidth: { type: String },
             rotate: { type: Number },
@@ -25,12 +25,12 @@ class LiIcon extends LitElement {
 
     constructor() {
         super();
-        let prop = {
+        this._props = {
             icon: undefined, name: '', path: '',
             size: 24, _s2: 0, height: 0, width: 0, viewbox: '0 0 24 24', fill: 'currentColor', stroke: 'currentColor', strokeWidth: 0,
             rotate: 0, speed: 0, blink: 0, blval: '1;0;0;1', scale: '1,1'
         }
-        for (let i in prop) this[i] = prop[i];
+        for (let i in this._props) this[i] = this._props[i];
     }
 
     setData() {
