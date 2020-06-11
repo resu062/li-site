@@ -6,6 +6,7 @@ class AlcatrazAccordionPanel extends LitElement {
 
     this.label = '';
     this.expanded = false;
+    this.selected = false;
   }
 
   static get styles() {
@@ -13,6 +14,10 @@ class AlcatrazAccordionPanel extends LitElement {
       :host {
         display: block;
         padding: var(--alcatraz-accordion-item-padding, 1rem);
+      }
+
+      :host([selected]) {
+        border: 1px solid red;
       }
 
       h3 {
@@ -39,7 +44,8 @@ class AlcatrazAccordionPanel extends LitElement {
   static get properties() {
     return {
       label: { type: String },
-      expanded: { type: Boolean }
+      expanded: { type: Boolean },
+      selected: { type: Boolean }
     };
   }
 
@@ -58,6 +64,7 @@ class AlcatrazAccordionPanel extends LitElement {
                 .aria-expanded="${this.expanded}"
                 aria-controls="panel-${this.convertLabel(this.label)}"
                 tabindex="-1"
+                .selected="${this.expanded}"
               >
                 ${this.label}
               </button>

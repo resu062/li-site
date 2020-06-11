@@ -51,13 +51,16 @@ class AlcatrazAccordion extends LitElement {
         panel !== target
       ) {
         panel.removeAttribute('expanded');
+        panel.removeAttribute('selected');
       }
 
       if (panel === target) {
         if (panel.hasAttribute('expanded')) {
           panel.removeAttribute('expanded');
+          panel.removeAttribute('selected');
         } else {
-          panel.setAttribute('expanded', 'true');
+          panel.setAttribute('expanded', true);
+          panel.setAttribute('selected', true);
         }
       }
     });
