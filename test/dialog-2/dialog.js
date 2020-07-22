@@ -37,13 +37,18 @@ class LiDropdown extends LitElement {
         super()
         this.opened = false
         this.component = undefined
+        this.count = 0
     }
 
-    show() {
-        let el = document.createElement('li-dropdown');
-        el.appendChild(this.component);
-        //this.component.setAttribute('slot', 'component')
-        document.body.appendChild(el);
+    show(comp, props = {}) {
+        for (let p in props) {
+            this[p] = props[p];
+        }
+        this.component = comp;
+        this.appendChild(this.component)
+        if (!this.parentElement)
+            document.body.appendChild(this);
+        console.log('isShow');
     }
 
     _onSlotted(e) {
@@ -53,23 +58,30 @@ class LiDropdown extends LitElement {
             setTimeout(() => {
                 this.component = els[0];
                 this.component.style.visibility = 'visible'
+                //this.component.setAttribute('slot', 'component')
                 console.log(this.component.offsetWidth, this.component.offsetHeight);
             }, 10);
 
         }
+        // return new Promise((resolve, reject) => {
+        //     this.listen('ok', e => {
+        //         resolve(this.component);
+        //     }, { once: true })
+        //     this.listen('close', e => {
+        //         reject();
+        //     }, { once: true })
+        // })
     }
 
     static get properties() {
         return {
-            opened: { type: Boolean }, component: { type: Object }
+            opened: { type: Boolean }, component: { type: Object }, count: { type: Number }
         }
     }
 
     render() {
         return html`
-        123
         <slot @slotchange="${this._onSlotted}"></slot>
-        <slot name="component"></slot>
 `
     }
 }
