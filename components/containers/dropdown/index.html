@@ -1,10 +1,11 @@
-<script type="module" src="../../li.js"></script>
-<script type="module" src="./dialog.js"></script>
-<script type="module" src="../buttons/li-but.js"></script>
-<script type="module" src="../../components/common/button/li-button.js"></script>
-<link rel="stylesheet" type="text/css" href="../buttons/li-but.css">
+<script type="module" src="../../../li.js"></script>
+<script type="module" src="./dropdown.js"></script>
+<script type="module" src="../../common/button/li-button.js"></script>
+<script type="module" src="../../../test/buttons/li-but.js"></script>
+<link rel="stylesheet" type="text/css" href="../../../test/buttons/li-but.css">
 
-<button id="btn">Add li-dropdown</button>
+<button id="btn">Add li-button</button>
+<button id="btn1">Remove li-button</button>
 <br>
 <br>
 <li-dropdown>
@@ -41,13 +42,22 @@
 </li-dropdown>
 
 <script type="module">
+    let data = { comp: [], host: [] };
     btn.onclick = async e => {
         try {
-            const res = await LI.showDropdown('li-button', { label: '1234567890', width: '200px' }, {});
+            const res = await LI.showDropdown('li-button', { label: '1234567890', width: '200px', color: 'orange' }, { data });
             console.log(res);
         }
         catch (e) {
             console.log(e);
+        }
+    }
+    btn1.onclick = async e => {
+        if (data && data.host.length > 0) {
+            let comp= data.comp.splice(-1);
+            let host = data.host.splice(-1);
+            console.log(comp, host)
+            host[0].ok();
         }
     }
 </script>
