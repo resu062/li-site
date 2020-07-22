@@ -1,8 +1,14 @@
+<script type="module" src="../../li.js"></script>
 <script type="module" src="./dialog.js"></script>
 <script type="module" src="../buttons/li-but.js"></script>
+<script type="module" src="../../components/common/button/li-button.js"></script>
 <link rel="stylesheet" type="text/css" href="../buttons/li-but.css">
+
+<button id="btn">Add li-dropdown</button>
+<br>
+<br>
 <li-dropdown>
-    <div style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;">
+    <div id="content" style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;">
         <div>1234567890</div>
         <div>0987654321</div>
         <div>1234567890</div>
@@ -33,3 +39,15 @@
         </section>
     </div>
 </li-dropdown>
+
+<script type="module">
+    btn.onclick = async e => {
+        try {
+            const res = await LI.showDropdown('li-button', { label: '1234567890', width: '200px' }, {});
+            console.log(res);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+</script>
