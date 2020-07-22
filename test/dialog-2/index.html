@@ -1,6 +1,8 @@
 <script type="module" src="./dialog.js"></script>
+<script type="module" src="../buttons/li-but.js"></script>
+<link rel="stylesheet" type="text/css" href="../buttons/li-but.css">
 <li-dropdown>
-    <div style="border:1px solid red;text-align:center;width:120px;background: lightyellow;">
+    <div style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;">
         <div>1234567890</div>
         <div>0987654321</div>
         <div>1234567890</div>
@@ -9,5 +11,25 @@
         <div>0987654321</div>
         <div>1234567890</div>
         <div>0987654321</div>
+
+        <section class="section-buttons">
+            <h2>Buttons icon</h2>
+            <lit-button class="primary icon" aria-label="search">
+                <lit-icon icon="search" aria-hidden="true"></lit-icon>
+            </lit-button>
+            <lit-button class="primary icon" aria-label="menu">
+                <lit-icon icon="menu" aria-hidden="true"></lit-icon>
+            </lit-button>
+            <lit-button class="primary icon">
+                <lit-icon icon="crop" aria-label="crop"></lit-icon>
+            </lit-button>
+        </section>
+
+        <section class="section-buttons section-max-width" style="font-size: 62.5%;">
+            <h2>Buttons block</h2>
+            <lit-button class="primary block margin-bottom">Primary block</lit-button>
+            <lit-button class="secondary block margin-bottom">Secondary block</lit-button>
+            <lit-button class="success block">Success block</lit-button>
+        </section>
     </div>
 </li-dropdown>
