@@ -4,8 +4,8 @@
 <script type="module" src="../../test/buttons/li-but.js"></script>
 <link rel="stylesheet" type="text/css" href="../../test/buttons/li-but.css">
 
-<button id="btn">Add li-button</button>
-<button id="btn1">Remove li-button</button>
+<button id="btn">Add component</button>
+<button id="btn1">Remove component</button>
 <br>
 <br>
 <li-dropdown>
@@ -42,10 +42,13 @@
 </li-dropdown>
 
 <script type="module">
-    let data = { comp: [], host: [] };
+    let data = { host: [] };
     btn.onclick = async e => {
         try {
-            const res = await LI.showDropdown('li-button', { label: '1234567890', width: '200px', color: 'orange' }, { data });
+            const host = await LI.createComponent('dropdown');
+            data.host.push(host);
+            const res = await host.show(await LI.createComponent('icon', { name: "android", fill: "green", speed: 10, size: 64 }));
+            //const res = await LI.show('dropdown', 'icon', { name:"android", fill:"green", speed:10, size:64 }, { data });
             console.log(res);
         }
         catch (e) {
@@ -54,9 +57,8 @@
     }
     btn1.onclick = async e => {
         if (data && data.host.length > 0) {
-            let comp= data.comp.splice(-1);
             let host = data.host.splice(-1);
-            console.log(comp, host)
+            console.log(host)
             host[0].ok();
         }
     }

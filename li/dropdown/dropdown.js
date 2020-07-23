@@ -55,6 +55,7 @@ class LiDropdown extends LitElement {
             setTimeout(() => {
                 this.component = els[0];
                 this.component.style.visibility = 'visible'
+                console.log(this.component.getBoundingClientRect());
             }, 10);
         }
     }

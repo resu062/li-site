@@ -6,23 +6,23 @@ export default function LI(props = {}) {
 
 globalThis.LI = LI;
 
-LI.createComponent = (comp, props = {}) => {
-    let cmp = document.createElement(comp);
-    for (let p in props) {
-        cmp[p] = props[p];
+LI.createComponent = async (comp, props = {}) => {
+    comp = comp || {};
+    if (typeof comp === 'string') {
+        comp = comp.replace('li-', '');
+        await import(`./li/${comp}/${comp}.js`);
+        const cmp = document.createElement(`li-${comp}`);
+        for (let p in props) cmp[p] = props[p];
+        return cmp;
     }
-    return cmp;
+    for (let p in props) comp[p] = props[p];
+    return comp;
 }
 
-LI.showDropdown = async (component, props = {}, hostProps = {}) => {
-    let data = hostProps.data;
-    await import('./li/dropdown/dropdown.js');
-    const comp = (typeof component === 'string') ? LI.createComponent(component, props) : component;
-    const host = LI.createComponent('li-dropdown', hostProps);
-    if (data) {
-        data.comp.push(comp);
-        data.host.push(host);
-    }
+LI.show = async (host, comp, compProps = {}, hostProps = {}) => {
+    host = await LI.createComponent(host, hostProps);
+    comp = await LI.createComponent(comp, compProps);
+    if (hostProps.data && hostProps.data.host) hostProps.data.host.push(host);
     return host.show(comp);
 }
 
