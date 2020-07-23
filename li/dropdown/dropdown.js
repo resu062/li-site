@@ -24,29 +24,22 @@ class LiDropdown extends LitElement {
             this[p] = props[p];
         }
         this.component = comp;
-        this.appendChild(this.component)
-        if (!this.parentElement)
-            document.body.appendChild(this);
+        this.appendChild(this.component);
+        if (!this.parentElement) document.body.appendChild(this);
         return new Promise((resolve, reject) => {
-            LI.listen('ok', () => {
-                resolve(this.component);
-            }, { target: this })
-            LI.listen('close', () => {
-                reject();
-            }, { target: this })
+            LI.listen('ok', () => resolve(this.component), { target: this });
+            LI.listen('close', () => reject(), { target: this });
         })
     }
     close() {
         this.opened = false;
         LI.fire(this, 'close', this.component);
-        if (this.parentElement === document.body)
-            document.body.removeChild(this);
+        if (this.parentElement === document.body) document.body.removeChild(this);
     }
     ok() {
         this.opened = false;
         LI.fire(this, 'ok', this.component);
-        if (this.parentElement === document.body)
-            document.body.removeChild(this);
+        if (this.parentElement === document.body) document.body.removeChild(this);
     }
 
     _onSlotted(e) {

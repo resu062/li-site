@@ -6,6 +6,7 @@
 
 <button id="btn">Add component</button>
 <button id="btn1">Remove component</button>
+<button id="btn2">Remove all</button>
 <br>
 <br>
 <li-dropdown>
@@ -57,6 +58,13 @@
     }
     btn1.onclick = async e => {
         if (data && data.host.length > 0) {
+            let host = data.host.splice(-1);
+            console.log(host)
+            host[0].ok();
+        }
+    }
+    btn2.onclick = async e => {
+        while (data.host.length > 0) {
             let host = data.host.splice(-1);
             console.log(host)
             host[0].ok();
