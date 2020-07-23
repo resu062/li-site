@@ -16,7 +16,7 @@ LI.createComponent = (comp, props = {}) => {
 
 LI.showDropdown = async (component, props = {}, hostProps = {}) => {
     let data = hostProps.data;
-    await import('./components/containers/dropdown/dropdown.js');
+    await import('./li/dropdown/dropdown.js');
     const comp = (typeof component === 'string') ? LI.createComponent(component, props) : component;
     const host = LI.createComponent('li-dropdown', hostProps);
     if (data) {
