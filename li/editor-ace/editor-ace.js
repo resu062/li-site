@@ -33,7 +33,7 @@ customElements.define('li-editor-ace', class LiAceEditor extends LitElement {
 
     updated() {
         let ed = this.shadowRoot.getElementById('editor');
-        ace.config.set('basePath', './src/');
+        ace.config.set('basePath', '/li/editor-ace/src/');
         this.editor = ace.edit(ed, { autoScrollEditorIntoView: true });
         this.editor.setTheme('ace/theme/' + this.theme);
         this.editor.getSession().setMode('ace/mode/' + this.mode);
