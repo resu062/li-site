@@ -1,73 +1,27 @@
 <script type="module" src="../../li.js"></script>
-<script type="module" src="./dropdown.js"></script>
-<script type="module" src="../button/button.js"></script>
-<script type="module" src="../../test/buttons/li-but.js"></script>
-<link rel="stylesheet" type="text/css" href="../../test/buttons/li-but.css">
 
-<button id="btn">Add component</button>
-<button id="btn1">Remove component</button>
-<button id="btn2">Remove all</button>
-<br>
-<br>
-<li-dropdown>
-    <div id="content" style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;">
-        <div>1234567890</div>
-        <div>0987654321</div>
-        <div>1234567890</div>
-        <div>0987654321</div>
-        <div>1234567890</div>
-        <div>0987654321</div>
-        <div>1234567890</div>
-        <div>0987654321</div>
+<style>
+    body {
+        padding: 0px;
+        margin: 0px;
+    }
 
-        <section class="section-buttons">
-            <h2>Buttons icon</h2>
-            <lit-button class="primary icon" aria-label="search">
-                <lit-icon icon="search" aria-hidden="true"></lit-icon>
-            </lit-button>
-            <lit-button class="primary icon" aria-label="menu">
-                <lit-icon icon="menu" aria-hidden="true"></lit-icon>
-            </lit-button>
-            <lit-button class="primary icon">
-                <lit-icon icon="crop" aria-label="crop"></lit-icon>
-            </lit-button>
-        </section>
+</style>
 
-        <section class="section-buttons section-max-width" style="font-size: 62.5%;">
-            <h2>Buttons block</h2>
-            <lit-button class="primary block margin-bottom">Primary block</lit-button>
-            <lit-button class="secondary block margin-bottom">Secondary block</lit-button>
-            <lit-button class="success block">Success block</lit-button>
-        </section>
-    </div>
-</li-dropdown>
+<div id="div" style="width: 100%; height: 100%; background: lightyellow"></div>
 
 <script type="module">
-    let data = { host: [] };
-    btn.onclick = async e => {
+    div.oncontextmenu = async (e) => {
         try {
+            e.preventDefault();
+            //e.stopPropagation();
             const host = await LI.createComponent('dropdown');
-            data.host.push(host);
-            const res = await host.show(await LI.createComponent('icon', { name: "android", fill: "green", speed: 10, size: 64 }));
-            //const res = await LI.show('dropdown', 'icon', { name:"android", fill:"green", speed:10, size:64 }, { data });
+            const res = await host.show(await LI.createComponent('button',
+                { name: "refresh", fill: "orange", speed: 1, size: 128, label: "I'm button", width: "400px", fontSize: '20px' }));
             console.log(res);
         }
         catch (e) {
             console.log(e);
-        }
-    }
-    btn1.onclick = async e => {
-        if (data && data.host.length > 0) {
-            let host = data.host.splice(-1);
-            console.log(host)
-            host[0].ok();
-        }
-    }
-    btn2.onclick = async e => {
-        while (data.host.length > 0) {
-            let host = data.host.splice(-1);
-            console.log(host)
-            host[0].ok();
         }
     }
 </script>
