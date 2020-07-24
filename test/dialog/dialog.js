@@ -1,5 +1,5 @@
-import { LitElement, html } from '../../../../lib/lit-element/lit-element.js';
-import { classMap } from '../../../../lib/lit-html/directives/class-map.js';
+import { LitElement, html } from '../../lib/lit-element/lit-element.js';
+import { classMap } from '../../lib/lit-html/directives/class-map.js';
 
 class MyDialog extends LitElement {
 
