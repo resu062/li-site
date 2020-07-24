@@ -1,4 +1,4 @@
-import { LitElement, html, css } from '../../../../lib/lit-element/lit-element.js';
+import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
 
 class AlcatrazAccordionPanel extends LitElement {
   constructor() {
