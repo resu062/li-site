@@ -10,7 +10,7 @@ LI.createComponent = async (comp, props = {}) => {
     comp = comp || {};
     if (typeof comp === 'string') {
         comp = comp.replace('li-', '');
-        await import(`/li/${comp}/${comp}.js`);
+        await import(`./li/${comp}/${comp}.js`);
         const cmp = document.createElement(`li-${comp}`);
         for (let p in props) cmp[p] = props[p];
         return cmp;
