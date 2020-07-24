@@ -1,5 +1,5 @@
 //import { LitElement, html, css } from 'https://unpkg.com/lit-element/lit-element.js?module';
-import { LitElement, html, css } from '../../../../lib/lit-element/lit-element.js';
+import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
 
 class FirstLitElement extends LitElement {
 
