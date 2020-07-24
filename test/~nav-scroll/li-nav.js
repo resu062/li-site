@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'https://unpkg.com/lit-element/lit-element.js?module';
-import '../icon/li-icon.js';
+import '../../li/icon/icon.js';
 
 class LiNav extends LitElement {
     static get properties() {
