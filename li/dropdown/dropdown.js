@@ -52,7 +52,7 @@ customElements.define('li-dropdown', class LiDropdown extends LitElement {
         if (this.parentElement === document.body) document.body.removeChild(this);
     }
 
-    _onSlotted(e) {
+    _slotChange(e) {
         const els = e.target.assignedElements();
         if (els.length) {
             setTimeout(() => {
@@ -66,7 +66,7 @@ customElements.define('li-dropdown', class LiDropdown extends LitElement {
         const rect = new LIRect(this.parent);
         if (!this.component || !rect.ok) return;
         requestAnimationFrame(() => {
-            let size = this.size = {},
+            let size = {},
                 containerSize = this.component.getBoundingClientRect();
             const h = containerSize.height,
                 w = containerSize.width,
@@ -113,7 +113,7 @@ customElements.define('li-dropdown', class LiDropdown extends LitElement {
     _close(e) {
         let el = this;
         while (el) {
-            if (el.contains(e.target)) {
+            if (e.target !== window && el.contains(e.target)) {
                 if (e.type === 'resize' && this._offsetHeight !== e.target.offsetHeight) {
                     this._setSize();
                     this._offsetHeight = e.target.offsetHeight;
@@ -124,6 +124,7 @@ customElements.define('li-dropdown', class LiDropdown extends LitElement {
         }
         this.close();
     }
+    
     static get styles() {
         return css`
             div { 
@@ -135,7 +136,7 @@ customElements.define('li-dropdown', class LiDropdown extends LitElement {
     render() {
         return html`
             <div style=${styleMap({ ...this.size, visibility: this.opened ? 'visible' : 'hidden' })}>
-                <slot name=${this.opened ? '' : '?'} @slotchange="${this._onSlotted}"></slot>
+                <slot name=${this.opened ? '' : '?'} @slotchange="${this._slotChange}"></slot>
             </div>
         `;
     }
