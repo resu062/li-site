@@ -5,11 +5,12 @@
 <link rel="stylesheet" type="text/css" href="../../test/buttons/li-but.css">
 </link>
 
-<button id="btn">Show dropdown</button>
+<button id="btn" style="width:300px">Show dropdown</button>
+<button id="btn2" style="position:absolute;bottom:8px;right:8px">Show dropdown</button>
 <br><br>
 <div>
     <li-dropdown id="drop">
-        <div id="content" style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;">
+        <div id="content" style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;display: flex;flex-direction: column">
             <div>1234567890</div>
             <div>0987654321</div>
             <div>1234567890</div>
@@ -22,7 +23,7 @@
             <section class="section-buttons">
                 <h2>Buttons icon</h2>
                 <lit-button class="primary icon" aria-label="search">
-                    <lit-icon icon="search" aria-hidden="true"></lit-icon>
+                    <lit-icon icon="search" aria-hidden="true">OK</lit-icon>
                 </lit-button>
                 <lit-button class="primary icon" aria-label="menu">
                     <lit-icon icon="menu" aria-hidden="true"></lit-icon>
@@ -38,6 +39,9 @@
                 <lit-button class="secondary block margin-bottom">Secondary block</lit-button>
                 <lit-button class="success block">Success block</lit-button>
             </section>
+
+            <lit-button id="ok" class="primary block" style="padding: 10px">OK</lit-button>
+
         </div>
     </li-dropdown>
 </div>
@@ -46,11 +50,46 @@
     btn.onclick = async e => {
         try {
             drop.parent = btn;
-            let res = drop.show();
+            drop.useParentWidth = true;
+            const res = await drop.show();
             console.log(res);
         }
         catch (e) {
-            console.log(e);
+            //console.log(e);
+        }
+    }
+    btn2.onclick = async e => {
+        try {
+            drop.parent = btn2;
+            drop.useParentWidth = false;
+            const res = await drop.show();
+            console.log(res);
+        }
+        catch (e) {
+            //console.log(e);
+        }
+    }
+    ok.onclick = async e => {
+        try {
+            drop.parent = btn;
+            drop.useParentWidth = false;
+            const res = await drop.ok();
+            console.log(res);
+        }
+        catch (e) {
+            //console.log(e);
+        }
+    }
+    document.oncontextmenu = async (e) => {
+        try {
+            e.preventDefault();
+            //e.stopPropagation();
+            drop.parent = null;
+            const res = await drop.show();
+            console.log(res);
+        }
+        catch (e) {
+            //console.log(e);
         }
     }
 </script>
