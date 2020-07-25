@@ -56,23 +56,28 @@ LI.unlisten = (event = '', callback, props = { target: this, once: false, useCap
     }
 }
 
-window.LIRect = window.LIRect || class ODARect {
+window.LIRect = window.LIRect || class LIRect {
     constructor(element) {
         if (element && element.host)
             element = element.host;
         const pos = element ? element.getBoundingClientRect() : LI.mousePos;
-        this.x = pos.x;
-        this.y = pos.y;
-        this.top = pos.top;
-        this.bottom = pos.bottom;
-        this.left = pos.left;
-        this.right = pos.right;
-        this.width = pos.width;
-        this.height = pos.height;
+        if (pos) {
+            this.ok = true
+            this.x = pos.x;
+            this.y = pos.y;
+            this.top = pos.top;
+            this.bottom = pos.bottom;
+            this.left = pos.left;
+            this.right = pos.right;
+            this.width = pos.width;
+            this.height = pos.height;
+        } else {
+            this.ok = false;
+        }
     }
 };
 if (!window.DOMRect) {
-    window.DOMRect = function (x, y, width, height) {
+    window.DOMRect = function(x, y, width, height) {
         this.x = x;
         this.y = y;
         this.top = y;
@@ -83,6 +88,6 @@ if (!window.DOMRect) {
         this.height = height;
     }
 }
-document.addEventListener('mousedown', e => {
+document.addEventListener('mousedown', (e) => {
     LI.mousePos = new DOMRect(e.pageX, e.pageY);
 });
