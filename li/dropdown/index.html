@@ -4,24 +4,25 @@
     body {
         padding: 0px;
         margin: 0px;
+        background: lightyellow
     }
 
 </style>
 
-<div id="div" style="width: 100%; height: 100%; background: lightyellow"></div>
-
 <script type="module">
-    div.oncontextmenu = async (e) => {
+    document.oncontextmenu = async (e) => {
         try {
             e.preventDefault();
             //e.stopPropagation();
             const host = await LI.createComponent('dropdown');
             const res = await host.show(await LI.createComponent('button',
                 { name: "refresh", fill: "orange", speed: 1, size: 128, label: "I'm button", width: "400px", fontSize: '20px' }));
+            // const res = await host.show(await LI.createComponent('icon',
+            //     { name: "refresh", fill: "orange", speed: 1, size: 128, label: "I'm button", width: "400px", fontSize: '20px' }));
             console.log(res);
         }
         catch (e) {
-            console.log(e);
+            //console.log(e);
         }
     }
 </script>
