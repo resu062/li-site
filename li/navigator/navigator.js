@@ -35,6 +35,7 @@ class LiNavigator extends LitElement {
         this._lastWidthL = this.widthL = this._widthL;
         this._lastWidthR = this.widthR = this._widthR;
         this._move = '';
+        window.dispatchEvent(new Event('resize'));
     }
     _mousemove(e) {
         if (!this._move) return;
@@ -47,12 +48,14 @@ class LiNavigator extends LitElement {
         let l = this._lastWidthL;
         this._lastWidthL = this.widthL;
         this._widthL = this.widthL = (this.widthL > 34 ? 0 : l <= 34 ? 300 : l);
+        window.dispatchEvent(new Event('resize'));
     }
     _hideR(e) {
         this._hr = this._hr ? '' : 'outr';
         let r = this._lastWidthR;
         this._lastWidthR = this.widthR
         this._widthR = this.widthR = (this.widthR > 34 ? 0 : r <= 34 ? 300 : r);
+        window.dispatchEvent(new Event('resize'));
     }
     static get styles() {
         return css`

@@ -3,6 +3,7 @@
 <script type="module" src="../icon/icon.js"></script>
 <script type="module" src="../button/button.js"></script>
 <script src="../../lib/pouchdb/pouchdb-7.1.1.js"></script>
+<script type="module" src="../chart-apex/chart-apex.js"></script>
 
 <link href="../../lib/tabulator/css/tabulator_simple.min.css" rel="stylesheet">
 <script type="text/javascript" src="../../lib/tabulator/js/tabulator.min.js"></script>
@@ -83,6 +84,7 @@
             <li-button onclick="notifier.modal('<b>Custom modal window message</b>');" style="border-radius:4px;" width="auto">Modal message</li-button>
         </div> 
         <div id="example-table2"></div>
+
     </div>
 
     <li-all-icons slot="nav-right"></li-all-icons>
@@ -102,6 +104,10 @@
         <br>
         <div id="example-table" style="border:1px solid lightgray; overflow: auto; min-width:0px; "></div>
         <br>
+
+
+        <li-chart-apex></li-chart-apex>
+
 
     </div>
 </li-navigator>

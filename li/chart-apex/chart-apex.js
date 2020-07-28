@@ -19,9 +19,10 @@ customElements.define('li-chart-apex', class LiAceEditor extends LitElement {
 
     render() {
         return html`
+            <link href="./lib/apex/apexchart.css" rel="stylesheet" />
             <style>
-                #host {
-                    width:100%;
+                #chart {
+                    width:98%;
                 }
                 #editor {
                     height: 400px;
@@ -278,7 +279,7 @@ customElements.define('li-chart-apex', class LiAceEditor extends LitElement {
             }],
             chart: {
                 type: 'candlestick',
-                height: 1000
+                height: 800
             },
             title: {
                 text: 'CandleStick Chart',
