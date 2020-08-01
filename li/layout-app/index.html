@@ -73,7 +73,7 @@
 
 <body id="nav" hidden style="margin:0">
 <li-layout-app>
-    <div slot="nav-left">
+    <div slot="app-left">
         <div style="display:flex; flex-direction:column; align-items: left; justify-content: center">
             <br>
             <li-button onclick="notifier.success('Your custom message');" style=" border-radius:4px;" label="Show Success" width="auto"></li-button>
@@ -87,19 +87,19 @@
 
     </div>
 
-    <li-all-icons slot="nav-right"></li-all-icons>
+    <li-all-icons slot="app-right"></li-all-icons>
     
-    <div slot="nav-top" style="display:flex; align-items: center; justify-content: center;">
+    <div slot="app-top" style="display:flex; align-items: center; justify-content: center;">
         li-Navigator
     </div>
-    <div slot="nav-bottom" style="display:flex;; align-items: center; justify-content: left;">
+    <div slot="app-bottom" style="display:flex;; align-items: center; justify-content: left;">
         <li-button size=28 name="home" fill="gray" style="padding:2px" br="none:50%" onclick="notifier.modal('<b>Home</b>');" ></li-button>
         <div style="flex:1"></div>
         <li-button size=28 name="cloud-queue" fill="gray" style="padding:2px" br="none:50%" onclick="notifier.modal('<b>Cloud</b>');" style="border-radius:4px;"></li-button>
         <li-button size=28 name="settings" fill="gray" style="padding:2px" br="none:50%" onclick="notifier.modal('<b>Settings</b>');" ></li-button>
         <li-button size=28 name="help-outline" fill="gray" style="padding:2px" br="none:50%" onclick="notifier.modal('<b>Help</b>');" ></li-button>
     </div>
-    <div slot="nav-main">
+    <div slot="app-main">
         <div id="example-table3" style="overflow: auto;"></div>
         <br>
         <div id="example-table" style="border:1px solid lightgray; overflow: auto; min-width:0px; "></div>
@@ -110,7 +110,7 @@
 
 
     </div>
-</li-navigator>
+</li-layout-app>
 
 </body>
 
