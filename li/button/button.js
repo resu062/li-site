@@ -10,7 +10,7 @@ class LiButton extends LitElement {
             path: { type: String },
             label: { type: String }, color: { type: String }, back: { type: String },
             width: { type: String }, height: { type: String }, border: { type: String }, radius: { type: String },
-            br: { type: String }, swh: { type: String }, toggled: { type: String }, _toggled: { type: Boolean }
+            br: { type: String }, swh: { type: String }, toggle: { type: String }, toggleded: { type: Boolean, reflect: true }
         }
     }
     constructor() {
@@ -23,13 +23,13 @@ class LiButton extends LitElement {
                 label: '', color: 'gray', back: '#fdfdfd',
                 rotate: 0, speed: 0, blink: 0, blval: '1;0;0;1',
                 path: '',
-                width: '', height: '', border: '1px', radius: '2px', br: '', toggled: '', _toggled: false
+                width: '', height: '', border: '1px', radius: '2px', br: '', toggle: '', toggleded: false
             }
         }
         for (let i in this._props.defaults) this[i] = this._props.defaults[i];
     }
     clickHandler() {
-        this._toggled = !this._toggled;
+        this.toggleded = !this.toggleded;
     }
     static get styles() {
         return css`
@@ -89,7 +89,7 @@ class LiButton extends LitElement {
         this.fill = this.fill || this.color;
         this.size = this.size || this.height || this.width;
         if (this.icon) _icon = JSON.stringify(this.icon);
-        return html`<li-icon class="${this._toggled ? this.toggled : 'notoggled'}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
+        return html`<li-icon class="${this.toggleded ? this.toggle : 'notoggled'}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
             rotate="${this.rotate}" speed="${this.speed}" blink="${this.blink}" blval="${this.blval}" path="${this.path}"></li-icon>`;
     }
     render() {
