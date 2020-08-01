@@ -1,7 +1,7 @@
 import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
-import '../icon/icon.js';
+import '../button/button.js';
 
-customElements.define('li-layout-app', class LiLayoutApp extends LitElement {
+class LiLayoutApp extends LitElement {
     static get properties() {
         return {
             outside: { type: Boolean, reflect: true }, hide: { type: String },
@@ -79,68 +79,89 @@ customElements.define('li-layout-app', class LiLayoutApp extends LitElement {
             }       
         `;
     }
-    render() {
-        let border = '1px solid lightgray',
-            leftPanel = this.hide.includes('l') ? '' : html`
-                <div class="${this._hl}" style="border-right: ${border}; width: ${this.widthL}px; overflow: auto; flex: 0 0 ${this.widthL}px;">
-                    <slot name="nav-left"></slot>
-                </div>
-            `,
-            rightPanel = this.hide.includes('r') ? '' : html`
-                <div class="${this._hr}" style="border-left: ${border}; width: ${this.widthR}px; overflow: auto; flex: 0 0 ${this.widthR}px;">
-                    <slot name="nav-right"></slot>
-                </div>
-            `,
-            mainPanel = html`
-                <div style="flex: 1 1 auto; overflow: auto;width:100%">
-                    <slot name="nav-main"></slot>
-                </div>
-            `,
-            topPanel = this.hide.includes('t') ? '' : html`
-                <div style="border-bottom: ${border}; display: flex; align-items: center; justify-content: center">
-                    ${this.hide.includes('l') ? '' : html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" toggled="left" style="padding:2px; cursor: pointer;" @click="${this._hideL}"></li-button>`}
-                    <div style="flex:1"><slot name="nav-top"></slot></div>
-                    ${this.hide.includes('r') ? '' : html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" toggled="right" style="padding:2px; cursor: pointer;" @click="${this._hideR}"></li-button>`}
-                </div>
-            `,
-            bottomPanel = this.hide.includes('b') ? '' : html`
-                <div style="border-top: ${border};">
-                    <slot name="nav-bottom"></slot>
-                </div>
-            `,
-            leftSplitter = this.hide.includes('l') ? '' : html`<div class="pnl-l-spl" 
-                style="left: ${this._widthL - 2}px; background: ${this._move === "left" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('left')}"></div>`,
-            rightSplitter = this.hide.includes('r') ? '' : html`<div class="pnl-r-spl" 
-                style="right: ${this._widthR - 2}px; background: ${this._move === "right" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('right')}"></div>`,
-            tempPanel = html`<div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" style="z-index: ${this._indx}" @mouseout="${this._up}"></div>`,
-            body = this.outside ?
-                html`
-                    <div style="display: flex; height: 100%;">
-                        ${leftPanel}
-                        <div style="display: flex; flex-direction: column;overflow:hidden; flex:1">
-                            ${topPanel}
-                            ${mainPanel}
-                            ${bottomPanel}
-                        </div>
-                        ${rightPanel}
-                    </div>
-                ` : 
-                html`
-                <div style="display: flex; flex-direction: column; height: 100%;">
-                    ${topPanel}
-                    <div style="display: flex; flex: 1;overflow: hidden;">
-                        ${leftPanel}
-                        ${mainPanel}
-                        ${rightPanel}
-                    </div>
-                    ${bottomPanel}
-                </div>
-            `;
+
+    get border() { 
+        return '1px solid lightgray'
+    }
+    get leftPanel() {
+        return this.hide.includes('l') ? '' : html`
+            <div class="${this._hl}" style="border-right: ${this.border}; width: ${this.widthL}px; overflow: auto; flex: 0 0 ${this.widthL}px;">
+                <slot name="app-left"></slot>
+            </div>
+        `
+    }
+    get rightPanel() {
+        return this.hide.includes('r') ? '' : html`
+            <div class="${this._hr}" style="border-left: ${this.border}; width: ${this.widthR}px; overflow: auto; flex: 0 0 ${this.widthR}px;">
+                <slot name="app-right"></slot>
+            </div>
+        `
+    }
+    get mainPanel() {
         return html`
-            ${tempPanel}
-            ${body}
-            ${leftSplitter}
-            ${rightSplitter}
+            <div style="flex: 1 1 auto; overflow: auto;width:100%">
+                <slot name="app-main"></slot>
+            </div>
+        `
+    }
+    get topPanel() {
+        return this.hide.includes('t') ? '' : html`
+            <div style="border-bottom: ${this.border}; display: flex; align-items: center; justify-content: center">
+                ${this.hide.includes('l') ? '' : html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" toggled="left" style="padding:2px; cursor: pointer;" @click="${this._hideL}"></li-button>`}
+                <div style="flex:1"><slot name="app-top"></slot></div>
+                ${this.hide.includes('r') ? '' : html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" toggled="right" style="padding:2px; cursor: pointer;" @click="${this._hideR}"></li-button>`}
+            </div>
+        `
+    }
+    get bottomPanel() {
+        return this.hide.includes('b') ? '' : html`
+            <div style="border-top: ${this.border};">
+                <slot name="app-bottom"></slot>
+            </div>
+        `
+    }
+    get leftSplitter() {
+        return this.hide.includes('l') ? '' : html`<div class="pnl-l-spl" style="left: ${this._widthL - 2}px; background: ${this._move === "left" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('left')}"></div>`
+    }
+    get rightSplitter() {
+        return this.hide.includes('r') ? '' : html`<div class="pnl-r-spl" style="right: ${this._widthR - 2}px; background: ${this._move === "right" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('right')}"></div>`
+    }
+    get tempPanel() {
+        return html`<div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" style="z-index: ${this._indx}" @mouseout="${this._up}"></div>`
+    }
+    get body() { 
+        return this.outside ?
+            html`
+                <div style="display: flex; height: 100%;">
+                    ${this.leftPanel}
+                    <div style="display: flex; flex-direction: column;overflow:hidden; flex:1">
+                        ${this.topPanel}
+                        ${this.mainPanel}
+                        ${this.bottomPanel}
+                    </div>
+                    ${this.rightPanel}
+                </div>
+            ` :
+            html`
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    ${this.topPanel}
+                    <div style="display: flex; flex: 1;overflow: hidden;">
+                        ${this.leftPanel}
+                        ${this.mainPanel}
+                        ${this.rightPanel}
+                    </div>
+                    ${this.bottomPanel}
+                </div>
+            `
+    };
+    render() {
+        return html`
+            ${this.body}
+            ${this.leftSplitter}
+            ${this.rightSplitter}
+            ${this.tempPanel}
         `;
     }
-});
+}
+
+customElements.define('li-layout-app', LiLayoutApp);
