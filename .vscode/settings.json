@@ -1,3 +1,17 @@
 {
-    "liveServer.settings.port": 5502
+    "liveServer.settings.port": 5502,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/.vscode": true,
+        ".vscode": true,
+        "**/.gitattributes": true,
+        ".gitattributes": true,
+        "**/.gitignore": true,
+        ".gitignore": true
+    },
+    "explorerExclude.backup": null
 }
