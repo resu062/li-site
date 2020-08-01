@@ -1,10 +1,10 @@
 import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
 import '../icon/icon.js';
 
-class LiNavigator extends LitElement {
+customElements.define('li-layout-app', class LiLayoutApp extends LitElement {
     static get properties() {
         return {
-            side: { type: String }, hide: { type: String },
+            outside: { type: Boolean, reflect: true }, hide: { type: String },
             widthL: { type: Number }, widthR: { type: Number },
             _move: { type: String }, _indx: { type: Number },
             _widthL: { type: Number }, _widthR: { type: Number },
@@ -13,8 +13,8 @@ class LiNavigator extends LitElement {
     }
     constructor() {
         super();
-        let prop = { // side => 'in', 'top'; hide => 'lrtb' (left, right, top, bottom)
-            side: 'in', hide: '', widthL: 300, widthR: 300, 
+        let prop = { // hide => 'lrtb' (left, right, top, bottom)
+            outside: false, hide: '', widthL: 300, widthR: 300,
             _widthL: 300, _widthR: 300, _lastWidthL: 300, _lastWidthR: 300, _move: '', _indx: -1, _hl: '', _hr: ''
         }
         for (let i in prop) this[i] = prop[i];
@@ -80,8 +80,7 @@ class LiNavigator extends LitElement {
         `;
     }
     render() {
-        let body = html``,
-            border = '1px solid lightgray',
+        let border = '1px solid lightgray',
             leftPanel = this.hide.includes('l') ? '' : html`
                 <div class="${this._hl}" style="border-right: ${border}; width: ${this.widthL}px; overflow: auto; flex: 0 0 ${this.widthL}px;">
                     <slot name="nav-left"></slot>
@@ -108,23 +107,14 @@ class LiNavigator extends LitElement {
                 <div style="border-top: ${border};">
                     <slot name="nav-bottom"></slot>
                 </div>
-            `;
-        switch (this.side) {
-            case 'in':
-                body = html`
-                    <div style="display: flex; flex-direction: column; height: 100%;">
-                        ${topPanel}
-                        <div style="display: flex; flex: 1;overflow: hidden;">
-                            ${leftPanel}
-                            ${mainPanel}
-                            ${rightPanel}
-                        </div>
-                        ${bottomPanel}
-                    </div>
-                `
-                break;
-            case 'top':
-                body = html`
+            `,
+            leftSplitter = this.hide.includes('l') ? '' : html`<div class="pnl-l-spl" 
+                style="left: ${this._widthL - 2}px; background: ${this._move === "left" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('left')}"></div>`,
+            rightSplitter = this.hide.includes('r') ? '' : html`<div class="pnl-r-spl" 
+                style="right: ${this._widthR - 2}px; background: ${this._move === "right" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('right')}"></div>`,
+            tempPanel = html`<div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" style="z-index: ${this._indx}" @mouseout="${this._up}"></div>`,
+            body = this.outside ?
+                html`
                     <div style="display: flex; height: 100%;">
                         ${leftPanel}
                         <div style="display: flex; flex-direction: column;overflow:hidden; flex:1">
@@ -134,17 +124,23 @@ class LiNavigator extends LitElement {
                         </div>
                         ${rightPanel}
                     </div>
-                `
-                break;
-        }
+                ` : 
+                html`
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    ${topPanel}
+                    <div style="display: flex; flex: 1;overflow: hidden;">
+                        ${leftPanel}
+                        ${mainPanel}
+                        ${rightPanel}
+                    </div>
+                    ${bottomPanel}
+                </div>
+            `;
         return html`
-            <div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" style="z-index: ${this._indx}" @mouseout="${this._up}"></div>
+            ${tempPanel}
             ${body}
-            ${(this.hide.includes('l')) ? '' : html`<div class="pnl-l-spl" 
-                style="left: ${this._widthL-2}px; background: ${this._move === "left" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('left')}"></div>`}
-            ${(this.hide.includes('r')) ? '' : html`<div class="pnl-r-spl" 
-                style="right: ${this._widthR-2}px; background: ${this._move === "right" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('right')}"></div>`}
+            ${leftSplitter}
+            ${rightSplitter}
         `;
     }
-}
-customElements.define('li-navigator', LiNavigator);
+});
