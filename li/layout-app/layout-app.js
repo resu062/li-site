@@ -8,7 +8,7 @@ class LiLayoutApp extends LitElement {
             _move: { type: String }, _indx: { type: Number },
             _widthL: { type: Number }, _widthR: { type: Number },
             __widthL: { type: Number }, __widthR: { type: Number },
-            lll : {type: Boolean}
+            lll: { type: Boolean }
         }
     }
     constructor() {
@@ -22,8 +22,18 @@ class LiLayoutApp extends LitElement {
         super.connectedCallback();
         if (this.sides) {
             let s = this.sides.split(',');
-            this.__widthL = this._widthL = this._lastWidthL = this._l = Number(s[0]);
-            this.__widthR = this._widthR = this._lastWidthR = this._r = Number(s[1]) || this._l;
+            this._l = Number(s[0]);
+            if (this._l >= 0) this._widthL = this._lastWidthL = this._l;
+            else {
+                this._widthL = 0;
+                this._lastWidthL = this._l * -1;
+            }
+            this._r = Number(s[1]);
+            if (this._r >= 0) this._widthR = this._lastWidthR = this._r;
+            else {
+                this._widthR = 0;
+                this._lastWidthR = this._r * -1;
+            }
             this._t = Number(s[2]);
             this._b = Number(s[3]) || this._t;
 
@@ -36,20 +46,18 @@ class LiLayoutApp extends LitElement {
     _up(e) {
         e.preventDefault();
         this._indx = -1;
-        if (this.__widthL >= document.body.clientWidth - this.__widthR && this._move === 'left')
-            this.__widthL = document.body.clientWidth - this.__widthR - minSize;
-        else if (this.__widthR >= document.body.clientWidth - this.__widthL && this._move === 'right')
-            this.__widthR = document.body.clientWidth - this.__widthL - minSize;
+        if (this._widthL >= document.body.clientWidth - this._widthR && this._move === 'left')
+            this._widthL = document.body.clientWidth - this._widthR - this.minSize;
+        else if (this._widthR >= document.body.clientWidth - this._widthL && this._move === 'right')
+            this._widthR = document.body.clientWidth - this._widthL - this.minSize;
 
-        this._widthL = this.__widthL;
-        this._widthR = this.__widthR;
         if (this._widthL < this.minSize) {
-            this._widthL = this.__widthL = 0;
+            this._widthL = this._widthL = 0;
             this._lastWidthL = this.minSize;
             this._l = this._l < 0 ? this._l : this._l * -1;
         }
         if (this._widthR < this.minSize) {
-            this._widthR = this.__widthR = 0;
+            this._widthR = this._widthR = 0;
             this._lastWidthR = this.minSize;
             this._r = this._r < 0 ? this._r : this._r * -1;
         }
@@ -59,21 +67,21 @@ class LiLayoutApp extends LitElement {
     _mousemove(e) {
         if (!this._move) return;
         e.preventDefault();
-        if (this._move === 'left') this._widthL = this.__widthL = this.__widthL + e.movementX;
-        if (this._move === 'right') this._widthR = this.__widthR = this.__widthR - e.movementX;
+        if (this._move === 'left') this._widthL = this._widthL + e.movementX;
+        if (this._move === 'right') this._widthR = this._widthR - e.movementX;
     }
     _hideL(e) {
         this._l = this._l * -1;
         let l = this._lastWidthL;
         this._lastWidthL = this._widthL;
-        this._widthL = this.__widthL = this._l < 0 ? 0 : l;
+        this._widthL = this._l < 0 ? 0 : l;
         window.dispatchEvent(new Event('resize'));
     }
     _hideR(e) {
         this._r = this._r * -1;
         let r = this._lastWidthR;
         this._lastWidthR = this._widthR
-        this._widthR = this.__widthR = this._r < 0 ? 0 : r;
+        this._widthR = this._r < 0 ? 0 : r;
         window.dispatchEvent(new Event('resize'));
     }
     static get styles() {
