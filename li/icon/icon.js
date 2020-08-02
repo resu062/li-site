@@ -1,7 +1,8 @@
 import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
 import './icons/icons.js';
 
-class LiIcon extends LitElement {
+customElements.define('li-icon', class LiIcon extends LitElement {
+
     static get properties() {
         return {
             icon: { type: Object },
@@ -33,7 +34,7 @@ class LiIcon extends LitElement {
         for (let i in this._props) this[i] = this._props[i];
     }
 
-    setData() {
+    firstUpdated() {
         if (this.icon)
             for (let i in this.icon) this[i] = this.icon[i];
         const name = this.name;
@@ -45,6 +46,7 @@ class LiIcon extends LitElement {
         }
         this._s2 = s / 2;
     }
+
     static get styles() {
         return css`
             :host {
@@ -53,8 +55,8 @@ class LiIcon extends LitElement {
             }
         `;
     }
+
     render() {
-        this.setData();
         return html`
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                 preserveAspectRatio="xMidYMid meet" xml:space="preserve"
@@ -62,31 +64,29 @@ class LiIcon extends LitElement {
                 viewBox="${this.viewbox}"
                 width="${this.width || this.size}"
                 height="${this.height || this.size}"
-                style="transform:rotate(${this.rotate}deg) scale(${this.scale});">
-                <g
-                    fill="${this.fill}"
+                style="transform:rotate(${this.rotate}deg) scale(${this.scale}); transform-origin: center center; transform-box: fill-box;">
+                ${unsafeHTML(`<g id="call-missed-outgoing"><path d="M3 8.41l9 9 7-7V15h2V7h-8v2h4.59L12 14.59 4.41 7 3 8.41z"></path></g>`)}
+                <g  fill="${this.fill}"
                     stroke="${this.stroke}"
-                    stroke-width="${this.strokeWidth}"
-                    style="transform-origin: center center; transform-box: fill-box;">
-                    <path d="${this.path}">
-                        <animate
-                            attributeName="opacity"
-                            values="${this.blval}"
-                            dur="${Math.abs(this.blink)}s"
-                            repeatCount="indefinite" />
-                        <animateTransform attributeType="xml"
-                            attributeName="transform"
-                            type="rotate"
-                            from="${this.speed > 0 ? 0 : 360} ${this._s2} ${this._s2}"
-                            to="${this.speed > 0 ? 360 : 0} ${this._s2} ${this._s2}"
-                            begin="0s"
-                            dur="${Math.abs(this.speed)}s"
-                            repeatCount="indefinite"/>
-                    </path>
+                    stroke-width="${this.strokeWidth}">
+                    <path d="${this.path}"></path>
+                    <animate
+                        attributeName="opacity"
+                        values="${this.blval}"
+                        dur="${Math.abs(this.blink)}s"
+                        repeatCount="indefinite"
+                    />
+                    <animateTransform attributeType="xml"
+                        attributeName="transform"
+                        type="rotate"
+                        from="${this.speed > 0 ? 0 : 360} ${this._s2} ${this._s2}"
+                        to="${this.speed > 0 ? 360 : 0} ${this._s2} ${this._s2}"
+                        begin="0s"
+                        dur="${Math.abs(this.speed)}s"
+                        repeatCount="indefinite"
+                    />
                 /> 
             </svg>
         `
     }
-}
-
-customElements.define('li-icon', LiIcon);
+});
