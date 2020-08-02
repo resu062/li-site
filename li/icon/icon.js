@@ -65,7 +65,6 @@ customElements.define('li-icon', class LiIcon extends LitElement {
                 width="${this.width || this.size}"
                 height="${this.height || this.size}"
                 style="transform:rotate(${this.rotate}deg) scale(${this.scale}); transform-origin: center center; transform-box: fill-box;">
-                ${unsafeHTML(`<g id="call-missed-outgoing"><path d="M3 8.41l9 9 7-7V15h2V7h-8v2h4.59L12 14.59 4.41 7 3 8.41z"></path></g>`)}
                 <g  fill="${this.fill}"
                     stroke="${this.stroke}"
                     stroke-width="${this.strokeWidth}">
