@@ -6,7 +6,7 @@ customElements.define('li-app', class LiApp extends LitElement {
 
     render() {
         return html`
-            <li-layout-app hide="LR" fill="#9f731350">
+            <li-layout-app sides="260,260,1,1" fill="#9f731350">
                  <img slot="app-top" src="${url.replace('app.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
 
                  <div slot="app-bottom" style="display:flex;; align-items: center; justify-content: left;">
