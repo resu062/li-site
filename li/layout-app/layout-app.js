@@ -1,20 +1,21 @@
 import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
 import '../button/button.js';
 
-class LiLayoutApp extends LitElement {
+customElements.define('li-layout-app', class LiLayoutApp extends LitElement {
     static get properties() {
         return {
             outside: { type: Boolean, reflect: true }, sides: { type: String }, minSize: { type: Number },
             _move: { type: String }, _indx: { type: Number },
             _widthL: { type: Number }, _widthR: { type: Number },
             __widthL: { type: Number }, __widthR: { type: Number },
-            lll: { type: Boolean }
+            over: { type: Boolean, reflect: true }, overLeft: { type: Boolean, reflect: true }, overRight: { type: Boolean, reflect: true },
+            _isOver: { type: Boolean }, hide: { type: String }
         }
     }
     constructor() {
         super();
         let prop = {
-            outside: false, sides: '240, 240, 1, 1', minSize: 128, _indx: -1, lll: false, rrr: false
+            outside: false, sides: '240, 240', minSize: 128, _indx: -1, over: false, _isOver: false, hide: '', overLeft: false, overRight: false
         }
         for (let i in prop) this[i] = prop[i];
     }
@@ -22,21 +23,23 @@ class LiLayoutApp extends LitElement {
         super.connectedCallback();
         if (this.sides) {
             let s = this.sides.split(',');
-            this._l = Number(s[0]);
+            this._l = this.hide.includes('l') ? 0 : Number(s[0]) || 0;
+            this._r = this.hide.includes('r') ? 0 : Number(s[1]) || 0;
+            this._t = !this.hide.includes('t');
+            this._b = !this.hide.includes('b');
+            if (this.over || this.overLeft) this._l = this._l > 0 ? this._l * -1 : this._l;
+            if (this.over || this.overRight) this._r = this._r > 0 ? this._r * -1 : this._r;
+
             if (this._l >= 0) this._widthL = this._lastWidthL = this._l;
             else {
                 this._widthL = 0;
                 this._lastWidthL = this._l * -1;
             }
-            this._r = Number(s[1]);
             if (this._r >= 0) this._widthR = this._lastWidthR = this._r;
             else {
                 this._widthR = 0;
                 this._lastWidthR = this._r * -1;
             }
-            this._t = Number(s[2]);
-            this._b = Number(s[3]) || this._t;
-
         }
     }
     _movePanel(panel) {
@@ -46,19 +49,19 @@ class LiLayoutApp extends LitElement {
     _up(e) {
         e.preventDefault();
         this._indx = -1;
-        if (this._widthL >= document.body.clientWidth - this._widthR && this._move === 'left')
-            this._widthL = document.body.clientWidth - this._widthR - this.minSize;
-        else if (this._widthR >= document.body.clientWidth - this._widthL && this._move === 'right')
-            this._widthR = document.body.clientWidth - this._widthL - this.minSize;
+        // if (this._widthL >= document.body.clientWidth - this._widthR && this._move === 'left')
+        //     this._widthL = document.body.clientWidth - this._widthR - this.minSize;
+        // else if (this._widthR >= document.body.clientWidth - this._widthL && this._move === 'right')
+        //     this._widthR = document.body.clientWidth - this._widthL - this.minSize;
 
         if (this._widthL < this.minSize) {
             this._widthL = this._widthL = 0;
-            this._lastWidthL = this.minSize;
+            //this._lastWidthL = this.minSize;
             this._l = this._l < 0 ? this._l : this._l * -1;
         }
         if (this._widthR < this.minSize) {
             this._widthR = this._widthR = 0;
-            this._lastWidthR = this.minSize;
+            //this._lastWidthR = this.minSize;
             this._r = this._r < 0 ? this._r : this._r * -1;
         }
         this._move = '';
@@ -71,18 +74,37 @@ class LiLayoutApp extends LitElement {
         if (this._move === 'right') this._widthR = this._widthR - e.movementX;
     }
     _hideL(e) {
-        this._l = this._l * -1;
-        let l = this._lastWidthL;
-        this._lastWidthL = this._widthL;
+        const over = this.over || this.overLeft || false;
+        if (e === true && !over) return;
+        let l = this._lastWidthL || this._widthL;
+        this._lastWidthL = this._widthL || this._lastWidthL || this.minSize;
+        if (e === true) this._l = this._l > 0 ? this._l * -1 : this._l;
+        else this._l = this._l * -1;
+        if (this._l > 1) {
+            if (this._r > 1&& (this.over || this.overRight)) this._r = this._r * 1;
+            this.isOver = this.over || this.overLeft ? true : false;
+        }
         this._widthL = this._l < 0 ? 0 : l;
         window.dispatchEvent(new Event('resize'));
     }
     _hideR(e) {
-        this._r = this._r * -1;
-        let r = this._lastWidthR;
-        this._lastWidthR = this._widthR
+        const over = this.over || this.overRight || false;
+        if (e === true && !over) return;
+        let r = this._lastWidthR || this._widthR;
+        this._lastWidthR = this._widthR || this._lastWidthR || this.minSize;
+        if (e === true) this._r = this._r > 0 ? this._r * -1 : this._r;
+        else this._r = this._r * -1;
+        if (this._r > 1) {
+            if (this._l > 1 && (this.over || this.overLeft)) this._l = this._l * 1;
+            this.isOver = this.over || this.overRight ? true : false;
+        }
         this._widthR = this._r < 0 ? 0 : r;
         window.dispatchEvent(new Event('resize'));
+    }
+    _hideAll() {
+        this._hideL(true);
+        this._hideR(true);
+        this.isOver = false;
     }
     static get styles() {
         return css`
@@ -90,15 +112,15 @@ class LiLayoutApp extends LitElement {
                 position: fixed;
                 top: 0; left: 0; bottom: 0; right: 0;
             }
-            .pnl-l-spl,
-            .pnl-r-spl {
+            .pnl-spl {
                 max-width: 4px;
                 min-width: 4px;
                 cursor: col-resize;
-                /* position: fixed;
-                top: 0;
-                bottom: 0; */
                 z-index: 9;
+            }
+            /* .pnl-spl:hover, */
+            .pnl-spl:active {
+                background: darkgray;
             }
         `;
     }
@@ -107,30 +129,32 @@ class LiLayoutApp extends LitElement {
         return '1px solid lightgray'
     }
     get styleLP() {
-        return `border-right: ${this.border}; max-width: ${this._widthL}px; overflow-x: hidden; overflow-y: auto;flex: 0 0 ${this._widthL}px;
-            ${this.lll ? 'position: absolute; left:0;top:36px;bottom:0;z-index:1;background:white;transition: 1s' : ''}`
+        return `border-right: ${this.border}; width:${this._widthL}px; overflow-x: hidden; overflow-y: auto;flex: 0 0 ${this._widthL}px;display:flex;justify-content:space-between;
+            ${this.over || this.overLeft ? 'position: absolute; left:0;top:0;bottom:0;z-index:1;background:white;transition: .5s;z-index:99;' : ''}`
     }
     get leftPanel() {
         return this._l ? html`
             <div style="${this.styleLP}">
-                <slot name="app-left"></slot>
+                <slot name="app-left" style="width:${this._widthL - 4}px;display:inline-block"></slot>
+                ${this.leftSplitter}
             </div>
         ` : "";
     }
     get styleRP() {
-        return `border-left: ${this.border}; width: ${this._widthR}px; overflow-x: hidden; overflow-y: auto;flex: 0 0 ${this._widthR}px;
-            ${this.rrr ? 'position: absolute; right:0;top:36px;bottom:0;z-index:1;background:white;transition: 1s' : ''}`
+        return `border-left: ${this.border}; width: ${this._widthR}px; overflow-x: hidden; overflow-y: auto;flex: 0 0 ${this._widthR}px;display:flex;justify-content:start;
+            ${this.over || this.overRight ? 'position: absolute; right:0;top:0;bottom:0;z-index:1;background:white;transition: .5s;z-index:99;' : ''}`
     }
     get rightPanel() {
         return this._r ? html`
             <div style="${this.styleRP}">
-                <slot name="app-right"></slot>
+                ${this.rightSplitter}
+                <slot name="app-right" style="width:${this._widthR - 4}px;display:inline-block"></slot>
             </div>
         ` : "";
     }
     get mainPanel() {
         return html`
-            <div style="flex: 1 1 auto; overflow: auto;width:100%; min-width: 200px">
+            <div style="flex: 1 1 auto; overflow: auto;width:100%;">
                 <slot name="app-main"></slot>
             </div>
         `
@@ -151,27 +175,20 @@ class LiLayoutApp extends LitElement {
             </div>
         ` : "";
     }
-    get leftSplitter() {
-        return this._l ? html`<div class="pnl-l-spl" style=" background: ${this._move === "left" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('left')}"></div>` : "";
-    }
-    get rightSplitter() {
-        return this._r ? html`<div class="pnl-r-spl" style=" background: ${this._move === "right" ? 'darkgray' : ''}" @mousedown="${e => this._movePanel('right')}"></div>` : "";
-    }
-    get tempPanel() {
-        return html`<div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" style="z-index: ${this._indx}" @mouseout="${this._up}"></div>`
-    }
+    get leftSplitter() { return html`<div class="pnl-spl" @mousedown="${e => this._movePanel('left')}"></div>` }
+    get rightSplitter() { return html`<div class="pnl-spl" @mousedown="${e => this._movePanel('right')}"></div>` }
+    get tempPanel() { return html`<div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indx}"></div>` }
+    get shadowPanel() { return this.isOver ? html`<div style="position:absolute;top:0;bottom:0;left:0;right:0;z-index:98;background:gray;opacity:.5;cursor:pointer;transition:5s;" @click="${this._hideAll}"></div>` : '' }
     get body() {
         return this.outside ?
             html`
                 <div style="display: flex; height: 100%;">
                     ${this.leftPanel}
-                    ${this.leftSplitter}
                     <div style="display: flex; flex-direction: column;overflow:hidden; flex:1;">
                         ${this.topPanel}
                         ${this.mainPanel}
                         ${this.bottomPanel}
                     </div>
-                    ${this.rightSplitter}
                     ${this.rightPanel}
                 </div>
             ` :
@@ -180,22 +197,18 @@ class LiLayoutApp extends LitElement {
                     ${this.topPanel}
                     <div style="display: flex; flex: 1;overflow: hidden;">
                         ${this.leftPanel}
-                        ${this.leftSplitter}
                         ${this.mainPanel}
-                        ${this.rightSplitter}
                         ${this.rightPanel}
                     </div>
                     ${this.bottomPanel}
                 </div>
-
             `
     };
     render() {
         return html`
             ${this.body}
             ${this.tempPanel}
+            ${this.shadowPanel}
         `;
     }
-}
-
-customElements.define('li-layout-app', LiLayoutApp);
+});

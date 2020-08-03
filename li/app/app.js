@@ -1,5 +1,6 @@
 import { LitElement, html } from '../../lib/lit-element/lit-element.js';
 import '../layout-app/layout-app.js';
+import '../button/button.js'
 let url = import.meta.url;
 
 customElements.define('li-app', class LiApp extends LitElement {
@@ -15,6 +16,16 @@ customElements.define('li-app', class LiApp extends LitElement {
                     <li-button size=28 name="cloud-queue" fill="gray" style="padding:2px" br="none:50%" onclick="notifier.modal('<b>Cloud</b>');" style="border-radius:4px;"></li-button>
                     <li-button size=28 name="settings" fill="gray" style="padding:2px" br="none:50%" onclick="notifier.modal('<b>Settings</b>');" ></li-button>
                     <li-button size=28 name="help-outline" fill="gray" style="padding:2px" br="none:50%" onclick="notifier.modal('<b>Help</b>');" ></li-button>
+                </div>
+                <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
+                    <li-button width="auto"></li-button>
+                    <li-button width="auto"></li-button>
+                    <li-button width="auto"></li-button>
+                </div>
+                <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
+                    <li-button width="auto"></li-button>
+                    <li-button width="auto"></li-button>
+                    <li-button width="auto"></li-button>
                 </div>
             </li-layout-app>
         `;
