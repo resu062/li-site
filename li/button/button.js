@@ -1,33 +1,34 @@
 import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import '../icon/icon.js'
 
-class LiButton extends LitElement {
+class LiButton extends LiElement {
     static get properties() {
         return {
-            icon: { type: Object },
-            name: { type: String }, fill: { type: String }, size: { type: String }, scale: { type: Number },
-            rotate: { type: Number }, speed: { type: Number }, blink: { type: Number }, blval: { type: String },
-            path: { type: String },
-            label: { type: String }, color: { type: String }, back: { type: String },
-            width: { type: String }, height: { type: String }, border: { type: String }, radius: { type: String },
-            br: { type: String }, swh: { type: String }, toggle: { type: String }, toggleded: { type: Boolean, reflect: true }
+            icon: { type: Object, default: undefined },
+            name: { type: String, default: '' }, 
+            fill: { type: String, default: '' }, 
+            size: { type: String, default: 24 }, 
+            scale: { type: Number, default: 0.9 },
+            rotate: { type: Number, default: 0 }, 
+            speed: { type: Number, default: 0 }, 
+            blink: { type: Number, default: 0 }, 
+            blval: { type: String, default: '1;0;0;1' },
+            path: { type: String, default: '' },
+            label: { type: String, default: '' }, 
+            color: { type: String, default: 'gray' }, 
+            back: { type: String, default: '#fdfdfd' },
+            width: { type: String , default: '' }, 
+            height: { type: String, default: '' }, 
+            border: { type: String, default: '1px' }, 
+            radius: { type: String, default: '2px' },
+            br: { type: String, default: '' }, 
+            swh: { type: String, default: '' }, 
+            toggle: { type: String, default: '' }, 
+            toggleded: { type: Boolean, reflect: true }
         }
     }
-    constructor() {
-        super();
-        this._props = {
-            properties: customElements.get(this.localName).properties,
-            defaults: {
-                icon: undefined, hide: false,
-                name: '', fill: '', size: 24, scale: 0.9, rotate: 0,
-                label: '', color: 'gray', back: '#fdfdfd',
-                rotate: 0, speed: 0, blink: 0, blval: '1;0;0;1',
-                path: '',
-                width: '', height: '', border: '1px', radius: '2px', br: '', toggle: '', toggleded: false
-            }
-        }
-        for (let i in this._props.defaults) this[i] = this._props.defaults[i];
-    }
+
     clickHandler() {
         this.toggleded = !this.toggleded;
     }

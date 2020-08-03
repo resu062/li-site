@@ -1,5 +1,14 @@
 window.globalThis = window.globalThis || window;
 
+import { LitElement } from '../../lib/lit-element/lit-element.js';
+
+export class LiElement extends LitElement {
+    constructor() {
+        super();
+        for (let i in this.constructor.properties) this[i] = this.constructor.properties[i].default;
+    }
+}
+
 export default function LI(props = {}) {
 
 }
