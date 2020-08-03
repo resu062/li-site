@@ -106,7 +106,7 @@ class LiPropertyGrid extends LitElement {
         let el = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
         el.addEventListener('liel-ready', (e) => {
             let data = [];
-            if (el.localName === e.detail.message) Object.keys(el._props.defaults).forEach(key => { data.push({ name: key, value: el[key] }) });
+            if (el.localName === e.detail.message) Object.keys(el.constructor.properties).forEach(key => { data.push({ name: key, value: el[key] }) });
             //this.options.data = data;
             this.options = { ...{}, ...this.options, ...{ data: data } };
             let prg = this.shadowRoot.getElementById('prg');
