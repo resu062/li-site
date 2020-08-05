@@ -1,30 +1,28 @@
-import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import '../table/table.js';
 
 
-class LiPropertyGrid extends LitElement {
+class LiPropertyGrid extends LiElement {
     static get properties() {
-        return { options: { type: Object }, label: { type: String } }
+        return {
+            options: { type: Object, default: undefined },
+            label: { type: String, default: 'li-button' }
+        }
     }
 
     constructor() {
         super();
-        this._props = {
-            properties: customElements.get(this.localName).properties,
-            defaults: {
-                options: undefined, label: 'li-button'
-            }
-        };
-        var dEditor = function(cell, onRendered, success, cancel, editorParams){
+        var dEditor = function(cell, onRendered, success, cancel, editorParams) {
             //cell - the cell component for the editable cell
             //onRendered - function to call when the editor has been rendered
             //success - function to call to pass the successfuly updated value to Tabulator
             //cancel - function to call to abort the edit and return to a normal cell
             //editorParams - params object passed into the editorParams column definition property
-        
+
             //create and style editor
             var editor = document.createElement("input");
-            
+
             let type = typeof cell;
             switch (type) {
                 case 'number':
@@ -38,30 +36,30 @@ class LiPropertyGrid extends LitElement {
                     break;
             }
             editor.setAttribute("type", type);
-        
+
             // //create and style input
             editor.style.padding = "3px";
             editor.style.width = "100%";
             editor.style.boxSizing = "border-box";
-        
+
             // //Set value of editor to the current value of the cell
             // editor.value = moment(cell.getValue(), "DD/MM/YYYY").format("YYYY-MM-DD")
             editor.value = cell;
-        
+
             // //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
-            onRendered(function(){
+            onRendered(function() {
                 editor.focus();
                 editor.style.css = "100%";
             });
-        
+
             // //when the value has been set, trigger the cell to update
             // function successFunc(){
             //     success(moment(editor.value, "YYYY-MM-DD").format("DD/MM/YYYY"));
             // }
-        
+
             editor.addEventListener("change", {});
             editor.addEventListener("blur", {});
-        
+
             //return the editor element
             return editor;
         };
@@ -73,7 +71,7 @@ class LiPropertyGrid extends LitElement {
             maxHeight: "100%",
             minHeight: '100%',
             height: "30%",
-            data: [{name: '001', value: '002'}, {name: '001', value: '002'}],
+            data: [{ name: '001', value: '002' }, { name: '001', value: '002' }],
             layout: "fitColumns",
             //autoColumns: true,
             columns: columns

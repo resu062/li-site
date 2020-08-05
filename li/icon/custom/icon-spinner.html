@@ -3,22 +3,19 @@
 
     <body>
         <script type="module">
-            import { LitElement, html, css } from '../../../lib/lit-element/lit-element.js';
 
-            class LiIconSpinner extends LitElement {
+            import { html, css } from '../../../lib/lit-element/lit-element.js';
+            import { LiElement } from '../../../li.js';
+
+            customElements.define('li-icon-spinner', class LiIconSpinner extends LiElement {
                 static get properties() {
                     return {
-                        size: { type: Number },
-                        color: { type: String },
-                        speed: { type: Number }
+                        size: { type: Number, default: 256 },
+                        color: { type: String, default: "lightblue" },
+                        speed: { type: Number, default: 1 }
                     }
                 }
-                constructor() {
-                    super();
-                    this.size = 256;
-                    this.color = "lightblue";
-                    this.speed = 1;
-                }
+
                 render() {
                     return html`
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
@@ -46,9 +43,8 @@
                             <path style="opacity:.1" transform="rotate(30,12,12)" d="M12,2 a1,1 0 0 1 1,1 v3 a1,1 0 0 1 -1,1 a1,1 0 0 1 -1,-1 v-3 a1,1 0 0 1 1,-1 z"/>
                         </svg>`
                 }
-            }
-
-            customElements.define('li-icon-spinner', LiIconSpinner);
+            });
+            
         </script>
 
         <li-icon-spinner></li-icon-spinner>

@@ -1,18 +1,15 @@
-import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import { styleMap } from '../../lib/lit-html/directives/style-map.js';
 
-customElements.define('li-dropdown', class LiDropdown extends LitElement {
+customElements.define('li-dropdown', class LiDropdown extends LiElement {
     static get properties() {
         return {
-            opened: { type: Boolean }, component: { type: Object }, size: { type: Object },
-            useParentWidth: { type: Boolean, reflect: true }
+            component: { type: Object, default: undefined }, 
+            opened: { type: Boolean, default: false }, 
+            size: { type: Object, default: {} },
+            useParentWidth: { type: Boolean, default: false, reflect: true }
         }
-    }
-    constructor() {
-        super();
-        this.opened = false;
-        this.component = undefined;
-        this.useParentWidth = false;
     }
 
     connectedCallback() {

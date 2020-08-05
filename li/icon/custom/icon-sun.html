@@ -3,9 +3,11 @@
 
     <body>
         <script type="module">
-            import { LitElement, html, css } from '../../../lib/lit-element/lit-element.js';
+            
+            import { html, css } from '../../../lib/lit-element/lit-element.js';
+            import { LiElement } from '../../../li.js';
 
-            class LiIconSun extends LitElement {
+            customElements.define('li-icon-sun', class LiIconSun extends LiElement {
                 render() {
                     return html`
                         <svg width="256px" height="256px" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
@@ -39,9 +41,8 @@
                             </g>
                         </svg>`
                 }
-            }
+            });
 
-            customElements.define('li-icon-sun', LiIconSun);
         </script>
 
         <li-icon-sun></li-icon-sun>
