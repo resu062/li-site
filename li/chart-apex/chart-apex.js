@@ -1,16 +1,12 @@
-import { LitElement, html } from '../../lib/lit-element/lit-element.js';
+import { html } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import './src/apexcharts.js';
 
-customElements.define('li-chart-apex', class LiAceEditor extends LitElement {
+customElements.define('li-chart-apex', class LiAceEditor extends LiElement {
     static get properties() {
         return {
 
         }
-    }
-
-    constructor() {
-        super();
-
     }
 
     createRenderRoot() {

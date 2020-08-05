@@ -1,37 +1,28 @@
-import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import './icons/icons.js';
 
-customElements.define('li-icon', class LiIcon extends LitElement {
+customElements.define('li-icon', class LiIcon extends LiElement {
 
     static get properties() {
         return {
-            icon: { type: Object },
-            name: { type: String },
-            size: { type: Number },
-            _s2: { type: Number },
-            height: { type: String },
-            width: { type: String },
-            viewbox: { type: String },
-            fill: { type: String, list: ['red', 'blue', 'green'] },
-            stroke: { type: String },
-            strokeWidth: { type: String },
-            rotate: { type: Number },
-            speed: { type: Number },
-            blink: { type: Number },
-            blval: { type: String },
-            scale: { type: String },
-            path: { type: String },
+            icon: { type: Object, default: undefined },
+            name: { type: String, default: '' },
+            size: { type: Number, default: 24 },
+            _s2: { type: Number, default: 0 },
+            height: { type: Number, default: 0 },
+            width: { type: Number, default: 0 },
+            viewbox: { type: String, default: '0 0 24 24' },
+            fill: { type: String, default: 'currentColor', list: ['red', 'blue', 'green'] },
+            stroke: { type: String, default: 'currentColor' },
+            strokeWidth: { type: Number, default: 0 },
+            rotate: { type: Number, default: 0 },
+            speed: { type: Number, default: 0 },
+            blink: { type: Number, default: 0 },
+            blval: { type: String, default: '1;0;0;1' },
+            scale: { type: String, default: '1,1' },
+            path: { type: String, default: '' },
         }
-    }
-
-    constructor() {
-        super();
-        this._props = {
-            icon: undefined, name: '', path: '',
-            size: 24, _s2: 0, height: 0, width: 0, viewbox: '0 0 24 24', fill: 'currentColor', stroke: 'currentColor', strokeWidth: 0,
-            rotate: 0, speed: 0, blink: 0, blval: '1;0;0;1', scale: '1,1'
-        }
-        for (let i in this._props) this[i] = this._props[i];
     }
 
     firstUpdated() {

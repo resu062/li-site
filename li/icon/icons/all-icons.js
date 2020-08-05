@@ -1,9 +1,10 @@
 
-import { LitElement, html } from '../../../lib/lit-element/lit-element.js';
+import { html } from '../../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../../li.js';
 import './icons.js';
 import '../icon.js';
 
-class LiAllIcons extends LitElement {
+class LiAllIcons extends LiElement {
     render() {
         return html`
             ${Object.keys(icons).map(i => html`

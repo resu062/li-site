@@ -1,24 +1,25 @@
-import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import '../button/button.js';
 
-customElements.define('li-layout-app', class LiLayoutApp extends LitElement {
+customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
     static get properties() {
         return {
-            outside: { type: Boolean, reflect: true }, sides: { type: String }, minSize: { type: Number },
-            _move: { type: String }, _indx: { type: Number },
-            _widthL: { type: Number }, _widthR: { type: Number },
-            __widthL: { type: Number }, __widthR: { type: Number },
-            over: { type: Boolean, reflect: true }, overLeft: { type: Boolean, reflect: true }, overRight: { type: Boolean, reflect: true },
-            _isOver: { type: Boolean }, hide: { type: String }
+            outside: { type: Boolean, default: false, reflect: true }, 
+            sides: { type: String, default: '240, 240' }, 
+            minSize: { type: Number, default: 128 },
+            hide: { type: String, default: '' },
+            over: { type: Boolean, default: false, reflect: true }, 
+            overLeft: { type: Boolean, default: false, reflect: true }, 
+            overRight: { type: Boolean, default: false, reflect: true },
+            _indx: { type: Number, default: -1 },
+            _move: { type: String, default: '' },  
+            _widthL: { type: Number, default: 0 }, 
+            _widthR: { type: Number, default: 0 },
+            _isOver: { type: Boolean, default: false }, 
         }
     }
-    constructor() {
-        super();
-        let prop = {
-            outside: false, sides: '240, 240', minSize: 128, _indx: -1, over: false, _isOver: false, hide: '', overLeft: false, overRight: false
-        }
-        for (let i in prop) this[i] = prop[i];
-    }
+
     connectedCallback() {
         super.connectedCallback();
         if (this.sides) {

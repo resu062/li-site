@@ -1,26 +1,20 @@
-import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import './src/tabulator.js';
 
-class LiTable extends LitElement {
+class LiTable extends LiElement {
     static get properties() {
         return {
             options: {
                 type: Object,
+                default: undefined,
                 hasChanged(n, o) {
                     if (n) return true;
                 }
             },
-            label: { type: String }, str: { type: String }
+            label: { type: String, default: '' }, 
+            str: { type: String, default: '' }
         }
-    }
-
-    constructor() {
-        super();
-        let prop = {
-            options: undefined, label: ''
-        }
-        this.options = undefined;
-        for (let i in prop) this[i] = prop[i];
     }
 
     static get styles() {

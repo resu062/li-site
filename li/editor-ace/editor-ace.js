@@ -1,18 +1,14 @@
-import { LitElement, html } from '../../lib/lit-element/lit-element.js';
+import { html } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import './src/ace.js'
 
-customElements.define('li-editor-ace', class LiAceEditor extends LitElement {
+customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
     static get properties() {
         return {
-            src: { type: String }, mode: { type: String }, theme: { type: String }
+            src: { type: String, default: '' }, 
+            mode: { type: String, default: 'javascript' }, 
+            theme: { type: String, default: 'solarized_light' }
         }
-    }
-
-    constructor() {
-        super();
-        this.src = '';
-        this.mode = 'javascript';
-        this.theme = 'solarized_light';
     }
 
     render() {

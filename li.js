@@ -1,6 +1,7 @@
-window.globalThis = window.globalThis || window;
+import { LitElement } from './lib/lit-element/lit-element.js';
+import { AWN } from './lib/awesome-notifications/modern.var.js';
 
-import { LitElement } from '../../lib/lit-element/lit-element.js';
+window.globalThis = window.globalThis || window;
 
 export class LiElement extends LitElement {
     constructor() {
@@ -14,6 +15,19 @@ export default function LI(props = {}) {
 }
 
 globalThis.LI = LI;
+
+let awnOptions = {
+    icons: {
+        prefix: "<li-icon name='",
+        success: "check-circle' fill='#40871d' size=32",
+        tip: "star-border' fill='grey' size=32",
+        info: "info' fill='#1c76a6' size=32",
+        warning: "error' fill='#c26700' size=32",
+        alert: "warning' fill='#a92019' size=32",
+        suffix: "></li-icon>",
+    }
+}
+LI.notifier = new AWN(awnOptions);
 
 LI.createComponent = async (comp, props = {}) => {
     comp = comp || {};

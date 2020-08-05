@@ -1,17 +1,14 @@
-import { LitElement, html, css } from '../../lib/lit-element/lit-element.js';
+import { html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
 import '../button/button.js';
 
-class LiLayoutPanel extends LitElement {
+customElements.define('li-layout-panel', class LiLayoutPanel extends LiElement {
     static get properties() {
         return {
 
         }
     }
-    constructor() {
-        super();
-        let prop = {}
-        for (let i in prop) this[i] = prop[i];
-    }
+
     connectedCallback() {
         super.connectedCallback();
 
@@ -28,6 +25,4 @@ class LiLayoutPanel extends LitElement {
             
         `;
     }
-}
-
-customElements.define('li-layout-panel', LiLayoutPanel);
+});
