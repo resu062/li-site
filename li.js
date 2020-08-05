@@ -8,7 +8,17 @@ export class LiElement extends LitElement {
         super();
         for (let i in this.constructor.properties) this[i] = this.constructor.properties[i].default;
     }
+
+    firstUpdated() {
+        super.firstUpdated();
+        this.$id = {};
+        this.renderRoot.querySelectorAll('[id]').forEach(node => {
+            this.$id[node.id] = node;
+        });
+    }
 }
+
+const camelToKebab = camel => camel.replace(/([a-z](?=[A-Z]))|([A-Z](?=[A-Z][a-z]))/g, '$1$2-').toLowerCase();
 
 export default function LI(props = {}) {
 
@@ -100,7 +110,7 @@ window.LIRect = window.LIRect || class LIRect {
     }
 };
 if (!window.DOMRect) {
-    window.DOMRect = function(x, y, width, height) {
+    window.DOMRect = function (x, y, width, height) {
         this.x = x;
         this.y = y;
         this.top = y;

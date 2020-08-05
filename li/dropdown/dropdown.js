@@ -132,8 +132,8 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
     }
     render() {
         return html`
-            <div style=${styleMap({ ...this.size, visibility: this.opened ? 'visible' : 'hidden' })}>
-                <slot name=${this.opened ? '' : '?'} @slotchange="${this._slotChange}"></slot>
+            <div id="dropdown" style=${styleMap({ ...this.size, visibility: this.opened ? 'visible' : 'hidden' })}>
+                <slot id="component" name=${this.opened ? '' : '?'} @slotchange="${this._slotChange}"></slot>
             </div>
         `;
     }
