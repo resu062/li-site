@@ -25,7 +25,7 @@ class LiButton extends LiElement {
             br: { type: String, default: '' }, 
             swh: { type: String, default: '' }, 
             toggle: { type: String, default: '' }, 
-            toggleded: { type: Boolean, reflect: true }
+            toggleded: { type: Boolean, default: false, reflect: true, notify: true }
         }
     }
 
@@ -96,7 +96,7 @@ class LiButton extends LiElement {
     render() {
         this._setData();
         return html`
-            <div class="li-btn"  tabindex="0" style="
+            <div id="li-btn" class="li-btn"  tabindex="0" style="
                     width: ${this.width || this.size};
                     height: ${this.height || this.size};
                     border: ${this.border} solid ${this.color || this.fill};

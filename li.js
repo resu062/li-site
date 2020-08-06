@@ -1,12 +1,50 @@
 import { LitElement } from './lib/lit-element/lit-element.js';
+import { directive } from "./lib/lit-html/lib/directive.js"
 import { AWN } from './lib/awesome-notifications/modern.var.js';
 
 window.globalThis = window.globalThis || window;
 
+let eventNameForProperty = function (name, { notify, attribute } = {}) {
+    if (notify && typeof notify === 'string') {
+        return notify;
+    } else if (attribute && typeof attribute === 'string') {
+        return `${attribute}-changed`;
+    } else {
+        return `${name.toLowerCase()}-changed`;
+    }
+}
+
 export class LiElement extends LitElement {
     constructor() {
         super();
-        for (let i in this.constructor.properties) this[i] = this.constructor.properties[i].default;
+
+        this.$props = this.constructor._classProperties;
+        for (const k of this.$props.keys()) {
+            const prop = this.$props.get(k)
+            if (!prop || prop.default === undefined) continue;
+            this[k] = prop.default;
+        }
+
+        //https://github.com/morbidick/lit-element-notify
+        this.sync = directive((property, eventName) => (part) => {
+            part.setValue(this[property]);
+            // mark the part so the listener is only attached once
+            if (!part.syncInitialized) {
+                part.syncInitialized = true;
+
+                const notifyingElement = part.committer.element;
+                const notifyingProperty = part.committer.name;
+                const notifyingEvent = eventName || eventNameForProperty(notifyingProperty);
+
+                notifyingElement.addEventListener(notifyingEvent, (e) => {
+                    const oldValue = this[property];
+                    this[property] = e.detail.value;
+                    if (this.__lookupSetter__(property) === undefined) {
+                        this.updated(new Map([[property, oldValue]]));
+                    }
+                });
+            }
+        });
     }
 
     firstUpdated() {
@@ -15,6 +53,24 @@ export class LiElement extends LitElement {
         this.renderRoot.querySelectorAll('[id]').forEach(node => {
             this.$id[node.id] = node;
         });
+    }
+
+    // https://github.com/morbidick/lit-element-notify
+    update(changedProps) {
+        super.update(changedProps);
+
+        for (const prop of changedProps.keys()) {
+            const declaration = this.constructor._classProperties.get(prop)
+            if (!declaration || !declaration.notify) continue;
+            const type = eventNameForProperty(prop, declaration)
+            const value = this[prop]
+            this.dispatchEvent(new CustomEvent(type, {
+                detail: { value },
+                bubbles: false,
+                composed: true
+            }));
+            console.log(type);
+        }
     }
 }
 
