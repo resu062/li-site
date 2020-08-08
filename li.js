@@ -60,10 +60,13 @@ export class LiElement extends LitElement {
         super.update(changedProps);
 
         for (const prop of changedProps.keys()) {
-            const declaration = this.constructor._classProperties.get(prop)
+            const declaration = this.constructor._classProperties.get(prop);
+
+            if (this._setTabulatorData) this._setTabulatorData(prop, this[prop]);
+
             if (!declaration || !declaration.notify) continue;
-            const type = eventNameForProperty(prop, declaration)
-            const value = this[prop]
+            const type = eventNameForProperty(prop, declaration);
+            const value = this[prop];
             this.dispatchEvent(new CustomEvent(type, {
                 detail: { value },
                 bubbles: false,
@@ -107,6 +110,8 @@ LI.createComponent = async (comp, props = {}) => {
     for (let p in props) comp[p] = props[p];
     return comp;
 }
+
+// LI.createComponent('li-tester');
 
 LI.show = async (host, comp, compProps = {}, hostProps = {}) => {
     host = await LI.createComponent(host, hostProps);

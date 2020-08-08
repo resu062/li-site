@@ -7,7 +7,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
         return {
             options: { type: Object, default: undefined },
             label: { type: String, default: 'li-button' },
-            component: { type: Object, default: undefined },
+            component: { type: Object, default: undefined }
         }
     }
 
@@ -108,12 +108,24 @@ customElements.define('li-tester', class LiTester extends LiElement {
         let el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
         setTimeout(() => {
             let data = [];
+            let id = 0;
             for (const k of el.$props.keys()) {
+                if ( k.startsWith('_')) continue;
                 const prop = el.$props.get(k)
-                data.push({ name: k, value: el[k] || prop.default });
+                data.push({ id, name: k, value: el[k] || prop.default });
+                id++;
             }
             this.options = { ...{}, ...this.options, ...{ data: data } };
             this.$id.prg.options = this.options;
+            el._setTabulatorData = (prop, val) => {
+                this.$id.prg.options.data.forEach(d => {
+                    if (d.name === prop) {
+                        d.value = val;
+                        this.$id.prg.$table.updateData([{...d}]);
+                        //this.$id.prg.$table.setData(this.$id.prg.$table.options.data);
+                    }
+                })
+            }
             this.requestUpdate();
         });
     }

@@ -2,7 +2,7 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../icon/icon.js'
 
-class LiButton extends LiElement {
+customElements.define('li-button', class LiButton extends LiElement {
     static get properties() {
         return {
             icon: { type: Object, default: undefined },
@@ -72,7 +72,8 @@ class LiButton extends LiElement {
             }
         `;
     }
-    _setData() {
+    firstUpdated(setPath = false) {
+        super.firstUpdated();
         if (this.br) {
             let arr = this.br.split(':');
             this.border = arr[0] || this.border;
@@ -84,7 +85,7 @@ class LiButton extends LiElement {
             this.width = arr[1] || this.width;
             this.height = arr[2] || this.height;
         }
-    };
+    }
     _icon() {
         let _icon = '{}';
         this.fill = this.fill || this.color;
@@ -94,7 +95,6 @@ class LiButton extends LiElement {
             rotate="${this.rotate}" speed="${this.speed}" blink="${this.blink}" blval="${this.blval}" path="${this.path}"></li-icon>`;
     }
     render() {
-        this._setData();
         return html`
             <div id="li-btn" class="li-btn"  tabindex="0" style="
                     width: ${this.width || this.size};
@@ -112,6 +112,4 @@ class LiButton extends LiElement {
             </div>       
         `;
     }
-}
-
-customElements.define('li-button', LiButton);
+});
