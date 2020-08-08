@@ -4,7 +4,7 @@ import { AWN } from './lib/awesome-notifications/modern.var.js';
 
 window.globalThis = window.globalThis || window;
 
-let eventNameForProperty = function (name, { notify, attribute } = {}) {
+let eventNameForProperty = function(name, { notify, attribute } = {}) {
     if (notify && typeof notify === 'string') {
         return notify;
     } else if (attribute && typeof attribute === 'string') {
@@ -25,7 +25,7 @@ export class LiElement extends LitElement {
             this[k] = prop.default;
         }
 
-        //https://github.com/morbidick/lit-element-notify
+        // double binding - sync : https://github.com/morbidick/lit-element-notify
         this.sync = directive((property, eventName) => (part) => {
             part.setValue(this[property]);
             // mark the part so the listener is only attached once
@@ -55,7 +55,7 @@ export class LiElement extends LitElement {
         });
     }
 
-    // https://github.com/morbidick/lit-element-notify
+    // notify : https://github.com/morbidick/lit-element-notify
     update(changedProps) {
         super.update(changedProps);
 
@@ -166,7 +166,7 @@ window.LIRect = window.LIRect || class LIRect {
     }
 };
 if (!window.DOMRect) {
-    window.DOMRect = function (x, y, width, height) {
+    window.DOMRect = function(x, y, width, height) {
         this.x = x;
         this.y = y;
         this.top = y;
@@ -180,3 +180,27 @@ if (!window.DOMRect) {
 document.addEventListener('mousedown', (e) => {
     LI.mousePos = new DOMRect(e.pageX, e.pageY);
 });
+
+LI.$temp = {};
+LI.$temp.throttles = new Map();
+LI.$temp.debounces = new Map();
+LI.throttle = (key, func, delay = 0, immediate = false) => {
+    let pending = LI.$temp.throttles.get(key);
+    if (pending) return;
+    if (immediate) func();
+    pending = setTimeout(() => {
+        LI.$temp.throttles.delete(key);
+        if (!immediate) func();
+    }, delay);
+    LI.$temp.throttles.set(key, pending);
+}
+LI.debounce = (key, func, delay = 0, immediate = false) => {
+    let pending = LI.$temp.debounces.get(key);
+    if (pending) clearTimeout(pending);
+    if (!pending && immediate) func();
+    pending = setTimeout(() => {
+        LI.$temp.debounces.delete(key);
+        func();
+    }, delay);
+    LI.$temp.debounces.set(key, pending)
+}

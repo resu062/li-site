@@ -2,12 +2,12 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../table/table.js';
 
-
-class LiPropertyGrid extends LiElement {
+customElements.define('li-tester', class LiTester extends LiElement {
     static get properties() {
         return {
             options: { type: Object, default: undefined },
-            label: { type: String, default: 'li-button' }
+            label: { type: String, default: 'li-button' },
+            component: { type: Object, default: undefined },
         }
     }
 
@@ -74,8 +74,12 @@ class LiPropertyGrid extends LiElement {
             data: [{ name: '001', value: '002' }, { name: '001', value: '002' }],
             layout: "fitColumns",
             //autoColumns: true,
-            columns: columns
+            columns: columns,
             //rowClick: function(e, row) { alert("Row " + row.getData().id + " Clicked!!!!"); }
+            cellEdited: (cell) => {
+                console.dir(cell._cell.row.cells[0].value + ' - ' + cell._cell.value)
+                this.component[cell._cell.row.cells[0].value] = cell._cell.value;
+            },
         };
     }
 
@@ -101,19 +105,16 @@ class LiPropertyGrid extends LiElement {
     }
 
     slotchange() {
-        let el = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
-        el.addEventListener('liel-ready', (e) => {
+        let el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
+        setTimeout(() => {
             let data = [];
-            if (el.localName === e.detail.message) Object.keys(el.constructor.properties).forEach(key => { data.push({ name: key, value: el[key] }) });
-            //this.options.data = data;
+            for (const k of el.$props.keys()) {
+                const prop = el.$props.get(k)
+                data.push({ name: k, value: el[k] || prop.default });
+            }
             this.options = { ...{}, ...this.options, ...{ data: data } };
-            let prg = this.shadowRoot.getElementById('prg');
-            prg.options = this.options;
-            //this.option.data = data;
+            this.$id.prg.options = this.options;
             this.requestUpdate();
-            console.dir(this.options)
-        })
+        });
     }
-}
-
-customElements.define('li-property-grid', LiPropertyGrid);
+});

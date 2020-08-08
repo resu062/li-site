@@ -1,4 +1,4 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
+import { css, svg } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import './icons/icons.js';
 
@@ -25,7 +25,9 @@ customElements.define('li-icon', class LiIcon extends LiElement {
         }
     }
 
-    firstUpdated() {
+    firstUpdated(setPath = false) {
+        super.firstUpdated();
+        if (setPath) this.path = '';
         if (this.icon)
             for (let i in this.icon) this[i] = this.icon[i];
         const name = this.name;
@@ -36,6 +38,22 @@ customElements.define('li-icon', class LiIcon extends LiElement {
             this.viewbox = icons['viewbox'] || `0 0 ${s} ${s}`;
         }
         this._s2 = s / 2;
+        this._isFirstUpdated = true;
+    }
+
+    update(changedProperties) {
+        super.update(changedProperties);
+        if (this._isFirstUpdated) {
+            if (changedProperties.has('name')) {
+                setTimeout(() => {
+                    this.firstUpdated(true);
+                }); 
+            }
+            if (changedProperties.has('blink') || changedProperties.has('speed')) {
+                this.$id.animate.beginElement();
+                this.$id.animateTransform.beginElement();
+            }
+        }
     }
 
     static get styles() {
@@ -48,34 +66,37 @@ customElements.define('li-icon', class LiIcon extends LiElement {
     }
 
     render() {
-        return html`
+        return svg`
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                 preserveAspectRatio="xMidYMid meet" xml:space="preserve"
                 display="block"
                 viewBox="${this.viewbox}"
                 width="${this.width || this.size}"
                 height="${this.height || this.size}"
-                style="transform:rotate(${this.rotate}deg) scale(${this.scale}); transform-origin: center center; transform-box: fill-box;">
-                <g  fill="${this.fill}"
+                style="transform:rotate(${this.rotate}deg) scale(${this.scale});">
+                <g                      
+                    fill="${this.fill}"
                     stroke="${this.stroke}"
-                    stroke-width="${this.strokeWidth}">
-                    <path d="${this.path}"></path>
-                    <animate
-                        attributeName="opacity"
-                        values="${this.blval}"
-                        dur="${Math.abs(this.blink)}s"
-                        repeatCount="indefinite"
-                    />
-                    <animateTransform attributeType="xml"
-                        attributeName="transform"
-                        type="rotate"
-                        from="${this.speed > 0 ? 0 : 360} ${this._s2} ${this._s2}"
-                        to="${this.speed > 0 ? 360 : 0} ${this._s2} ${this._s2}"
-                        begin="0s"
-                        dur="${Math.abs(this.speed)}s"
-                        repeatCount="indefinite"
-                    />
-                /> 
+                    stroke-width="${this.strokeWidth}"
+                    style="transform-origin: center center; transform-box: fill-box;">
+                    <path d="${this.path}">
+                        <animate id="animate"
+                            attributeName="opacity"
+                            values="${this.blval}"
+                            dur="${Math.abs(this.blink)}s"
+                            restart="whenNotActive"
+                            repeatCount="indefinite"/>
+                        <animateTransform id="animateTransform" attributeType="XML"
+                            attributeName="transform"
+                            type="rotate"
+                            from="${this.speed > 0 ? 0 : 360} ${this._s2} ${this._s2}"
+                            to="${this.speed > 0 ? 360 : 0} ${this._s2} ${this._s2}"
+                            begin="0s"
+                            dur="${Math.abs(this.speed)}s"
+                            restart="whenNotActive"
+                            repeatCount="indefinite"/>
+                    </path>
+                />
             </svg>
         `
     }

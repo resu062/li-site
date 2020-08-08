@@ -6,25 +6,25 @@ class LiButton extends LiElement {
     static get properties() {
         return {
             icon: { type: Object, default: undefined },
-            name: { type: String, default: '' }, 
-            fill: { type: String, default: '' }, 
-            size: { type: String, default: 24 }, 
+            name: { type: String, default: '' },
+            fill: { type: String, default: '' },
+            size: { type: Number, default: 24 },
             scale: { type: Number, default: 0.9 },
-            rotate: { type: Number, default: 0 }, 
-            speed: { type: Number, default: 0 }, 
-            blink: { type: Number, default: 0 }, 
+            rotate: { type: Number, default: 0 },
+            speed: { type: Number, default: 0 },
+            blink: { type: Number, default: 0 },
             blval: { type: String, default: '1;0;0;1' },
             path: { type: String, default: '' },
-            label: { type: String, default: '' }, 
-            color: { type: String, default: 'gray' }, 
+            label: { type: String, default: '' },
+            color: { type: String, default: 'gray' },
             back: { type: String, default: '#fdfdfd' },
-            width: { type: String , default: '' }, 
-            height: { type: String, default: '' }, 
-            border: { type: String, default: '1px' }, 
+            width: { type: String, default: '' },
+            height: { type: String, default: '' },
+            border: { type: String, default: '1px' },
             radius: { type: String, default: '2px' },
-            br: { type: String, default: '' }, 
-            swh: { type: String, default: '' }, 
-            toggle: { type: String, default: '' }, 
+            br: { type: String, default: '' },
+            swh: { type: String, default: '' },
+            toggle: { type: String, default: '' },
             toggleded: { type: Boolean, default: false, reflect: true, notify: true }
         }
     }
@@ -111,10 +111,6 @@ class LiButton extends LiElement {
                 </div>
             </div>       
         `;
-    }
-
-    firstUpdated() {
-        this.dispatchEvent(new CustomEvent('liel-ready', { detail: { message: this.localName } }));
     }
 }
 
