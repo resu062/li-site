@@ -8,7 +8,12 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             component: { type: Object, default: undefined }, 
             opened: { type: Boolean, default: false }, 
             size: { type: Object, default: {} },
-            useParentWidth: { type: Boolean, default: false, reflect: true }
+            useParentWidth: { type: Boolean, default: false, reflect: true },
+            useParentHeight: { type: Boolean, default: false, reflect: true },
+            intersect: { type: Boolean, default: false, reflect: true },
+            minWidth: { type: Number, default: 0, reflect: true },
+            maxWidth: { type: Number, default: 0, reflect: true },
+            maxHeight: { type: Number, default: 0, reflect: true }
         }
     }
 
@@ -71,8 +76,8 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
                 t = this.intersect ? rect.top : rect.bottom,
                 r = window.innerWidth - rect.left,
                 b = window.innerHeight - t;
-            size.minWidth = this.parent && this.parent.offsetWidth > this.minWidth ? this.parent.offsetWidth - 2 : this.minWidth || w;
-            if (this.useParentWidth && this.parent) size.width = size.maxWidth = this.parent.offsetWidth - 2;
+            size.minWidth = this.parent && this.parent.offsetWidth > this.minWidth ? this.parent.offsetWidth : this.minWidth || w;
+            if (this.useParentWidth && this.parent) size.width = size.maxWidth = this.parent.offsetWidth;
             else if (this.maxWidth) size.maxWidth = this.maxWidth > size.minWidth ? this.maxWidth : size.minWidth;
             if (this.maxHeight) size.maxHeight = this.maxHeight;
             if (b > h) {
@@ -106,6 +111,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
     }
     _keyDown(e) {
         if (e.keyCode === 27) this.close();
+        if (e.keyCode === 13) this.ok();
     }
     _close(e) {
         let el = this;
