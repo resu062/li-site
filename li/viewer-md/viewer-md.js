@@ -75,7 +75,7 @@ customElements.define('li-viewer-md', class LiViewerMD extends LiElement {
                             let html = lang && hljs.getLanguage(lang) ? hljs.highlight(lang, htmlDecode(match)).value : hljs.highlightAuto(htmlDecode(match)).value;
                             return `
                                 <pre class="hljs" style="display:flex;border: .5px solid lightgray;border-radius:2px;
-                                    overflow:auto;overflow-x:auto;min-height:32px;background: #FFFFE0;">
+                                    overflow:auto;overflow-x:auto;min-height:32px;background: #FFE5;">
                                     <code class="hljs" style="outline:0px solid transparent;font-size:125%;line-height: 1.2;">${html}</code>
                                 </pre>`;
                         };

@@ -14,7 +14,7 @@ customElements.define('li-app', class LiApp extends LiElement {
         return html`
 
             <li-layout-app sides="260,260,1,1" fill="#9f731350">
-                 <img slot="app-top" src="${url.replace('app.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
+                 <img slot="app-top-left" src="${url.replace('app.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
 
                  <div slot="app-bottom" style="display:flex;; align-items: center; justify-content: left;">
                     <li-button size=28 name="home" fill="gray" style="padding:2px" br="none:50%" @click="${(e) => LI.notifier.modal('Home ...')}" ></li-button>
