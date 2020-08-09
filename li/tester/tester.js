@@ -1,6 +1,9 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../table/table.js';
+import '../layout-app/layout-app.js';
+import '../button/button.js';
+import { indx } from './indx.js';
 
 customElements.define('li-tester', class LiTester extends LiElement {
     static get properties() {
@@ -15,7 +18,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
         return [
             { title: 'Name', field: 'name', width: 150, bottomCalc: 'count' },
             {
-                title: 'Value', field: 'value', width: 150, hozAlign: 'center',
+                title: 'Value', field: 'value', hozAlign: 'center', width: '100%', responsive: true,
                 cellClick: async (e, cell, el = this.component) => {
                     var editor = document.createElement("input");
                     let type = cell.getData().type.name.toLowerCase();
@@ -44,31 +47,40 @@ customElements.define('li-tester', class LiTester extends LiElement {
         ]
     }
 
+    get localName() {
+        return this.component && this.component.localName || 'li-tester' 
+    }
+
     static get styles() {
         return css`
             :host {
-                display: flex;
-                height: 100%;
                 color: gray;
                 font-family: Arial;
-            }
-            ::slotted(*) {
-                display: contents;
             }
         `;
     }
 
     render() {
         return html`
-            <slot @slotchange=${this.slotchange}></slot>
-            <div style="flex:1"></div>
-            <div style="width:300px;display:flex">
-                <li-table id="prg" .options="${this.options}"></li-table>
-            </div>
+            <li-layout-app sides="300,300" fill="#9f731350">
+                <div slot="app-top">
+                    <div>${this.localName}</div>
+                </div>
+                <div slot="app-main">
+                    <slot @slotchange=${this.slotchange} id="slot"></slot>
+                    <slot name="app-test"></slot>
+                </div>
+                <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
+                    ${Object.keys(indx).map(key => html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>`)}
+                </div>
+                <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: stretch; justify-content: center">
+                    <li-table id="prg" .options="${this.options}"></li-table>
+                </div>
+            </li-layout-app>
         `;
     }
 
-    async slotchange() {
+    slotchange(updateComponent = false) {
         this.options = {
             maxHeight: '100%',
             minHeight: '100%',
@@ -76,8 +88,11 @@ customElements.define('li-tester', class LiTester extends LiElement {
             //data: [{ name: '001', value: '002' }, { name: '001', value: '002' }],
             layout: 'fitColumns',
             columns: this._columns,
+            layout:"fitDataStretch"
         };
-        let el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
+        let el = {};
+        if (updateComponent && this.component) el = this.component;
+        else el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
         setTimeout(() => {
             let data = [];
             let id = 0;
@@ -99,5 +114,17 @@ customElements.define('li-tester', class LiTester extends LiElement {
             }
             this.requestUpdate();
         });
+    }
+
+    async _tap(e) {
+        if (this.component) this.removeChild(this.component);
+        //this.component = undefined;
+        this.$id.slot.name = "?";
+        let el = e.target.label;
+        let props = {...indx[el].props};
+        this.component = await LI.createComponent(el, props);
+        this.component.setAttribute('slot', 'app-test');
+        this.appendChild(this.component);
+        this.slotchange(true);
     }
 });

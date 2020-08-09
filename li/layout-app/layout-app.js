@@ -164,7 +164,19 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
         return this._t ? html`
             <div style="border-bottom: ${this.border}; display: flex; align-items: center; justify-content: center">
                 ${this._l ? html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" ?toggleded="${this._widthL <= this.minSize}" toggle="left" style="padding:2px; cursor: pointer;z-index:2" @click="${this._hideL}"></li-button>` : ""}
-                <div style="flex:1"><slot name="app-top"></slot></div>
+                <div style="flex:1">
+                    <slot name="app-top-left">
+   
+                    </slot>
+                    <div style="flex:1; text-align: center; justify-content: center; align-items:center">
+                        <slot name="app-top">
+                            
+                        </slot>
+                    </div>
+                    <slot name="app-top-right">
+                        
+                    </slot>
+                </div>
                 ${this._r ? html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" ?toggleded="${this._widthR <= this.minSize}" toggle="right" style="padding:2px; cursor: pointer;z-index:2" @click="${this._hideR}"></li-button>` : ""}
             </div>
         ` : "";

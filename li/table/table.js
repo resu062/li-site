@@ -2,7 +2,7 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import './src/tabulator.js';
 
-class LiTable extends LiElement {
+customElements.define('li-table', class LiTable extends LiElement {
     static get properties() {
         return {
             options: {
@@ -41,7 +41,6 @@ class LiTable extends LiElement {
     firstUpdated() {
         super.firstUpdated();
         this.hidden = true;
-        this.$props = LiTable.properties
         this.$table = new Tabulator(this.$id.table, this.options);
         setTimeout(() => {
             this.hidden = false;
@@ -51,6 +50,4 @@ class LiTable extends LiElement {
     updated() {
         this.firstUpdated();
     }
-}
-
-customElements.define('li-table', LiTable);
+});
