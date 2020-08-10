@@ -84,7 +84,9 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             if (this.useParent && this.parent) {
                 let s = this.parent.getBoundingClientRect();
                 //size.bottom = s.bottom;
-                size.height = size.maxHeight = s.height * this.hFactor || 1;
+                let f = s.height * (this.hFactor || 1);
+                f = f > b ? b : f;
+                size.height = size.maxHeight = f;
                 size.left = s.left;
                 size.right = s.right;
                 size.top = s.top;

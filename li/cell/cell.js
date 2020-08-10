@@ -25,7 +25,7 @@ customElements.define('li-cell', class LiCell extends LiElement {
                 justify-content: center;
                 overflow: hidden;
             } 
-            div {
+            .div {
                 display:flex;
                 justify-content: center;
                 align-items: center;
@@ -46,18 +46,26 @@ customElements.define('li-cell', class LiCell extends LiElement {
             }  
             .list {
                 text-align: left;
+                background: lightyellow; 
+                padding: 2px;
+                border:1px solid lightblue;
                 border-top: 0px;
+                cursor: pointer;
+                justify-content: left;
+                flex: 1;
             }
             .list:hover {
                 transition: .3s;
                 filter: brightness(85%);
             }
         </style>
-            <div>
+            <div class="div">
                 <input id="input" type="${this.type}" value="${this.value}" @change="${e => this._change(e)}"/>
                 <li-button name="check" size="16" fill="lightblue" color="lightblue" @click="${this._tap}"></li-button>
             </div>
-            ${this.props && this.props.list ? this.props.list.map(l => html`<div class="list" style="cursor:pointer;justify-content:left" @click="${this._tap}">${l}</div>`) : ``}
+            <div style="overflow:auto;flex:1;display:flex;flex-direction:column;align-items:stretch;">
+                ${this.props && this.props.list ? this.props.list.map(l => html`<div class="list" @click="${this._tap}">${l}</div>`) : ``}
+            </div>
         `;
     }
 
