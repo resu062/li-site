@@ -8,22 +8,25 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             component: { type: Object, default: undefined }, 
             opened: { type: Boolean, default: false }, 
             size: { type: Object, default: {} },
+            useParent: { type: Boolean, default: false, reflect: true },
             useParentWidth: { type: Boolean, default: false, reflect: true },
             useParentHeight: { type: Boolean, default: false, reflect: true },
             intersect: { type: Boolean, default: false, reflect: true },
-            minWidth: { type: Number, default: 0, reflect: true },
-            maxWidth: { type: Number, default: 0, reflect: true },
-            maxHeight: { type: Number, default: 0, reflect: true }
+            minWidth: { type: Number, default: undefined, reflect: true },
+            maxWidth: { type: Number, default: undefined, reflect: true },
+            maxHeight: { type: Number, default: undefined, reflect: true }
         }
     }
 
     connectedCallback() {
         super.connectedCallback();
+        LI.listen('okChangedValue', this.ok.bind(this), { target: window, useCapture: true });
         LI.listen('keydown', this._keyDown.bind(this), { target: window, useCapture: true });
         LI.listen('mousedown, resize, wheel', this._close.bind(this), { target: window, useCapture: true });
         this._setSize();
     }
     disconnectedCallback() {
+        LI.unlisten('okChangedValue', this.ok.bind(this), { target: window, useCapture: true });
         LI.unlisten('keydown', this._keyDown.bind(this), { target: window, useCapture: true });
         LI.unlisten('mousedown, resize, wheel', this._close.bind(this), { target: window, useCapture: true });
         super.disconnectedCallback();
@@ -76,6 +79,22 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
                 t = this.intersect ? rect.top : rect.bottom,
                 r = window.innerWidth - rect.left,
                 b = window.innerHeight - t;
+            
+            if (this.useParent && this.parent) {
+                let s = this.parent.getBoundingClientRect();
+                size.bottom = s.bottom;
+                size.height = s.height;
+                size.maxHeight = s.height;
+                size.left = s.left;
+                size.right = s.right;
+                size.top = s.top;
+                size.width = s.width;
+                size.maxWidth = s.width;
+                Object.keys(size).forEach(k => size[k] += 'px');
+                this.size = { ...{}, ...size };
+                return;
+            }
+            
             size.minWidth = this.parent && this.parent.offsetWidth > this.minWidth ? this.parent.offsetWidth : this.minWidth || w;
             if (this.useParentWidth && this.parent) size.width = size.maxWidth = this.parent.offsetWidth;
             else if (this.maxWidth) size.maxWidth = this.maxWidth > size.minWidth ? this.maxWidth : size.minWidth;
