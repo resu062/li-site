@@ -9,6 +9,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             opened: { type: Boolean, default: false }, 
             size: { type: Object, default: {} },
             useParent: { type: Boolean, default: false, reflect: true },
+            hFactor: { type: Number, default: 1, reflect: true },
             useParentWidth: { type: Boolean, default: false, reflect: true },
             useParentHeight: { type: Boolean, default: false, reflect: true },
             intersect: { type: Boolean, default: false, reflect: true },
@@ -82,14 +83,12 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             
             if (this.useParent && this.parent) {
                 let s = this.parent.getBoundingClientRect();
-                size.bottom = s.bottom;
-                size.height = s.height;
-                size.maxHeight = s.height;
+                //size.bottom = s.bottom;
+                size.height = size.maxHeight = s.height * this.hFactor || 1;
                 size.left = s.left;
                 size.right = s.right;
                 size.top = s.top;
-                size.width = s.width;
-                size.maxWidth = s.width;
+                size.width = size.maxWidth = s.width;
                 Object.keys(size).forEach(k => size[k] += 'px');
                 this.size = { ...{}, ...size };
                 return;

@@ -35,10 +35,13 @@ customElements.define('li-tester', class LiTester extends LiElement {
                     }
                     editor.setAttribute('type', type);
                     editor.value = cell.getValue()
-                    let value = cell.getValue();
+                    let value = cell.getValue(),
+                        name = cell.getData().name,
+                        props = this.component.$props.get(name),
+                        hFactor = props.list ? props.list.length + 1 : 1;
 
                     try {
-                        let val = await LI.show('dropdown', 'cell', { type, value }, { parent: e.target, useParent: true, intersect: true })
+                        let val = await LI.show('dropdown', 'cell', { type, value, props }, { parent: e.target, useParent: true, intersect: true, hFactor })
                         cell.setValue(val.value)
                         el[cell.getData().name] = val.value;
                     } catch (err) { }
@@ -73,7 +76,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     ${Object.keys(indx).map(key => html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>`)}
                 </div>
-                <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: stretch; justify-content: center">
+                <div slot="app-right" style="padding-right:4px;padding-top:4px;height: 99%;">
                     <li-table id="prg" .options="${this.options}"></li-table>
                 </div>
             </li-layout-app>
