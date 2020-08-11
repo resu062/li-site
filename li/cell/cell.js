@@ -11,69 +11,74 @@ customElements.define('li-cell', class LiCell extends LiElement {
         }
     }
 
-    updated(changedProps) {
-        if (this.type === 'checkbox') this.$id.input.checked = this.value;
+    static get styles() {
+        return css`
+                :host {
+                    display:flex;
+                    flex-direction: column;
+                    align-items: stretch;
+                    justify-content: center;
+                    overflow: hidden;
+                } 
+                .cell {
+                    display:flex;
+                    justify-content: center;
+                    align-items: center;
+                    background: lightyellow; 
+                    padding: 2px;
+                    border:1px solid lightblue; 
+                }
+                #input {
+                    font-size: 1em;
+                    color: dark;
+                    font-family: Arial;
+                    text-align: center;
+                    outline: none; 
+                    background: transparent; 
+                    border: none;
+                    flex: 1;
+                    min-width: 0px;
+                }  
+                .cells {
+                    text-align: left;
+                    background: lightyellow; 
+                    padding: 2px;
+                    border:1px solid lightblue;
+                    border-top: 0px;
+                    cursor: pointer;
+                    justify-content: left;
+                    flex: 1;
+                }
+                .cells:hover {
+                    transition: .3s;
+                    filter: brightness(85%);
+                }
+                .list {
+                    overflow: auto;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+        `;
     }
 
     render() {
         return html`
-        <style>
-            :host {
-                display:flex;
-                flex-direction: column;
-                align-items: stretch;
-                justify-content: center;
-                overflow: hidden;
-            } 
-            .div {
-                display:flex;
-                justify-content: center;
-                align-items: center;
-                background: lightyellow; 
-                padding: 2px;
-                border:1px solid lightblue; 
-            }
-            input {
-                font-size: 1em;
-                color: dark;
-                font-family: Arial;
-                text-align: center;
-                outline: none; 
-                background: transparent; 
-                border: none;
-                flex: 1;
-                min-width: 0px;
-            }  
-            .list {
-                text-align: left;
-                background: lightyellow; 
-                padding: 2px;
-                border:1px solid lightblue;
-                border-top: 0px;
-                cursor: pointer;
-                justify-content: left;
-                flex: 1;
-            }
-            .list:hover {
-                transition: .3s;
-                filter: brightness(85%);
-            }
-        </style>
-            <div class="div">
+            <div class="cell">
                 <input id="input" type="${this.type}" value="${this.value}" @change="${e => this._change(e)}"/>
                 <li-button name="check" size="16" fill="lightblue" color="lightblue" @click="${this._tap}"></li-button>
             </div>
-            <div style="overflow:auto;flex:1;display:flex;flex-direction:column;align-items:stretch;">
-                ${this.props && this.props.list ? this.props.list.map(l => html`<div class="list" @click="${this._tap}">${l}</div>`) : ``}
+            <div class="list">
+                ${this.props && this.props.list ? this.props.list.map(l => html`<div class="cells" @click="${this._tap}">${l}</div>`) : ``}
             </div>
         `;
     }
 
-    firstUpdated() {
-        super.firstUpdated();
-
+    updated() {
+        if (this.type === 'checkbox') this.$id.input.checked = this.value;
     }
-    
+
     _change(e) {
         this.value = this.type === 'checkbox' ? e.target.checked : e.target.value;
     }
