@@ -61,6 +61,17 @@ customElements.define('li-viewer-md', class LiViewerMD extends LiElement {
             }
         }
     }
+
+    set src(val) {
+        let oldVal = this._src
+        if (val !== oldVal) {
+            this._src = val;
+            this.requestUpdate('src', oldVal);
+            this._setHTML(val);
+        }
+    }
+    get src() { return this._src; }
+
     firstUpdated() {
         super.firstUpdated();
         mdShowdown = new showdown.Converter({
@@ -86,6 +97,7 @@ customElements.define('li-viewer-md', class LiViewerMD extends LiElement {
         });
         this._setHTML();
     }
+
     async _setHTML(s = this.src) {
         let url = new URL(window.location),
             src = url.searchParams.get("src") || s;
@@ -97,6 +109,7 @@ customElements.define('li-viewer-md', class LiViewerMD extends LiElement {
         src = src.replace(/(```\S*|~~~\S*)( +)/g, '$1' + '_');
         this.html = html`${unsafeHTML(mdShowdown.makeHtml(src))}`;
     }
+
     static get styles() {
         return css`
             :host { overflow-y: auto; padding: 2px; font-family: Roboto, Noto, sans-serif; color: #000F}
@@ -104,7 +117,6 @@ customElements.define('li-viewer-md', class LiViewerMD extends LiElement {
             th { @apply --header; border: 1px solid darkgray; padding: 2px; }
             td { border: 1px solid lightgray; padding: 2px; }
             img { max-width: 96%; height: auto; }
-
             .md { @apply --layout; display: block; padding: 4px; }
             .hljs { @apply --layout; display: block; padding: 8px 4px 6px 10px; }
             .hljs-comment, .hljs-quote { color: #93a1a1; }
