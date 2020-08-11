@@ -1,10 +1,16 @@
 
-import { html } from '../../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../../li.js';
-import './icons.js';
-import '../icon.js';
+import { html } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
+import '../icon/icons/icons.js';
+import '../icon/icon.js';
 
-class LiAllIcons extends LiElement {
+customElements.define('li-icons', class LiAllIcons extends LiElement {
+    static get properties() {
+        return {
+            label: { type: String, default: 'li-icons' },
+        }
+    }
+
     render() {
         return html`
             ${Object.keys(icons).map(i => html`
@@ -12,8 +18,7 @@ class LiAllIcons extends LiElement {
                     <li-icon name="${i}" fill="darkgray" size=32></li-icon>
                     <div style="font-size:18px; color:darkgray"> - ${i}</div>
                 </div>`
-            )}`
+        )}`
     }
-}
 
-customElements.define('li-all-icons', LiAllIcons);
+});

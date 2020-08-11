@@ -3,6 +3,7 @@ url = url.replace('tester/indx.js', 'viewer-md/sample.md');
 
 export const indx = {
     'li-icon': { title: 'Иконка', props: { name: 'refresh', fill: 'red', speed: 1, blink: 1, size: 128 } },
+    'li-icons': { title: 'Иконки' },
     'li-button': { title: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
     'li-app': { title: 'li-app' },
     //'li-chart-apex': { title: 'li-chart-apex'},
