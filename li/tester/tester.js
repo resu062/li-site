@@ -98,10 +98,10 @@ customElements.define('li-tester', class LiTester extends LiElement {
         if (updateComponent && this.component) el = this.component;
         else el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
         setTimeout(async () => {
+            let _info = undefined;
             try {
-                const _info = el.$urlInfo ? await import(el.$urlInfo) : undefined;
+                _info = el.$urlInfo ? await import(el.$urlInfo) : undefined;
             } catch (error) {}
-            
             const _list = _info && _info.list || undefined;
             let data = [];
             let id = 0;
