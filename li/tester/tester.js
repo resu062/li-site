@@ -52,7 +52,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
     }
 
     get localName() {
-        return this.component && this.component.localName || 'li-tester' 
+        return this.component && this.component.localName || 'li-tester'
     }
 
     static get styles() {
@@ -92,24 +92,35 @@ customElements.define('li-tester', class LiTester extends LiElement {
             //data: [{ name: '001', value: '002' }, { name: '001', value: '002' }],
             layout: 'fitColumns',
             columns: this._columns,
-            layout:"fitDataStretch"
+            layout: "fitDataStretch"
         };
         let el = {};
         if (updateComponent && this.component) el = this.component;
         else el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
         setTimeout(async () => {
+            const _info = el.$urlInfo ? await import(el.$urlInfo) : undefined;
+            const _list = _info && _info.list || undefined;
             let data = [];
             let id = 0;
             if (!el.$props) return;
             for (const k of el.$props.keys()) {
                 if (k.startsWith('_')) continue;
                 const prop = el.$props.get(k)
-                if ((el.localName === 'li-button' || el.localName === 'li-icon') && k === 'name') {
-                    let iconsName = [];
-                    Object.keys(icons).map(i => iconsName.push(i));
-                    prop.list = iconsName;
-                    el.$props.set(k, prop);
+
+                if (_list) {
+                    ['icon', 'color'].map(i => {
+                        if (_list[i] && _list[i].includes(k)) {
+                            let list = [];
+                            if (i === 'icon' && !_list[`_${i}`]) Object.keys(icons).map(i => list.push(i));
+                            else {
+                                if (_list[`_${i}`]) list = _list[`_${i}`];
+                            }
+                            if (list.length) prop.list = list;
+                        }
+                    })
                 }
+
+                el.$props.set(k, prop);
                 data.push({ id, name: k, value: el[k] || prop.default, type: prop.type, list: prop.list });
                 id++;
             }
@@ -132,7 +143,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
         //this.component = undefined;
         this.$id.slot.name = "?";
         let el = e.target.label;
-        let props = {...indx[el].props};
+        let props = { ...indx[el].props };
         this.component = await LI.createComponent(el, props);
         this.component.setAttribute('slot', 'app-test');
         this.appendChild(this.component);

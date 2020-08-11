@@ -1,6 +1,7 @@
 import { LitElement } from './lib/lit-element/lit-element.js';
 import { directive } from "./lib/lit-html/lib/directive.js"
 import { AWN } from './lib/awesome-notifications/modern.var.js';
+let urlLI = import.meta.url;
 
 window.globalThis = window.globalThis || window;
 
@@ -45,6 +46,13 @@ export class LiElement extends LitElement {
                 });
             }
         });
+        const name = this.localName.replace('li-', '');
+        let url = `${urlLI.replace('li.js', '')}li/${name}/${name}.js`;
+        this.$url = url;
+        if (this._useInfo) {
+            url = `${urlLI.replace('li.js', '')}li/${name}/_info/_info.js`;
+            this.$urlInfo = url;
+        }
     }
 
     firstUpdated() {
@@ -97,12 +105,14 @@ let awnOptions = {
     }
 }
 LI.notifier = new AWN(awnOptions);
+LI.$url = urlLI;
 
 LI.createComponent = async (comp, props = {}) => {
     comp = comp || {};
     if (typeof comp === 'string') {
         comp = comp.replace('li-', '');
-        await import(`./li/${comp}/${comp}.js`);
+        let url = `${urlLI.replace('li.js', '')}li/${comp}/${comp}.js`;
+        await import(url);
         const cmp = document.createElement(`li-${comp}`);
         for (let p in props) cmp[p] = props[p];
         return cmp;

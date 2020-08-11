@@ -5,9 +5,10 @@ import '../icon/icon.js'
 customElements.define('li-button', class LiButton extends LiElement {
     static get properties() {
         return {
+            _useInfo: {type: Boolean, default: true },
             icon: { type: Object, default: undefined },
             name: { type: String, default: '' },
-            fill: { type: String, default: '', list: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray'] },
+            fill: { type: String, default: '' },
             size: { type: Number, default: 24 },
             scale: { type: Number, default: 0.9 },
             rotate: { type: Number, default: 0 },

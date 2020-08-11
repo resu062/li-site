@@ -6,6 +6,7 @@ customElements.define('li-icon', class LiIcon extends LiElement {
 
     static get properties() {
         return {
+            _useInfo: {type: Boolean, default: true },
             icon: { type: Object, default: undefined },
             name: { type: String, default: '' },
             size: { type: Number, default: 24 },
