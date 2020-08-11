@@ -10,7 +10,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
     static get properties() {
         return {
             options: { type: Object, default: undefined },
-            label: { type: String, default: 'li-button' },
+            label: { type: String, default: '' },
             component: { type: Object, default: undefined }
         }
     }
@@ -100,6 +100,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
         setTimeout(async () => {
             let data = [];
             let id = 0;
+            if (!el.$props) return;
             for (const k of el.$props.keys()) {
                 if (k.startsWith('_')) continue;
                 const prop = el.$props.get(k)
