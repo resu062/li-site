@@ -3,6 +3,7 @@ import { LiElement } from '../../li.js';
 import '../table/table.js';
 import '../layout-app/layout-app.js';
 import '../button/button.js';
+import '../icon/icons/icons.js';
 import { indx } from './indx.js';
 
 customElements.define('li-tester', class LiTester extends LiElement {
@@ -96,13 +97,19 @@ customElements.define('li-tester', class LiTester extends LiElement {
         let el = {};
         if (updateComponent && this.component) el = this.component;
         else el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
-        setTimeout(() => {
+        setTimeout(async () => {
             let data = [];
             let id = 0;
             for (const k of el.$props.keys()) {
                 if (k.startsWith('_')) continue;
                 const prop = el.$props.get(k)
-                data.push({ id, name: k, value: el[k] || prop.default, type: prop.type });
+                if ((el.localName === 'li-button' || el.localName === 'li-icon') && k === 'name') {
+                    let iconsName = [];
+                    Object.keys(icons).map(i => iconsName.push(i));
+                    prop.list = iconsName;
+                    el.$props.set(k, prop);
+                }
+                data.push({ id, name: k, value: el[k] || prop.default, type: prop.type, list: prop.list });
                 id++;
             }
             this.options = { ...{}, ...this.options, ...{ data: data } };
