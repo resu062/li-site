@@ -50,7 +50,7 @@ export class LiElement extends LitElement {
         let url = `${urlLI.replace('li.js', '')}li/${name}/${name}.js`;
         this.$url = url;
         if (this._useInfo) {
-            url = `${urlLI.replace('li.js', '')}li/${name}/_info/_info.js`;
+            url = `${urlLI.replace('li.js', '')}li/${name}/~info/~info.js`;
             this.$urlInfo = url;
         }
     }
