@@ -78,7 +78,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
                     ${Object.keys(indx).map(key => html`
                         ${key.startsWith('li-')
                 ? html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>`
-                : html`<div style="display: flex;font-size:10px;">
+                : html`<div style="display: flex;font-size:10px;flex-wrap:wrap;">
                             ${indx[key].map(i => 
                                 html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
                             )}
