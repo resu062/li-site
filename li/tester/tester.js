@@ -111,7 +111,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 const prop = el.$props.get(k)
 
                 if (_list) {
-                    ['icon', 'color'].map(i => {
+                    ['icon', 'color', 'toggledClass', 'notoggledClass'].map(i => {
                         if (_list[i] && _list[i].includes(k)) {
                             let list = [];
                             if (i === 'icon' && !_list[`_${i}`]) Object.keys(icons).map(i => list.push(i));
