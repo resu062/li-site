@@ -2,15 +2,33 @@ let url = import.meta.url;
 url = url.replace('tester/indx.js', 'viewer-md/sample.md');
 
 export const indx = {
-    'li-icon': { title: 'Иконка', props: { name: 'refresh', fill: 'red', speed: 1, blink: 1, size: 128 } },
-    'li-icons': { title: 'Иконки' },
-    'li-button': { title: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
-    'li-app': { title: 'li-app' },
-    //'li-chart-apex': { title: 'li-chart-apex'},
-    'li-editor-ace': { title: 'li-editor.ace', props: { theme: 'dracula', mode: 'javascript', src: 'console.log(this.properties) // description' } },
-    'li-layout-app': { title: 'li-layout-app' },
+
+    'li-icon': { label: 'Иконка', props: { name: 'refresh', fill: 'red', speed: 1, blink: 1, size: 128 } },
+    icon: [{ label: 'index', url: '/li/icon' }],
+    
+
+    'li-icons': { label: 'Иконки' },
+    icons: [{ label: 'index', url: '/li/icons' }],
+    
+
+    'li-button': { label: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
+    button: [{ label: 'index', url: '/li/button' }, { label: 'index-2', url: '/li/button/index-2.html' }],
+    
+
+    'li-app': { label: 'li-app' },
+    app: [{ label: 'index', url: '/li/app' }],
+    
+
+    'li-editor-ace': { label: 'li-editor-ace', props: { theme: 'dracula', mode: 'javascript', src: 'console.log(this.properties) // description' } },
+    'editor-ace': [{ label: 'index', url: '/li/editor-ace' }],
+    
+
+    'li-layout-app': { label: 'li-layout-app' },
+    'layout-app': [{ label: 'index', url: '/li/layout-app' }, { label: 'demo', url: '/li/layout-app/demo.html' }, { label: 'demo2', url: '/li/layout-app/demo2.html' }],
+    
+
     'li-table': {
-        title: 'li-table', props: {
+        label: 'li-table', props: {
             options: {
                 maxHeight: "99%",
                 minHeight: 400,
@@ -29,16 +47,24 @@ export const indx = {
                     { id: 10, name: "Margret Marmajuke", age: 99, col: "yellow", dob: "31/01/1999", rating: 5 },
                 ],
                 columns: [
-                    { title: "id", field: "id", width: 150, bottomCalc: "sum", hozAlign: "center" },
-                    { title: "Name", field: "name", width: 150 },
-                    { title: "Age", field: "age", hozAlign: "center", bottomCalc: "avg" },
-                    { title: "Favourite Color", field: "col" },
-                    { title: "Date Of Birth", field: "dob", sorter: "date", hozAlign: "center" },
-                    { title: "Rating", field: "rating", formatter: "star" }
+                    { label: "id", field: "id", width: 150, bottomCalc: "sum", hozAlign: "center" },
+                    { label: "Name", field: "name", width: 150 },
+                    { label: "Age", field: "age", hozAlign: "center", bottomCalc: "avg" },
+                    { label: "Favourite Color", field: "col" },
+                    { label: "Date Of Birth", field: "dob", sorter: "date", hozAlign: "center" },
+                    { label: "Rating", field: "rating", formatter: "star" }
                 ]
             }
         }
     },
-    'li-tester': { title: 'li-tester' },
-    'li-viewer-md': { title: 'li-viewer-md', props: { src: url } },
+    table: [{ label: 'index', url: '/li/table' }],
+
+
+    'li-tester': { label: 'li-tester' },
+    tester: [{ label: 'index', url: '/li/tester' }, { label: 'index2', url: '/li/tester/index-2.html' }],
+    
+
+    'li-viewer-md': { label: 'li-viewer-md', props: { src: url } },
+    'viewer-md': [{ label: 'index', url: '/li/viewer-md' }],
+    
 }

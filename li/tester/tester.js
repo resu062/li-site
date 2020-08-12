@@ -75,7 +75,15 @@ customElements.define('li-tester', class LiTester extends LiElement {
                     <slot name="app-test"></slot>
                 </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
-                    ${Object.keys(indx).map(key => html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>`)}
+                    ${Object.keys(indx).map(key => html`
+                        ${key.startsWith('li-')
+                ? html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>`
+                : html`<div style="display: flex;font-size:10px;">
+                            ${indx[key].map(i => 
+                                html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
+                            )}
+                        </div>`}`
+        )}
                 </div>
                 <div slot="app-right" style="padding-right:4px;padding-top:4px;height: 99%;">
                     <li-table id="prg" .options="${this.options}"></li-table>
@@ -101,7 +109,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
             let _info = undefined;
             try {
                 _info = el.$urlInfo ? await import(el.$urlInfo) : undefined;
-            } catch (error) {}
+            } catch (error) { }
             const _list = _info && _info.list || undefined;
             let data = [];
             let id = 0;
@@ -111,8 +119,8 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 const prop = el.$props.get(k)
 
                 if (_list) {
-                    ['icon', 'color', 'toggledClass', 'notoggledClass'].map(i => {
-                        if (_list[i] && _list[i].includes(k)) {
+                    Object.keys(_list).map(i => {
+                        if (!i.startsWith('_') && _list[i] && _list[i].includes(k)) {
                             let list = [];
                             if (i === 'icon' && !_list[`_${i}`]) Object.keys(icons).map(i => list.push(i));
                             else {
@@ -151,5 +159,10 @@ customElements.define('li-tester', class LiTester extends LiElement {
         this.component.setAttribute('slot', 'app-test');
         this.appendChild(this.component);
         this.slotchange(true);
+    }
+
+    _openUrl(e) {
+        //console.dir(e)
+        window.open(e.target.indx.url, 'li-url');
     }
 });
