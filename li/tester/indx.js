@@ -1,30 +1,30 @@
 let url = import.meta.url;
-url = url.replace('tester/indx.js', 'viewer-md/sample.md');
+url = url.replace('/tester/indx.js', '');
 
 export const indx = {
 
     'li-icon': { label: 'Иконка', props: { name: 'refresh', fill: 'red', speed: 1, blink: 1, size: 128 } },
-    icon: [{ label: 'index', url: '/li/icon' }],
+    icon: [{ label: 'index', url: url + '/icon' }],
     
 
     'li-icons': { label: 'Иконки' },
-    icons: [{ label: 'index', url: '/li/icons' }],
+    icons: [{ label: 'index', url: url + '/icons' }],
     
 
     'li-button': { label: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
-    button: [{ label: 'index', url: '/li/button' }, { label: 'index-2', url: '/li/button/index-2.html' }],
+    button: [{ label: 'index', url: url + '/button' }, { label: 'index-2', url: url + '/button/index-2.html' }],
     
 
     'li-app': { label: 'li-app' },
-    app: [{ label: 'index', url: '/li/app' }],
+    app: [{ label: 'index', url: url + '/app' }],
     
 
     'li-editor-ace': { label: 'li-editor-ace', props: { theme: 'dracula', mode: 'javascript', src: 'console.log(this.properties) // description' } },
-    'editor-ace': [{ label: 'index', url: '/li/editor-ace' }],
+    'editor-ace': [{ label: 'index', url: url + '/editor-ace' }],
     
 
     'li-layout-app': { label: 'li-layout-app' },
-    'layout-app': [{ label: 'index', url: '/li/layout-app' }, { label: 'demo', url: '/li/layout-app/demo.html' }, { label: 'demo2', url: '/li/layout-app/demo2.html' }],
+    'layout-app': [{ label: 'index', url: url + '/layout-app' }, { label: 'demo', url: url + '/layout-app/demo.html' }, { label: 'demo2', url: url + '/layout-app/demo2.html' }],
     
 
     'li-table': {
@@ -57,14 +57,14 @@ export const indx = {
             }
         }
     },
-    table: [{ label: 'index', url: '/li/table' }],
+    table: [{ label: 'index', url: url + '/table' }],
 
 
     'li-tester': { label: 'li-tester' },
-    tester: [{ label: 'index', url: '/li/tester' }, { label: 'index2', url: '/li/tester/index-2.html' }],
+    tester: [{ label: 'index', url: url + '/tester' }, { label: 'index2', url: url + '/tester/index-2.html' }],
     
 
-    'li-viewer-md': { label: 'li-viewer-md', props: { src: url } },
-    'viewer-md': [{ label: 'index', url: '/li/viewer-md' }],
+    'li-viewer-md': { label: 'li-viewer-md', props: { src: url + '/viewer-md/sample.md' } },
+    'viewer-md': [{ label: 'index', url: url + '/viewer-md' }],
     
 }
