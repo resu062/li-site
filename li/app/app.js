@@ -6,10 +6,6 @@ let url = import.meta.url;
 
 customElements.define('li-app', class LiApp extends LiElement {
 
-    _onclick(e) {
-        this.notifier.modal('Your custom message');
-    }
-
     render() {
         return html`
 

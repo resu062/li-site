@@ -80,7 +80,7 @@ export class LiElement extends LitElement {
                 bubbles: false,
                 composed: true
             }));
-            console.log(type);
+            //console.log(type);
         }
     }
 }

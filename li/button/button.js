@@ -23,6 +23,7 @@ customElements.define('li-button', class LiButton extends LiElement {
             speed: { type: Number, default: 0 },
             blink: { type: Number, default: 0 },
             blval: { type: String, default: '1;0;0;1' },
+            padding: { type: String, default: '' },
             toggledClass: { type: String, default: 'none' },
             notoggledClass: { type: String, default: 'notoggled' },
             toggled: { type: Boolean, default: false, reflect: true },
@@ -112,7 +113,8 @@ customElements.define('li-button', class LiButton extends LiElement {
                     border: ${this.border} solid ${this.color || this.fill};
                     border-radius: ${this.radius};
                     background-color: ${this.back};
-                    overflow: hidden;"
+                    overflow: hidden;
+                    padding: ${this.padding}"
                     @click="${this.clickHandler}">
                 ${this.icon || this.name ? this._icon() : ''}
                 <div style="color: ${this.color}; user-select: none; flex: 1">
