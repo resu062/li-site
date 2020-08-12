@@ -7,22 +7,22 @@ customElements.define('li-icon', class LiIcon extends LiElement {
     static get properties() {
         return {
             _useInfo: {type: Boolean, default: true },
-            icon: { type: Object, default: undefined },
             name: { type: String, default: '' },
-            size: { type: Number, default: 24 },
-            _s2: { type: Number, default: 0 },
-            height: { type: Number, default: 0 },
-            width: { type: Number, default: 0 },
-            viewbox: { type: String, default: '0 0 24 24' },
             fill: { type: String, default: 'currentColor', list: ['red', 'blue', 'green'] },
             stroke: { type: String, default: 'currentColor' },
             strokeWidth: { type: Number, default: 0 },
+            size: { type: Number, default: 24 },
+            width: { type: Number, default: 0 },
+            height: { type: Number, default: 0 },
+            _s2: { type: Number, default: 0 },
+            viewbox: { type: String, default: '0 0 24 24' },
+            scale: { type: String, default: '1,1' },
             rotate: { type: Number, default: 0 },
             speed: { type: Number, default: 0 },
             blink: { type: Number, default: 0 },
             blval: { type: String, default: '1;0;0;1' },
-            scale: { type: String, default: '1,1' },
             path: { type: String, default: '' },
+            icon: { type: Object, default: undefined },
         }
     }
 

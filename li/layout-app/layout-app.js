@@ -163,7 +163,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
     get topPanel() {
         return this._t ? html`
             <div style="border-bottom: ${this.border}; display: flex; align-items: center; justify-content: center">
-                ${this._l ? html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" ?toggleded="${this._widthL <= this.minSize}" toggle="left" style="padding:2px; cursor: pointer;z-index:2" @click="${this._hideL}"></li-button>` : ""}
+                ${this._l ? html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" ?toggled="${this._widthL <= this.minSize}" toggledClass="left90" style="padding:2px; cursor: pointer;z-index:2" @click="${this._hideL}"></li-button>` : ""}
                 <div style="flex:1">
                     <slot name="app-top-left">
    
@@ -177,7 +177,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
                         
                     </slot>
                 </div>
-                ${this._r ? html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" ?toggleded="${this._widthR <= this.minSize}" toggle="right" style="padding:2px; cursor: pointer;z-index:2" @click="${this._hideR}"></li-button>` : ""}
+                ${this._r ? html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" ?toggled="${this._widthR <= this.minSize}" toggledClass="right90" style="padding:2px; cursor: pointer;z-index:2" @click="${this._hideR}"></li-button>` : ""}
             </div>
         ` : "";
     }
