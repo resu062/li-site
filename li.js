@@ -1,6 +1,7 @@
 import { LitElement } from './lib/lit-element/lit-element.js';
-import { directive } from "./lib/lit-html/lib/directive.js"
+import { directive } from './lib/lit-html/lib/directive.js';
 import { AWN } from './lib/awesome-notifications/modern.var.js';
+import { ulid } from './lib/ulid/ulid.js';
 let urlLI = import.meta.url;
 
 window.globalThis = window.globalThis || window;
@@ -92,6 +93,8 @@ export default function LI(props = {}) {
 }
 
 globalThis.LI = LI;
+
+LI.ulid = ulid;
 
 let awnOptions = {
     icons: {
