@@ -22,7 +22,7 @@ customElements.define('li-app', class LiApp extends LiElement {
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     <li-button width="auto"></li-button>
                     <li-button width="auto"></li-button>
-                    <li-button width="auto"></li-button>
+                    <li-button width="auto" @click="${(e) => { let ulid = LI.ulid(); LI.notifier.info(ulid); console.log(ulid);}}">ulid</li-button>
                 </div>
                 <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     <li-button width="auto"></li-button>
