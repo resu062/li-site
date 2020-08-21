@@ -23,7 +23,7 @@ customElements.define('li-db-cell-list', class LiDbCellList extends LiElement {
     render() {
         return html`
             <div class="db-list">
-                ${this.list.map(i => html`<li-db-cell icon="${i.icon}" label="${i.label}" .callback="${i.callback}"></li-db-cell>`)}
+                ${this.list.map(i => html`<li-db-cell icon="${i.icon}" label="${i.label}" action="${i.action}" .callback="${i.callback}"></li-db-cell>`)}
             </div>
         `;
     }

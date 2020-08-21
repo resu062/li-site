@@ -207,3 +207,42 @@ LI.debounce = (key, func, delay = 0, immediate = false) => {
     }, delay);
     LI.$temp.debounces.set(key, pending)
 }
+
+LI.action = (act) => {
+    if (typeof act === 'string') {
+        switch (act) {
+            case 'addDB':
+                let id = '00000000000000000000000001:' + LI.ulid();
+                let db = new PouchDB('http://admin:54321@127.0.0.1:5984/b0001');
+                console.log(act, id);
+                console.dir(db);
+                db.put({
+                    _id: id,
+                    title: 'Heroes - ' + id
+                }).then(function (response) {
+                    console.log('ok');
+                }).catch(function (err) {
+                    console.log(err);
+                });
+
+                PouchDB.sync('b0001', 'http://admin:54321@127.0.0.1:5984/b0001');
+
+                var changes = db.changes({
+                    since: 'now',
+                    live: true,
+                    include_docs: true
+                }).on('change', function (change) {
+                    console.log(change)
+                }).on('complete', function (info) {
+                    console.log(info)
+                }).on('error', function (err) {
+                    console.log(err);
+                });
+
+                break;
+        
+            default:
+                break;
+        }
+    }
+}
