@@ -136,34 +136,16 @@ LI.show = async (host, comp, compProps = {}, hostProps = {}) => {
     return host.show(comp);
 }
 
+LI.listen = (target, event, callback, options) => {
+    if (target && event && callback) event.split(',').forEach(i => target.addEventListener(i.trim(), callback, options));
+}
+
+LI.unlisten = (target, event, callback, options) => {
+    if (target && event && callback) event.split(',').forEach(i => target.removeEventListener(i.trim(), callback, options));
+}
+
 LI.fire = (target, event, detail = {}) => {
-    target.dispatchEvent(new CustomEvent(event, { detail: { ...{}, ...detail } }));
-    //console.log('fire - ' + event);
-}
-
-LI.listen = (event = '', callback, props = { target: this, once: false, useCapture: false }) => {
-    props.target = props.target || this;
-    event.split(',').forEach(i => {
-        props.target.addEventListener(i.trim(), callback, props.useCapture);
-        if (props.once) {
-            const once = () => {
-                props.target.removeEventListener(i.trim(), callback, props.useCapture)
-                props.target.removeEventListener(i.trim(), once)
-            }
-            props.target.addEventListener(i.trim(), once)
-        }
-    });
-}
-
-LI.unlisten = (event = '', callback, props = { target: this, once: false, useCapture: false }) => {
-    props.target = props.target || this;
-    if (props.target) {
-        if (callback) {
-            event.split(',').forEach(i => {
-                props.target.removeEventListener(i.trim(), callback, props.useCapture)
-            });
-        }
-    }
+    if (target && event) target.dispatchEvent(new CustomEvent(event, {detail: detail}));
 }
 
 window.LIRect = window.LIRect || class LIRect {

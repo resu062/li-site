@@ -2,7 +2,7 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../button/button.js';
 
-customElements.define('li-cell', class LiCell extends LiElement {
+customElements.define('li-tester-cell', class LiTesterCell extends LiElement {
     static get properties() {
         return {
             type: { type: String, default: 'text' },
@@ -86,6 +86,6 @@ customElements.define('li-cell', class LiCell extends LiElement {
     _tap(e) {
         let el = this.$id.input;
         this.value = this.type === 'checkbox' ? el.checked : e.target.className ? e.target.innerText : el.value;
-        LI.fire(document, "okChangedValue");
+        LI.fire(document, "dropdownDataChange");
     }
 });

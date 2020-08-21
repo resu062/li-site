@@ -42,7 +42,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
                         hFactor = props.list ? props.list.length + 1 : 1;
 
                     try {
-                        let val = await LI.show('dropdown', 'cell', { type, value, props }, { parent: e.target, useParent: true, intersect: true, hFactor })
+                        let val = await LI.show('dropdown', 'tester-cell', { type, value, props }, { parent: e.target, useParent: true, intersect: true, hFactor })
                         cell.setValue(val.value)
                         el[cell.getData().name] = val.value;
                     } catch (err) { }

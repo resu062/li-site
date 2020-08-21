@@ -5,8 +5,8 @@ import { styleMap } from '../../lib/lit-html/directives/style-map.js';
 customElements.define('li-dropdown', class LiDropdown extends LiElement {
     static get properties() {
         return {
-            component: { type: Object, default: undefined }, 
-            opened: { type: Boolean, default: false }, 
+            component: { type: Object, default: undefined },
+            opened: { type: Boolean, default: false },
             size: { type: Object, default: {} },
             useParent: { type: Boolean, default: false, reflect: true },
             hFactor: { type: Number, default: 1, reflect: true },
@@ -19,17 +19,24 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
         }
     }
 
+    constructor() {
+        super();
+        this.__ok = this.ok.bind(this);
+        this.__keyDown = this._keyDown.bind(this);
+        this.__close = this._close.bind(this);
+    }
+
     connectedCallback() {
         super.connectedCallback();
-        LI.listen('okChangedValue', this.ok.bind(this), { target: window, useCapture: true });
-        LI.listen('keydown', this._keyDown.bind(this), { target: window, useCapture: true });
-        LI.listen('mousedown, resize, wheel', this._close.bind(this), { target: window, useCapture: true });
+        LI.listen(window, 'dropdownDataChange', this.__ok, true);
+        LI.listen(window, 'keydown', this.__keyDown, true);
+        LI.listen(window, 'mousedown, resize, wheel', this.__close, true);
         this._setSize();
     }
     disconnectedCallback() {
-        LI.unlisten('okChangedValue', this.ok.bind(this), { target: window, useCapture: true });
-        LI.unlisten('keydown', this._keyDown.bind(this), { target: window, useCapture: true });
-        LI.unlisten('mousedown, resize, wheel', this._close.bind(this), { target: window, useCapture: true });
+        LI.unlisten(window, 'dropdownDataChange', this.__ok, true);
+        LI.unlisten(window, 'keydown', this.__keyDown, true);
+        LI.unlisten(window, 'mousedown, resize, wheel', this.__close, true);
         super.disconnectedCallback();
     }
 
@@ -43,16 +50,16 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
         this._setSize();
         this.opened = true;
         return new Promise((resolve, reject) => {
-            LI.listen('ok', () => resolve(this.component), { target: this });
-            LI.listen('close', () => reject(), { target: this });
+            LI.listen(this, 'ok', () => resolve(this.component));
+            LI.listen(this, 'close', () => reject());
         })
     }
-    close() {
+    close(e) {
         this.opened = false;
         LI.fire(this, 'close', this.component);
         if (this.parentElement === document.body) document.body.removeChild(this);
     }
-    ok() {
+    ok(e) {
         this.opened = false;
         LI.fire(this, 'ok', this.component);
         if (this.parentElement === document.body) document.body.removeChild(this);
@@ -80,7 +87,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
                 t = this.intersect ? rect.top : rect.bottom,
                 r = window.innerWidth - rect.left,
                 b = window.innerHeight - t;
-            
+
             if (this.useParent && this.parent) {
                 let s = this.parent.getBoundingClientRect();
                 //size.bottom = s.bottom;
@@ -95,7 +102,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
                 this.size = { ...{}, ...size };
                 return;
             }
-            
+
             size.minWidth = this.parent && this.parent.offsetWidth > this.minWidth ? this.parent.offsetWidth : this.minWidth || w;
             if (this.useParentWidth && this.parent) size.width = size.maxWidth = this.parent.offsetWidth;
             else if (this.maxWidth) size.maxWidth = this.maxWidth > size.minWidth ? this.maxWidth : size.minWidth;
@@ -147,7 +154,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
         }
         this.close();
     }
-    
+
     static get styles() {
         return css`
             div { 
