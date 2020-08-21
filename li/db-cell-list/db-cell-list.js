@@ -11,7 +11,7 @@ customElements.define('li-db-cell-list', class LiDbCellList extends LiElement {
 
     static get styles() {
         return css`
-                #db-list {
+                .db-list {
                     display:flex;
                     flex-direction: column;
                     align-items: center;
@@ -22,8 +22,8 @@ customElements.define('li-db-cell-list', class LiDbCellList extends LiElement {
 
     render() {
         return html`
-            <div id="db-list">
-                ${this.list.map(i => html`<li-db-cell icon="${i.icon}" label="${i.label}"></li-db-cell>`)}
+            <div class="db-list">
+                ${this.list.map(i => html`<li-db-cell icon="${i.icon}" label="${i.label}" .callback="${i.callback}"></li-db-cell>`)}
             </div>
         `;
     }
