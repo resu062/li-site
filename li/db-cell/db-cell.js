@@ -7,6 +7,7 @@ customElements.define('li-db-cell', class LiDbCell extends LiElement {
         return {
             icon: { type: String, default: 'apps' },
             label: { type: String, default: 'db-cell ...' },
+            action: { type: String, default: '' },
             callback: { type: Object, default: undefined }
         }
     }
@@ -35,6 +36,6 @@ customElements.define('li-db-cell', class LiDbCell extends LiElement {
     }
 
     async _tap(e) {
-        LI.fire(document, "dropdownDataChange", { target: this, value: e.target.label || e.target.name });
+        LI.fire(document, "dropdownDataChange", { target: this, value: e.target.label || e.target.name, callback: this.callback, action: this.action });
     }
 });
