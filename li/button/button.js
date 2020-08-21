@@ -7,9 +7,11 @@ customElements.define('li-button', class LiButton extends LiElement {
         return {
             _useInfo: { type: Boolean, default: true },
             label: { type: String, default: '' },
+            textAlign: { type: String, default: 'center' },
             name: { type: String, default: '' },
             fill: { type: String, default: '' },
             color: { type: String, default: 'gray' },
+            borderColor: { type: String, default: 'gray' },
             back: { type: String, default: '#fdfdfd' },
             size: { type: Number, default: 24 },
             width: { type: String, default: '' },
@@ -47,7 +49,6 @@ customElements.define('li-button', class LiButton extends LiElement {
             .li-btn {
                 display: flex;
                 align-items: center;
-                text-align:center;
                 cursor: pointer;
             }
             .li-btn:hover {
@@ -108,9 +109,10 @@ customElements.define('li-button', class LiButton extends LiElement {
     render() {
         return html`
             <div id="li-btn" class="li-btn"  tabindex="0" style="
+                    text-align: ${this.textAlign};
                     width: ${this.width || this.size};
                     height: ${this.height || this.size};
-                    border: ${this.border} solid ${this.color || this.fill};
+                    border: ${this.border} solid ${this.borderColor || this.color || this.fill};
                     border-radius: ${this.radius};
                     background-color: ${this.back};
                     overflow: hidden;
