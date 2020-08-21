@@ -50,7 +50,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
         this._setSize();
         this.opened = true;
         return new Promise((resolve, reject) => {
-            LI.listen(this, 'ok', () => resolve(this.component));
+            LI.listen(this, 'ok', (e) => resolve({ component: this.component, detail: e.detail.detail}));
             LI.listen(this, 'close', () => reject());
         })
     }
@@ -61,7 +61,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
     }
     ok(e) {
         this.opened = false;
-        LI.fire(this, 'ok', this.component);
+        LI.fire(this, 'ok', { detail: e.detail });
         if (this.parentElement === document.body) document.body.removeChild(this);
     }
 

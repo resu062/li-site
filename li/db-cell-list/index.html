@@ -3,5 +3,10 @@
 <li-db-cell-list id="list"></li-db-cell-list>
 
 <script>
-    list.list = [ {icon: 'add', label: 'Add db'}, {icon: 'close', label: 'Delete db'}, {icon: 'add', label: 'Add class'}, {icon: 'close', label: 'Delete class'}];
+    const act = async () => { await LI.show('dropdown', 'db-cell-list', { list: [{ icon: 'add', label: 'Add db' }, { icon: 'close', label: 'Delete db' }, { icon: 'add', label: 'Add class' }, { icon: 'close', label: 'Delete class' }] }, {}) };
+    list.list = [ 
+        {icon: 'add', label: 'Add db', callback: act }, 
+        {icon: 'close', label: 'Delete db'}, 
+        {icon: 'add', label: 'Add class', callback: act}, 
+        {icon: 'close', label: 'Delete class'}];
 </script>

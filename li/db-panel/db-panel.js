@@ -12,7 +12,7 @@ customElements.define('li-db-panel', class LiDbPanel extends LiElement {
 
     static get styles() {
         return css`
-            #container {
+            .container {
                 border: 1px solid red;
                 width: 300px;
                 height: 300px;
@@ -22,16 +22,15 @@ customElements.define('li-db-panel', class LiDbPanel extends LiElement {
 
     render() {
         return html`
-            <div id="container" @contextmenu="${this._contextmenu}">
+            <div class="container" @contextmenu="${this._contextmenu}">
 
             </div>
         `;
     }
     async _contextmenu(e) {
         e.preventDefault();
-
         let val = await LI.show('dropdown', 'db-cell-list', { list:  [ {icon: 'add', label: 'Add db'}, {icon: 'close', label: 'Delete db'}, {icon: 'add', label: 'Add class'}, {icon: 'close', label: 'Delete class'}]  }, {})
-        
+        if (val.detail.target.callback) val.detail.target.callback();
         return val;
     }
 });
