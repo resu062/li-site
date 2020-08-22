@@ -11,7 +11,7 @@ customElements.define('li-button', class LiButton extends LiElement {
             name: { type: String, default: '' },
             fill: { type: String, default: '' },
             color: { type: String, default: 'gray' },
-            borderColor: { type: String, default: 'gray' },
+            borderColor: { type: String, default: '' },
             back: { type: String, default: '#fdfdfd' },
             size: { type: Number, default: 24 },
             width: { type: String, default: '' },

@@ -20,7 +20,7 @@ customElements.define('li-db-cell', class LiDbCell extends LiElement {
                     justify-content: stretch;
                     border: .5px solid lightgray;
                     background: whitesmoke;
-                    width: 240px;
+                    width: 260px;
                 }
         `;
     }

@@ -22,20 +22,20 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
     constructor() {
         super();
         this.__ok = this.ok.bind(this);
-        this.__keyDown = this._keyDown.bind(this);
+        this.__keyup = this._keyup.bind(this);
         this.__close = this._close.bind(this);
     }
 
     connectedCallback() {
         super.connectedCallback();
         LI.listen(window, 'dropdownDataChange', this.__ok, true);
-        LI.listen(window, 'keydown', this.__keyDown, true);
+        LI.listen(window, 'keyup', this.__keyup, true);
         LI.listen(window, 'mousedown, resize, wheel', this.__close, true);
         this._setSize();
     }
     disconnectedCallback() {
         LI.unlisten(window, 'dropdownDataChange', this.__ok, true);
-        LI.unlisten(window, 'keydown', this.__keyDown, true);
+        LI.unlisten(window, 'keyup', this.__keyup, true);
         LI.unlisten(window, 'mousedown, resize, wheel', this.__close, true);
         super.disconnectedCallback();
     }
@@ -54,14 +54,14 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             LI.listen(this, 'close', () => reject());
         })
     }
-    close(e) {
+    close() {
         this.opened = false;
         LI.fire(this, 'close', this.component);
         if (this.parentElement === document.body) document.body.removeChild(this);
     }
     ok(e) {
         this.opened = false;
-        LI.fire(this, 'ok', { detail: e.detail });
+        LI.fire(this, 'ok', { detail: e && e.detail || this.component});
         if (this.parentElement === document.body) document.body.removeChild(this);
     }
 
@@ -136,7 +136,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             this.size = { ...{}, ...size };
         });
     }
-    _keyDown(e) {
+    _keyup(e) {
         if (e.keyCode === 27) this.close();
         if (e.keyCode === 13) this.ok();
     }

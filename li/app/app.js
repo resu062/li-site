@@ -2,6 +2,7 @@ import { html } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../layout-app/layout-app.js';
 import '../button/button.js'
+import '../db-panel/db-panel.js'
 let url = import.meta.url;
 
 customElements.define('li-app', class LiApp extends LiElement {
@@ -19,10 +20,8 @@ customElements.define('li-app', class LiApp extends LiElement {
                     <li-button size=28 name="settings" fill="gray" style="padding:2px" br="none:50%" @click="${(e) => LI.notifier.warning('Settings ... Your custom message')}" ></li-button>
                     <li-button size=28 name="help-outline" fill="gray" style="padding:2px" br="none:50%" @click="${(e) => LI.notifier.info('Help ... Your custom message')}" ></li-button>
                 </div>
-                <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
-                    <li-button width="auto"></li-button>
-                    <li-button width="auto"></li-button>
-                    <li-button width="auto" @click="${(e) => { let ulid = LI.ulid(); LI.notifier.info(ulid); console.log(ulid);}}">ulid</li-button>
+                <div slot="app-left" style="padding-left:4px;">
+                    <li-db-panel></li-db-panel>
                 </div>
                 <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     <li-button width="auto"></li-button>

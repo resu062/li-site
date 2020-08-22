@@ -211,9 +211,9 @@ LI.debounce = (key, func, delay = 0, immediate = false) => {
 LI.action = (act) => {
     if (typeof act === 'string') {
         switch (act) {
-            case 'addDB':
+            case 'addClass':
                 let id = '00000000000000000000000001:' + LI.ulid();
-                let db = new PouchDB('http://admin:54321@127.0.0.1:5984/b0001');
+                let db = new PouchDB('http://admin:54321@127.0.0.1:5984/li-db');
                 console.log(act, id);
                 console.dir(db);
                 db.put({
@@ -225,7 +225,7 @@ LI.action = (act) => {
                     console.log(err);
                 });
 
-                PouchDB.sync('b0001', 'http://admin:54321@127.0.0.1:5984/b0001');
+                PouchDB.sync('b0001', 'http://admin:54321@127.0.0.1:5984/li-db');
 
                 var changes = db.changes({
                     since: 'now',
@@ -240,7 +240,11 @@ LI.action = (act) => {
                 });
 
                 break;
-        
+            case 'ulid':
+                for (let index = 0; index < 10; index++) {
+                    console.log(LI.ulid());
+                }
+                break;
             default:
                 break;
         }
