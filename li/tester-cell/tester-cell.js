@@ -66,7 +66,7 @@ customElements.define('li-tester-cell', class LiTesterCell extends LiElement {
     render() {
         return html`
             <div class="cell">
-                <input id="input" type="${this.type}" value="${this.value}" @change="${e => this._change(e)}"/>
+                <input id="input" type="${this.type}" value="${this.value}" @keydown="${e => this._change(e)}"/>
                 <li-button name="check" size="16" fill="lightblue" color="lightblue" @click="${this._tap}"></li-button>
             </div>
             <div class="list">
@@ -80,7 +80,7 @@ customElements.define('li-tester-cell', class LiTesterCell extends LiElement {
     }
 
     _change(e) {
-        this.value = this.type === 'checkbox' ? e.target.checked : e.target.value;
+        if (e.keyCode === 13) this.value = this.type === 'checkbox' ? e.target.checked : e.target.value;
     }
 
     _tap(e) {
