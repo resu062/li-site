@@ -1,7 +1,7 @@
 import { LitElement } from './lib/lit-element/lit-element.js';
 import { directive } from './lib/lit-html/lib/directive.js';
 import { AWN } from './lib/awesome-notifications/modern.var.js';
-import { ulid } from './lib/ulid/ulid.js';
+import { ulid, decodeTime } from './lib/ulid/ulid.js';
 import './lib/pouchdb/pouchdb-7.2.1.js';
 
 let urlLI = import.meta.url;
@@ -97,6 +97,8 @@ export default function LI(props = {}) {
 globalThis.LI = LI;
 
 LI.ulid = ulid;
+LI.ulidDateTime = (ulid) => { return new Date(decodeTime(ulid)) };
+
 LI.PouchDB = PouchDB;
 
 let awnOptions = {
@@ -145,7 +147,7 @@ LI.unlisten = (target, event, callback, options) => {
 }
 
 LI.fire = (target, event, detail = {}) => {
-    if (target && event) target.dispatchEvent(new CustomEvent(event, {detail: detail}));
+    if (target && event) target.dispatchEvent(new CustomEvent(event, { detail: detail }));
 }
 
 window.LIRect = window.LIRect || class LIRect {
@@ -184,6 +186,7 @@ document.addEventListener('mousedown', (e) => {
     LI.mousePos = new DOMRect(e.pageX, e.pageY);
 });
 
+
 LI.$temp = {};
 LI.$temp.throttles = new Map();
 LI.$temp.debounces = new Map();
@@ -209,19 +212,29 @@ LI.debounce = (key, func, delay = 0, immediate = false) => {
 }
 
 LI.action = (act) => {
+    const dates = LI.dates();
+    const ulid = LI.ulid();
+    const creator = 'User-0001';
     if (typeof act === 'string') {
         switch (act) {
-            case 'addClass':
-                let id = '00000000000000000000000001:' + LI.ulid();
+            case 'addItem':
+                let id = ulid + ':#';
                 let db = new PouchDB('http://admin:54321@127.0.0.1:5984/li-db');
-                console.log(act, id);
-                console.dir(db);
+
+                // console.log(act, id);
+                // console.dir(db);
                 db.put({
                     _id: id,
-                    title: 'Heroes - ' + id
-                }).then(function (response) {
+                    ulid,
+                    utc: dates.utc,
+                    loc: dates.local,
+                    creator,
+                    type: '#',
+                    name: '',
+                    label: ''
+                }).then(function(response) {
                     console.log('ok');
-                }).catch(function (err) {
+                }).catch(function(err) {
                     console.log(err);
                 });
 
@@ -231,11 +244,11 @@ LI.action = (act) => {
                     since: 'now',
                     live: true,
                     include_docs: true
-                }).on('change', function (change) {
+                }).on('change', function(change) {
                     console.log(change)
-                }).on('complete', function (info) {
+                }).on('complete', function(info) {
                     console.log(info)
-                }).on('error', function (err) {
+                }).on('error', function(err) {
                     console.log(err);
                 });
 
@@ -245,8 +258,20 @@ LI.action = (act) => {
                     console.log(LI.ulid());
                 }
                 break;
+            case 'toISOString':
+                console.log(dates.utc);
+                console.log(dates.local);
+                break;
             default:
                 break;
         }
     }
 }
+
+LI.dates = (d = new Date()) => {
+    const utc = d.toISOString();
+    const local = new Date(d.getTime() - (d.getTimezoneOffset()) * 60 * 1000).toISOString().slice(0, -5).replace('T', ' ');
+    return { utc, local };
+}
+
+
