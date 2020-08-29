@@ -1,0 +1,53 @@
+<script type="module" src="./tree.js"></script>
+<style>
+    html * {
+        color: gray;
+        font-family: Arial;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<li-tree id="layout"></li-tree>
+
+<script type="module">
+    layout.item =  [
+            { label: 1 },
+            { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
+            { label: 3 },
+            { label: 4 },
+            { label: 5 },
+            { label: 6 },
+            { label: 7 },
+            { label: 8 },
+            { label: 9 },
+            { label: 10 },
+            { label: 11 },
+            { label: 12, items: [{ label: '16' }, { label: '17' },{ label: '161' }, { label: '171' },{ label: '162' }, { label: '172' }] },
+            { label: 13 },
+            {
+                label: 14, items: [{ label: '14.1' }, {
+                    label: '14.2', items: [
+                        {
+                            label: '14.2.1',
+                            items: [
+                                { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
+                                { label: 12, items: [{ label: '16' }, { label: '17' }] },
+                                { label: 13 },
+                                { label: 14, items: [{ label: '14.1' }, { label: '14.2', items: [{ label: '14.2.1' }] }] },
+                                { label: 15 },
+                            ]
+                        }]
+                }]
+            },
+            { label: 15 },
+            { label: 16 },
+            { label: 17 },
+            { label: 18 },
+            { label: 19 },
+            { label: 20 },
+        ]
+ 
+</script>

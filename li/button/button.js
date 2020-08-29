@@ -29,13 +29,16 @@ customElements.define('li-button', class LiButton extends LiElement {
             toggledClass: { type: String, default: 'none' },
             notoggledClass: { type: String, default: 'notoggled' },
             toggled: { type: Boolean, default: false, reflect: true },
+            toggle: { type: String, default: false },
             path: { type: String, default: '' },
             icon: { type: Object, default: undefined }
         }
     }
 
     clickHandler() {
-        this.toggled = !this.toggled;
+        if (this.toggle === 'true') this.toggled = false;
+        else this.toggled = !this.toggled;
+        this.toggle = this.toggled ? 'true' : 'false';
     }
     static get styles() {
         return css`
@@ -82,6 +85,10 @@ customElements.define('li-button', class LiButton extends LiElement {
                 transition: .3s;
                 transform: rotate(0deg);
             }
+            .ontoggled {
+                transition: .3s;
+                background-color: lightgray;
+            }
         `;
     }
     firstUpdated(setPath = false) {
@@ -103,7 +110,7 @@ customElements.define('li-button', class LiButton extends LiElement {
         this.fill = this.fill || this.color;
         this.size = this.size || this.height || this.width;
         if (this.icon) _icon = JSON.stringify(this.icon);
-        return html`<li-icon class="${this.toggled ? this.toggledClass : this.notoggledClass}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
+        return html`<li-icon class="${this.toggled || this.toggle === 'true' ? this.toggledClass : this.notoggledClass}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
             rotate="${this.rotate}" speed="${this.speed}" blink="${this.blink}" blval="${this.blval}" path="${this.path}"></li-icon>`;
     }
     render() {

@@ -5,18 +5,18 @@ import '../button/button.js';
 customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
     static get properties() {
         return {
-            outside: { type: Boolean, default: false, reflect: true }, 
-            sides: { type: String, default: '240, 240' }, 
+            outside: { type: Boolean, default: false, reflect: true },
+            sides: { type: String, default: '240, 240' },
             minSize: { type: Number, default: 128 },
             hide: { type: String, default: '' },
-            over: { type: Boolean, default: false, reflect: true }, 
-            overLeft: { type: Boolean, default: false, reflect: true }, 
+            over: { type: Boolean, default: false, reflect: true },
+            overLeft: { type: Boolean, default: false, reflect: true },
             overRight: { type: Boolean, default: false, reflect: true },
             _indx: { type: Number, default: -1 },
-            _move: { type: String, default: '' },  
-            _widthL: { type: Number, default: 0 }, 
+            _move: { type: String, default: '' },
+            _widthL: { type: Number, default: 0 },
             _widthR: { type: Number, default: 0 },
-            _isOver: { type: Boolean, default: false }, 
+            _isOver: { type: Boolean, default: false },
         }
     }
 
@@ -82,7 +82,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
         if (e === true) this._l = this._l > 0 ? this._l * -1 : this._l;
         else this._l = this._l * -1;
         if (this._l > 1) {
-            if (this._r > 1&& (this.over || this.overRight)) this._r = this._r * 1;
+            if (this._r > 1 && (this.over || this.overRight)) this._r = this._r * 1;
             this.isOver = this.over || this.overLeft ? true : false;
         }
         this._widthL = this._l < 0 ? 0 : l;
@@ -164,7 +164,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
         return this._t ? html`
             <div style="border-bottom: ${this.border}; display: flex; align-items: center; justify-content: center">
                 ${this._l ? html`<li-button size=28 br="none:50%" name="hamburger" fill="gray" ?toggled="${this._widthL <= this.minSize}" toggledClass="left90" style="padding:2px; cursor: pointer;z-index:2" @click="${this._hideL}"></li-button>` : ""}
-                <div style="flex:1">
+                <div style="display: flex; align-items: center; justify-content: center;flex:1">
                     <slot name="app-top-left">
    
                     </slot>
