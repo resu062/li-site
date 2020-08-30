@@ -147,7 +147,7 @@ LI.unlisten = (target, event, callback, options) => {
 }
 
 LI.fire = (target, event, detail = {}) => {
-    if (target && event) target.dispatchEvent(new CustomEvent(event, { detail: detail }));
+    if (target && event) target.dispatchEvent(new CustomEvent(event, { detail }));
 }
 
 window.LIRect = window.LIRect || class LIRect {

@@ -29,12 +29,16 @@ customElements.define('li-button', class LiButton extends LiElement {
             toggledClass: { type: String, default: 'none' },
             notoggledClass: { type: String, default: 'notoggled' },
             toggled: { type: Boolean, default: false, reflect: true },
-            toggle: { type: String, default: false },
+            toggle: { type: String, default: 'false' },
             path: { type: String, default: '' },
             icon: { type: Object, default: undefined }
         }
     }
 
+    set toggle(n) {
+        if (n === 'true' || n === true) this.toggled = true;
+        else this.toggled = false;
+    }
     clickHandler() {
         if (this.toggle === 'true') this.toggled = false;
         else this.toggled = !this.toggled;
