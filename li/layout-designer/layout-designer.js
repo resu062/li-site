@@ -56,7 +56,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
             keyID: { type: String, default: 'id' },
             keyLabel: { type: String, default: 'label' },
             keyItems: { type: String, default: 'items' },
-            designMode: { type: String, default: 'false' }
+            designMode: { type: Boolean, default: false }
         }
     }
 
@@ -76,7 +76,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: .5px solid lightgray;border-bottom:none">
                     <li-tree .item="${this.layout}" ulid="${ulid}"></li-tree>
                 </div>
-                <li-layout-structure id="structure" slot="app-main" .items="${this.layout && this.layout.items || this.layout}" designMode="${this.designMode}"></li-layout-structure>
+                <li-layout-structure id="structure" slot="app-main" .items="${this.layout && this.layout.items || this.layout}" ?designMode="${this.designMode}"></li-layout-structure>
             </li-layout-app>
         `;
     }
@@ -90,7 +90,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
     static get properties() {
         return {
             items: { type: Array, default: [] },
-            designMode: { type: String, default: 'false' }
+            designMode: { type: Boolean, default: false }
         }
     }
 
@@ -108,7 +108,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
                 }
             </style>
             ${this.items.map(i => html`
-                <li-layout-container .item=${i} designMode="${this.designMode}"></li-layout-container>
+                <li-layout-container .item=${i} ?designMode="${this.designMode}"></li-layout-container>
             `)}
         `;
     }
@@ -118,7 +118,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     static get properties() {
         return {
             item: { type: Object, default: {} },
-            designMode: { type: String, default: 'false' },
+            designMode: { type: Boolean, default: false },
             iconSize: { type: Number, default: 24 }
         }
     }
@@ -165,7 +165,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             <div class="${this.designMode ? 'design-row' : ''}" :draggable @dragstart="${this._dragstart}" @dragend="${this._dragend}"
                     @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}"  style="display:flex;align-items:center">
                 ${this.item && this.item.items && this.item.items.length ? html`
-                    <li-button name="chevron-right" toggledClass="right90" toggle="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
+                    <li-button name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
                 : html`
                     <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
                 `}
@@ -174,7 +174,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             </div>
             ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
                 <li-layout-structure class="complex"
-                    .items="${this.item.items || []}" designMode="${this.designMode}" style="flex-wrap: wrap;"></li-layout-structure>` : ''
+                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;"></li-layout-structure>` : ''
             }
         
         `;
