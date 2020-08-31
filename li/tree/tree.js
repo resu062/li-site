@@ -39,7 +39,7 @@ customElements.define('li-tree', class LiTree extends LiElement {
                 <div style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length
-                            ? html`<li-button name="chevron-right" border="0" toggledClass="right90" toggle="${i.$expanded}"
+                            ? html`<li-button name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.$expanded}"
                                     @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
                             : html`<div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`
                         }

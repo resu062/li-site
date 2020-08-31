@@ -29,21 +29,11 @@ customElements.define('li-button', class LiButton extends LiElement {
             toggledClass: { type: String, default: 'none' },
             notoggledClass: { type: String, default: 'notoggled' },
             toggled: { type: Boolean, default: false, reflect: true },
-            toggle: { type: String, default: 'false' },
             path: { type: String, default: '' },
             icon: { type: Object, default: undefined }
         }
     }
 
-    set toggle(n) {
-        if (n === 'true' || n === true) this.toggled = true;
-        else this.toggled = false;
-    }
-    clickHandler() {
-        if (this.toggle === 'true') this.toggled = false;
-        else this.toggled = !this.toggled;
-        this.toggle = this.toggled ? 'true' : 'false';
-    }
     static get styles() {
         return css`
             :host {
@@ -109,12 +99,12 @@ customElements.define('li-button', class LiButton extends LiElement {
             this.height = arr[2] || this.height;
         }
     }
-    _icon() {
+    get _icon() {
         let _icon = '{}';
         this.fill = this.fill || this.color;
         this.size = this.size || this.height || this.width;
         if (this.icon) _icon = JSON.stringify(this.icon);
-        return html`<li-icon class="${this.toggled || this.toggle === 'true' ? this.toggledClass : this.notoggledClass}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
+        return html`<li-icon class="${this.toggled ? this.toggledClass : this.notoggledClass}" icon=${_icon} name="${this.name}" fill="${this.fill}" size="${this.size}" scale="${this.scale}" 
             rotate="${this.rotate}" speed="${this.speed}" blink="${this.blink}" blval="${this.blval}" path="${this.path}"></li-icon>`;
     }
     render() {
@@ -128,8 +118,8 @@ customElements.define('li-button', class LiButton extends LiElement {
                     background-color: ${this.back};
                     overflow: hidden;
                     padding: ${this.padding}"
-                    @click="${this.clickHandler}">
-                ${this.icon || this.name ? this._icon() : ''}
+                    @click="${() => this.toggled = !this.toggled}">
+                ${this.icon || this.name ? this._icon : ''}
                 <div style="color: ${this.color}; user-select: none; flex: 1">
                     ${this.label}
                     <slot></slot>
