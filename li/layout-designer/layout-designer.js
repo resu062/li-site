@@ -14,7 +14,7 @@ class LayoutItem {
             if (_props.hColor === 0)
                 this.$root.color = 'white';
             else
-                this.$root.color = `hsla(${_props.hColor}, 50%, 50%, .1)`;
+                this.$root.color = `hsla(${_props.hColor}, 70%, 50%, 1)`;
             _props.hColor += 63;
         }
         this._keyID = props.keyID || 'id';
@@ -72,7 +72,7 @@ class GroupItem {
         if (target.$owner && target.$owner.items)
             target.$owner.items.splice(target.$owner.items.indexOf(target), 1, this);
         this.$root = target.$root;
-        this.$owner = target.$owner;
+        this.$owner = parent;
         target.$owner = this;
         this.items = [target];
     }
@@ -114,8 +114,7 @@ function findRecursive(id) {
 let dragInfo = {};
 let _props = { useColor: false, hColor: 10, showGroup: false };
 let ulid = LI.ulid();
-let reqUpdate = { update: false };
-let observableUpdate = Observable.from(reqUpdate);
+let observableUpdate = Observable.from({ update: false });
 
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
@@ -135,7 +134,6 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         if (changedProps.has('item') && this.item) {
             this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems, id: 'main' });
             this.layout.$root = this.layout;
-            this.layout.$owner = this.layout;
         }
     }
 
@@ -151,7 +149,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: 1px solid lightgray;border-bottom:none">
                     <li-tree .item="${this.layout}" ulid="${ulid}"></li-tree>
                 </div>
-                <li-layout-structure id="structure" slot="app-main" .layout="${this.layout}" .items="${this.layout && this.layout.items || this.layout}" ?designMode="${this.designMode}"></li-layout-structure>
+                <li-layout-structure id="structure" slot="app-main" .layout="${this.layout}" .items="${this.layout && this.layout.items || this.layout}" ?designMode="${this.designMode}" style="padding: 4px;"></li-layout-structure>
             </li-layout-app>
         `;
     }
@@ -176,8 +174,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         return {
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
-            designMode: { type: Boolean, default: false },
-            actions: { type: Array, default: [] },
+            designMode: { type: Boolean, default: false }
         }
     }
 
@@ -190,11 +187,15 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         super.update(changedProps);
         //console.log(changedProps);
         if (changedProps.has('layout') && this.layout) {
-            if (!this._setActions) {
-                this.actions = JSON.parse(localStorage.getItem('li-layout-structure.' + this.layout.id)) || [];
-                this.actions.forEach(action => { this[action.action](action.props); });
-            }
-            this._setActions = true;
+            if (!this.items) return; // && this.layout.actions && layout.actions.length) return;
+            let actions = undefined;
+            this._actionsName = this.layout.name || 'main';
+            try {
+                actions = localStorage.getItem('li-layout-structure.' + this._actionsName);
+                if (actions) actions = JSON.parse(actions) || [];
+                this.layout.actions = actions;
+            } catch (err) { return; }
+            if (this.layout.actions) this.layout.actions.forEach(action => this[action.action](action.props));
         }
     }
 
@@ -215,8 +216,8 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
     }
 
     execute(action) {
-        this.actions = this.actions || [];
-        this.actions.push(action);
+        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions)  || [];
+        this.layout.actions.push(action);
         this[action.action](action.props);
     }
     move(props) {
@@ -228,11 +229,19 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         if (!(target.$owner instanceof GroupItem) || (target.$owner && target.$owner.name && !target.$owner.name.includes(_align)))
             target.$owner = new GroupItem(props, target, this.layout);
         target.$owner.insert(target, item, props.to)
-        this.actions.last.props.name = this.actions.last.props.name || target.$owner.name;
-        this.actions.last.props.label = this.actions.last.props.label || target.$owner.label;
+        this.layout.actions.last.props.name = this.layout.actions.last.props.name || target.$owner.name;
+        this.layout.actions.last.props.label = this.layout.actions.last.props.label || target.$owner.label;
         observableUpdate.update = !observableUpdate.update;
         LI.fire(document, 'updateTree', { ulid });
-        localStorage.setItem('li-layout-structure.' + this.layout.id, JSON.stringify(this.actions));
+        localStorage.setItem('li-layout-structure.' + (target.$root && target.$root.name || 'main'), JSON.stringify(this.layout.actions));
+    }
+    updateLabel(name, label) {
+        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions)  || [];
+        this.layout.actions.forEach(i => {
+            if (name === i.props.name) i.props.label = label;
+        });
+        localStorage.setItem('li-layout-structure.' + this._actionsName, JSON.stringify(this.layout.actions));
+        LI.fire(document, 'updateTree', { ulid });
     }
 });
 
@@ -290,6 +299,8 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                     cursor: pointer;
                 }
                 .design-row {
+                    margin: 2px;
+                    padding: 2px;
                     border: 1px dotted lightgray;
                     cursor: move;
                 }
@@ -311,7 +322,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             `}
             ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
                 <li-layout-structure class="${this.isGroup ? 'group' : 'complex'}"
-                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;background-color: ${_props.useColor ? this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : ''
+                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : ''
             }       
         `;
     }
@@ -330,7 +341,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     _dragover(e) {
         this._setShadow();
         if (dragInfo.dragItem === this.item) return;
-        //if (dragInfo.dragItem.$root !== this.item.$root) return;
+        if (dragInfo.dragItem.$root !== this.item.$root) return;
 
         e.preventDefault();
 
@@ -356,9 +367,11 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     _setShadow(to = '') {
         if (!to) this.style.boxShadow = '';
         else {
-            let lr = (to === 'left' ? '8px' : to === 'right' ? '-8px' : '0px');
-            let tb = (to === 'top' ? '8px' : to === 'bottom' ? '-8px' : '0px');
-            this.style.boxShadow = `inset ${lr} ${tb} 0px 2px  rgba(0,128,255,0.5)`;
+            let w = '12px';
+            let color = 'blue';
+            let lr = (to === 'left' ? w : to === 'right' ? '-' + w : '0px');
+            let tb = (to === 'top' ? w : to === 'bottom' ? '-' + w : '0px');
+            this.style.boxShadow = `inset ${lr} ${tb} 0px 0px ` + color;
         }
     }
 
@@ -377,13 +390,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         e.stopPropagation();
         e.target.removeAttribute('contentEditable');
         this.item.label = e.target.innerText;
-        LI.fire(document, 'updateTree', { ulid });
-        this.$root.actions.forEach(i => {
-            if (this.item.name === i.props.name) i.props.label = this.item.label;
-        });
-        //this.domHost.actions = [...[], ...this.domHost.actions];
-        let actions = this.$root.actions;
-        localStorage.setItem('li-layout-structure.' + this.$root.layout.id, JSON.stringify(actions));
+        this.$root.updateLabel(this.item.name, this.item.label);
     }
     _keydownGroupLabel(e) {
         if (e.key === 'Enter') this._closeEditGroupLabel(e);
