@@ -1,5 +1,6 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
+import { Observable } from '../../lib/object-observer/object-observer.min.js';
 import '../button/button.js';
 import '../layout-app/layout-app.js'
 import '../tree/tree.js';
@@ -7,6 +8,7 @@ import '../tree/tree.js';
 class LayoutItem {
     constructor(item, props = {}, parent) {
         this.$item = item;
+        this.$props = props;
         this.$owner = this.$root = parent;
         if (this.$root && !this.$root.color) {
             if (_props.hColor === 0)
@@ -23,7 +25,7 @@ class LayoutItem {
 
     get id() {
         if (!this._id) {
-            this._id = this.$item[this._keyID] || LI.ulid();
+            this._id = this.$props.id || this.$item[this._keyID] || LI.ulid();
         }
         return this._id;
     }
@@ -65,7 +67,8 @@ class GroupItem {
     constructor(props, target, parent) {
         this.align = ['left', 'right'].includes(props.to) ? 'row' : 'column';
         this.label = props.label || this.label + '-' + this.align.slice(0, 3);
-        this.name = props.name || '~' + this.align.slice(0, 3) + '-' + LI.ulid();
+        this.id = props.id || LI.ulid();
+        this.name = props.name || '~' + this.align.slice(0, 3) + '-' + this.id;
         if (target.$owner && target.$owner.items)
             target.$owner.items.splice(target.$owner.items.indexOf(target), 1, this);
         this.$root = target.$root;
@@ -111,6 +114,8 @@ function findRecursive(id) {
 let dragInfo = {};
 let _props = { useColor: false, hColor: 10, showGroup: false };
 let ulid = LI.ulid();
+let reqUpdate = { update: false };
+let observableUpdate = Observable.from(reqUpdate);
 
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
@@ -128,7 +133,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         super.update(changedProps);
         //console.log(changedProps);
         if (changedProps.has('item') && this.item) {
-            this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems });
+            this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems, id: 'main' });
             this.layout.$root = this.layout;
             this.layout.$owner = this.layout;
         }
@@ -157,10 +162,12 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 
     _setUseColor(e) {
         _props.useColor = e.target.toggled;
+        observableUpdate.update = !observableUpdate.update;
     }
 
     _showGroup(e) {
         _props.showGroup = e.target.toggled;
+        observableUpdate.update = !observableUpdate.update;
     }
 });
 
@@ -176,20 +183,19 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 
     constructor() {
         super();
-        this.__requestUpdate = this._requestUpdate.bind(this);
+        observableUpdate.observe(changes => { this.requestUpdate(); });
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        LI.listen(document, 'requestUpdate', this.__requestUpdate);
-    }
-    disconnectedCallback() {
-        LI.unlisten(document, 'requestUpdate', this.__requestUpdate);
-        super.disconnectedCallback();
-    }
-
-    _requestUpdate(e) {
-        this.requestUpdate();
+    updated(changedProps) {
+        super.update(changedProps);
+        //console.log(changedProps);
+        if (changedProps.has('layout') && this.layout) {
+            if (!this._setActions) {
+                this.actions = JSON.parse(localStorage.getItem('li-layout-structure.' + this.layout.id)) || [];
+                this.actions.forEach(action => { this[action.action](action.props); });
+            }
+            this._setActions = true;
+        }
     }
 
     render() {
@@ -224,8 +230,9 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         target.$owner.insert(target, item, props.to)
         this.actions.last.props.name = this.actions.last.props.name || target.$owner.name;
         this.actions.last.props.label = this.actions.last.props.label || target.$owner.label;
-        LI.fire(document, 'requestUpdate');
+        observableUpdate.update = !observableUpdate.update;
         LI.fire(document, 'updateTree', { ulid });
+        localStorage.setItem('li-layout-structure.' + this.layout.id, JSON.stringify(this.actions));
     }
 });
 
@@ -252,6 +259,8 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     connectedCallback() {
         super.connectedCallback();
         LI.listen(document, 'updateTree', this.__requestUpdate);
+
+        observableUpdate.observe(changes => { this.requestUpdate(); });
     }
     disconnectedCallback() {
         LI.unlisten(document, 'updateTree', this.__requestUpdate);
@@ -296,7 +305,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                     : html`
                         <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
                     `}
-                    <label style="cursor: move;">${this.item && this.item.label}</label>
+                    <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
                     <div style="flex:1;"></div>
                 </div>
             `}
@@ -350,6 +359,37 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             let lr = (to === 'left' ? '8px' : to === 'right' ? '-8px' : '0px');
             let tb = (to === 'top' ? '8px' : to === 'bottom' ? '-8px' : '0px');
             this.style.boxShadow = `inset ${lr} ${tb} 0px 2px  rgba(0,128,255,0.5)`;
+        }
+    }
+
+    _editGroupLabel(e) {
+        if (!this.designMode || !this.isGroup) return;
+        e.stopPropagation();
+        const t = e.target;
+        this._oldLabel = t.innerText;
+        t.setAttribute('contentEditable', '');
+        t.focus();
+        t.style.outline = "0px solid transparent";
+        window.getSelection().selectAllChildren(t)
+    }
+    _closeEditGroupLabel(e) {
+        if (!this.designMode) return;
+        e.stopPropagation();
+        e.target.removeAttribute('contentEditable');
+        this.item.label = e.target.innerText;
+        LI.fire(document, 'updateTree', { ulid });
+        this.$root.actions.forEach(i => {
+            if (this.item.name === i.props.name) i.props.label = this.item.label;
+        });
+        //this.domHost.actions = [...[], ...this.domHost.actions];
+        let actions = this.$root.actions;
+        localStorage.setItem('li-layout-structure.' + this.$root.layout.id, JSON.stringify(actions));
+    }
+    _keydownGroupLabel(e) {
+        if (e.key === 'Enter') this._closeEditGroupLabel(e);
+        else if (e.key === 'Escape') {
+            e.target.innerText = this._oldLabel;
+            this._closeEditGroupLabel(e);
         }
     }
 });

@@ -221,16 +221,16 @@ LI.action = (act) => {
     if (typeof act === 'string') {
         switch (act) {
             case 'addItem':
-                let id = ulid + ':#';
-                let db = new PouchDB('http://admin:54321@127.0.0.1:5984/li-db');
+                let id = ulid + ':$';
+                let db = new PouchDB('http://admin:54321@127.0.0.1:5984/lidb');
 
                 // console.log(act, id);
                 // console.dir(db);
                 db.put({
                     _id: id,
                     ulid,
-                    utc: dates.utc,
-                    loc: dates.local,
+                    utcDate: dates.utc,
+                    locDate: dates.local,
                     creator,
                     type: '#',
                     name: '',
@@ -241,7 +241,7 @@ LI.action = (act) => {
                     console.log(err);
                 });
 
-                PouchDB.sync('b0001', 'http://admin:54321@127.0.0.1:5984/li-db');
+                PouchDB.sync('lidb', 'http://admin:54321@127.0.0.1:5984/lidb');
 
                 var changes = db.changes({
                     since: 'now',
