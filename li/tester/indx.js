@@ -90,42 +90,55 @@ export const indx = {
 
     'li-layout-designer': {
         label: 'li-layout-designer', props: {
+            keyLabel: 'name',
+            keyItems: 'fields',
+            id: 'layout',
             item: {
-                items: [
-                    { label: 1 },
-                    { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
-                    { label: 3 },
-                    { label: 4 },
-                    { label: 5 },
-                    { label: 6 },
-                    { label: 7 },
-                    { label: 8 },
-                    { label: 9 },
-                    { label: 10 },
-                    { label: 11 },
-                    { label: 12, items: [{ label: '16' }, { label: '17' }, { label: '161' }, { label: '171' }, { label: '162' }, { label: '172' }] },
-                    { label: 13 },
+                fields: [
+                    { name: 1 },
+                    { name: 2, fields: [{ name: '2.1' }, { name: '2.2' }, { name: '2.3' }, { name: '2.4' }, { name: '2.5' }, { name: '2.6' }] },
+                    { name: 3 },
+                    { name: 4 },
+                    { name: 5 },
+                    { name: 6 },
+                    { name: 7 },
+                    { name: 8 },
+                    { name: 9 },
+                    { name: 10 },
+                    { name: 11 },
+                    { name: 12, fields: [{ name: '12.1' }, { name: '12.2' }, { name: '12.3' }, { name: '12.4' }, { name: '12.5' }, { name: '12.6' }] },
+                    { name: 13 },
                     {
-                        label: 14, items: [{ label: '14.1' }, {
-                            label: '14.2', items: [
-                                {
-                                    label: '14.2.1',
-                                    items: [
-                                        { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
-                                        { label: 12, items: [{ label: '16' }, { label: '17' }] },
-                                        { label: 13 },
-                                        { label: 14, items: [{ label: '14.1' }, { label: '14.2', items: [{ label: '14.2.1' }] }] },
-                                        { label: 15 },
-                                    ]
-                                }]
-                        }]
+                        name: 14, fields: [
+                            { name: '14.1' },
+                            {
+                                name: '14.2', fields: [
+                                    {
+                                        name: '14.2.1',
+                                        fields: [
+                                            { name: '14.2.1.1', fields: [{ name: '14.2.1.1.1' }, { name: '14.2.1.1.2' }] },
+                                            { name: '14.2.1.2', fields: [{ name: '14.2.1.2.1' }, { name: '14.2.1.2.2' }] },
+                                            { name: '14.2.1.3' },
+                                            { name: '14.2.1.4', fields: [{ name: '14.2.1.4.1' }, { name: '14.2.1.4.2', fields: [{ name: '14.2.1.4.2.1' }, { name: '14.2.1.4.2.2' }, { name: '14.2.1.4.2.3' }, { name: '14.2.1.4.2.4' }] }] },
+                                            { name: '14.2.1.5' },
+                                        ]
+                                    },
+                                    { name: '14.2.2' },
+                                    { name: '14.2.3' },
+                                    { name: '14.2.4' },
+                                    { name: '14.2.5' }],
+
+                            },
+                            { name: '14.3' },
+                            { name: '14.4' },
+                            { name: '14.5' },],
                     },
-                    { label: 15 },
-                    { label: 16 },
-                    { label: 17 },
-                    { label: 18 },
-                    { label: 19 },
-                    { label: 20 },
+                    { name: 15 },
+                    { name: 16 },
+                    { name: 17 },
+                    { name: 18 },
+                    { name: 19 },
+                    { name: 20 },
                 ]
             }
         }
