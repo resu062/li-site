@@ -198,7 +198,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         super.update(changedProps);
         if (changedProps.has('layout') && this.layout) {
             if (!this.items) return;
-            if (layout.actions && layout.actions.length) return;
+            if (this.layout.actions && this.layout.actions.length) return;
             let actions = undefined;
             try {
                 actions = localStorage.getItem('li-layout-structure.' + (this.layout.name || 'main'));
