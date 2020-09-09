@@ -20,7 +20,7 @@ customElements.define('li-button', class LiButton extends LiElement {
             border: { type: String, default: '1px' },
             radius: { type: String, default: '2px' },
             br: { type: String, default: '' },
-            scale: { type: Number, default: 0.9 },
+            scale: { type: String, default: '0.9' },
             rotate: { type: Number, default: 0 },
             speed: { type: Number, default: 0 },
             blink: { type: Number, default: 0 },
