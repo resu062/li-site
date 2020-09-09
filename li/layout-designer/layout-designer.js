@@ -207,6 +207,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
                     overflow: auto;
                     display: flex;
                     flex-direction: ${this.layout.align || 'column'};
+
                 }
             </style>
             ${this.items.map(i => html`
@@ -253,6 +254,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             iconSize: { type: String, default: '28' },
             draggable: { type: Boolean, default: true, reflect: true },
             align: { type: Boolean, default: true },
+            dragto: { type: String, default: undefined, reflect: true },
         }
     }
 
@@ -280,12 +282,12 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         if (e.detail && e.detail.ulid === ulid) this.requestUpdate();
     }
 
-    render() {
-        return html`
-            <style>
+    static get styles() {
+        return css`
                 :host {
                     min-width: 200px;
                     flex: 1;
+                    position: relative;
                 }
                 .complex {
                     margin-left: 14px;
@@ -307,23 +309,60 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 .design-row:hover {
                     background: lightyellow;
                 }
-            </style>
-            ${!_props.showGroup && this.isGroup ? '' : html`
-                <div class="${this.designMode ? 'design-row' : ''}" draggable="${this.draggable}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
-                        @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}"  style="display:flex;align-items:center;">
-                    ${this.item && this.item.items && this.item.items.length ? html`
-                        <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
+                :host([dragto=left]):after {
+                    content: "";
+                    box-shadow: inset 4px 0 0 0 blue;
+                }
+                :host([dragto=right]):after {
+                    content: "";
+                    box-shadow: inset -4px 0 0 0 blue;
+                }
+                :host([dragto=top]):after {
+                    content: "";
+                    box-shadow: inset 0 4px 0 0 blue;
+                }
+                :host([dragto=bottom]):after {
+                    content: "";
+                    box-shadow: inset 0 -4px 0 0 blue;
+                }
+                :host([dragto]):after {
+                    content: "";
+                    pointer-events: none;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0,255,0,.3);
+                }
+                :host([dragto=error]):after {
+                    content: "";
+                    pointer-events: none;
+                    background-color: rgba(255,0,0,.3) !important;
+                }
+        `;
+    }
+
+    render() {
+        return html`
+            <div>
+                ${!_props.showGroup && this.isGroup ? '' : html`
+                    <div class="${this.designMode ? 'design-row' : ''}" draggable="${this.draggable}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
+                            @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}"  style="display:flex;align-items:center;">
+                        ${this.item && this.item.items && this.item.items.length ? html`
+                            <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
                     : html`
-                        <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
-                    `}
-                    <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
-                    <div style="flex:1;"></div>
-                </div>
-            `}
-            ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
-                <li-layout-structure class="${this.isGroup ? 'group' : 'complex'}"
-                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : ''
-            }       
+                            <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
+                        `}
+                        <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
+                        <div style="flex:1;"></div>
+                    </div>
+                `}
+                ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
+                    <li-layout-structure class="${this.isGroup ? 'group' : 'complex'}"
+                        .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : ''
+            }    
+            </div>   
         `;
     }
 
@@ -336,10 +375,10 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
     _dragend(e) {
         dragInfo = {};
-        this._setShadow();
+        this.dragto = undefined;
     }
     _dragover(e) {
-        this._setShadow();
+        this.dragto = 'error';
         if (dragInfo.dragItem === this.item) return;
         if (dragInfo.dragItem.$root !== this.item.$root) return;
 
@@ -351,28 +390,19 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             to = '';
         if (Math.abs(x) > Math.abs(y)) to = x < 0 ? 'left' : 'right';
         else to = y < 0 ? 'top' : 'bottom';
-        this._setShadow(to);
+        this.dragto = to;
         dragInfo.action = 'move';
         dragInfo.to = to;
     }
     _dragleave(e) {
-        this._setShadow();
+        e.stopPropagation();
+        this.dragto = undefined;
     }
     _dragdrop(e) {
         dragInfo.targetItem = this.item;
-        this._setShadow();
+        this.dragto = undefined;
         const action = { action: dragInfo.action, props: { item: dragInfo.dragItem.name, target: this.item.name, to: dragInfo.to } };
         this.$root.execute(action);
-    }
-    _setShadow(to = '') {
-        if (!to) this.style.boxShadow = '';
-        else {
-            let w = '12px';
-            let color = 'blue';
-            let lr = (to === 'left' ? w : to === 'right' ? '-' + w : '0px');
-            let tb = (to === 'top' ? w : to === 'bottom' ? '-' + w : '0px');
-            this.style.boxShadow = `inset ${lr} ${tb} 0px 0px ` + color;
-        }
     }
 
     _editGroupLabel(e) {
