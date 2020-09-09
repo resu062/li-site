@@ -115,6 +115,12 @@ let dragInfo = {};
 let _props = { useColor: false, hColor: 10, showGroup: false };
 let ulid = LI.ulid();
 let observableUpdate = Observable.from({ update: false });
+let selected = {};
+let selection = [];
+let img = new Image();
+img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAAACXBIWXMAAAsSAAALEgHS3X78AAAAYUlEQVRIie2WoQ0AMQgArxW1jPCu8/wIP3e3wNbwKaIrEBIuwaDugqEZPAgLZZAJYaPM7vIvA4NUc5yFdS5gvshIg55U/VIB0VRANBUQTQVEUwHRdP/qvoTmx1nYud9pZf5YeD58rKruzAAAAABJRU5ErkJggg==`
+let img3 = new Image();
+img3.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAAWCAYAAACL6W/rAAAACXBIWXMAAAsSAAALEgHS3X78AAAAv0lEQVRYhe2YMQ6DMBRD/RlY06UzG+fpEXrf3qBbj5ARFlc/Hfgg0t1fPAkpUhhs2eQDRmBCwRsVI5QoWFExg/ycqR6aqQdGEJC6XLNr7+CJsd2oiHkYtPPE1DEjbrbAbMplrFPLBFWM662W+olFQi1zGQu1TFbFbZ0rscBlTI3LmBpDe0t+Cip3zff+tu5ni5t6wdX/OBz3RoYh5pM7yUzbP2OJanlMLE0t98Yi4rXsH/fKtSxY/yWm+5OnYv4CLUxy42WrZpUAAAAASUVORK5CYII=`
 
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
@@ -130,7 +136,6 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 
     updated(changedProps) {
         super.update(changedProps);
-        //console.log(changedProps);
         if (changedProps.has('item') && this.item) {
             this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems, id: 'main' });
             this.layout.$root = this.layout;
@@ -142,6 +147,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
             <li-layout-app hide="r">
                 <div slot="app-top">li-layout-designer</div>
                 <div slot="app-top-right">
+                    <li-button name="refresh" scale=".9, -.9" rotate="-180" style="margin-right: 2px;" @click="${this._resetLayout}"></li-button>
                     <li-button name="select-all" toggledClass="ontoggled" style="margin-right: 2px;" @click="${this._showGroup}"></li-button>
                     <li-button name="color-lens" toggledClass="ontoggled" style="margin-right: 2px;" @click="${this._setUseColor}"></li-button>
                     <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" @click="${this._setDesignMode}"></li-button>
@@ -167,6 +173,10 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         _props.showGroup = e.target.toggled;
         observableUpdate.update = !observableUpdate.update;
     }
+
+    _resetLayout(e) {
+
+    }
 });
 
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
@@ -174,7 +184,8 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         return {
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
-            designMode: { type: Boolean, default: false }
+            designMode: { type: Boolean, default: false },
+            selection: { type: Array, default: [] }
         }
     }
 
@@ -185,13 +196,12 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 
     updated(changedProps) {
         super.update(changedProps);
-        //console.log(changedProps);
         if (changedProps.has('layout') && this.layout) {
-            if (!this.items) return; // && this.layout.actions && layout.actions.length) return;
+            if (!this.items) return;
+            if (layout.actions && layout.actions.length) return;
             let actions = undefined;
-            this._actionsName = this.layout.name || 'main';
             try {
-                actions = localStorage.getItem('li-layout-structure.' + this._actionsName);
+                actions = localStorage.getItem('li-layout-structure.' + (this.layout.name || 'main'));
                 if (actions) actions = JSON.parse(actions) || [];
                 this.layout.actions = actions;
             } catch (err) { return; }
@@ -210,14 +220,14 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 
                 }
             </style>
-            ${this.items.map(i => html`
-                <li-layout-container .item=${i} ?designMode="${this.designMode}" ?align="${this.layout.align}"></li-layout-container>
+            ${this.items.map(item => html`
+                <li-layout-container .item=${item} ?designMode="${this.designMode}" ?align="${this.layout.align}"  @click="${this._focus}" ?isSelected="${this.selection.includes(item)}"></li-layout-container>
             `)}
         `;
     }
 
-    execute(action) {
-        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions) || [];
+    execute(action, item = this.layout) {
+        this.layout.actions = this.layout.actions || (item.$root && item.$root.actions) || [];
         this.layout.actions.push(action);
         this[action.action](action.props);
     }
@@ -236,13 +246,32 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         LI.fire(document, 'updateTree', { ulid });
         localStorage.setItem('li-layout-structure.' + (target.$root && target.$root.name || 'main'), JSON.stringify(this.layout.actions));
     }
-    updateLabel(name, label) {
-        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions) || [];
-        this.layout.actions.forEach(i => {
-            if (name === i.props.name) i.props.label = label;
-        });
-        localStorage.setItem('li-layout-structure.' + this._actionsName, JSON.stringify(this.layout.actions));
-        LI.fire(document, 'updateTree', { ulid });
+    _focus(e) {
+        if (!this.designMode) return;
+        e.stopPropagation();
+        const item = e.target.item;
+        if (!selected || this.selection.length === 0) selected = item;
+        if (e.ctrlKey || e.metaKey) {
+            if (selected.$root !== item.$root) return;
+            if (this.selection.includes(item)) {
+                this.selection.splice(this.selection.indexOf(item), 1);
+                observableUpdate.update = !observableUpdate.update;
+                return;
+            }
+            this.selection.splice(this.selection.length, 0, item)
+        } else if (e.shiftKey) {
+            if (selected.$root !== item.$root) return;
+            const from = selected.$root.items.indexOf(selected);
+            const to = selected.$root.items.indexOf(item);
+            const arr = selected.$root.items.slice((from < to ? from : to), (from > to ? from : to) + 1)
+            this.selection.splice(0, this.selection.length, ...arr);
+        } else {
+            selected = item;
+            this.selection.splice(0, this.selection.length, item)
+        }
+        selection = this.selection.map(i => i.name);
+        observableUpdate.update = !observableUpdate.update;
+        //console.log(selection)
     }
 });
 
@@ -254,6 +283,8 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             iconSize: { type: String, default: '28' },
             align: { type: Boolean, default: true },
             dragto: { type: String, default: undefined, reflect: true },
+            selection: { type: Array, default: [] },
+            isSelected: { type: Boolean, default: false, reflect: true }
         }
     }
 
@@ -292,7 +323,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             .complex {
                 margin-left: 14px;
                 overflow: hidden;
-                border-left: 1px dashed lightgray;
+                border-left: 1px dashed darkgray;
             }
             .group {
                 overflow: hidden;
@@ -301,6 +332,8 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 cursor: pointer;
             }
             .row {
+                margin-top: -1px;
+                margin-left: 1px;
                 border: 1px dotted lightgray;
                 min-height: 32px;
             }
@@ -308,7 +341,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 cursor: move;
             }
             .design-row:hover {
-                background: lightyellow;
+                box-shadow: inset 0 0 0 1px red;
             }
             :host([dragto=left]):after {
                 content: "";
@@ -341,17 +374,20 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 pointer-events: none;
                 background-color: rgba(255,0,0,.3) !important;
             }
+            .selected {
+                background-color: lightyellow;
+            }
         `;
     }
 
     render() {
         return html`
             ${!_props.showGroup && this.isGroup ? '' : html`
-                <div class="row ${this.designMode ? 'design-row' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
+                <div class="row ${this.designMode ? 'design-row' : ''} ${this.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
                         @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                     ${this.item && this.item.items && this.item.items.length ? html`
                         <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
-                : html`
+                    : html`
                         <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
                     `}
                     <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
@@ -370,8 +406,12 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         this.requestUpdate();
     }
     _dragstart(e) {
-        this.dragto = null;
+        if (!this.isSelected) {
+            e.preventDefault();
+            return;
+        }
         dragInfo.dragItem = this.item;
+        e.dataTransfer.setDragImage(selection.length > 2 ? img3 : img, 24, 6);
     }
     _dragend(e) {
         dragInfo = {};
@@ -379,7 +419,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
     _dragover(e) {
         this.dragto = 'error';
-        if (dragInfo.dragItem === this.item) return;
+        if (this.isSelected || dragInfo.dragItem === this.item) return;
         if (dragInfo.dragItem.$root !== this.item.$root) return;
 
         e.preventDefault();
@@ -401,7 +441,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         dragInfo.targetItem = this.item;
         this.dragto = null;
         const action = { action: dragInfo.action, props: { item: dragInfo.dragItem.name, target: this.item.name, to: dragInfo.to } };
-        this.$root.execute(action);
+        this.$root.execute(action, this.item);
     }
 
     _editGroupLabel(e) {
@@ -419,7 +459,11 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         e.stopPropagation();
         e.target.removeAttribute('contentEditable');
         this.item.label = e.target.innerText;
-        this.$root.updateLabel(this.item.name, this.item.label);
+        this.item.$root.actions.forEach(i => {
+            if (this.item.name === i.props.name) i.props.label = this.item.label;
+        });
+        localStorage.setItem('li-layout-structure.' + this.item.$root.name, JSON.stringify(this.item.$root.actions));
+        LI.fire(document, 'updateTree', { ulid });
     }
     _keydownGroupLabel(e) {
         if (e.key === 'Enter') this._closeEditGroupLabel(e);
