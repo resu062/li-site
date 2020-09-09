@@ -252,7 +252,6 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             item: { type: Object, default: {} },
             designMode: { type: Boolean, default: false },
             iconSize: { type: String, default: '28' },
-            draggable: { type: Boolean, default: true, reflect: true },
             align: { type: Boolean, default: true },
             dragto: { type: String, default: undefined, reflect: true },
         }
@@ -284,85 +283,85 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
 
     static get styles() {
         return css`
-                :host {
-                    min-width: 200px;
-                    flex: 1;
-                    position: relative;
-                }
-                .complex {
-                    margin-left: 14px;
-                    overflow: hidden;
-                    border-left: 1px dashed lightgray;
-                }
-                .group {
-                    overflow: hidden;
-                }
-                oda-icon {
-                    cursor: pointer;
-                }
-                .design-row {
-                    margin: 2px;
-                    padding: 2px;
-                    border: 1px dotted lightgray;
-                    cursor: move;
-                }
-                .design-row:hover {
-                    background: lightyellow;
-                }
-                :host([dragto=left]):after {
-                    content: "";
-                    box-shadow: inset 4px 0 0 0 blue;
-                }
-                :host([dragto=right]):after {
-                    content: "";
-                    box-shadow: inset -4px 0 0 0 blue;
-                }
-                :host([dragto=top]):after {
-                    content: "";
-                    box-shadow: inset 0 4px 0 0 blue;
-                }
-                :host([dragto=bottom]):after {
-                    content: "";
-                    box-shadow: inset 0 -4px 0 0 blue;
-                }
-                :host([dragto]):after {
-                    content: "";
-                    pointer-events: none;
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: rgba(0,255,0,.3);
-                }
-                :host([dragto=error]):after {
-                    content: "";
-                    pointer-events: none;
-                    background-color: rgba(255,0,0,.3) !important;
-                }
+            :host {
+                min-width: 200px;
+                flex: 1;
+                position: relative;
+                min-height: 32px;
+            }
+            .complex {
+                margin-left: 14px;
+                overflow: hidden;
+                border-left: 1px dashed lightgray;
+            }
+            .group {
+                overflow: hidden;
+            }
+            oda-icon {
+                cursor: pointer;
+            }
+            .row {
+                border: 1px dotted lightgray;
+                min-height: 32px;
+            }
+            .design-row {
+                cursor: move;
+            }
+            .design-row:hover {
+                background: lightyellow;
+            }
+            :host([dragto=left]):after {
+                content: "";
+                box-shadow: inset 4px 0 0 0 blue;
+            }
+            :host([dragto=right]):after {
+                content: "";
+                box-shadow: inset -4px 0 0 0 blue;
+            }
+            :host([dragto=top]):after {
+                content: "";
+                box-shadow: inset 0 4px 0 0 blue;
+            }
+            :host([dragto=bottom]):after {
+                content: "";
+                box-shadow: inset 0 -4px 0 0 blue;
+            }
+            :host([dragto]):after {
+                content: "";
+                pointer-events: none;
+                position: absolute;
+                left: 0;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0,255,0,.3);
+            }
+            :host([dragto=error]):after {
+                content: "";
+                pointer-events: none;
+                background-color: rgba(255,0,0,.3) !important;
+            }
         `;
     }
 
     render() {
         return html`
-            <div>
-                ${!_props.showGroup && this.isGroup ? '' : html`
-                    <div class="${this.designMode ? 'design-row' : ''}" draggable="${this.draggable}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
-                            @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}"  style="display:flex;align-items:center;">
-                        ${this.item && this.item.items && this.item.items.length ? html`
-                            <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
-                    : html`
-                            <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
-                        `}
-                        <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
-                        <div style="flex:1;"></div>
-                    </div>
-                `}
-                ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
-                    <li-layout-structure class="${this.isGroup ? 'group' : 'complex'}"
-                        .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : ''
-            }    
-            </div>   
+            ${!_props.showGroup && this.isGroup ? '' : html`
+                <div class="row ${this.designMode ? 'design-row' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
+                        @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
+                    ${this.item && this.item.items && this.item.items.length ? html`
+                        <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
+                : html`
+                        <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
+                    `}
+                    <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
+                    <div style="flex:1;"></div>
+                </div>
+            `}
+            ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
+                <li-layout-structure class="${this.isGroup ? 'group' : 'complex'}"
+                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : ''
+            }     
         `;
     }
 
@@ -371,11 +370,12 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         this.requestUpdate();
     }
     _dragstart(e) {
+        this.dragto = null;
         dragInfo.dragItem = this.item;
     }
     _dragend(e) {
         dragInfo = {};
-        this.dragto = undefined;
+        this.dragto = null;
     }
     _dragover(e) {
         this.dragto = 'error';
@@ -395,12 +395,11 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         dragInfo.to = to;
     }
     _dragleave(e) {
-        e.stopPropagation();
-        this.dragto = undefined;
+        this.dragto = null;
     }
     _dragdrop(e) {
         dragInfo.targetItem = this.item;
-        this.dragto = undefined;
+        this.dragto = null;
         const action = { action: dragInfo.action, props: { item: dragInfo.dragItem.name, target: this.item.name, to: dragInfo.to } };
         this.$root.execute(action);
     }
