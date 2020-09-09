@@ -61,10 +61,10 @@ class LayoutItem {
 }
 
 class GroupItem {
-    complex = 'li-layout-group'
-    _expanded = true
-    _label = 'group'
     constructor(props, target, parent) {
+        this.complex = 'li-layout-group';
+        this._expanded = true;
+        this._label = 'group';
         this.align = ['left', 'right'].includes(props.to) ? 'row' : 'column';
         this.label = props.label || this.label + '-' + this.align.slice(0, 3);
         this.id = props.id || LI.ulid();
@@ -216,7 +216,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
     }
 
     execute(action) {
-        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions)  || [];
+        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions) || [];
         this.layout.actions.push(action);
         this[action.action](action.props);
     }
@@ -236,7 +236,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         localStorage.setItem('li-layout-structure.' + (target.$root && target.$root.name || 'main'), JSON.stringify(this.layout.actions));
     }
     updateLabel(name, label) {
-        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions)  || [];
+        this.layout.actions = this.layout.actions || (this.layout.$owner && this.layout.$owner.actions) || [];
         this.layout.actions.forEach(i => {
             if (name === i.props.name) i.props.label = label;
         });
