@@ -118,9 +118,9 @@ let observableUpdate = Observable.from({ update: false });
 let selected = {};
 let selection = [];
 let img = new Image();
-img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAAACXBIWXMAAAsSAAALEgHS3X78AAAAYUlEQVRIie2WoQ0AMQgArxW1jPCu8/wIP3e3wNbwKaIrEBIuwaDugqEZPAgLZZAJYaPM7vIvA4NUc5yFdS5gvshIg55U/VIB0VRANBUQTQVEUwHRdP/qvoTmx1nYud9pZf5YeD58rKruzAAAAABJRU5ErkJggg==`
+img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAAACXBIWXMAAAsSAAALEgHS3X78AAAAa0lEQVRIiWPU6v91RFv4jwIv+78/DEMIfP7JxHL1LcsDFpDjJ7p8kB5KjoeB/D0CDExDLeSRAcjtTIPHOeSBUQ8MNBj1wECDUQ8MNBj1wECDUQ8MNGACteqGquNBbgc3SUGtuiHZnH7L8gAAtichl6hs6rYAAAAASUVORK5CYII=`
 let img3 = new Image();
-img3.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAAWCAYAAACL6W/rAAAACXBIWXMAAAsSAAALEgHS3X78AAAAv0lEQVRYhe2YMQ6DMBRD/RlY06UzG+fpEXrf3qBbj5ARFlc/Hfgg0t1fPAkpUhhs2eQDRmBCwRsVI5QoWFExg/ycqR6aqQdGEJC6XLNr7+CJsd2oiHkYtPPE1DEjbrbAbMplrFPLBFWM662W+olFQi1zGQu1TFbFbZ0rscBlTI3LmBpDe0t+Cip3zff+tu5ni5t6wdX/OBz3RoYh5pM7yUzbP2OJanlMLE0t98Yi4rXsH/fKtSxY/yWm+5OnYv4CLUxy42WrZpUAAAAASUVORK5CYII=`
+img3.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAAUCAYAAADC1B7dAAAACXBIWXMAAAsSAAALEgHS3X78AAAA4klEQVRYhWPU6v91RFv4jwIv+78/DEMIfP7JxHL1LcuDqwWsNsiuZgF5ZqLLB+mh5BkYyN8jwMDAwIoixjTUYgYZ8LL/Ew9b/P2J9oTfR2DCTIPCZWQCQfb/LKDUBUplMBNYhponsAFYTIHy1JCOIRhAjqlh4SEYAJUHw8pDDEO9UMAGRj002MGohwY7GH4eArVaB4E7yAIffzFiaAM3wUGtVlDzAVTjDgmfQD3z6SdmAmOB9CdYGUBtoRbbodmNQI4peIwMl5hi/P//P4oCUEwN4Q7fU4yYQIqpodclf8vyAAC+a17T0iNSKwAAAABJRU5ErkJggg==`
 
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
@@ -315,7 +315,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     static get styles() {
         return css`
             :host {
-                min-width: 200px;
+                min-width: 40px;
                 flex: 1;
                 position: relative;
                 min-height: 32px;
@@ -341,7 +341,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 cursor: move;
             }
             .design-row:hover {
-                box-shadow: inset 0 0 0 1px red;
+                box-shadow: inset 0 0 0 1px blue;
             }
             :host([dragto=left]):after {
                 content: "";
@@ -382,7 +382,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
 
     render() {
         return html`
-            ${!_props.showGroup && this.isGroup ? '' : html`
+            ${!_props.showGroup && this.isGroup ? html`` : html`
                 <div class="row ${this.designMode ? 'design-row' : ''} ${this.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
                         @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                     ${this.item && this.item.items && this.item.items.length ? html`
@@ -396,7 +396,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             `}
             ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
                 <li-layout-structure class="${this.isGroup ? 'group' : 'complex'}"
-                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : ''
+                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : html``
             }     
         `;
     }
@@ -406,12 +406,12 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         this.requestUpdate();
     }
     _dragstart(e) {
-        if (!this.isSelected) {
-            e.preventDefault();
-            return;
-        }
+        // if (!this.isSelected) {
+        //     e.preventDefault();
+        //     return;
+        // }
         dragInfo.dragItem = this.item;
-        e.dataTransfer.setDragImage(selection.length > 2 ? img3 : img, 24, 6);
+        e.dataTransfer.setDragImage(selection.length > 1 ? img3 : img, 24, 6);
     }
     _dragend(e) {
         dragInfo = {};
