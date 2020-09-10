@@ -38,7 +38,7 @@ class LayoutItem {
     }
 
     get name() {
-        return this.$item.name || this.label;
+        return this.$item.name || this.label || this.id;
     }
 
     get items() {
