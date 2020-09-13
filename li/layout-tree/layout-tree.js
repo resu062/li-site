@@ -2,16 +2,19 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../button/button.js';
 
-customElements.define('li-tree', class LiTree extends LiElement {
+customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     static get properties() {
         return {
             ulid: { type: String, default: '' },
             item: { type: Object, default: {} },
-            iconSize: { type: String, default: '28' },
-            margin: { type: String, default: '0' },
+            iconSize: { type: Number, default: 28 },
+            margin: { type: Number, default: 0 },
             fullBorder: { type: Boolean, default: false },
             colorBorder: { type: String, default: 'lightgray' },
-            verticalLine: { type: Boolean, default: true }
+            labelWidth: { type: Number, default: 128 },
+            complex: { type: String, default: 'tree' },
+            complexExt: { type: String, default: 'tree-line' },
+            view: { type: String, default: '' },
         }
     }
 
@@ -35,12 +38,14 @@ customElements.define('li-tree', class LiTree extends LiElement {
 
     static get styles() {
         return css`
-            .complex-line {
-                border-left: 1px dashed lightgray;
-            }
             .complex {
-                margin-left: 14px;
                 overflow: hidden;
+            }
+            .tree {
+                margin-left: 14px;
+            }
+            .tree-line {
+                border-left: 1px dashed lightgray;
             }
         `;
     }
@@ -54,14 +59,14 @@ customElements.define('li-tree', class LiTree extends LiElement {
                         ${i.items && i.items.length
                             ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.$expanded}"
                                 @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
-                            : html`<div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`
+                            : html`<div style="min-width:${this.iconSize+2}px;width:${this.iconSize+2}px;min-height:${this.iconSize+2}px;height:${this.iconSize+2}px"></div>`
                         }
-                        <div style="padding:2px">${i.label || i.name}</div>
-                        <div></div>
+                        <div style="padding:2px;width:${this.labelWidth}px;">${i.label || i.name}</div>
+                        <div style="flex:1"></div>
                     </div>
                 </div>
-                <div class="complex ${this.verticalLine ? 'complex-line' : ''}">
-                    ${i.items && i.items.length && i.$expanded ? html`<li-tree .item="${i.items}" margin="${Number(this.margin)}" ulid="${this.ulid}"></li-tree>` : ''}
+                <div class="complex ${this.complex} ${this.complexExt}">
+                    ${i.items && i.items.length && i.$expanded ? html`<li-layout-tree .item="${i.items}" margin="${this.margin}" ulid="${this.ulid}"></li-layout-tree>` : ''}
                 </div>
             `)}
         `
