@@ -1,6 +1,7 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../button/button.js';
+import '../checkbox/checkbox.js';
 
 customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     static get properties() {
@@ -15,6 +16,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             complex: { type: String, default: 'tree' },
             complexExt: { type: String, default: 'tree-line' },
             view: { type: String, default: '' },
+            allowCheck: { type: Boolean, default: false, reflect: true }
         }
     }
 
@@ -61,6 +63,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                                 @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
                             : html`<div style="min-width:${this.iconSize+2}px;width:${this.iconSize+2}px;min-height:${this.iconSize+2}px;height:${this.iconSize+2}px"></div>`
                         }
+                        ${this.allowCheck ? html`<li-checkbox></li-checkbox>` : html``}
                         <div style="padding:2px;width:${this.labelWidth}px;">${i.label || i.name}</div>
                         <div style="flex:1"></div>
                     </div>

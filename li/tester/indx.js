@@ -9,52 +9,11 @@ export const indx = {
     'li-icons': { label: 'Иконки' },
     icons: [{ label: 'index', url: url + '/icons' }],
 
+    'li-checkbox': { label: 'Checkbox', props: { size: 48, fill: 'green'} },
+    checkbox: [{ label: 'index', url: url + '/checkbox' }],
+
     'li-button': { label: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
     button: [{ label: 'index', url: url + '/button' }, { label: 'index-2', url: url + '/button/index-2.html' }],
-
-    'li-tree': {
-        label: 'li-tree', props: {
-            item: {
-                items: [
-                    { label: 1 },
-                    { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
-                    { label: 3 },
-                    { label: 4 },
-                    { label: 5 },
-                    { label: 6 },
-                    { label: 7 },
-                    { label: 8 },
-                    { label: 9 },
-                    { label: 10 },
-                    { label: 11 },
-                    { label: 12, items: [{ label: '16' }, { label: '17' }, { label: '161' }, { label: '171' }, { label: '162' }, { label: '172' }] },
-                    { label: 13 },
-                    {
-                        label: 14, items: [{ label: '14.1' }, {
-                            label: '14.2', items: [
-                                {
-                                    label: '14.2.1',
-                                    items: [
-                                        { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
-                                        { label: 12, items: [{ label: '16' }, { label: '17' }] },
-                                        { label: 13 },
-                                        { label: 14, items: [{ label: '14.1' }, { label: '14.2', items: [{ label: '14.2.1' }] }] },
-                                        { label: 15 },
-                                    ]
-                                }]
-                        }]
-                    },
-                    { label: 15 },
-                    { label: 16 },
-                    { label: 17 },
-                    { label: 18 },
-                    { label: 19 },
-                    { label: 20 },
-                ]
-            }
-        }
-    },
-    tree: [{ label: 'index', url: url + '/tree' }],
 
     'li-table': {
         label: 'li-table', props: {
@@ -87,6 +46,49 @@ export const indx = {
         }
     },
     table: [{ label: 'index', url: url + '/table' }],
+
+    'li-layout-tree': {
+        label: 'li-layout-tree', props: {
+            allowCheck: true,
+            item: [
+                { label: 1 },
+                { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
+                { label: 3 },
+                { label: 4 },
+                { label: 5 },
+                { label: 6 },
+                { label: 7 },
+                { label: 8 },
+                { label: 9 },
+                { label: 10 },
+                { label: 11 },
+                { label: 12, items: [{ label: '16' }, { label: '17' }, { label: '161' }, { label: '171' }, { label: '162' }, { label: '172' }] },
+                { label: 13 },
+                {
+                    label: 14, items: [{ label: '14.1' }, {
+                        label: '14.2', items: [
+                            {
+                                label: '14.2.1',
+                                items: [
+                                    { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
+                                    { label: 12, items: [{ label: '16' }, { label: '17' }] },
+                                    { label: 13 },
+                                    { label: 14, items: [{ label: '14.1' }, { label: '14.2', items: [{ label: '14.2.1' }] }] },
+                                    { label: 15 },
+                                ]
+                            }]
+                    }]
+                },
+                { label: 15 },
+                { label: 16 },
+                { label: 17 },
+                { label: 18 },
+                { label: 19 },
+                { label: 20 },
+            ]
+        }
+    },
+    tree: [{ label: 'index', url: url + '/tree' }],
 
     'li-layout-designer': {
         label: 'li-layout-designer', props: {
