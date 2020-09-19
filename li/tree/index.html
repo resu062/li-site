@@ -13,7 +13,8 @@
 <li-tree id="layout"></li-tree>
 
 <script type="module">
-    layout.item =  [
+    layout.item = {
+        items: [
             { label: 1 },
             { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
             { label: 3 },
@@ -25,7 +26,7 @@
             { label: 9 },
             { label: 10 },
             { label: 11 },
-            { label: 12, items: [{ label: '16' }, { label: '17' },{ label: '161' }, { label: '171' },{ label: '162' }, { label: '172' }] },
+            { label: 12, items: [{ label: '16' }, { label: '17' }, { label: '161' }, { label: '171' }, { label: '162' }, { label: '172' }] },
             { label: 13 },
             {
                 label: 14, items: [{ label: '14.1' }, {
@@ -49,5 +50,5 @@
             { label: 19 },
             { label: 20 },
         ]
- 
+    }
 </script>
