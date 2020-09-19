@@ -2,6 +2,7 @@ import { LitElement } from './lib/lit-element/lit-element.js';
 import { directive } from './lib/lit-html/lib/directive.js';
 import { AWN } from './lib/awesome-notifications/modern.var.js';
 import { ulid, decodeTime } from './lib/ulid/ulid.js';
+import { Observable } from './lib/object-observer/object-observer.min.js';
 import './lib/pouchdb/pouchdb-7.2.1.js';
 
 let urlLI = import.meta.url;
@@ -56,6 +57,35 @@ export class LiElement extends LitElement {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
         }
+
+        if (this.$$$id !== undefined) {
+            this.$$$id = this.$$$id || LI.ulid();
+            this.$$id = this.$$$id;
+            LI.$$[this.$$id] = { _observe: Observable.from({ value: '', count: 0 }) };
+            //LI.$$[this.$$id]._observe.observe(changes => { console.dir(changes) });
+        }
+    }
+
+    get $$() {
+        return this.$$id ? LI.$$[this.$$id] : undefined;
+    }
+    set $$(n) {
+        if (!this.$$id) return;
+        LI.$$[this.$$id] = n;
+    }
+    $$update(property, value) {
+        if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
+        if (!property) {
+            ++LI.$$[this.$$id]._observe.count;
+        } else {
+            LI.$$[this.$$id]._observe[property] = value;
+        }
+    }
+    $$observe(callback) {
+        if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
+        LI.$$[this.$$id]._observe.observe(changes => { 
+            callback(changes);
+        });
     }
 
     firstUpdated() {
@@ -98,6 +128,8 @@ export default function LI(props = {}) {
 }
 
 globalThis.LI = LI;
+
+LI.$$ = {};
 
 LI.ulid = ulid;
 LI.ulidDateTime = (ulid) => { return new Date(decodeTime(ulid)) };
