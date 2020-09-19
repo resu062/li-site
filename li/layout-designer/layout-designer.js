@@ -25,7 +25,7 @@ class BaseItem {
 
     hideItem() {
         const id = this.id;
-        this.$root.actions = this.$root.actions || localStorage.getItem('oda-layout-structure.' + layout.id) || [];
+        this.$root.actions = this.$root.actions || localStorage.getItem('li-layout-structure.' + layout.id) || [];
         if (v) {
             const item = this.$root.actions.find(i => {
                 return i.action === 'hide' && i.props.item === id;
@@ -33,12 +33,12 @@ class BaseItem {
             const indx = this.$root.actions.indexOf(item);
             if (indx > -1) {
                 this.$root.actions.splice(indx, 1);
-                localStorage.setItem('oda-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
+                localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
             }
         } else {
             const item = { action: 'hide', props: { item: id } };
             this.$root.actions.splice(this.$root.actions.length, 0, item);
-            localStorage.setItem('oda-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
+            localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
         }
     }
 }
@@ -49,13 +49,6 @@ class LayoutItem extends BaseItem {
         this.$item = item;
         this.$props = props;
         this.$owner = this.$root = parent;
-        if (this.$root && !this.$root.color) {
-            if (_props.hColor === 0)
-                this.$root.color = 'white';
-            else
-                this.$root.color = `hsla(${_props.hColor}, 70%, 50%, 1)`;
-            _props.hColor += 63;
-        }
         this._expanded = props.expanded || false;
         this.id = this.$props.id || this.$item[this.$props.keyID || 'id'] || this.id;
         this.label = this.$props.label || this.$item[this.$props.keyLabel || 'label'] || '';
@@ -141,11 +134,12 @@ function findRecursive(id) {
 }
 
 let dragInfo = {};
-let _props = { useColor: false, hColor: 10, showGroup: false };
+let _props = { showGroup: false };
 let ulid = LI.ulid();
 let observableUpdate = Observable.from({ update: false });
 let selected = {};
 let selection = [];
+
 let img = new Image();
 img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAAACXBIWXMAAAsSAAALEgHS3X78AAAAa0lEQVRIiWPU6v91RFv4jwIv+78/DEMIfP7JxHL1LcsDFpDjJ7p8kB5KjoeB/D0CDExDLeSRAcjtTIPHOeSBUQ8MNBj1wECDUQ8MNBj1wECDUQ8MNGACteqGquNBbgc3SUGtuiHZnH7L8gAAtichl6hs6rYAAAAASUVORK5CYII=`
 let img3 = new Image();
@@ -154,6 +148,7 @@ img3.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAAUCAYAAADC1B7dAA
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
         return {
+            $$: { type: Object, default: undefined },
             item: { type: Object, default: undefined },
             layout: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
@@ -177,12 +172,12 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                 <div slot="app-top">li-layout-designer</div>
                 <div slot="app-top-right">
                     <li-button name="refresh" scale=".9, -.9" rotate="-180" style="margin-right: 2px;" @click="${this._resetLayout}"></li-button>
+                    <li-button name="credit-card" toggledClass="ontoggled" style="margin-right: 2px;" @click="${this._showGroupName}"></li-button>
                     <li-button name="select-all" toggledClass="ontoggled" style="margin-right: 2px;" @click="${this._showGroup}"></li-button>
-                    <li-button name="color-lens" toggledClass="ontoggled" style="margin-right: 2px;" @click="${this._setUseColor}"></li-button>
                     <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" @click="${this._setDesignMode}"></li-button>
                 </div>
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: 1px solid lightgray;border-bottom:none">
-                    <li-tree .item="${this.layout}" ulid="${ulid}"></li-tree>
+                    <li-tree .$$="${this.$$}" .item="${this.layout}" ulid="${ulid}"></li-tree>
                 </div>
                 <li-layout-structure id="structure" slot="app-main" .layout="${this.layout}" .items="${this.layout && this.layout.items || this.layout}" ?designMode="${this.designMode}" style="padding: 4px;"></li-layout-structure>
             </li-layout-app>
@@ -193,8 +188,8 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         this.designMode = e.target.toggled;
     }
 
-    _setUseColor(e) {
-        _props.useColor = e.target.toggled;
+    _showGroupName(e) {
+        _props.showGroupName = e.target.toggled;
         observableUpdate.update = !observableUpdate.update;
     }
 
@@ -211,6 +206,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
     static get properties() {
         return {
+            $$: { type: Object, default: undefined },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
             designMode: { type: Boolean, default: false },
@@ -246,11 +242,10 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
                     overflow: auto;
                     display: flex;
                     flex-direction: ${this.layout.align || 'column'};
-
                 }
             </style>
             ${this.items.map(item => html`
-                <li-layout-container .item=${item} ?designMode="${this.designMode}" ?align="${this.layout.align}"  @click="${this._focus}" ?isSelected="${this.selection.includes(item)}"></li-layout-container>
+                <li-layout-container .$$="${this.$$}" .item=${item} ?designMode="${this.designMode}" ?align="${this.layout.align}"  @click="${this._focus}" ?isSelected="${this.selection.includes(item)}"></li-layout-container>
             `)}
         `;
     }
@@ -265,8 +260,8 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         const item = findRecursive.call(this.layout.$root, props.item);
         const target = findRecursive.call(this.layout.$root, props.target);
         if (!item || !target) return;
-        let _align = ['left', 'right'].includes(props.to) ? 'row' : 'col';
-        if (!(target.$owner instanceof BlockItem) || (target.$owner && target.$owner.id && !target.$owner.id.includes(_align)))
+        let _align = ['left', 'right'].includes(props.to) ? '(h)' : '(v)';
+        if (!(target.$owner instanceof BlockItem) || (target.$owner && target.$owner.label && !target.$owner.label.includes(_align)))
             target.$owner = new BlockItem(props, target, this.layout);
         target.$owner.insert(target, item, props.to)
         this.layout.actions.last.props.id = this.layout.actions.last.props.id || target.$owner.id;
@@ -307,6 +302,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 customElements.define('li-layout-container', class LiLayoutContainer extends LiElement {
     static get properties() {
         return {
+            $$: { type: Object, default: undefined },
             item: { type: Object, default: {} },
             designMode: { type: Boolean, default: false },
             iconSize: { type: String, default: '28' },
@@ -416,22 +412,24 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
 
     render() {
         return html`
-            ${!_props.showGroup && this.isGroups ? html`` : html`
-                <div class="row ${this.designMode ? 'design-row' : ''} ${this.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
-                        @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
-                    ${this.item && this.item.items && this.item.items.length ? html`
-                        <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
-                    : html`
-                        <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
-                    `}
-                    <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
-                    <div style="flex:1;"></div>
-                </div>
-            `}
-            ${this.item && this.item.items && this.item.items.length && this.item.expanded ? html`
-                <li-layout-structure class="${this.isGroups ? 'group' : 'complex'}"
-                    .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : html``
-            }     
+            <div style="${this.isBlock && _props.showGroup ? 'border: 1px solid gray; margin: 4px;' : ''}">
+                ${!_props.showGroupName && this.isGroups ? html`` : html`
+                    <div class="row ${this.designMode ? 'design-row' : ''} ${this.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
+                            @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
+                        ${this.item && this.item.items && this.item.items.length ? html`
+                            <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
+                        : html`
+                            <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
+                        `}
+                        <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
+                        <div style="flex:1;"></div>
+                    </div>
+                `}
+                ${this.item && this.item.items && this.item.items.length && this.item.expanded ? html`
+                    <li-layout-structure class="${this.isGroups ? 'group' : 'complex'}"
+                        .$$="${this.$$}" .items="${this.item.items || []}" ?designMode="${this.designMode}" .layout="${this.item}"></li-layout-structure>` : html``
+                }   
+            </div>  
         `;
     }
 
