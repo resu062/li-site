@@ -5,8 +5,47 @@ import '../button/button.js';
 import '../layout-app/layout-app.js'
 import '../tree/tree.js';
 
-class LayoutItem {
+class BaseItem {
+    constructor() {
+        this.$owner = this.$root = undefined;
+        this.checked = true;
+        this.id = LI.ulid();
+        this.label = '';
+        this._expanded = false;
+    }
+
+    get expanded() {
+        return this._expanded;
+    }
+
+    set expanded(n) {
+        this._expanded = n;
+        LI.fire(document, 'updateTree', { ulid });
+    }
+
+    hideItem() {
+        const id = this.id;
+        this.$root.actions = this.$root.actions || localStorage.getItem('oda-layout-structure.' + layout.id) || [];
+        if (v) {
+            const item = this.$root.actions.find(i => {
+                return i.action === 'hide' && i.props.item === id;
+            })
+            const indx = this.$root.actions.indexOf(item);
+            if (indx > -1) {
+                this.$root.actions.splice(indx, 1);
+                localStorage.setItem('oda-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
+            }
+        } else {
+            const item = { action: 'hide', props: { item: id } };
+            this.$root.actions.splice(this.$root.actions.length, 0, item);
+            localStorage.setItem('oda-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
+        }
+    }
+}
+
+class LayoutItem extends BaseItem {
     constructor(item, props = {}, parent) {
+        super();
         this.$item = item;
         this.$props = props;
         this.$owner = this.$root = parent;
@@ -17,95 +56,85 @@ class LayoutItem {
                 this.$root.color = `hsla(${_props.hColor}, 70%, 50%, 1)`;
             _props.hColor += 63;
         }
-        this._keyID = props.keyID || 'id';
-        this._keyLabel = props.keyLabel || 'label';
-        this._keyItems = props.keyItems || 'items';
         this._expanded = props.expanded || false;
-    }
-
-    get id() {
-        if (!this._id) {
-            this._id = this.$props.id || this.$item[this._keyID] || LI.ulid();
-        }
-        return this._id;
-    }
-
-    get label() {
-        if (!this._label) {
-            this._label = this.$item[this._keyLabel];
-        }
-        return this._label;
-    }
-
-    get name() {
-        return this.$item.name || this.label || this.id;
+        this.id = this.$props.id || this.$item[this.$props.keyID || 'id'] || this.id;
+        this.label = this.$props.label || this.$item[this.$props.keyLabel || 'label'] || '';
     }
 
     get items() {
         if (!this._items) {
-            this._items = (this.$item[this._keyItems] || []).map(i => {
-                return new LayoutItem(i, { keyID: this._keyID, keyLabel: this._keyLabel, keyItems: this._keyItems }, this);
+            this._items = (this.$item[this.$props.keyItems || 'items'] || []).map(i => {
+                return new LayoutItem(i, { 
+                    keyID: this.$props.keyID || 'id', 
+                    keyLabel: this.$props.keyLabel || 'label', 
+                    keyItems: this.$props.keyItems || 'items'}, this);
             })
         }
         return this._items;
     }
-
-    get $expanded() {
-        return this._expanded;
-    }
-
-    set $expanded(n) {
-        this._expanded = n;
-        LI.fire(document, 'updateTree', { ulid });
-    }
 }
 
-class GroupItem {
-    constructor(props, target, parent) {
-        this.complex = 'li-layout-group';
+class GroupItem extends BaseItem {
+    constructor(props, target, owner) {
+        super();
         this._expanded = true;
-        this._label = 'group';
+        this.checked = true;
+        this.complex = 'li-layout-group';
+        this.label = props.label || 'group';
+        this.id = props.id || this.id
         this.align = ['left', 'right'].includes(props.to) ? 'row' : 'column';
-        this.label = props.label || this.label + '-' + this.align.slice(0, 3);
-        this.id = props.id || LI.ulid();
-        this.name = props.name || '~' + this.align.slice(0, 3) + '-' + this.id;
-        if (target.$owner && target.$owner.items)
+        if (target) {
             target.$owner.items.splice(target.$owner.items.indexOf(target), 1, this);
-        this.$root = target.$root;
-        this.$owner = parent;
+            this.$root = target.$root;
+        } else {
+            this.$root = owner.$root;
+        }
+        this.$owner = owner;
         target.$owner = this;
-        this.items = [target];
+        this.items = [target] || [];
     }
+
     insert(target, item, to) {
+        if (to === 'tabGrouping') {
+            this.tabGrouping();
+            return;
+        }
         let idx = this.items.indexOf(target);
-        if (['right', 'bottom'].includes(to))
-            ++idx;
+        if (['right', 'bottom'].includes(to)) ++idx;
         this.items.splice(idx, 0, item)
         item.$owner.items.splice(item.$owner.items.indexOf(item), 1);
         item.$owner = this;
     }
-    get label() {
-        return this._label || this.name;
-    }
-    set label(v) {
-        this._label = v;
-    }
-    get hideExpander() {
-        return !this.checked;
-    }
-    get $expanded() {
-        return this.hideExpander ? true : this._expanded;
-    }
-    set $expanded(v) {
-        this._expanded = v;
+
+    tabGrouping() {
+        if (this.$owner instanceof GroupItem) return;
+        new TabsItem({}, this);
     }
 }
+
+class BlockItem extends GroupItem {
+    constructor(props, target, owner) {
+        super(props, target, owner);
+        this.hideExpander = true;
+        this.complex = 'li-layout-block';
+        this.label = 'block (' + (this.align === 'row' ? 'h' : 'v') + ')';
+    }
+}
+
+class TabsItem extends GroupItem {
+    constructor(props, target, owner) {
+        super(props, target, owner);
+        this.complex = 'li-layout-tabs';
+        this.label = 'tab';
+    }
+}
+
 function findRecursive(id) {
     if (!this.items) return;
-    let items = this.items.filter(i => i.$root.name === this.$root.name);
+    let items = this.items.filter(i => i.$root.id === this.$root.id);
     if (!items || !items.length) items = this.items;
     return items.reduce((res, i) => {
-        if (i.name === id)
+        if (i.id === id)
             res = i;
         return res || findRecursive.call(i, id);
     }, undefined);
@@ -201,7 +230,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
             if (this.layout.actions && this.layout.actions.length) return;
             let actions = undefined;
             try {
-                actions = localStorage.getItem('li-layout-structure.' + (this.layout.name || 'main'));
+                actions = localStorage.getItem('li-layout-structure.' + (this.layout.id || 'main'));
                 if (actions) actions = JSON.parse(actions) || [];
                 this.layout.actions = actions;
             } catch (err) { return; }
@@ -237,14 +266,14 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         const target = findRecursive.call(this.layout.$root, props.target);
         if (!item || !target) return;
         let _align = ['left', 'right'].includes(props.to) ? 'row' : 'col';
-        if (!(target.$owner instanceof GroupItem) || (target.$owner && target.$owner.name && !target.$owner.name.includes(_align)))
-            target.$owner = new GroupItem(props, target, this.layout);
+        if (!(target.$owner instanceof BlockItem) || (target.$owner && target.$owner.id && !target.$owner.id.includes(_align)))
+            target.$owner = new BlockItem(props, target, this.layout);
         target.$owner.insert(target, item, props.to)
-        this.layout.actions.last.props.name = this.layout.actions.last.props.name || target.$owner.name;
+        this.layout.actions.last.props.id = this.layout.actions.last.props.id || target.$owner.id;
         this.layout.actions.last.props.label = this.layout.actions.last.props.label || target.$owner.label;
         observableUpdate.update = !observableUpdate.update;
         LI.fire(document, 'updateTree', { ulid });
-        localStorage.setItem('li-layout-structure.' + (target.$root && target.$root.name || 'main'), JSON.stringify(this.layout.actions));
+        localStorage.setItem('li-layout-structure.' + (target.$root && target.$root.id || 'main'), JSON.stringify(this.layout.actions));
     }
     _focus(e) {
         if (!this.designMode) return;
@@ -269,7 +298,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
             selected = item;
             this.selection.splice(0, this.selection.length, item)
         }
-        selection = this.selection.map(i => i.name);
+        selection = this.selection.map(i => i.id);
         observableUpdate.update = !observableUpdate.update;
         //console.log(selection)
     }
@@ -288,8 +317,14 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         }
     }
 
-    get isGroup() {
+    get isGroups() {
         return this.item instanceof GroupItem;
+    }
+    get isBlock() {
+        return this.item instanceof BlockItem;
+    }
+    get isTabs() {
+        return this.item instanceof TabsItem;
     }
 
     constructor() {
@@ -332,7 +367,6 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 cursor: pointer;
             }
             .row {
-                margin-top: -1px;
                 margin-left: 1px;
                 border: 1px dotted lightgray;
                 min-height: 32px;
@@ -382,11 +416,11 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
 
     render() {
         return html`
-            ${!_props.showGroup && this.isGroup ? html`` : html`
+            ${!_props.showGroup && this.isGroups ? html`` : html`
                 <div class="row ${this.designMode ? 'design-row' : ''} ${this.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
                         @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                     ${this.item && this.item.items && this.item.items.length ? html`
-                        <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.$expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
+                        <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" ?toggled="${this.item && this.item.expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
                     : html`
                         <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
                     `}
@@ -394,15 +428,15 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                     <div style="flex:1;"></div>
                 </div>
             `}
-            ${this.item && this.item.items && this.item.items.length && this.item.$expanded ? html`
-                <li-layout-structure class="${this.isGroup ? 'group' : 'complex'}"
+            ${this.item && this.item.items && this.item.items.length && this.item.expanded ? html`
+                <li-layout-structure class="${this.isGroups ? 'group' : 'complex'}"
                     .items="${this.item.items || []}" ?designMode="${this.designMode}" style="flex-wrap: wrap;${_props.useColor ? 'padding:8px; box-shadow: inset 0px 0px 0px 2px ' + this.item.color : ''};" .layout="${this.item}"></li-layout-structure>` : html``
             }     
         `;
     }
 
     _toggleExpand(e) {
-        this.item.$expanded = e.target.toggled;
+        this.item.expanded = e.target.toggled;
         this.requestUpdate();
     }
     _dragstart(e) {
@@ -440,12 +474,12 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     _dragdrop(e) {
         dragInfo.targetItem = this.item;
         this.dragto = null;
-        const action = { action: dragInfo.action, props: { item: dragInfo.dragItem.name, target: this.item.name, to: dragInfo.to } };
+        const action = { action: dragInfo.action, props: { item: dragInfo.dragItem.id, target: this.item.id, to: dragInfo.to } };
         this.$root.execute(action, this.item);
     }
 
     _editGroupLabel(e) {
-        if (!this.designMode || !this.isGroup) return;
+        if (!this.designMode || !this.isGroups) return;
         e.stopPropagation();
         const t = e.target;
         this._oldLabel = t.innerText;
@@ -460,9 +494,9 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         e.target.removeAttribute('contentEditable');
         this.item.label = e.target.innerText;
         this.item.$root.actions.forEach(i => {
-            if (this.item.name === i.props.name) i.props.label = this.item.label;
+            if (this.item.id === i.props.id) i.props.label = this.item.label;
         });
-        localStorage.setItem('li-layout-structure.' + this.item.$root.name, JSON.stringify(this.item.$root.actions));
+        localStorage.setItem('li-layout-structure.' + this.item.$root.id, JSON.stringify(this.item.$root.actions));
         LI.fire(document, 'updateTree', { ulid });
     }
     _keydownGroupLabel(e) {

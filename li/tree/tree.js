@@ -33,6 +33,10 @@ customElements.define('li-tree', class LiTree extends LiElement {
         if (e.detail && e.detail.ulid === this.ulid) this.requestUpdate();
     }
 
+    get items() {
+        return this.item && this.item.map ? this.item : this.item && this.item.items && this.item.items.map ? this.item.items : [];
+    }
+
     static get styles() {
         return css`
             .complex-line {
@@ -46,13 +50,12 @@ customElements.define('li-tree', class LiTree extends LiElement {
     }
 
     render() {
-        if (!this.item || (this.item.items && !this.item.items.map) || !this.item.map) return html``;
         return html`
-            ${((this.item && this.item.items) || this.item).map(i => html`
+            ${this.items.map(i => html`
                 <div style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length
-                            ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.$expanded}"
+                            ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
                                 @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
                             : html`<div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`
                         }
@@ -61,13 +64,13 @@ customElements.define('li-tree', class LiTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.verticalLine ? 'complex-line' : ''}">
-                    ${i.items && i.items.length && i.$expanded ? html`<li-tree .item="${i.items}" margin="${Number(this.margin)}" ulid="${this.ulid}"></li-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`<li-tree .item="${i.items}" margin="${Number(this.margin)}" ulid="${this.ulid}"></li-tree>` : ''}
                 </div>
             `)}
         `
     }
     _click(e, i) {
-        i.$expanded = e.target.toggled;
+        i.expanded = e.target.toggled;
         this.requestUpdate();
     }
 });
