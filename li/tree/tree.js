@@ -5,8 +5,7 @@ import '../button/button.js';
 customElements.define('li-tree', class LiTree extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, default: '' },
-            ulid: { type: String, default: '' },
+            $$id: { type: String },
             item: { type: Object, default: {} },
             iconSize: { type: String, default: '28' },
             margin: { type: String, default: '0' },

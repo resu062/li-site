@@ -132,7 +132,7 @@ img3.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAAUCAYAAADC1B7dAA
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
         return {
-            $$$id: { type: String, default: '' },
+            _$$id: { type: String, default: '' },
             item: { type: Object, default: undefined },
             layout: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
@@ -144,9 +144,8 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 
     constructor() {
         super();
-        this.$$set('ulid', LI.ulid());
-        this.$$set('selected', {});
-        this.$$set('selection', []);
+        this.$$.selected = {};
+        this.$$.selection = [];
     }
 
     updated(changedProps) {
@@ -181,12 +180,12 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
     }
 
     _showGroupName(e) {
-        this.$$set('showGroupName', e.target.toggled);
+        this.$$.showGroupName = e.target.toggled;
         this.$$update();
     }
 
     _showGroup(e) {
-        this.$$set('showGroup', e.target.toggled);
+        this.$$.showGroup = e.target.toggled;
         this.$$update();
     }
 
@@ -198,7 +197,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, default: '' },
+            $$id: { type: String },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
             designMode: { type: Boolean, default: false },
@@ -265,9 +264,9 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         if (!this.designMode) return;
         e.stopPropagation();
         const item = e.target.item;
-        if (!this.$$get('selected') || this.selection.length === 0) this.$$set('selected', item);
+        if (!this.$$.selected || this.selection.length === 0) this.$$.selected = item;
         if (e.ctrlKey || e.metaKey) {
-            if (this.$$get('selected').$root !== item.$root) return;
+            if (this.$$.selected.$root !== item.$root) return;
             if (this.selection.includes(item)) {
                 this.selection.splice(this.selection.indexOf(item), 1);
                 this.$$update();
@@ -275,16 +274,16 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
             }
             this.selection.splice(this.selection.length, 0, item)
         } else if (e.shiftKey) {
-            if (this.$$get('selected').$root !== item.$root) return;
-            const from = this.$$get('selected').$root.items.indexOf(this.$$get('selected'));
-            const to = this.$$get('selected').$root.items.indexOf(item);
-            const arr = this.$$get('selected').$root.items.slice((from < to ? from : to), (from > to ? from : to) + 1)
+            if (this.$$.selected.$root !== item.$root) return;
+            const from = this.$$.selected.$root.items.indexOf(this.$$.selected);
+            const to = this.$$.selected.$root.items.indexOf(item);
+            const arr = this.$$.selected.$root.items.slice((from < to ? from : to), (from > to ? from : to) + 1)
             this.selection.splice(0, this.selection.length, ...arr);
         } else {
-            this.$$set('selected', item);
+            this.$$.selected = item;
             this.selection.splice(0, this.selection.length, item)
         }
-        this.$$set('selection', this.selection.map(i => i.id));
+        this.$$.selection = this.selection.map(i => i.id);
         this.$$update();
     }
 });
@@ -292,7 +291,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 customElements.define('li-layout-container', class LiLayoutContainer extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, default: '' },
+            $$id: { type: String },
             item: { type: Object, default: {} },
             designMode: { type: Boolean, default: false },
             iconSize: { type: String, default: '28' },
@@ -387,8 +386,8 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
 
     render() {
         return html`
-            <div style="${this.isBlock && this.$$get('showGroup') ? 'border: 1px solid gray; margin: 4px;' : ''}">
-                ${!this.$$get('showGroupName') && this.isGroups ? html`` : html`
+            <div style="${this.isBlock && this.$$.showGroup ? 'border: 1px solid gray; margin: 4px;' : ''}">
+                ${!this.$$.showGroupName && this.isGroups ? html`` : html`
                     <div class="row ${this.designMode ? 'design-row' : ''} ${this.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
                             @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                         ${this.item && this.item.items && this.item.items.length ? html`
@@ -413,16 +412,16 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         this.$$update();
     }
     _dragstart(e) {
-        this.$$set('dragItem', this.item);
-        e.dataTransfer.setDragImage(this.$$get('selection').length > 1 ? img3 : img, 24, 6);
+        this.$$.dragItem = this.item;
+        e.dataTransfer.setDragImage(this.$$.selection.length > 1 ? img3 : img, 24, 6);
     }
     _dragend(e) {
         this.dragto = null;
     }
     _dragover(e) {
         this.dragto = 'error';
-        if (this.isSelected || this.$$get('dragItem') === this.item) return;
-        if (this.$$get('dragItem').$root !== this.item.$root) return;
+        if (this.isSelected || this.$$.dragItem === this.item) return;
+        if (this.$$.dragItem.$root !== this.item.$root) return;
 
         e.preventDefault();
 
@@ -433,16 +432,16 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         if (Math.abs(x) > Math.abs(y)) to = x < 0 ? 'left' : 'right';
         else to = y < 0 ? 'top' : 'bottom';
         this.dragto = to;
-        this.$$set('action', 'move');
-        this.$$set('to', to);
+        this.$$.action = 'move';
+        this.$$.to = to;
     }
     _dragleave(e) {
         this.dragto = null;
     }
     _dragdrop(e) {
-        this.$$set('targetItem', this.item);
+        this.$$.targetItem = this.item;
         this.dragto = null;
-        const action = { action: this.$$get('action'), props: { item: this.$$get('dragItem').id, target: this.item.id, to: this.$$get('to') } };
+        const action = { action: this.$$.action, props: { item: this.$$.dragItem.id, target: this.item.id, to: this.$$.to } };
         this.$root.execute(action, this.item);
     }
 

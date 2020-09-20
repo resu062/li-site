@@ -57,27 +57,34 @@ export class LiElement extends LitElement {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
         }
+        this._init$$()
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        if (this.$$$id !== undefined) {
-            this.$$$id = this.$$$id || LI.ulid();
-            this.$$id = this.$$$id;
-            LI.$$[this.$$id] = { _observe: Observable.from({ value: '', count: 0 }), '_': {} };
-            //LI.$$[this.$$id]._observe.observe(changes => { console.dir(changes) });
+    _init$$() {
+        if (this._$$id !== undefined) {
+            this._$$id = this._$$id || LI.ulid();
+            this.$$id = this._$$id;
+            if (!LI.$$[this.$$id])
+                LI.$$[this.$$id] = { _observe: Observable.from({ value: '', count: 0 }), '_': {} };
         }
     }
+    connectedCallback() {
+        super.connectedCallback();
+        this._init$$();
+    }
     disconnectedCallback() {
-        if (this.$$$id !== undefined) {
-            delete LI.$$[this.$$$id];
-        }
+        if (this._$$id)
+            delete LI.$$[this.$$id];
         super.disconnectedCallback();
     }
 
     get $$() {
         return this.$$id ? LI.$$[this.$$id]['_'] : undefined;
     }
+    set $$(v) {
+        if (!this.$$id) return;
+    }
+
     $$get(property) {
         return property && this.$$id ? LI.$$[this.$$id][property] : undefined;
     }
