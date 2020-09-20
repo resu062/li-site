@@ -57,23 +57,36 @@ export class LiElement extends LitElement {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
         }
+    }
 
+    connectedCallback() {
+        super.connectedCallback();
         if (this.$$$id !== undefined) {
             this.$$$id = this.$$$id || LI.ulid();
             this.$$id = this.$$$id;
-            LI.$$[this.$$id] = { _observe: Observable.from({ value: '', count: 0 }) };
+            LI.$$[this.$$id] = { _observe: Observable.from({ value: '', count: 0 }), '_': {} };
             //LI.$$[this.$$id]._observe.observe(changes => { console.dir(changes) });
         }
     }
+    disconnectedCallback() {
+        if (this.$$$id !== undefined) {
+            delete LI.$$[this.$$$id];
+        }
+        super.disconnectedCallback();
+    }
 
     get $$() {
-        return this.$$id ? LI.$$[this.$$id] : undefined;
+        return this.$$id ? LI.$$[this.$$id]['_'] : undefined;
     }
-    set $$(n) {
-        if (!this.$$id) return;
-        LI.$$[this.$$id] = n;
+    $$get(property) {
+        return property && this.$$id ? LI.$$[this.$$id][property] : undefined;
+    }
+    $$set(property, value) {
+        if (!property || !this.$$id) return;
+        LI.$$[this.$$id][property] = value;
     }
     $$update(property, value) {
+        this.requestUpdate();
         if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
         if (!property) {
             ++LI.$$[this.$$id]._observe.count;
