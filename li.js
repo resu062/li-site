@@ -100,6 +100,7 @@ export class LiElement extends LitElement {
         } else {
             LI.$$[this.$$id]._observe[property] = value;
         }
+        //console.log(LI.$$[this.$$id]._observe.count);
     }
     $$observe(callback) {
         if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;

@@ -94,6 +94,7 @@ export const indx = {
         label: 'li-layout-designer', props: {
             keyLabel: 'name',
             keyItems: 'fields',
+            keyID: 'name',
             id: 'layout',
             item: {
                 fields: [

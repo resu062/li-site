@@ -14,22 +14,22 @@ class BaseItem {
     }
 
     hideItem() {
-        const id = this.id;
-        this.$root.actions = this.$root.actions || localStorage.getItem('li-layout-structure.' + layout.id) || [];
-        if (v) {
-            const item = this.$root.actions.find(i => {
-                return i.action === 'hide' && i.props.item === id;
-            })
-            const indx = this.$root.actions.indexOf(item);
-            if (indx > -1) {
-                this.$root.actions.splice(indx, 1);
-                localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
-            }
-        } else {
-            const item = { action: 'hide', props: { item: id } };
-            this.$root.actions.splice(this.$root.actions.length, 0, item);
-            localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
-        }
+        //const id = this.id;
+        // this.$root.actions = this.$root.actions || localStorage.getItem('li-layout-structure.' + layout.id) || [];
+        // if (v) {
+        //     const item = this.$root.actions.find(i => {
+        //         return i.action === 'hide' && i.props.item === id;
+        //     })
+        //     const indx = this.$root.actions.indexOf(item);
+        //     if (indx > -1) {
+        //         this.$root.actions.splice(indx, 1);
+        //         localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
+        //     }
+        // } else {
+        //     const item = { action: 'hide', props: { item: id } };
+        //     this.$root.actions.splice(this.$root.actions.length, 0, item);
+        //     localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
+        // }
     }
 }
 
@@ -144,6 +144,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 
     constructor() {
         super();
+        this.$$.fileName = 'li-layout-structure.' + (this.id || 'root') + '.';
         this.$$.selected = {};
         this.$$.selection = [];
     }
@@ -217,7 +218,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
             if (this.layout.actions && this.layout.actions.length) return;
             let actions = undefined;
             try {
-                actions = localStorage.getItem('li-layout-structure.' + (this.layout.id || 'main'));
+                actions = localStorage.getItem(this.$$.fileName + (this.layout.id || 'main'));
                 if (actions) actions = JSON.parse(actions) || [];
                 this.layout.actions = actions;
             } catch (err) { return; }
@@ -258,7 +259,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         this.layout.actions.last.props.id = this.layout.actions.last.props.id || target.$owner.id;
         this.layout.actions.last.props.label = this.layout.actions.last.props.label || target.$owner.label;
         this.$$update();
-        localStorage.setItem('li-layout-structure.' + (target.$root && target.$root.id || 'main'), JSON.stringify(this.layout.actions));
+        localStorage.setItem(this.$$.fileName + (target.$root && target.$root.id || 'main'), JSON.stringify(this.layout.actions));
     }
     _focus(e) {
         if (!this.designMode) return;
@@ -463,7 +464,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         this.item.$root.actions.forEach(i => {
             if (this.item.id === i.props.id) i.props.label = this.item.label;
         });
-        localStorage.setItem('li-layout-structure.' + this.item.$root.id, JSON.stringify(this.item.$root.actions));
+        localStorage.setItem(this.$$.fileName + this.item.$root.id, JSON.stringify(this.item.$root.actions));
         this.$$update();
     }
     _keydownGroupLabel(e) {
