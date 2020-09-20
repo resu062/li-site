@@ -6,6 +6,7 @@ import '../checkbox/checkbox.js';
 customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     static get properties() {
         return {
+            $$id: { type: String, default: ''},
             ulid: { type: String, default: '' },
             item: { type: Object, default: {} },
             iconSize: { type: Number, default: 28 },
@@ -16,26 +17,13 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             complex: { type: String, default: 'tree' },
             complexExt: { type: String, default: 'tree-line' },
             view: { type: String, default: '' },
-            allowCheck: { type: Boolean, default: false, reflect: true }
+            allowCheck: { type: Boolean, default: false }
         }
     }
 
-    constructor() {
-        super();
-        this.__requestUpdate = this._requestUpdate.bind(this);
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        LI.listen(document, 'updateTree', this.__requestUpdate);
-    }
-    disconnectedCallback() {
-        LI.unlisten(document, 'updateTree', this.__requestUpdate);
-        super.disconnectedCallback();
-    }
-
-    _requestUpdate(e) {
-        if (e.detail && e.detail.ulid === this.ulid) this.requestUpdate();
+    firstUpdated() {
+        super.firstUpdated();
+        this.$$observe((changes) => { this.requestUpdate() });
     }
 
     get items() {
@@ -72,13 +60,13 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" margin="${this.margin}" ulid="${this.ulid}"></li-layout-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}"></li-layout-tree>` : ''}
                 </div>
             `)}
         `
     }
     _click(e, i) {
         i.expanded = e.target.toggled;
-        this.requestUpdate();
+        this.$$update();
     }
 });
