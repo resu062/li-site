@@ -3,6 +3,7 @@ import { directive } from './lib/lit-html/lib/directive.js';
 import { AWN } from './lib/awesome-notifications/modern.var.js';
 import { ulid, decodeTime } from './lib/ulid/ulid.js';
 import { Observable } from './lib/object-observer/object-observer.min.js';
+import icaro from './lib/icaro/icaro.js';
 import './lib/pouchdb/pouchdb-7.2.1.js';
 
 let urlLI = import.meta.url;
@@ -64,19 +65,50 @@ export class LiElement extends LitElement {
         if (this._$$id !== undefined) {
             this._$$id = this._$$id || LI.ulid();
             this.$$id = this._$$id;
-            if (!LI.$$[this.$$id])
-                LI.$$[this.$$id] = { _observe: Observable.from({ value: '', count: 0 }), '_': {} };
+            if (!LI.$$[this.$$id]) {
+                LI.$$[this.$$id] = {
+                    _icaro: {},
+                    _observe: Observable.from({ requestUpdateCount: 0 }),
+                    '_': { $$id: this.$$id }
+                };
+                LI.$$[this.$$id]._icaro.requestUpdateCount = LI.icaro({ requestUpdateCount: 0 });
+            }
         }
+        // if(this.$$id !== undefined) {
+        //     const i = this.$props.get('_$$id') || this.$props.get('$$id');
+        //     if (i && i.update && !this._isObserve ) {
+        //         this.$$observe();
+        //         this._isObserve = true;
+        //     }
+        // }
     }
     connectedCallback() {
         super.connectedCallback();
         this._init$$();
     }
     disconnectedCallback() {
-        if (this._$$id)
+        if (this._$$id) {
+            LI.$$[this.$$id]._observe.unobserve();
             delete LI.$$[this.$$id];
+        }
         super.disconnectedCallback();
     }
+
+    get _icaro() {
+        return LI.$$[this.$$id]._icaro || undefined;
+    }
+    listen(callback, name, obj) {
+        if (!_icaro) return;
+        this._icaro[name] = LI.icaro(obj || {});
+        this._icaro[name].listen(changes => {
+            callback(changes);
+        })
+    }
+    unlisten(name) {
+        if (!_icaro) return;
+        this._icaro.unlisten(name);
+    }
+
 
     get $$() {
         return this.$$id ? LI.$$[this.$$id]['_'] : undefined;
@@ -84,29 +116,25 @@ export class LiElement extends LitElement {
     set $$(v) {
         if (!this.$$id) return;
     }
-
-    $$get(property) {
-        return property && this.$$id ? LI.$$[this.$$id][property] : undefined;
-    }
-    $$set(property, value) {
-        if (!property || !this.$$id) return;
-        LI.$$[this.$$id][property] = value;
-    }
     $$update(property, value) {
-        this.requestUpdate();
-        if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
+        const exit = !this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe;
         if (!property) {
-            ++LI.$$[this.$$id]._observe.count;
-        } else {
+            //this.requestUpdate();
+            if (exit) return;
+            ++LI.$$[this.$$id]._observe.requestUpdateCount;
+            //console.log(LI.$$[this.$$id]._observe.requestUpdateCount);
+        } else if (!exit) {
             LI.$$[this.$$id]._observe[property] = value;
         }
-        //console.log(LI.$$[this.$$id]._observe.count);
     }
-    $$observe(callback) {
+    $$observe(callback, property = 'requestUpdateCount') {
         if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
-        LI.$$[this.$$id]._observe.observe(changes => { 
+        if (!callback) callback = changes => this.requestUpdate();
+        const path = typeof property === 'string' ? 'path' : 'pathsFrom';
+        LI.$$[this.$$id]._observe.observe(changes => {
             callback(changes);
-        });
+            //console.log(changes);
+        }, { [path]: property });
     }
 
     firstUpdated() {
@@ -150,10 +178,10 @@ export default function LI(props = {}) {
 
 globalThis.LI = LI;
 
+LI.icaro = icaro;
 LI.$$ = {};
-
 LI.ulid = ulid;
-LI.ulidDateTime = (ulid) => { return new Date(decodeTime(ulid)) };
+LI.ulidToDateTime = (ulid) => { return new Date(decodeTime(ulid)) };
 
 LI.PouchDB = PouchDB;
 
