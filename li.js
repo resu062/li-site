@@ -2,7 +2,6 @@ import { LitElement } from './lib/lit-element/lit-element.js';
 import { directive } from './lib/lit-html/lib/directive.js';
 import { AWN } from './lib/awesome-notifications/modern.var.js';
 import { ulid, decodeTime } from './lib/ulid/ulid.js';
-import { Observable } from './lib/object-observer/object-observer.min.js';
 import icaro from './lib/icaro/icaro.js';
 import './lib/pouchdb/pouchdb-7.2.1.js';
 
@@ -68,7 +67,6 @@ export class LiElement extends LitElement {
             if (!LI.$$[this.$$id]) {
                 LI.$$[this.$$id] = {
                     _icaro: {},
-                    _observe: Observable.from({ requestUpdateCount: 0 }),
                     '_': { $$id: this.$$id }
                 };
                 LI.$$[this.$$id]._icaro.requestUpdateCount = LI.icaro({ requestUpdateCount: 0 });
@@ -88,27 +86,10 @@ export class LiElement extends LitElement {
     }
     disconnectedCallback() {
         if (this._$$id) {
-            LI.$$[this.$$id]._observe.unobserve();
             delete LI.$$[this.$$id];
         }
         super.disconnectedCallback();
     }
-
-    get _icaro() {
-        return LI.$$[this.$$id]._icaro || undefined;
-    }
-    listen(callback, name, obj) {
-        if (!_icaro) return;
-        this._icaro[name] = LI.icaro(obj || {});
-        this._icaro[name].listen(changes => {
-            callback(changes);
-        })
-    }
-    unlisten(name) {
-        if (!_icaro) return;
-        this._icaro.unlisten(name);
-    }
-
 
     get $$() {
         return this.$$id ? LI.$$[this.$$id]['_'] : undefined;
@@ -116,25 +97,29 @@ export class LiElement extends LitElement {
     set $$(v) {
         if (!this.$$id) return;
     }
-    $$update(property, value) {
-        const exit = !this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe;
-        if (!property) {
-            //this.requestUpdate();
-            if (exit) return;
-            ++LI.$$[this.$$id]._observe.requestUpdateCount;
-            //console.log(LI.$$[this.$$id]._observe.requestUpdateCount);
-        } else if (!exit) {
-            LI.$$[this.$$id]._observe[property] = value;
-        }
+    get _icaro() {
+        return LI.$$[this.$$id]._icaro || undefined;
     }
-    $$observe(callback, property = 'requestUpdateCount') {
-        if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
-        if (!callback) callback = changes => this.requestUpdate();
-        const path = typeof property === 'string' ? 'path' : 'pathsFrom';
-        LI.$$[this.$$id]._observe.observe(changes => {
-            callback(changes);
-            //console.log(changes);
-        }, { [path]: property });
+    listen(property = 'update', callback, obj) {
+        if (!this._icaro) return;
+        // if (property === 'update') {
+        //     callback = (changes) => {
+        //         this.requestUpdate();
+        //         console.log(this._icaro.update.updateCount);
+        //     }
+        //     obj = { updateCount: 0 };
+        // }
+        this._icaro[property] = LI.icaro(obj || {});
+        this._icaro[property].listen(callback)
+    }
+    unlisten(property) {
+        if (!this._icaro) return;
+        this._icaro.unlisten(property);
+    }
+    $$update() {
+        if (!this._icaro) return;
+        if (!this._icaro.update) this.listen();
+        ++this._icaro.update.updateCount;
     }
 
     firstUpdated() {

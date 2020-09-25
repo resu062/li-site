@@ -217,7 +217,10 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 
     firstUpdated() {
         super.firstUpdated();
-        this.$$observe((changes) => { this.requestUpdate() });
+        //this.listen();
+        // this.listen('update', () => {
+        //     this.requestUpdate(); console.log('structure')
+        // }, { updateCount: 0 });
     }
 
     updated(changedProps) {
@@ -322,7 +325,10 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
 
     firstUpdated() {
         super.firstUpdated();
-        this.$$observe((changes) => { this.requestUpdate() });
+        //this.listen();
+        // this.listen('update', () => {
+        //     this.requestUpdate(); console.log('container')
+        // }, { updateCount: 0 });
     }
 
     static get styles() {
