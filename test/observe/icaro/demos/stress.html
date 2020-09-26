@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script src='../icaro.js'></script>
+  </head>
+
+  <body>
+    <table id='display'></table>
+    <script>
+      let rowsAmount = 50
+      const create = document.createElement.bind(document)
+      const data = icaro({ items: [] })
+      const cells = []
+      const fragment = document.createDocumentFragment()
+
+      function updateRows() {
+        data.items.forEach(function(rowsData, i) {
+          rowsData.forEach(function(colData, j) {
+            cells[i][j].textContent = colData.value
+          })
+        })
+      }
+
+      function createRow() {
+        const row = create('tr')
+        const tds = [create('td'), create('td'), create('td')]
+        const dataSet = [{ value: Math.random() }, { value: Math.random() }, { value: Math.random() }]
+        tds.forEach(c => row.appendChild(c))
+        data.items.push(dataSet)
+        cells.push(tds)
+        return row
+      }
+
+      while (rowsAmount--) {
+        fragment.appendChild(createRow())
+      }
+
+      updateRows()
+      display.appendChild(fragment)
+      data.listen(updateRows)
+
+        ; (function loop() {
+          data.items = data.items.map(function(dataSet) {
+            return dataSet.map(function() {
+              return { value: Math.random() }
+            })
+          })
+          requestAnimationFrame(loop)
+        }())
+    </script>
+  </body>
+
+</html>

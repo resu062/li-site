@@ -12,25 +12,6 @@ class BaseItem {
         this.label = '';
         this.expanded = false;
     }
-
-    hideItem() {
-        //const id = this.id;
-        // this.$root.actions = this.$root.actions || localStorage.getItem('li-layout-structure.' + layout.id) || [];
-        // if (v) {
-        //     const item = this.$root.actions.find(i => {
-        //         return i.action === 'hide' && i.props.item === id;
-        //     })
-        //     const indx = this.$root.actions.indexOf(item);
-        //     if (indx > -1) {
-        //         this.$root.actions.splice(indx, 1);
-        //         localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
-        //     }
-        // } else {
-        //     const item = { action: 'hide', props: { item: id } };
-        //     this.$root.actions.splice(this.$root.actions.length, 0, item);
-        //     localStorage.setItem('li-layout-structure.' + (this.$root.id), JSON.stringify(this.$root.actions));
-        // }
-    }
 }
 
 class LayoutItem extends BaseItem {
@@ -198,17 +179,12 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String },
+            $$id: { type: String, update: true },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
             designMode: { type: Boolean, default: false },
             selection: { type: Array, default: [] }
         }
-    }
-
-    firstUpdated() {
-        super.firstUpdated();
-        this.$$observe((changes) => { this.requestUpdate() });
     }
 
     updated(changedProps) {
@@ -292,7 +268,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 customElements.define('li-layout-container', class LiLayoutContainer extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String },
+            $$id: { type: String, update: true },
             item: { type: Object, default: {} },
             designMode: { type: Boolean, default: false },
             iconSize: { type: String, default: '28' },
@@ -311,11 +287,6 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
     get isTabs() {
         return this.item instanceof TabsItem;
-    }
-
-    firstUpdated() {
-        super.firstUpdated();
-        this.$$observe((changes) => { this.requestUpdate() });
     }
 
     static get styles() {

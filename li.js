@@ -2,7 +2,7 @@ import { LitElement } from './lib/lit-element/lit-element.js';
 import { directive } from './lib/lit-html/lib/directive.js';
 import { AWN } from './lib/awesome-notifications/modern.var.js';
 import { ulid, decodeTime } from './lib/ulid/ulid.js';
-import { Observable } from './lib/object-observer/object-observer.min.js';
+import { observable, observe, unobserve } from './lib/observe-util/observe.js';
 import './lib/pouchdb/pouchdb-7.2.1.js';
 
 let urlLI = import.meta.url;
@@ -64,50 +64,46 @@ export class LiElement extends LitElement {
         if (this._$$id !== undefined) {
             this._$$id = this._$$id || LI.ulid();
             this.$$id = this._$$id;
-            if (!LI.$$[this.$$id])
-                LI.$$[this.$$id] = { _observe: Observable.from({ value: '', count: 0 }), '_': {} };
+            if (!LI._$$[this.$$id])
+                LI._$$[this.$$id] = {
+                    '_': {}
+                };
+            LI._$$[this.$$id]._observe = observable({ updateCount: 0 })
         }
     }
     connectedCallback() {
         super.connectedCallback();
-        this._init$$();
+        const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
+        if ($$id && $$id.update)
+            this.$$observe();
     }
     disconnectedCallback() {
+        if (this._observeUpdate) unobserve(this._observeUpdate);
+        if (this._objObserve)
+            Object.keys(this._objObserve).forEach(o => unobserve(this._observeUpdate[o]));
         if (this._$$id)
-            delete LI.$$[this.$$id];
+            delete LI._$$[this.$$id];
         super.disconnectedCallback();
     }
 
-    get $$() {
-        return this.$$id ? LI.$$[this.$$id]['_'] : undefined;
+    get $$() { return this.$$id ? LI._$$[this.$$id]['_'] : undefined }
+    set $$(v) { return }
+    get _observe() { return this.$$id ? LI._$$[this.$$id]['_observe'] : undefined }
+    set _observe(v) { return }
+    $$update(property, value) { 
+        if (this.$$id)
+            LI.$$update(property, value, this);
+        else 
+            this.requestUpdate();
     }
-    set $$(v) {
-        if (!this.$$id) return;
-    }
+    $$observe(property, callback) { LI.$$observe(property, callback, this) }
+    $$unobserve(property) { LI.$$unobserve(property, this) }
 
-    $$get(property) {
-        return property && this.$$id ? LI.$$[this.$$id][property] : undefined;
-    }
-    $$set(property, value) {
-        if (!property || !this.$$id) return;
-        LI.$$[this.$$id][property] = value;
-    }
-    $$update(property, value) {
-        this.requestUpdate();
-        if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
-        if (!property) {
-            ++LI.$$[this.$$id]._observe.count;
-        } else {
-            LI.$$[this.$$id]._observe[property] = value;
-        }
-        //console.log(LI.$$[this.$$id]._observe.count);
-    }
-    $$observe(callback) {
-        if (!this.$$id || !LI.$$[this.$$id] || !LI.$$[this.$$id]._observe) return;
-        LI.$$[this.$$id]._observe.observe(changes => { 
-            callback(changes);
-        });
-    }
+    get $$$() { return LI._$$['_'] }
+    set $$$(v) { return }
+    $$$update(property, value) { LI.$$update(property, value, LI) }
+    $$$observe(property, callback) { LI.$$observe(property, callback, LI) }
+    $$$unobserve(property) { LI.$$unobserve(property, LI) }
 
     firstUpdated() {
         super.firstUpdated();
@@ -150,7 +146,48 @@ export default function LI(props = {}) {
 
 globalThis.LI = LI;
 
-LI.$$ = {};
+const _$$ = { _: {} };
+_$$._observe = observable({ updateCount: 0 });
+
+LI.observe = observe;
+LI.observable = observable;
+LI._$$ = _$$;
+LI.$$ = _$$._;
+LI._observe = _$$._observe;
+LI.$$update = (property, value, self = LI) => {
+    if (!self._observe) return;
+    if (!property) {
+        if (_$$[self.$$id])
+            ++_$$[self.$$id]._observe.updateCount;
+        else
+            ++_$$._observe.updateCount;
+    } else {
+        if (_$$[self.$$id])
+            _$$[self.$$id]._observe[property] = value;
+        else
+            _$$._observe[property] = value;
+    }
+}
+LI.$$observe = (property, callback, self = LI) => {
+    if (!self._observe) return;
+    if (!property && !self._observeUpdate) {
+        self._observeUpdate = observe((e = self._observe.updateCount) => {
+            self.requestUpdate();
+            //console.log('observe: updateCount = ' + self._observe.updateCount);
+        });
+    } else if (property) {
+        self._objObserve = self._objObserve || {};
+        self.$$unobserve(property);
+        self._objObserve[property] = observe((e = self._observe[property]) => {
+            callback(e);
+            //console.log('observe: ' + property + ' = ' + self._observe[property]);
+        });
+        console.dir(self)
+    }
+}
+LI.$$unobserve = (property, self = LI,) => {
+    if (self._observe && self._objObserve && self._objObserve[property]) unobserve(self._objObserve[property]);
+}
 
 LI.ulid = ulid;
 LI.ulidDateTime = (ulid) => { return new Date(decodeTime(ulid)) };

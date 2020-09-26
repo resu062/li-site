@@ -5,7 +5,7 @@ import '../button/button.js';
 customElements.define('li-tree', class LiTree extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String },
+            $$id: { type: String, update: true },
             item: { type: Object, default: {} },
             iconSize: { type: String, default: '28' },
             margin: { type: String, default: '0' },
@@ -13,11 +13,6 @@ customElements.define('li-tree', class LiTree extends LiElement {
             colorBorder: { type: String, default: 'lightgray' },
             verticalLine: { type: Boolean, default: true }
         }
-    }
-
-    firstUpdated() {
-        super.firstUpdated();
-        this.$$observe((changes) => { this.requestUpdate() });
     }
 
     get items() {
