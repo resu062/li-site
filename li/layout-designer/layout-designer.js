@@ -184,12 +184,19 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, update: true },
+            $$id: { type: String},// update: true },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
             designMode: { type: Boolean, default: false },
             selection: { type: Array, default: [] }
         }
+    }
+
+    get items() {
+        return this.layout && this.layout.items ? this.layout.items : this.layout && this.layout.map ? this.layout : [];
+    }
+    set items(v) {
+        this._items = v;
     }
 
     updated(changedProps) {
