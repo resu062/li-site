@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src='../icaro.js'></script>
+  </head>
+  <body>
+    <div id='display' style="font-size: xx-large;"></div>
+    <hr>
+    <div id='display2' style="font-size: xx-large;"></div>
+    <hr>
+    <div id='display3' style="font-size: xx-large;"></div>
+    <hr>
+    <script>
+      const counter = icaro({ value: 0 })
+      let counter2 = 0
+      // automatically triggered ;)
+      function update() {
+        display.innerHTML = counter.value
+      }
+      function update2() {
+        display2.innerHTML = counter.value
+      }
+      function update3() {
+        display3.innerHTML = counter.value
+      }
+
+      // listen the coordinate updates
+      counter.listen(update)
+      counter.listen(update2)
+      counter.listen(update3)
+      counter.listen(() => console.log(counter.value))
+
+      ;(function loop() {
+        counter.value ++
+        requestAnimationFrame(loop)
+      }())
+    </script>
+  </body>
+</html>

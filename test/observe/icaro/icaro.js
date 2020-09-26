@@ -2,7 +2,7 @@
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
 	(global.icaro = factory());
-}(globalThis, (function () { 'use strict';
+}(this, (function () { 'use strict';
 
 // fork of https://github.com/YuzuJS/setImmediate
 ((function (global) {
@@ -85,7 +85,7 @@
   global.setImmediate = setImmediate;
   global.clearImmediate = clearImmediate;
 
-}))(globalThis);
+}))(typeof self === 'undefined' ? typeof global === 'undefined' ? window : global : self);
 
 const listeners = new WeakMap();
 const dispatch = Symbol();
@@ -237,5 +237,3 @@ function icaro(obj) {
 return icaro;
 
 })));
-
-export default icaro;
