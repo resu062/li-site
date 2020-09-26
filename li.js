@@ -2,7 +2,7 @@ import { LitElement } from './lib/lit-element/lit-element.js';
 import { directive } from './lib/lit-html/lib/directive.js';
 import { AWN } from './lib/awesome-notifications/modern.var.js';
 import { ulid, decodeTime } from './lib/ulid/ulid.js';
-import { observable, observe, unobserve } from './lib/observe-util/observe.js';
+import './lib/icaro/icaro.js';
 import './lib/pouchdb/pouchdb-7.2.1.js';
 
 let urlLI = import.meta.url;
@@ -68,7 +68,7 @@ export class LiElement extends LitElement {
                 LI._$$[this.$$id] = {
                     '_': {}
                 };
-            LI._$$[this.$$id]._observe = observable({ updateCount: 0 })
+            LI._$$[this.$$id]._observe = icaro({ updateCount: 0 })
         }
         // if(this.$$id !== undefined) {
         //     const i = this.$props.get('_$$id') || this.$props.get('$$id');
@@ -85,9 +85,8 @@ export class LiElement extends LitElement {
             this.$$observe();
     }
     disconnectedCallback() {
-        if (this._observeUpdate) unobserve(this._observeUpdate);
-        if (this._objObserve)
-            Object.keys(this._objObserve).forEach(o => unobserve(this._observeUpdate[o]));
+        if (this._listeners)
+            Object.keys(this._listeners).forEach(key => LI.$$unlisten(key));
         if (this._$$id)
             delete LI._$$[this.$$id];
         super.disconnectedCallback();
@@ -97,10 +96,10 @@ export class LiElement extends LitElement {
     set $$(v) { return }
     get _observe() { return this.$$id ? LI._$$[this.$$id]['_observe'] : undefined }
     set _observe(v) { return }
-    $$update(property, value) { 
+    $$update(property, value) {
         if (this.$$id)
             LI.$$update(property, value, this);
-        else 
+        else
             this.requestUpdate();
     }
     $$observe(property, callback) { LI.$$observe(property, callback, this) }
@@ -154,14 +153,13 @@ export default function LI(props = {}) {
 globalThis.LI = LI;
 
 const _$$ = { _: {} };
-_$$._observe = observable({ updateCount: 0 });
+_$$._observe = icaro({ updateCount: 0 });
 
-LI.observe = observe;
-LI.observable = observable;
 LI._$$ = _$$;
 LI.$$ = _$$._;
 LI._observe = _$$._observe;
 LI.$$update = (property, value, self = LI) => {
+    self.requestUpdate();
     if (!self._observe) return;
     if (!property) {
         if (_$$[self.$$id])
@@ -177,23 +175,37 @@ LI.$$update = (property, value, self = LI) => {
 }
 LI.$$observe = (property, callback, self = LI) => {
     if (!self._observe) return;
-    if (!property && !self._observeUpdate) {
-        self._observeUpdate = observe((e = self._observe.updateCount) => {
-            self.requestUpdate();
-            //console.log('observe: updateCount = ' + self._observe.updateCount);
-        });
-    } else if (property) {
-        self._objObserve = self._objObserve || {};
-        self.$$unobserve(property);
-        self._objObserve[property] = observe((e = self._observe[property]) => {
-            callback(e);
-            //console.log('observe: ' + property + ' = ' + self._observe[property]);
-        });
-        console.dir(self)
+    if (!property) {
+        property = 'updateCount';
+        callback = (() => {
+            self.requestUpdate()
+        })
     }
+    self._listeners = self._listeners || new Map();
+    if (!self._listeners.has(property))
+        self._listeners.set(property, []);
+    else
+        LI.$$unlisten(property, callback);
+    self._listeners.get(property).push(callback);
+    self._observe.listen((e) => {
+        const res = e.get(property);
+        callback(res);
+        console.log('observe: ' + property + ' = ' + res);
+    });
 }
-LI.$$unobserve = (property, self = LI,) => {
-    if (self._observe && self._objObserve && self._objObserve[property]) unobserve(self._objObserve[property]);
+LI.$$unlisten = (property, callback, self = LI,) => {
+    if (self._observe && self._listeners && self._listeners.has(property)) {
+        self._observe.unlisten(callback);
+        const callbacks = self._listeners.get(property);
+        if (!callbacks) return
+        if (callback) {
+            const index = callbacks.indexOf(callback);
+            if (~index) {
+                const cb = callbacks.splice(index, 1);
+                self._observe.unlisten(cb);
+            }
+        }
+    }
 }
 
 LI.ulid = ulid;
