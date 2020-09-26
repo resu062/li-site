@@ -70,6 +70,13 @@ export class LiElement extends LitElement {
                 };
             LI._$$[this.$$id]._observe = observable({ updateCount: 0 })
         }
+        // if(this.$$id !== undefined) {
+        //     const i = this.$props.get('_$$id') || this.$props.get('$$id');
+        //     if (i && i.update && !this._isObserve ) {
+        //         this.$$observe();
+        //         this._isObserve = true;
+        //     }
+        // }
     }
     connectedCallback() {
         super.connectedCallback();
@@ -190,7 +197,7 @@ LI.$$unobserve = (property, self = LI,) => {
 }
 
 LI.ulid = ulid;
-LI.ulidDateTime = (ulid) => { return new Date(decodeTime(ulid)) };
+LI.ulidToDateTime = (ulid) => { return new Date(decodeTime(ulid)) };
 
 LI.PouchDB = PouchDB;
 

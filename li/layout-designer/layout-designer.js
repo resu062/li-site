@@ -6,7 +6,6 @@ import '../tree/tree.js';
 
 class BaseItem {
     constructor() {
-        this.$owner = this.$root = undefined;
         this.checked = true;
         this.id = LI.ulid();
         this.label = '';
@@ -21,8 +20,9 @@ class LayoutItem extends BaseItem {
         this.$props = props;
         this.$owner = this.$root = parent;
         this.expanded = props.expanded || false;
-        this.id = this.$props.id || this.$item[this.$props.keyID || 'id'] || this.id;
-        this.label = this.$props.label || this.$item[this.$props.keyLabel || 'label'] || '';
+        this.$$id = props.$$id || '';
+        this.id = props.id || this.$item[props.keyID || 'id'] || this.id;
+        this.label = props.label || this.$item[props.keyLabel || 'label'] || '';
     }
 
     get items() {
@@ -31,7 +31,8 @@ class LayoutItem extends BaseItem {
                 return new LayoutItem(i, {
                     keyID: this.$props.keyID || 'id',
                     keyLabel: this.$props.keyLabel || 'label',
-                    keyItems: this.$props.keyItems || 'items'
+                    keyItems: this.$props.keyItems || 'items',
+                    $$id: this.$$id
                 }, this);
             })
         }
@@ -105,6 +106,7 @@ function findRecursive(id) {
     }, undefined);
 }
 
+const _bus = {};
 let img = new Image();
 img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAAACXBIWXMAAAsSAAALEgHS3X78AAAAa0lEQVRIiWPU6v91RFv4jwIv+78/DEMIfP7JxHL1LcsDFpDjJ7p8kB5KjoeB/D0CDExDLeSRAcjtTIPHOeSBUQ8MNBj1wECDUQ8MNBj1wECDUQ8MNGACteqGquNBbgc3SUGtuiHZnH7L8gAAtichl6hs6rYAAAAASUVORK5CYII=`
 let img3 = new Image();
@@ -115,11 +117,10 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         return {
             _$$id: { type: String, default: '' },
             item: { type: Object, default: undefined },
-            layout: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
             keyLabel: { type: String, default: 'label' },
             keyItems: { type: String, default: 'items' },
-            designMode: { type: Boolean, default: false }
+            layout: { type: Object, default: undefined }
         }
     }
 
@@ -128,12 +129,16 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         this.$$.fileName = 'li-layout-structure.' + (this.id || 'root') + '.';
         this.$$.selected = {};
         this.$$.selection = [];
+        this.$$.selectionID = [];
+        this.$$.designMode = false;
+        this.$$.iconSize = 28;
+        _bus[this.$$id] = this.$$;
     }
 
     updated(changedProps) {
         super.update(changedProps);
         if (changedProps.has('item') && this.item) {
-            this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems, id: 'main' });
+            this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems, id: 'main', $$id: this.$$id });
             this.layout.$root = this.layout;
         }
     }
@@ -151,13 +156,13 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: 1px solid lightgray;border-bottom:none">
                     <li-tree .$$id="${this.$$id}" .item="${this.layout}"></li-tree>
                 </div>
-                <li-layout-structure .$$id="${this.$$id}" id="structure" slot="app-main" .layout="${this.layout}" .items="${this.layout && this.layout.items || this.layout}" .designMode="${this.designMode}" style="padding: 4px;"></li-layout-structure>
+                <li-layout-structure .$$id="${this.$$id}" .layout="${this.layout}" id="structure" slot="app-main" style="padding: 4px;"></li-layout-structure>
             </li-layout-app>
         `;
     }
 
     _setDesignMode(e) {
-        this.designMode = e.target.toggled;
+        this.$$.designMode = e.target.toggled;
         this.$$update();
     }
 
@@ -209,11 +214,11 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
                 :host {
                     overflow: auto;
                     display: flex;
-                    flex-direction: ${this.layout.align || 'column'};
+                    flex-direction: ${this.layout && this.layout.align || 'column'};
                 }
             </style>
             ${this.items.map(item => html`
-                <li-layout-container .$$id="${this.$$id}" .item=${item} .designMode="${this.designMode}" .align="${this.layout.align}"  @click="${this._focus}" .isSelected="${this.selection.includes(item)}"></li-layout-container>
+                <li-layout-container .$$id="${this.$$id}" .item=${item}  @click="${this._focus}"></li-layout-container>
             `)}
         `;
     }
@@ -238,29 +243,29 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         localStorage.setItem(this.$$.fileName + (target.$root && target.$root.id || 'main'), JSON.stringify(this.layout.actions));
     }
     _focus(e) {
-        if (!this.designMode) return;
+        if (!this.$$.designMode) return;
         e.stopPropagation();
         const item = e.target.item;
-        if (!this.$$.selected || this.selection.length === 0) this.$$.selected = item;
+        if (!this.$$.selected || this.$$.selection.length === 0) this.$$.selected = item;
         if (e.ctrlKey || e.metaKey) {
             if (this.$$.selected.$root !== item.$root) return;
-            if (this.selection.includes(item)) {
-                this.selection.splice(this.selection.indexOf(item), 1);
+            if (this.$$.selection.includes(item)) {
+                this.$$.selection.splice(this.$$.selection.indexOf(item), 1);
                 this.$$update();
                 return;
             }
-            this.selection.splice(this.selection.length, 0, item)
+            this.$$.selection.splice(this.$$.selection.length, 0, item)
         } else if (e.shiftKey) {
             if (this.$$.selected.$root !== item.$root) return;
             const from = this.$$.selected.$root.items.indexOf(this.$$.selected);
             const to = this.$$.selected.$root.items.indexOf(item);
             const arr = this.$$.selected.$root.items.slice((from < to ? from : to), (from > to ? from : to) + 1)
-            this.selection.splice(0, this.selection.length, ...arr);
+            this.$$.selection.splice(0, this.$$.selection.length, ...arr);
         } else {
             this.$$.selected = item;
-            this.selection.splice(0, this.selection.length, item)
+            this.$$.selection.splice(0, this.$$.selection.length, item)
         }
-        this.$$.selection = this.selection.map(i => i.id);
+        this.$$.selectionID = this.$$.selection.map(i => i.id);
         this.$$update();
     }
 });
@@ -270,12 +275,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         return {
             $$id: { type: String, update: true },
             item: { type: Object, default: {} },
-            designMode: { type: Boolean, default: false },
-            iconSize: { type: String, default: '28' },
-            align: { type: Boolean, default: true },
             dragto: { type: String, default: undefined, reflect: true },
-            selection: { type: Array, default: [] },
-            isSelected: { type: Boolean, default: false }
         }
     }
 
@@ -287,6 +287,9 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
     get isTabs() {
         return this.item instanceof TabsItem;
+    }
+    get isSelected() {
+        return this.$$.selection.includes(item);
     }
 
     static get styles() {
@@ -359,21 +362,21 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     render() {
         return html`
             <div style="${this.isBlock && this.$$.showGroup ? 'border: 1px solid gray; margin: 4px;' : ''}">
-                ${!this.$$.showGroupName && this.isGroups ? html`` : html`
-                    <div class="row ${this.designMode ? 'design-row' : ''} ${this.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
+                ${!this.$$.showGroupName && this.isGroups
+                ? html``
+                : html`<div class="row ${this.$$.designMode ? 'design-row' : ''} ${this.$$.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.$$.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
                             @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
-                        ${this.item && this.item.items && this.item.items.length ? html`
-                            <li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
-                    : html`
-                            <div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>
-                        `}
+                        ${this.item && this.item.items && this.item.items.length
+                        ? html`<li-button back="transparent" size="${this.$$.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
+                        : html`<div style="width:${this.$$.iconSize}px;height:${this.$$.iconSize}px;"></div>`
+                    }
                         <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
                         <div style="flex:1;"></div>
-                    </div>
-                `}
-                ${this.item && this.item.items && this.item.items.length && this.item.expanded ? html`
-                    <li-layout-structure class="${this.isGroups ? 'group' : 'complex'}"
-                        .$$id="${this.$$id}" .items="${this.item.items || []}" .designMode="${this.designMode}" .layout="${this.item}"></li-layout-structure>` : html``
+                    </div>`
+            }
+                ${this.item && this.item.items && this.item.items.length && this.item.expanded
+                ? html`<li-layout-structure class="${this.isGroups ? 'group' : 'complex'}" .$$id="${this.$$id}" .layout="${this.item}"></li-layout-structure>`
+                : html``
             }   
             </div>  
         `;
@@ -392,7 +395,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
     _dragover(e) {
         this.dragto = 'error';
-        if (this.isSelected || this.$$.dragItem === this.item) return;
+        if (this.$$.isSelected || this.$$.dragItem === this.item) return;
         if (this.$$.dragItem.$root !== this.item.$root) return;
 
         e.preventDefault();
@@ -418,7 +421,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
 
     _editGroupLabel(e) {
-        if (!this.designMode || !this.isGroups) return;
+        if (!this.$$.designMode || !this.isGroups) return;
         e.stopPropagation();
         const t = e.target;
         this._oldLabel = t.innerText;
@@ -428,7 +431,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         window.getSelection().selectAllChildren(t)
     }
     _closeEditGroupLabel(e) {
-        if (!this.designMode) return;
+        if (!this.$$.designMode) return;
         e.stopPropagation();
         e.target.removeAttribute('contentEditable');
         this.item.label = e.target.innerText;
