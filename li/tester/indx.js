@@ -47,8 +47,8 @@ export const indx = {
     },
     table: [{ label: 'index', url: url + '/table' }],
 
-    'li-layout-tree': {
-        label: 'li-layout-tree', props: {
+    'li-tree': {
+        label: 'li-tree', props: {
             allowCheck: true,
             item: [
                 { label: 1 },
