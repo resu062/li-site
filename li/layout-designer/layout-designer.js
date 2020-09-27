@@ -6,36 +6,31 @@ import '../tree/tree.js';
 
 class BaseItem {
     constructor() {
-        this.checked = true;
         this.id = LI.ulid();
         this.label = '';
+        this.checked = true;
         this.expanded = false;
     }
 }
 
 class LayoutItem extends BaseItem {
-    constructor(item, props = {}, parent) {
+    constructor(item, props = {}, root, owner) {
         super();
         this.$item = item;
         this.$props = props;
-        this.$owner = this.$root = parent;
-        this.expanded = props.expanded || false;
-        this.$$id = props.$$id || '';
-        this.id = props.id || this.$item[props.keyID || 'id'] || this.id;
-        this.label = props.label || this.$item[props.keyLabel || 'label'] || '';
+        this.$root = root;
+        this.$owner = owner;
+        this.id = item[props.keyID || 'id'] || this.id;
+        this.label = item[props.keyLabel || 'label'] || '';
     }
 
+    get $$id() { return this.$props.$$id || '' }
+
     get items() {
-        if (!this._items) {
-            this._items = (this.$item[this.$props.keyItems || 'items'] || []).map(i => {
-                return new LayoutItem(i, {
-                    keyID: this.$props.keyID || 'id',
-                    keyLabel: this.$props.keyLabel || 'label',
-                    keyItems: this.$props.keyItems || 'items',
-                    $$id: this.$$id
-                }, this);
-            })
-        }
+        if (!this._items)
+            this._items = (this.$item[this.$props.keyItems || 'items'] || []).map(i => { 
+                return new LayoutItem(i, this.$props, this, this);
+            });
         return this._items;
     }
 }
@@ -43,11 +38,10 @@ class LayoutItem extends BaseItem {
 class GroupItem extends BaseItem {
     constructor(props, target, owner) {
         super();
-        this.expanded = true;
-        this.checked = true;
-        this.complex = 'li-layout-group';
-        this.label = props.label || 'group';
         this.id = props.id || this.id
+        this.label = props.label || 'group';
+        this.complex = 'li-layout-group';
+        this.expanded = true;
         this.align = ['left', 'right'].includes(props.to) ? 'row' : 'column';
         if (target) {
             target.$owner.items.splice(target.$owner.items.indexOf(target), 1, this);
@@ -81,17 +75,17 @@ class GroupItem extends BaseItem {
 class BlockItem extends GroupItem {
     constructor(props, target, owner) {
         super(props, target, owner);
-        this.hideExpander = true;
-        this.complex = 'li-layout-block';
         this.label = props.label || 'block (' + (this.align === 'row' ? 'h' : 'v') + ')';
+        this.complex = 'li-layout-block';
+        this.hideExpander = true;
     }
 }
 
 class TabsItem extends GroupItem {
     constructor(props, target, owner) {
         super(props, target, owner);
-        this.complex = 'li-layout-tabs';
         this.label = props.label || 'tab';
+        this.complex = 'li-layout-tabs';
     }
 }
 
@@ -106,7 +100,6 @@ function findRecursive(id) {
     }, undefined);
 }
 
-const _bus = {};
 let img = new Image();
 img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAAACXBIWXMAAAsSAAALEgHS3X78AAAAa0lEQVRIiWPU6v91RFv4jwIv+78/DEMIfP7JxHL1LcsDFpDjJ7p8kB5KjoeB/D0CDExDLeSRAcjtTIPHOeSBUQ8MNBj1wECDUQ8MNBj1wECDUQ8MNGACteqGquNBbgc3SUGtuiHZnH7L8gAAtichl6hs6rYAAAAASUVORK5CYII=`
 let img3 = new Image();
@@ -132,15 +125,12 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         this.$$.selectionID = [];
         this.$$.designMode = false;
         this.$$.iconSize = 28;
-        _bus[this.$$id] = this.$$;
     }
 
     updated(changedProps) {
         super.update(changedProps);
-        if (changedProps.has('item') && this.item) {
-            this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems, id: 'main', $$id: this.$$id });
-            this.layout.$root = this.layout;
-        }
+        if (changedProps.has('item') && this.item)
+            this.layout = new LayoutItem(this.item, { $$id: this.$$id, keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems, id: 'main' }, this);
     }
 
     render() {
@@ -184,7 +174,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String},// update: true },
+            $$id: { type: String },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
             designMode: { type: Boolean, default: false },
