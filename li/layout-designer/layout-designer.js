@@ -96,7 +96,7 @@ class TabsItem extends GroupItem {
 }
 
 function findRecursive(id) {
-    if (!this.items) return;
+    if (!this || !this.items) return;
     let items = this.items.filter(i => i.$root.id === this.$root.id);
     if (!items || !items.length) items = this.items;
     return items.reduce((res, i) => {
