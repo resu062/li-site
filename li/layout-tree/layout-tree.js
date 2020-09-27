@@ -21,11 +21,6 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
         }
     }
 
-    firstUpdated() {
-        super.firstUpdated();
-        this.$$observe((changes) => { this.requestUpdate() });
-    }
-
     get items() {
         return this.item && this.item.map ? this.item : this.item && this.item.items && this.item.items.map ? this.item.items : [];
     }
@@ -60,7 +55,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}"></li-layout-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}" .allowCheck ="${this.allowCheck}"></li-layout-tree>` : ''}
                 </div>
             `)}
         `

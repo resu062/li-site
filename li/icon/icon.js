@@ -81,21 +81,27 @@ customElements.define('li-icon', class LiIcon extends LiElement {
                     stroke-width="${this.strokeWidth}"
                     style="transform-origin: center center; transform-box: fill-box;">
                     <path d="${this.path}">
-                        <animate id="animate"
-                            attributeName="opacity"
-                            values="${this.blval}"
-                            dur="${Math.abs(this.blink)}s"
-                            restart="whenNotActive"
-                            repeatCount="indefinite"/>
-                        <animateTransform id="animateTransform" attributeType="XML"
-                            attributeName="transform"
-                            type="rotate"
-                            from="${this.speed > 0 ? 0 : 360} ${this._s2} ${this._s2}"
-                            to="${this.speed > 0 ? 360 : 0} ${this._s2} ${this._s2}"
-                            begin="0s"
-                            dur="${Math.abs(this.speed)}s"
-                            restart="whenNotActive"
-                            repeatCount="indefinite"/>
+                        ${this.blink
+                            ? svg`<animate id="animate"
+                                attributeName="opacity"
+                                values="${this.blval}"
+                                dur="${Math.abs(this.blink)}s"
+                                restart="whenNotActive"
+                                repeatCount="indefinite"/>` 
+                            : svg``
+                        }
+                        ${this.speed
+                            ? svg`<animateTransform id="animateTransform" attributeType="XML"
+                                attributeName="transform"
+                                type="rotate"
+                                from="${this.speed > 0 ? 0 : 360} ${this._s2} ${this._s2}"
+                                to="${this.speed > 0 ? 360 : 0} ${this._s2} ${this._s2}"
+                                begin="0s"
+                                dur="${Math.abs(this.speed)}s"
+                                restart="whenNotActive"
+                                repeatCount="indefinite"/>`
+                            : svg``
+                        }
                     </path>
                 />
             </svg>
