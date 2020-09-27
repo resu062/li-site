@@ -5,11 +5,56 @@ import { ulid, decodeTime } from './lib/ulid/ulid.js';
 import './lib/icaro/icaro.js';
 import './lib/pouchdb/pouchdb-7.2.1.js';
 
-let urlLI = import.meta.url;
+const urlLI = import.meta.url;
 
 window.globalThis = window.globalThis || window;
 
-let eventNameForProperty = function(name, { notify, attribute } = {}) {
+const camelToKebab = camel => camel.replace(/([a-z](?=[A-Z]))|([A-Z](?=[A-Z][a-z]))/g, '$1$2-').toLowerCase();
+
+Object.defineProperty(Array.prototype, 'has', { enumerable: false, value: Array.prototype.includes });
+Object.defineProperty(Array.prototype, 'clear', { enumerable: false, value: function() { this.splice(0); } });
+Object.defineProperty(Array.prototype, 'last', { enumerable: false, get() { return this[this.length - 1]; } });
+Object.defineProperty(Array.prototype, 'add', { enumerable: false, value: function(...item) { for (let i of item) { if (this.includes(i)) continue; this.push(i); } } });
+Object.defineProperty(Array.prototype, 'remove', { enumerable: false, value: function(...items) { for (const item of items) { const idx = this.indexOf(item); if (idx < 0) continue; this.splice(idx, 1); } } });
+
+window.LIRect = window.LIRect || class LIRect {
+    constructor(element) {
+        if (element && element.host)
+            element = element.host;
+        const pos = element ? element.getBoundingClientRect() : LI.mousePos;
+        if (pos) {
+            this.ok = true
+            this.x = pos.x;
+            this.y = pos.y;
+            this.top = pos.top;
+            this.bottom = pos.bottom;
+            this.left = pos.left;
+            this.right = pos.right;
+            this.width = pos.width;
+            this.height = pos.height;
+        } else {
+            this.ok = false;
+        }
+    }
+};
+if (!window.DOMRect) {
+    window.DOMRect = function(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.top = y;
+        this.bottom = y + height;
+        this.left = x;
+        this.right = x + width;
+        this.width = width;
+        this.height = height;
+    }
+}
+document.addEventListener('mousedown', (e) => {
+    LI.mousePos = new DOMRect(e.pageX, e.pageY);
+});
+
+
+const eventNameForProperty = function(name, { notify, attribute } = {}) {
     if (notify && typeof notify === 'string') {
         return notify;
     } else if (attribute && typeof attribute === 'string') {
@@ -18,7 +63,6 @@ let eventNameForProperty = function(name, { notify, attribute } = {}) {
         return `${name.toLowerCase()}-changed`;
     }
 }
-
 export class LiElement extends LitElement {
     constructor() {
         super();
@@ -66,50 +110,39 @@ export class LiElement extends LitElement {
             this.$$id = this._$$id;
             if (!LI._$$[this.$$id])
                 LI._$$[this.$$id] = {
-                    '_': {}
+                    _$$: {}
                 };
-            LI._$$[this.$$id]._observe = icaro({ updateCount: 0 })
+            LI._$$[this.$$id]._observe = icaro({})
+            LI._$$[this.$$id]._observe.update = icaro({ updateCount: 0 })
         }
-        // if(this.$$id !== undefined) {
-        //     const i = this.$props.get('_$$id') || this.$props.get('$$id');
-        //     if (i && i.update && !this._isObserve ) {
-        //         this.$$observe();
-        //         this._isObserve = true;
-        //     }
-        // }
     }
     connectedCallback() {
         super.connectedCallback();
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id && $$id.update)
-            this.$$observe();
+        if ($$id != undefined && $$id.update)
+            this._observe.update.listen(() => this.requestUpdate());
     }
     disconnectedCallback() {
-        if (this._listeners)
-            Object.keys(this._listeners).forEach(key => LI.$$unlisten(key));
+        const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
+        if ($$id != undefined && $$id.update)
+            this._observe.update.unlisten(this.requestUpdate());
         if (this._$$id)
             delete LI._$$[this.$$id];
         super.disconnectedCallback();
     }
 
-    get $$() { return this.$$id ? LI._$$[this.$$id]['_'] : undefined }
+    get $$() { return this.$$id ? LI._$$[this.$$id]['_$$'] : undefined }
     set $$(v) { return }
     get _observe() { return this.$$id ? LI._$$[this.$$id]['_observe'] : undefined }
     set _observe(v) { return }
     $$update(property, value) {
-        if (this.$$id)
-            LI.$$update(property, value, this);
-        else
+        if (!property)
             this.requestUpdate();
+        if (this.$$id)
+            LI.$$update.call(this, property, value);
     }
-    $$observe(property, callback) { LI.$$observe(property, callback, this) }
-    $$unobserve(property) { LI.$$unobserve(property, this) }
-
-    get $$$() { return LI._$$['_'] }
-    set $$$(v) { return }
-    $$$update(property, value) { LI.$$update(property, value, LI) }
-    $$$observe(property, callback) { LI.$$observe(property, callback, LI) }
-    $$$unobserve(property) { LI.$$unobserve(property, LI) }
+    $$observe(property, callback) { LI.$$observe.call(this, property, callback) }
+    $$unobserve(property) { LI.$$unobserve.call(this, property, this) }
 
     firstUpdated() {
         super.firstUpdated();
@@ -144,251 +177,183 @@ export class LiElement extends LitElement {
     }
 }
 
-const camelToKebab = camel => camel.replace(/([a-z](?=[A-Z]))|([A-Z](?=[A-Z][a-z]))/g, '$1$2-').toLowerCase();
 
-export default function LI(props = {}) {
-
-}
-
-globalThis.LI = LI;
-
-const _$$ = { _: {} };
+const _$$ = { $$: {}, _$$: {} };
 _$$._observe = icaro({ updateCount: 0 });
+const _$temp = {};
+_$temp.throttles = new Map();
+_$temp.debounces = new Map();
+class CLI {
+    constructor() {
+        this.ulid = ulid;
+        this.icaro = icaro;
+        this.PouchDB = PouchDB;
+        this.awnOptions = {
+            icons: {
+                prefix: "<li-icon name='",
+                success: "check-circle' fill='#40871d' size=32",
+                tip: "star-border' fill='grey' size=32",
+                info: "info' fill='#1c76a6' size=32",
+                warning: "error' fill='#c26700' size=32",
+                alert: "warning' fill='#a92019' size=32",
+                suffix: "></li-icon>",
+            }
+        }
+        this.notifier = new AWN(this.awnOptions);
+        this.$url = urlLI;
+    }
+    get _$$() {
+        return _$$._$$;
+    }
+    get $$() {
+        return _$$.$$;
+    }
+    get _observe() {
+        return _$$._observe;
+    }
 
-LI._$$ = _$$;
-LI.$$ = _$$._;
-LI._observe = _$$._observe;
-LI.$$update = (property, value, self = LI) => {
-    self.requestUpdate();
-    if (!self._observe) return;
-    if (!property) {
-        if (_$$[self.$$id])
-            ++_$$[self.$$id]._observe.updateCount;
+    $$update(property, value) {
+        if (!this._observe) return;
+        if (!property)
+            if (this.$$id)
+                ++this._observe.update.updateCount;
+            else
+                ++this._observe.updateCount;
         else
-            ++_$$._observe.updateCount;
-    } else {
-        if (_$$[self.$$id])
-            _$$[self.$$id]._observe[property] = value;
-        else
-            _$$._observe[property] = value;
+            this._observe[property] = value;
     }
-}
-LI.$$observe = (property, callback, self = LI) => {
-    if (!self._observe) return;
-    if (!property) {
-        property = 'updateCount';
-        callback = (() => {
-            self.requestUpdate()
-        })
+    $$observe(property, callback) {
+        if (!this._observe || !property) return;
+        const fn = (e) => {
+            const res = e.get(property);
+            callback(res);
+            console.log('observe: ' + property + ' = ' + res);
+        }
+        this.$$unlisten(property, fn);
+        this._observe.listen((e) => fn(e));
     }
-    self._listeners = self._listeners || new Map();
-    if (!self._listeners.has(property))
-        self._listeners.set(property, []);
-    else
-        LI.$$unlisten(property, callback);
-    self._listeners.get(property).push(callback);
-    self._observe.listen((e) => {
-        const res = e.get(property);
-        callback(res);
-        console.log('observe: ' + property + ' = ' + res);
-    });
-}
-LI.$$unlisten = (property, callback, self = LI,) => {
-    if (self._observe && self._listeners && self._listeners.has(property)) {
-        self._observe.unlisten(callback);
-        const callbacks = self._listeners.get(property);
-        if (!callbacks) return
-        if (callback) {
-            const index = callbacks.indexOf(callback);
-            if (~index) {
-                const cb = callbacks.splice(index, 1);
-                self._observe.unlisten(cb);
+    $$unlisten(property, fn) {
+        if (this._observe && property in this._observe) {
+            this._observe.unlisten(fn);
+        }
+    }
+    ulidToDateTime(ulid) {
+        return new Date(decodeTime(ulid));
+    }
+    async createComponent(comp, props = {}) {
+        comp = comp || {};
+        if (typeof comp === 'string') {
+            comp = comp.replace('li-', '');
+            let url = `${urlLI.replace('li.js', '')}li/${comp}/${comp}.js`;
+            await import(url);
+            const cmp = document.createElement(`li-${comp}`);
+            for (let p in props) cmp[p] = props[p];
+            return cmp;
+        }
+        for (let p in props) comp[p] = props[p];
+        return comp;
+    }
+    async show(host, comp, compProps = {}, hostProps = {}) {
+        host = await this.createComponent(host, hostProps);
+        comp = await this.createComponent(comp, compProps);
+        if (hostProps.data && hostProps.data.host) hostProps.data.host.push(host);
+        return host.show(comp);
+    }
+
+    listen(target, event, callback, options) {
+        if (target && event && callback) event.split(',').forEach(i => target.addEventListener(i.trim(), callback, options));
+    }
+
+    unlisten(target, event, callback, options) {
+        if (target && event && callback) event.split(',').forEach(i => target.removeEventListener(i.trim(), callback, options));
+    }
+
+    fire(target, event, detail = {}) {
+        if (target && event) target.dispatchEvent(new CustomEvent(event, { detail }));
+    }
+
+    throttle(key, func, delay = 0, immediate = false) {
+        let pending = _$temp.throttles.get(key);
+        if (pending) return;
+        if (immediate) func();
+        pending = setTimeout(() => {
+            _$temp.throttles.delete(key);
+            if (!immediate) func();
+        }, delay);
+        _$temp.throttles.set(key, pending);
+    }
+    debounce(key, func, delay = 0, immediate = false) {
+        let pending = _$temp.debounces.get(key);
+        if (pending) clearTimeout(pending);
+        if (!pending && immediate) func();
+        pending = setTimeout(() => {
+            _$temp.debounces.delete(key);
+            func();
+        }, delay);
+        _$temp.debounces.set(key, pending)
+    }
+
+    action(act) {
+        const dates = this.dates();
+        const ulid = this.ulid();
+        const creator = 'User-0001';
+        if (typeof act === 'string') {
+            switch (act) {
+                case 'addItem':
+                    let id = ulid + ':$';
+                    let db = new PouchDB('http://admin:54321@127.0.0.1:5984/lidb');
+
+                    // console.log(act, id);
+                    // console.dir(db);
+                    db.put({
+                        _id: id,
+                        ulid,
+                        utcDate: dates.utc,
+                        locDate: dates.local,
+                        creator,
+                        type: '#',
+                        name: '',
+                        label: ''
+                    }).then(function(response) {
+                        console.log('ok');
+                    }).catch(function(err) {
+                        console.log(err);
+                    });
+
+                    PouchDB.sync('lidb', 'http://admin:54321@127.0.0.1:5984/lidb');
+
+                    var changes = db.changes({
+                        since: 'now',
+                        live: true,
+                        include_docs: true
+                    }).on('change', function(change) {
+                        console.log(change)
+                    }).on('complete', function(info) {
+                        console.log(info)
+                    }).on('error', function(err) {
+                        console.log(err);
+                    });
+
+                    break;
+                case 'ulid':
+                    for (let index = 0; index < 10; index++) {
+                        console.log(this.ulid());
+                    }
+                    break;
+                case 'toISOString':
+                    console.log(dates.utc);
+                    console.log(dates.local);
+                    break;
+                default:
+                    break;
             }
         }
     }
-}
 
-LI.ulid = ulid;
-LI.ulidToDateTime = (ulid) => { return new Date(decodeTime(ulid)) };
-
-LI.PouchDB = PouchDB;
-
-let awnOptions = {
-    icons: {
-        prefix: "<li-icon name='",
-        success: "check-circle' fill='#40871d' size=32",
-        tip: "star-border' fill='grey' size=32",
-        info: "info' fill='#1c76a6' size=32",
-        warning: "error' fill='#c26700' size=32",
-        alert: "warning' fill='#a92019' size=32",
-        suffix: "></li-icon>",
+    dates(d = new Date()) {
+        const utc = d.toISOString();
+        const local = new Date(d.getTime() - (d.getTimezoneOffset()) * 60 * 1000).toISOString().slice(0, -5).replace('T', ' ');
+        return { utc, local };
     }
 }
-LI.notifier = new AWN(awnOptions);
-LI.$url = urlLI;
-
-LI.createComponent = async (comp, props = {}) => {
-    comp = comp || {};
-    if (typeof comp === 'string') {
-        comp = comp.replace('li-', '');
-        let url = `${urlLI.replace('li.js', '')}li/${comp}/${comp}.js`;
-        await import(url);
-        const cmp = document.createElement(`li-${comp}`);
-        for (let p in props) cmp[p] = props[p];
-        return cmp;
-    }
-    for (let p in props) comp[p] = props[p];
-    return comp;
-}
-
-// LI.createComponent('li-tester');
-
-LI.show = async (host, comp, compProps = {}, hostProps = {}) => {
-    host = await LI.createComponent(host, hostProps);
-    comp = await LI.createComponent(comp, compProps);
-    if (hostProps.data && hostProps.data.host) hostProps.data.host.push(host);
-    return host.show(comp);
-}
-
-LI.listen = (target, event, callback, options) => {
-    if (target && event && callback) event.split(',').forEach(i => target.addEventListener(i.trim(), callback, options));
-}
-
-LI.unlisten = (target, event, callback, options) => {
-    if (target && event && callback) event.split(',').forEach(i => target.removeEventListener(i.trim(), callback, options));
-}
-
-LI.fire = (target, event, detail = {}) => {
-    if (target && event) target.dispatchEvent(new CustomEvent(event, { detail }));
-}
-
-window.LIRect = window.LIRect || class LIRect {
-    constructor(element) {
-        if (element && element.host)
-            element = element.host;
-        const pos = element ? element.getBoundingClientRect() : LI.mousePos;
-        if (pos) {
-            this.ok = true
-            this.x = pos.x;
-            this.y = pos.y;
-            this.top = pos.top;
-            this.bottom = pos.bottom;
-            this.left = pos.left;
-            this.right = pos.right;
-            this.width = pos.width;
-            this.height = pos.height;
-        } else {
-            this.ok = false;
-        }
-    }
-};
-if (!window.DOMRect) {
-    window.DOMRect = function(x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.top = y;
-        this.bottom = y + height;
-        this.left = x;
-        this.right = x + width;
-        this.width = width;
-        this.height = height;
-    }
-}
-document.addEventListener('mousedown', (e) => {
-    LI.mousePos = new DOMRect(e.pageX, e.pageY);
-});
-
-
-LI.$temp = {};
-LI.$temp.throttles = new Map();
-LI.$temp.debounces = new Map();
-LI.throttle = (key, func, delay = 0, immediate = false) => {
-    let pending = LI.$temp.throttles.get(key);
-    if (pending) return;
-    if (immediate) func();
-    pending = setTimeout(() => {
-        LI.$temp.throttles.delete(key);
-        if (!immediate) func();
-    }, delay);
-    LI.$temp.throttles.set(key, pending);
-}
-LI.debounce = (key, func, delay = 0, immediate = false) => {
-    let pending = LI.$temp.debounces.get(key);
-    if (pending) clearTimeout(pending);
-    if (!pending && immediate) func();
-    pending = setTimeout(() => {
-        LI.$temp.debounces.delete(key);
-        func();
-    }, delay);
-    LI.$temp.debounces.set(key, pending)
-}
-
-LI.action = (act) => {
-    const dates = LI.dates();
-    const ulid = LI.ulid();
-    const creator = 'User-0001';
-    if (typeof act === 'string') {
-        switch (act) {
-            case 'addItem':
-                let id = ulid + ':$';
-                let db = new PouchDB('http://admin:54321@127.0.0.1:5984/lidb');
-
-                // console.log(act, id);
-                // console.dir(db);
-                db.put({
-                    _id: id,
-                    ulid,
-                    utcDate: dates.utc,
-                    locDate: dates.local,
-                    creator,
-                    type: '#',
-                    name: '',
-                    label: ''
-                }).then(function(response) {
-                    console.log('ok');
-                }).catch(function(err) {
-                    console.log(err);
-                });
-
-                PouchDB.sync('lidb', 'http://admin:54321@127.0.0.1:5984/lidb');
-
-                var changes = db.changes({
-                    since: 'now',
-                    live: true,
-                    include_docs: true
-                }).on('change', function(change) {
-                    console.log(change)
-                }).on('complete', function(info) {
-                    console.log(info)
-                }).on('error', function(err) {
-                    console.log(err);
-                });
-
-                break;
-            case 'ulid':
-                for (let index = 0; index < 10; index++) {
-                    console.log(LI.ulid());
-                }
-                break;
-            case 'toISOString':
-                console.log(dates.utc);
-                console.log(dates.local);
-                break;
-            default:
-                break;
-        }
-    }
-}
-
-LI.dates = (d = new Date()) => {
-    const utc = d.toISOString();
-    const local = new Date(d.getTime() - (d.getTimezoneOffset()) * 60 * 1000).toISOString().slice(0, -5).replace('T', ' ');
-    return { utc, local };
-}
-
-
-Object.defineProperty(Array.prototype, 'has', { enumerable: false, value: Array.prototype.includes });
-Object.defineProperty(Array.prototype, 'clear', { enumerable: false, value: function() { this.splice(0); } });
-Object.defineProperty(Array.prototype, 'last', { enumerable: false, get() { return this[this.length - 1]; } });
-Object.defineProperty(Array.prototype, 'add', { enumerable: false, value: function(...item) { for (let i of item) { if (this.includes(i)) continue; this.push(i); } } });
-Object.defineProperty(Array.prototype, 'remove', { enumerable: false, value: function(...items) { for (const item of items) { const idx = this.indexOf(item); if (idx < 0) continue; this.splice(idx, 1); } } });
+globalThis.LI = new CLI();
