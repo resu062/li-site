@@ -97,52 +97,49 @@ export class LiElement extends LitElement {
         const name = this.localName.replace('li-', '');
         let url = `${urlLI.replace('li.js', '')}li/${name}/${name}.js`;
         this.$url = url;
+        this.$ulid = this.$ulid || LI.ulid()
         if (this._useInfo) {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
         }
-        this._init$$()
-    }
-
-    _init$$() {
         if (this._$$id !== undefined) {
-            this._$$id = this._$$id || LI.ulid();
+            this._$$id = this._$$id || this.$ulid;
             this.$$id = this._$$id;
             if (!LI._$$[this.$$id])
                 LI._$$[this.$$id] = {
-                    _$$: {}
+                    _$$: {},
+                    _observe: {}
                 };
-            LI._$$[this.$$id]._observe = icaro({})
-            LI._$$[this.$$id]._observe.update = icaro({ updateCount: 0 })
+            LI._$$[this.$$id]._observe.update = icaro({ value: 0 })
         }
     }
     connectedCallback() {
         super.connectedCallback();
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id != undefined && $$id.update)
-            this._observe.update.listen(() => this.requestUpdate());
+        if ($$id != undefined && $$id.update && this._observe && this._observe.update)
+            this._observe.update.listen(this.fnUpdate);
     }
     disconnectedCallback() {
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id != undefined && $$id.update)
-            this._observe.update.unlisten(this.requestUpdate());
+        if ($$id != undefined && $$id.update && this._observe && this._observe.update)
+            this._observe.update.unlisten(this.fnUpdate);
         if (this._$$id)
             delete LI._$$[this.$$id];
         super.disconnectedCallback();
     }
+    fnUpdate = (e) => { this.requestUpdate(); }
 
-    get $$() { return this.$$id ? LI._$$[this.$$id]['_$$'] : undefined }
-    set $$(v) { return }
-    get _observe() { return this.$$id ? LI._$$[this.$$id]['_observe'] : undefined }
-    set _observe(v) { return }
+    get $$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$'] ? LI._$$[this.$$id]['_$$'] : undefined }
+    get _observe() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_observe'] ? LI._$$[this.$$id]['_observe'] : undefined }
     $$update(property, value) {
         if (!property)
             this.requestUpdate();
-        if (this.$$id)
-            LI.$$update.call(this, property, value);
+        LI.$$update.call(this, property, value);
     }
     $$observe(property, callback) { LI.$$observe.call(this, property, callback) }
     $$unobserve(property) { LI.$$unobserve.call(this, property, this) }
+
+    get $root() { return this.getRootNode().host; }
 
     firstUpdated() {
         super.firstUpdated();
@@ -150,9 +147,6 @@ export class LiElement extends LitElement {
         this.renderRoot.querySelectorAll('[id]').forEach(node => {
             this.$id[node.id] = node;
         });
-    }
-    get $root() {
-        return this.getRootNode().host;
     }
 
     // notify : https://github.com/morbidick/lit-element-notify
@@ -178,8 +172,8 @@ export class LiElement extends LitElement {
 }
 
 
-const _$$ = { $$: {}, _$$: {} };
-_$$._observe = icaro({ updateCount: 0 });
+const _$$ = { $$: {}, _$$: {}, _observe: {} };
+_$$._observe.update = icaro({ value: 0 });
 const _$temp = {};
 _$temp.throttles = new Map();
 _$temp.debounces = new Map();
@@ -202,41 +196,28 @@ class CLI {
         this.notifier = new AWN(this.awnOptions);
         this.$url = urlLI;
     }
-    get _$$() {
-        return _$$._$$;
-    }
-    get $$() {
-        return _$$.$$;
-    }
-    get _observe() {
-        return _$$._observe;
-    }
-
+    get _$$() { return _$$._$$; }
+    get $$() { return _$$.$$; }
+    get _observe() { return _$$._observe; }
     $$update(property, value) {
         if (!this._observe) return;
-        if (!property)
-            if (this.$$id)
-                ++this._observe.update.updateCount;
-            else
-                ++this._observe.updateCount;
-        else
-            this._observe[property] = value;
+        if (!property && this._observe.update)
+            ++this._observe.update.value;
+        else if (this._observe[property])
+            this._observe[property]['value'] = value;
     }
-    $$observe(property, callback) {
+    $$observe(property, callback, obj = { _value: '' }) {
         if (!this._observe || !property) return;
-        const fn = (e) => {
-            const res = e.get(property);
-            callback(res);
-            console.log('observe: ' + property + ' = ' + res);
-        }
-        this.$$unlisten(property, fn);
-        this._observe.listen((e) => fn(e));
+        LI.$$unlisten(property, callback);
+        this._observe[property] = icaro({});
+        this._observe[property].listen(callback);
+        this._observe[property]['value'] = obj;
     }
-    $$unlisten(property, fn) {
-        if (this._observe && property in this._observe) {
-            this._observe.unlisten(fn);
-        }
+    $$unlisten(property, callback) {
+        if (this._observe && this._observe[property])
+            this._observe[property].unlisten(callback);
     }
+
     ulidToDateTime(ulid) {
         return new Date(decodeTime(ulid));
     }
