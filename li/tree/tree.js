@@ -2,7 +2,6 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../button/button.js';
 
-let count = 0;
 customElements.define('li-tree', class LiTree extends LiElement {
     static get properties() {
         return {
