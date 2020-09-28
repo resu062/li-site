@@ -1,0 +1,113 @@
+<script type="module" src="./~.js"></script>
+<style>
+    html * {
+        color: gray;
+        font-family: Arial;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<li-layout-designer keyLabel="name" keyItems="fields" keyID="name" id="layout"></li-layout-designer>
+<!-- <li-layout-designer keyLabel="name" keyItems="fields" keyID="name" id="layout2"></li-layout-designer> -->
+
+<script type="module">
+        layout.item = {
+        name: 'main', fields: [
+            { name: 1 },
+            { name: 2, fields: [{ name: '2.1' }, { name: '2.2' }, { name: '2.3' }, { name: '2.4' }, { name: '2.5' }, { name: '2.6' }] },
+            { name: 3 },
+            { name: 4 },
+            { name: 5 },
+            { name: 6 },
+            { name: 7 },
+            { name: 8 },
+            { name: 9 },
+            { name: 10 },
+            { name: 11 },
+            { name: 12, fields: [{ name: '12.1' }, { name: '12.2' }, { name: '12.3' }, { name: '12.4' }, { name: '12.5' }, { name: '12.6' }] },
+            { name: 13 },
+            {
+                name: 14, fields: [
+                    { name: '14.1' },
+                    {
+                        name: '14.2', fields: [
+                            {
+                                name: '14.2.1',
+                                fields: [
+                                    { name: '14.2.1.1', fields: [{ name: '14.2.1.1.1' }, { name: '14.2.1.1.2' }] },
+                                    { name: '14.2.1.2', fields: [{ name: '14.2.1.2.1' }, { name: '14.2.1.2.2' }] },
+                                    { name: '14.2.1.3' },
+                                    { name: '14.2.1.4', fields: [{ name: '14.2.1.4.1' }, { name: '14.2.1.4.2', fields: [{ name: '14.2.1.4.2.1' }, { name: '14.2.1.4.2.2' }, { name: '14.2.1.4.2.3' }, { name: '14.2.1.4.2.4' }] }] },
+                                    { name: '14.2.1.5' },
+                                ]
+                            },
+                            { name: '14.2.2' },
+                            { name: '14.2.3' },
+                            { name: '14.2.4' },
+                            { name: '14.2.5' }],
+
+                    },
+                    { name: '14.3' },
+                    { name: '14.4' },
+                    { name: '14.5' },],
+            },
+            { name: 15 },
+            { name: 16 },
+            { name: 17 },
+            { name: 18 },
+            { name: 19 },
+            { name: 20 },
+        ]
+    }
+    // layout2.item = {
+    //     name: 'main', fields: [
+    //         { name: 1 },
+    //         { name: 2, fields: [{ name: '2.1' }, { name: '2.2' }, { name: '2.3' }, { name: '2.4' }, { name: '2.5' }, { name: '2.6' }] },
+    //         { name: 3 },
+    //         { name: 4 },
+    //         { name: 5 },
+    //         { name: 6 },
+    //         { name: 7 },
+    //         { name: 8 },
+    //         { name: 9 },
+    //         { name: 10 },
+    //         { name: 11 },
+    //         { name: 12, fields: [{ name: '12.1' }, { name: '12.2' }, { name: '12.3' }, { name: '12.4' }, { name: '12.5' }, { name: '12.6' }] },
+    //         { name: 13 },
+    //         {
+    //             name: 14, fields: [
+    //                 { name: '14.1' },
+    //                 {
+    //                     name: '14.2', fields: [
+    //                         {
+    //                             name: '14.2.1',
+    //                             fields: [
+    //                                 { name: '14.2.1.1', fields: [{ name: '14.2.1.1.1' }, { name: '14.2.1.1.2' }] },
+    //                                 { name: '14.2.1.2', fields: [{ name: '14.2.1.2.1' }, { name: '14.2.1.2.2' }] },
+    //                                 { name: '14.2.1.3' },
+    //                                 { name: '14.2.1.4', fields: [{ name: '14.2.1.4.1' }, { name: '14.2.1.4.2', fields: [{ name: '14.2.1.4.2.1' }, { name: '14.2.1.4.2.2' }, { name: '14.2.1.4.2.3' }, { name: '14.2.1.4.2.4' }] }] },
+    //                                 { name: '14.2.1.5' },
+    //                             ]
+    //                         },
+    //                         { name: '14.2.2' },
+    //                         { name: '14.2.3' },
+    //                         { name: '14.2.4' },
+    //                         { name: '14.2.5' }],
+
+    //                 },
+    //                 { name: '14.3' },
+    //                 { name: '14.4' },
+    //                 { name: '14.5' },],
+    //         },
+    //         { name: 15 },
+    //         { name: 16 },
+    //         { name: 17 },
+    //         { name: 18 },
+    //         { name: 19 },
+    //         { name: 20 },
+    //     ]
+    // }
+</script>

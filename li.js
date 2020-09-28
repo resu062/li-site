@@ -139,7 +139,7 @@ export class LiElement extends LitElement {
     $$observe(property, callback) { LI.$$observe.call(this, property, callback) }
     $$unobserve(property) { LI.$$unobserve.call(this, property, this) }
 
-    get $root() { return this.getRootNode().host; }
+    //get $root() { return this.getRootNode().host; }
 
     firstUpdated() {
         super.firstUpdated();

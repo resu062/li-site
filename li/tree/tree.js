@@ -40,10 +40,10 @@ customElements.define('li-tree', class LiTree extends LiElement {
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length
                             ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" .toggled="${i.expanded}"
-                                            @click="${(e) => this._click(e, i)}" size="${this.iconSize-2}"></li-button>`
+                                    @click="${(e) => this._expanded(e, i)}" size="${this.iconSize-2}"></li-button>`
                             : html`<div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`
                         }
-                        ${this.allowCheck ? html`<li-checkbox></li-checkbox>` : html``}
+                        ${this.allowCheck ? html`<li-checkbox .toggled="${i.checked}" @click="${(e) => this._checked(e, i)}"></li-checkbox>` : html``}
                         <div style="padding:2px">${i.label || i.name}</div>
                         <div></div>
                     </div>
@@ -54,8 +54,12 @@ customElements.define('li-tree', class LiTree extends LiElement {
             `)}
         `
     }
-    _click(e, i) {
+    _expanded(e, i) {
         i.expanded = e.target.toggled;
+        this.$$update();
+    }
+    _checked(e, i) {
+        i.checked = e.target.toggled;
         this.$$update();
     }
 });
