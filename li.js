@@ -70,6 +70,10 @@ export class LiElement extends LitElement {
         this.$props = this.constructor._classProperties;
         for (const k of this.$props.keys()) {
             const prop = this.$props.get(k)
+            if (prop && prop.save) {
+                this.__saves = this.__saves || [];
+                this.__saves.push(k);
+            }
             if (!prop || prop.default === undefined) continue;
             this[k] = prop.default;
         }
@@ -103,7 +107,7 @@ export class LiElement extends LitElement {
             this.$urlInfo = url;
         }
         if (this._$$id !== undefined) {
-            this._$$id = this._$$id || this.$ulid;
+            this._$$id = this._$$id || this.id || this.$ulid;
             this.$$id = this._$$id;
             if (!LI._$$[this.$$id])
                 LI._$$[this.$$id] = {
@@ -118,6 +122,14 @@ export class LiElement extends LitElement {
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
         if ($$id != undefined && $$id.update && this._observe && this._observe.update)
             this._observe.update.listen(this.fnUpdate);
+        if (this.__saves) {
+            this.__saves.forEach(i => {
+                const v = JSON.parse(localStorage.getItem(this._saveFileName));
+                if (v) 
+                    this.$$[i] = this[i] = v[this.localName + '.' + i];
+            })
+            this.__enableSave = true;
+        }
     }
     disconnectedCallback() {
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
@@ -127,7 +139,7 @@ export class LiElement extends LitElement {
             delete LI._$$[this.$$id];
         super.disconnectedCallback();
     }
-    fnUpdate = (e) => { this.requestUpdate(); }
+    fnUpdate = (e) => { this.requestUpdate() }
 
     get $$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$'] ? LI._$$[this.$$id]['_$$'] : undefined }
     get _observe() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_observe'] ? LI._$$[this.$$id]['_observe'] : undefined }
@@ -140,6 +152,7 @@ export class LiElement extends LitElement {
     $$unobserve(property) { LI.$$unobserve.call(this, property, this) }
 
     //get $root() { return this.getRootNode().host; }
+    get _saveFileName() { return ((this.$$id || this.id || this.localName) + '.saves') }
 
     firstUpdated() {
         super.firstUpdated();
@@ -154,6 +167,12 @@ export class LiElement extends LitElement {
         super.update(changedProps);
 
         for (const prop of changedProps.keys()) {
+            if (this.__enableSave && this.__saves && this.__saves.includes(prop)) {
+                let v = JSON.parse(localStorage.getItem(this._saveFileName));
+                v = v || {};
+                v[this.localName + '.' + prop] = this[prop];
+                localStorage.setItem(this._saveFileName, JSON.stringify(v));
+            }
             const declaration = this.constructor._classProperties.get(prop);
 
             if (this._setTabulatorData) this._setTabulatorData(prop, this[prop]);
