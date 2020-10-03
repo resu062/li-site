@@ -14,31 +14,28 @@ class BaseItem {
     }
     get $$id() { return this._$$id || this.$root._$$id }
     get $$() { return LI._$$[this.$$id]._$$ }
-    get fileName() { return this.$$.fileName }
-    get actions() {
-        if (!LI._$$[this.$$id]._$$.actions[this.level]) LI._$$[this.$$id]._$$.actions[this.level] = [];
-        return LI._$$[this.$$id]._$$.actions[this.level];
-    }
-    get level() { return this._level || this.$root._level || this.id }
+    get level() { return this._level || this.$root._level || this.id || 'main' }
+    get actions() { return LI._$$[this.$$id]._$$.actions[this.level] }
 
     get checked() { return this._checked; }
     set checked(v) {
         this._checked = v;
-        this.applyAction(v ? 'checked' : 'unchecked');
+        this.applyAction('hide', v);
     }
     get expanded() { return this._expanded; }
     set expanded(v) {
         this._expanded = v;
-        this.applyAction(v ? 'expanded' : 'unexpanded');
-    }
-    applyAction(name, v) {
-        if (!this.$$.designMode) return;
-        const item = { action: name, props: { item: this.id + '' } };
-        this.actions.splice(this.actions.length, 0, item);
-        saveToLocalStorage(this, true, (this.level2 || this.level || 'main'))
+        this.applyAction('expanded', v);
     }
     setChecked(v) { this._checked = v; }
     setExpanded(v) { this._expanded = v; }
+    applyAction(name, v) {
+        if (!this.$$.designMode) return;
+        const item = { action: name, props: { item: this.id + '', value: v } };
+        const level = this.level2 || this.level;
+        this.$$.actions[level].splice(this.$$.actions[level].length, 0, item);
+        saveToLocalStorage(this, true);
+    }
 }
 
 class LayoutItem extends BaseItem {
@@ -62,10 +59,10 @@ class LayoutItem extends BaseItem {
                     i._level = this.id;
                     i._$$id = this._$$id;
                 });
-                this._level2 = this.$root.level || 'main';
                 this._level = this.id;
-                LI._$$[this.$$id]._$$.actions[this.level] = [];
-                loadFromLocalStorage(this, this._level);
+                this.$$.actions[this.level] = [];
+                this.level2 = this.$root.level;
+                loadFromLocalStorage(this);
             }
         }
         return this._items;
@@ -80,20 +77,22 @@ class GroupItem extends BaseItem {
         this.complex = 'li-layout-group';
         this._expanded = true;
         this.align = ['left', 'right'].includes(props.to) ? 'row' : 'column';
-        if (target) {
-            target.$owner.items.splice(target.$owner.items.indexOf(target), 1, this);
-            this.$root = target.$root;
-        } else {
+        this.owid = props.owid;
+        if (!target) {
+            this.$owner = owner;
             this.$root = owner.$root;
+            return;
         }
-        this.$owner = owner;
+        target.$owner.items.splice(target.$owner.items.indexOf(target), 1, this);
+        this.$root = target.$root;
+        this.$owner = target.$owner;
         target.$owner = this;
-        this.items = [target] || [];
+        this.items = [target];
     }
 
     insert(target, item, to) {
-        if (to === 'tabGrouping') {
-            this.tabGrouping();
+        if (to === 'tabsGrouping') {
+            this.tabsGrouping();
             return;
         }
         let idx = this.items.indexOf(target);
@@ -103,9 +102,18 @@ class GroupItem extends BaseItem {
         item.$owner = this;
     }
 
-    tabGrouping() {
-        if (this.$owner instanceof GroupItem) return;
-        new TabsItem({}, this);
+    tabsGrouping(item, selection) {
+        if (this.$owner instanceof TabsItem) return;
+        this.$owner = new TabsItem({ id: this.owid }, this);
+        if (selection && selection.includes(item)) {
+            selection.reverse().forEach(i => {
+                this.items.splice(1, 0, i);
+                i.$owner.items.splice(i.$owner.items.indexOf(i), 1);
+                deleteRecursive(i.$owner);
+                i.$owner = this;
+            });
+        }
+        deleteRecursive(item.$owner);
     }
 }
 
@@ -136,17 +144,33 @@ function findRecursive(id) {
         return res || findRecursive.call(i, id);
     }, undefined);
 }
-
-function loadFromLocalStorage(item, level) {
-    let actions = localStorage.getItem(item.fileName);
-    actions = actions ? JSON.parse(actions) : {};
-    item.$$.actions['' + (level || item.level)] = actions['' + (level || item.level)] || [];
-}
-function saveToLocalStorage(item, save, level) {
-    if (save && item.$$.designMode && item.actions) {
-        item.$$.actions['' + (level || item.level)] = item.actions;
-        localStorage.setItem(item.fileName, JSON.stringify(item.$$.actions));
+function deleteRecursive(item) {
+    if (!item.items || !item.items.length) {
+        let i = item.$owner || item.$root;
+        if (item instanceof BlockItem || item instanceof GroupItem)
+            i.items.splice(i.items.indexOf(item), 1);
+        let _item = i;
+        i = i.$owner || i.$root;
+        while (i) {
+            if ((_item instanceof BlockItem || _item instanceof GroupItem) && (!_item.items || !_item.items.length))
+                i.items.splice(i.items.indexOf(_item), 1);
+            _item = i;
+            i = i.$owner;
+        }
+        return;
     }
+    item.items.forEach(i => deleteRecursive(i))
+}
+
+function loadFromLocalStorage(item) {
+    let actions = localStorage.getItem(item.$$.fileName);
+    actions = actions ? JSON.parse(actions) : {};
+    item.$$.actions['' + item.level] = actions['' + item.level] || [];
+    loadActions(item);
+}
+function saveToLocalStorage(item, save) {
+    if (save && item.$$.designMode && item.$$.actions)
+        localStorage.setItem(item.$$.fileName, JSON.stringify(item.$$.actions));
 }
 
 let img = new Image();
@@ -154,21 +178,179 @@ img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAA
 let img3 = new Image();
 img3.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAAUCAYAAADC1B7dAAAACXBIWXMAAAsSAAALEgHS3X78AAAA4klEQVRYhWPU6v91RFv4jwIv+78/DEMIfP7JxHL1LcuDqwWsNsiuZgF5ZqLLB+mh5BkYyN8jwMDAwIoixjTUYgYZ8LL/Ew9b/P2J9oTfR2DCTIPCZWQCQfb/LKDUBUplMBNYhponsAFYTIHy1JCOIRhAjqlh4SEYAJUHw8pDDEO9UMAGRj002MGohwY7GH4eArVaB4E7yAIffzFiaAM3wUGtVlDzAVTjDgmfQD3z6SdmAmOB9CdYGUBtoRbbodmNQI4peIwMl5hi/P//P4oCUEwN4Q7fU4yYQIqpodclf8vyAAC+a17T0iNSKwAAAABJRU5ErkJggg==`
 
+const loadActions = (item) => {
+    if (!item.actions) return;
+    item.actions.forEach(act => {
+        if (act.props.selection && act.props.selection.length) {
+            item.$$.selection = [];
+            item.$$.selectionID = [];
+            act.props.selection.forEach(i => {
+                const obj = findRecursive.call(item.$root, i);
+                if (obj) {
+                    item.$$.selection.push(obj);
+                    item.$$.selectionID.push(obj.id);
+                }
+            })
+        }
+        fn[act.action](item, act.props);
+    })
+}
+const move = (item, props, save = false) => {
+    if (item.$$._lastAction === props) return;
+    item.$$._lastAction = props;
+    const dragItem = findRecursive.call(item.$root, props.item);
+    const targItem = findRecursive.call(item.$root, props.target);
+    if (!dragItem || !targItem) return;
+    let align = ['left', 'right'].includes(props.to) ? 'row' : 'column';
+    if (!(targItem.$owner instanceof BlockItem) || (targItem.$owner && targItem.$owner.align !== align)) {
+        targItem.$owner = new BlockItem(props, targItem);
+    }
+    if (props.to === 'grouping' || targItem !== dragItem)
+        targItem.$owner.insert(targItem, dragItem, props.to);
+    item.actions.last.props.label = item.actions.last.props.label || targItem.$owner.label;
+    item.actions.last.props.id = item.actions.last.props.id || targItem.$owner.id;
+    if (props.to === 'grouping' && targItem.$owner.$owner)
+        item.actions.last.props.owid = item.actions.last.props.owid || targItem.$owner.$owner.id;
+    item.actions.last.props.selection = item.actions.last.props.selection || item.$$.selectionID;
+    saveToLocalStorage(item, save);
+}
+const hide = (item, props) => {
+    const propsItem = findRecursive.call(item.$root, props.item);
+    if (propsItem)
+        propsItem.setChecked(props.value);
+}
+const expanded = (item, props) => {
+    const propsItem = findRecursive.call(item.$root, props.item);
+    if (propsItem)
+        propsItem.setExpanded(props.value);
+}
+const addTab = (item, props, save = false) => {
+    const propsItem = findRecursive.call(item.$root, props.item);
+    if (!propsItem) return;
+    const block = new BlockItem(props, null, item);
+    propsItem.items.splice(propsItem.items.length, 0, block);
+    item.actions.last.props.id = item.actions.last.props.id || block.id;
+    saveToLocalStorage(item, save);
+}
+const deleteTab = (item, props, save = false) => {
+    const propsItem = findRecursive.call(item.$root, props.item);
+    if (!propsItem) return;
+    //console.log(propsItem.items.length, props.index);
+    propsItem.items.splice(props.index, 1);
+    saveToLocalStorage(item, save);
+}
+const focus = (e, item, selection = []) => {
+    if (!item.$$.designMode) return;
+    const source = e.target.item;
+    if (!item.$$.selected || selection.length === 0) item.$$.selected = source;
+    if (e.ctrlKey) {
+        if (item.$$.selected.$root !== source.$root) return;
+        if (selection.includes(source)) {
+            selection.splice(selection.indexOf(source), 1);
+            return;
+        }
+        selection.splice(selection.length, 0, source)
+    } else if (e.shiftKey) {
+        if (item.$$.selected.$root !== source.$root) return;
+        const from = item.$$.selected.$root.items.indexOf(item.$$.selected);
+        const to = item.$$.selected.$root.items.indexOf(source);
+        const arr = item.$$.selected.$root.items.slice((from < to ? from : to), (from > to ? from : to) + 1)
+        selection.splice(0, selection.length, ...arr);
+    } else {
+        item.$$.selected = source;
+        selection.splice(0, selection.length, source)
+    }
+    item.$$.selection = selection;
+    item.$$.selectionID = selection.map(i => i.id);
+    return item.$$.selection;
+}
+const fn = { move, hide, expanded, addTab, deleteTab }
+
+function dragOver(item, e) {
+    let to = '',
+        x = e.layerX,
+        y = e.layerY,
+        w = e.target.offsetWidth,
+        h = e.target.offsetHeight;
+    x = (x - w / 2) / w * 2;
+    y = (y - h / 2) / h * 2;
+
+    if (Math.abs(x) > Math.abs(y))
+        to = x < 0 ? 'left' : 'right';
+    else
+        to = y < 0 ? 'top' : 'bottom';
+
+    item.$$.dragInfo.action = 'move';
+    item.$$.dragInfo.to = to;
+
+    if (item.$$.multiSelect) {
+        const ow = item.$owner || item.$root;
+        let step = 2,
+            count = 0,
+            maxCount = 0,
+            indxs = [],
+            indx = ow.items.indexOf(item);
+        if (ow instanceof BlockItem && ow.align === 'row' && (to === 'top' || to === 'bottom')) {
+            y = (1 - Math.abs(y)) * h / 2 | 0;
+            maxCount = h / step / 2;
+            count = y / step | 0;
+        } else if ((!(ow instanceof BlockItem) || (ow instanceof BlockItem && ow.align === 'column')) && (to === 'left' || to === 'right')) {
+            step = 6;
+            x = (1 - Math.abs(x)) * w / 2 | 0;
+            maxCount = w / step / 2;
+            count = x / step | 0;
+        }
+        indxs.push(indx);
+        count = count <= maxCount ? count : maxCount;
+        let i = indx >= (ow.items.length / 2 | 0) ? indx : ow.items.length - indx;
+        count = count <= i ? count : i;
+        i = 1;
+        while (count) {
+            if (indx - i >= 0)
+                if (!ow.items[indx - 1].isDragged)
+                    indxs.push(indx - i);
+            if (indx + i < ow.items.length)
+                if (!ow.items[indx + 1].isDragged)
+                    indxs.push(indx + i);
+            ++i;
+            --count;
+        }
+        item.$$.indxs = [];
+        indxs.forEach(i => {
+            if (ow.items[i]) {
+                ow.items[i].dragTo = 'drag-to-' + to;
+                item.$$.indxs.push(ow.items[i]);
+            }
+        })
+    } else {
+        item.dragTo = 'drag-to-' + to;
+    }
+
+    item.$$.dragInfo.targetItem = item;
+
+    // здесь можно устанавливать отладочные сообщения на псевдоэлементы
+    // в релизе тоже можно выводить пояснения для пользователей
+    return Math.round(Math.abs(e.layerX / 3) * 3);
+}
+
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
         return {
-            _$$id: { type: String, default: '' },
+            _$$id: { type: String, default: '', update: true },
             item: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
             keyLabel: { type: String, default: 'label' },
             keyItems: { type: String, default: 'items' },
-            layout: { type: Object, default: undefined }
+            layout: { type: Object, default: undefined },
+            designMode: { type: Boolean, default: false, save: true },
+            showGroupName: { type: Boolean, default: false, save: true },
+            showGroup: { type: Boolean, default: false, save: true }
         }
     }
 
     constructor() {
         super();
-        this.$$.fileName = 'li-layout-structure.' + (this.id || 'root');
+        this.$$.fileName = this.id + '.actions';
         this.$$.selected = {};
         this.$$.selection = [];
         this.$$.selectionID = [];
@@ -181,7 +363,8 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         super.update(changedProps);
         if (changedProps.has('item') && this.item) {
             this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.$$id);
-            this.layout.$root = this.layout
+            this.layout.$root = this.layout;
+            this.$$update();
         }
     }
 
@@ -207,9 +390,9 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                 <div slot="app-top">li-layout-designer</div>
                 <div slot="app-top-right">
                     <li-button name="refresh" scale=".9, -.9" rotate="-180" style="margin-right: 2px;" @click="${this._resetLayout}"></li-button>
-                    <li-button name="credit-card" toggledClass="ontoggled" style="margin-right: 2px;" @click="${this._showGroupName}"></li-button>
-                    <li-button name="select-all" toggledClass="ontoggled" style="margin-right: 2px;" @click="${this._showGroup}"></li-button>
-                    <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" @click="${this._setDesignMode}"></li-button>
+                    <li-button name="credit-card" toggledClass="ontoggled" style="margin-right: 2px;" .toggled="${this.showGroupName}" @click="${this._showGroupName}"></li-button>
+                    <li-button name="select-all" toggledClass="ontoggled" style="margin-right: 2px;" .toggled="${this.showGroup}" @click="${this._showGroup}"></li-button>
+                    <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" .toggled="${this.designMode}" @click="${this._setDesignMode}"></li-button>
                 </div>
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: 1px solid lightgray;border-bottom:none">
                     <li-tree .$$id="${this.$$id}" .item="${this.layout}"></li-tree>
@@ -220,17 +403,17 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
     }
 
     _setDesignMode(e) {
-        this.$$.designMode = e.target.toggled;
+        this.designMode = this.$$.designMode = e.target.toggled;
         this.$$update();
     }
 
     _showGroupName(e) {
-        this.$$.showGroupName = e.target.toggled;
+        this.showGroupName = this.$$.showGroupName = e.target.toggled;
         this.$$update();
     }
 
     _showGroup(e) {
-        this.$$.showGroup = e.target.toggled;
+        this.showGroup = this.$$.showGroup = e.target.toggled;
         this.$$update();
     }
 
@@ -245,7 +428,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String },
+            $$id: { type: String, update: true },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
             designMode: { type: Boolean, default: false },
@@ -258,14 +441,6 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
     }
     set items(v) {
         this._items = v;
-    }
-
-    updated(changedProps) {
-        super.update(changedProps);
-        if (changedProps.has('layout') && this.layout) {
-            if (this.layout.actions) this.layout.actions.forEach(action => this[action.action](this.layout, action.props));
-            this.$$update();
-        }
     }
 
     render() {
@@ -284,70 +459,8 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         `;
     }
 
-    execute(action, item = this.layout) {
-        // this.layout.actions = this.layout.actions || (item.$root && item.$root.actions) || [];
-        // this.layout.actions.push(action);
-        this[action.action](this.layout, action.props);
-    }
-    move(props) {
-        if (!this.items) return;
-        const item = findRecursive.call(this.layout.$root, props.item);
-        const target = findRecursive.call(this.layout.$root, props.target);
-        if (!item || !target) return;
-        let _align = ['left', 'right'].includes(props.to) ? '(h)' : '(v)';
-        if (!(target.$owner instanceof BlockItem) || (target.$owner && target.$owner.label && !target.$owner.label.includes(_align)))
-            target.$owner = new BlockItem(props, target, this.layout);
-        target.$owner.insert(target, item, props.to)
-        this.layout.actions.last.props.id = this.layout.actions.last.props.id || target.$owner.id;
-        this.layout.actions.last.props.label = this.layout.actions.last.props.label || target.$owner.label;
-        this.$$update();
-        localStorage.setItem(this.$$.fileName + (target.$root && target.$root.id || 'main'), JSON.stringify(this.layout.actions));
-    }
-    checked = (item, props) => {
-        const source = findRecursive.call(item.$root, props.item);
-        if (source)
-            source.setChecked(true);
-    }
-    unchecked = (item, props) => {
-        const source = findRecursive.call(item.$root, props.item);
-        if (source)
-            source.setChecked(false);
-    }
-    expanded = (item, props) => {
-        const source = findRecursive.call(item.$root, props.item);
-        if (source)
-            source.setExpanded(true);
-    }
-    unexpanded = (item, props) => {
-        const source = findRecursive.call(item.$root, props.item);
-        if (source)
-            source.setExpanded(false);
-    }
     _focus(e) {
-        if (!this.$$.designMode) return;
-        e.stopPropagation();
-        const item = e.target.item;
-        if (!this.$$.selected || this.$$.selection.length === 0) this.$$.selected = item;
-        if (e.ctrlKey || e.metaKey) {
-            if (this.$$.selected.$root !== item.$root) return;
-            if (this.$$.selection.includes(item)) {
-                this.$$.selection.splice(this.$$.selection.indexOf(item), 1);
-                this.$$update();
-                return;
-            }
-            this.$$.selection.splice(this.$$.selection.length, 0, item)
-        } else if (e.shiftKey) {
-            if (this.$$.selected.$root !== item.$root) return;
-            const from = this.$$.selected.$root.items.indexOf(this.$$.selected);
-            const to = this.$$.selected.$root.items.indexOf(item);
-            const arr = this.$$.selected.$root.items.slice((from < to ? from : to), (from > to ? from : to) + 1)
-            this.$$.selection.splice(0, this.$$.selection.length, ...arr);
-        } else {
-            this.$$.selected = item;
-            this.$$.selection.splice(0, this.$$.selection.length, item)
-        }
-        this.$$.selectionID = this.$$.selection.map(i => i.id);
-        this.$$update();
+        this.selection = focus(e, this.layout, this.selection);
     }
 });
 
@@ -466,7 +579,11 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 </div>  
             `
     }
-
+    execute(action) {
+        this.item.actions.push(action);
+        fn[action.action](this.item, action.props, true);
+        this.$$update();
+    }
     _toggleExpand(e) {
         this.item.expanded = e.target.toggled;
         this.$$update();
@@ -502,7 +619,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         this.$$.targetItem = this.item;
         this.dragto = null;
         const action = { action: this.$$.action, props: { item: this.$$.dragItem.id, target: this.item.id, to: this.$$.to } };
-        this.$root.execute(action, this.item);
+        this.execute(action);
     }
 
     _editGroupLabel(e) {
