@@ -405,19 +405,19 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             }
             :host([dragto=left]):after {
                 content: "";
-                box-shadow: inset 4px 0 0 0 blue;
+                box-shadow: inset 3px 0 0 0 blue;
             }
             :host([dragto=right]):after {
                 content: "";
-                box-shadow: inset -4px 0 0 0 blue;
+                box-shadow: inset -3px 0 0 0 blue;
             }
             :host([dragto=top]):after {
                 content: "";
-                box-shadow: inset 0 4px 0 0 blue;
+                box-shadow: inset 0 3px 0 0 blue;
             }
             :host([dragto=bottom]):after {
                 content: "";
-                box-shadow: inset 0 -4px 0 0 blue;
+                box-shadow: inset 0 -3px 0 0 blue;
             }
             :host([dragto]):after {
                 content: "";
@@ -441,26 +441,30 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
 
     render() {
-        return html`${this.item.checked ? html`
-            <div style="${this.isBlock && this.$$.showGroup ? 'border: 1px solid gray; margin: 4px;' : ''}">
-                ${!this.$$.showGroupName && this.isGroups
-                ? html``
-                : html`<div class="row ${this.$$.designMode ? 'design-row' : ''} ${this.$$.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.$$.designMode}" @dragstart="${this._dragstart}" @dragend="${this._dragend}"
-                            @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
+        return !this.item.checked ? html``
+            : html`
+                <div style="${this.isBlock && this.$$.showGroup ? 'border: 1px solid red; margin: 4px;' : ''}">
+                ${this.isGroups && !this.$$.showGroupName
+                    ? html``
+                    : html`
+                        <div class="row ${this.$$.designMode ? 'design-row' : ''} ${this.$$.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.$$.designMode}" 
+                                @dragstart="${this._dragstart}" @dragend="${this._dragend}" @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                         ${this.item && this.item.items && this.item.items.length
-                        ? html`<li-button back="transparent" size="${this.$$.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
-                        : html`<div style="width:${this.$$.iconSize}px;height:${this.$$.iconSize}px;"></div>`
-                    }
-                        <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
-                        <div style="flex:1;"></div>
-                    </div>`
-            }
+                            ? html`<li-button back="transparent" size="${this.$$.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" 
+                                    style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
+                            : html`<div style="width:${this.$$.iconSize}px;height:${this.$$.iconSize}px;"></div>`
+                        }
+                            <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
+                            <div style="flex:1;"></div>
+                        </div>
+                    `
+                }
                 ${this.item && this.item.items && this.item.items.length && this.item.expanded
-                ? html`<li-layout-structure class="${this.isGroups ? 'group' : 'complex'}" .$$id="${this.$$id}" .layout="${this.item}"></li-layout-structure>`
-                : html``
-            }   
-            </div>  
-        ` : html``}`;
+                    ? html`<li-layout-structure class="${this.isGroups ? 'group' : 'complex'}" .$$id="${this.$$id}" .layout="${this.item}"></li-layout-structure>`
+                    : html``
+                }   
+                </div>  
+            `
     }
 
     _toggleExpand(e) {
