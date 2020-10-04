@@ -163,14 +163,14 @@ function deleteRecursive(item) {
 }
 
 function loadFromLocalStorage(item) {
-    let actions = localStorage.getItem(item.$$.fileName);
+    let actions = localStorage.getItem(item.$$.actionsFileName);
     actions = actions ? JSON.parse(actions) : {};
     item.$$.actions['' + item.level] = actions['' + item.level] || [];
     loadActions(item);
 }
 function saveToLocalStorage(item, save) {
     if (save && item.$$.designMode && item.$$.actions)
-        localStorage.setItem(item.$$.fileName, JSON.stringify(item.$$.actions));
+        localStorage.setItem(item.$$.actionsFileName, JSON.stringify(item.$$.actions));
 }
 
 let img = new Image();
@@ -342,20 +342,19 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
             keyLabel: { type: String, default: 'label' },
             keyItems: { type: String, default: 'items' },
             layout: { type: Object, default: undefined },
-            designMode: { type: Boolean, default: false, save: true },
-            showGroupName: { type: Boolean, default: false, save: true },
-            showGroup: { type: Boolean, default: false, save: true }
+            iconSize: { type: Number, default: 28, local: true },
+            designMode: { type: Boolean, default: false, save: true, local: true },
+            showGroupName: { type: Boolean, default: false, save: true, local: true },
+            showGroup: { type: Boolean, default: false, save: true, local: true }
         }
     }
 
     constructor() {
         super();
-        this.$$.fileName = this.id + '.actions';
+        this.$$.actionsFileName = this.id + '.actions';
         this.$$.selected = {};
         this.$$.selection = [];
         this.$$.selectionID = [];
-        this.$$.designMode = false;
-        this.$$.iconSize = 28;
         this.$$.actions = {};
     }
 
@@ -364,7 +363,6 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         if (changedProps.has('item') && this.item) {
             this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.$$id);
             this.layout.$root = this.layout;
-            this.$$update();
         }
     }
 
@@ -372,9 +370,6 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         return html`
             <style>
                 :host {
-                    overflow: auto;
-                    display: flex;
-                    flex-direction: ${this.layout && this.layout.align || 'column'};
                     animation: fade-in 1s linear;
                 }
                 @keyframes fade-in {
@@ -389,39 +384,27 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
             <li-layout-app hide="r">
                 <div slot="app-top">li-layout-designer</div>
                 <div slot="app-top-right">
+                ${this.designMode
+                ? html`
                     <li-button name="refresh" scale=".9, -.9" rotate="-180" style="margin-right: 2px;" @click="${this._resetLayout}"></li-button>
-                    <li-button name="credit-card" toggledClass="ontoggled" style="margin-right: 2px;" .toggled="${this.showGroupName}" @click="${this._showGroupName}"></li-button>
-                    <li-button name="select-all" toggledClass="ontoggled" style="margin-right: 2px;" .toggled="${this.showGroup}" @click="${this._showGroup}"></li-button>
-                    <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" .toggled="${this.designMode}" @click="${this._setDesignMode}"></li-button>
+                    <li-button name="credit-card" toggledClass="ontoggled" style="margin-right: 2px;" .toggled="${this.showGroupName}" @click="${() => this.showGroupName = !this.showGroupName}"></li-button>
+                    <li-button name="select-all" toggledClass="ontoggled" style="margin-right: 2px;" .toggled="${this.showGroup}" @click="${() => this.showGroup = !this.showGroup}"></li-button>
+                ` : html``}
+                    <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" .toggled="${this.designMode}" @click="${() => this.designMode = this.$$.designMode = !this.designMode}"></li-button>
                 </div>
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: 1px solid lightgray;border-bottom:none">
                     <li-tree .$$id="${this.$$id}" .item="${this.layout}"></li-tree>
                 </div>
-                <li-layout-structure .$$id="${this.$$id}" .layout="${this.layout}" id="structure" slot="app-main" style="padding: 4px;"></li-layout-structure>
+                <div slot="app-main">
+                    <li-layout-structure .$$id="${this.$$id}" .layout="${this.layout}" id="structure" slot="app-main" style="padding: 4px;"></li-layout-structure>
+                </div>
             </li-layout-app>
         `;
     }
 
-    _setDesignMode(e) {
-        this.designMode = this.$$.designMode = e.target.toggled;
-        this.$$update();
-    }
-
-    _showGroupName(e) {
-        this.showGroupName = this.$$.showGroupName = e.target.toggled;
-        this.$$update();
-    }
-
-    _showGroup(e) {
-        this.showGroup = this.$$.showGroup = e.target.toggled;
-        this.$$update();
-    }
-
     _resetLayout(e) {
-        if (this.$$.designMode) {
-            localStorage.removeItem(this.layout.$$.fileName);
-            document.location.reload();
-        }
+        localStorage.removeItem(this.layout.$$.actionsFileName);
+        document.location.reload();
     }
 });
 
@@ -431,7 +414,6 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
             $$id: { type: String, update: true },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] },
-            designMode: { type: Boolean, default: false },
             selection: { type: Array, default: [] }
         }
     }
@@ -470,6 +452,10 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             $$id: { type: String, update: true },
             item: { type: Object, default: {} },
             dragto: { type: String, default: undefined, reflect: true },
+            iconSize: { type: Number, local: true },
+            designMode: { type: Boolean, default: false, local: true },
+            showGroupName: { type: Boolean, default: false, local: true },
+            showGroup: { type: Boolean, default: false, local: true }
         }
     }
 
@@ -556,21 +542,21 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     render() {
         return !this.item.checked ? html``
             : html`
-                <div style="${this.isBlock && this.$$.showGroup ? 'border: 1px solid red; margin: 4px;' : ''}">
-                ${this.isGroups && !this.$$.showGroupName
-                    ? html``
-                    : html`
-                        <div class="row ${this.$$.designMode ? 'design-row' : ''} ${this.$$.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.$$.designMode}" 
+                <div style="${this.isBlock && this.showGroup && this.designMode ? 'border: 1px solid red; margin: 4px;' : ''}">
+                ${!this.isGroups || (this.isGroups && this.showGroupName && this.designMode)
+                    ? html`
+                        <div class="row ${this.designMode ? 'design-row' : ''} ${this.$$.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" 
                                 @dragstart="${this._dragstart}" @dragend="${this._dragend}" @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                         ${this.item && this.item.items && this.item.items.length
-                            ? html`<li-button back="transparent" size="${this.$$.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" 
+                            ? html`<li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" 
                                     style="pointer-events:visible" @click="${this._toggleExpand}" border="0"></li-button>`
-                            : html`<div style="width:${this.$$.iconSize}px;height:${this.$$.iconSize}px;"></div>`
+                            : html`<div style="width:${this.iconSize}px;height:${this.iconSize}px;"></div>`
                         }
                             <label style="cursor: move;" @dblclick="${this._editGroupLabel}" @blur="${this._closeEditGroupLabel}" @keydown="${this._keydownGroupLabel}">${this.item && this.item.label}</label>
                             <div style="flex:1;"></div>
                         </div>
                     `
+                    : html``
                 }
                 ${this.item && this.item.items && this.item.items.length && this.item.expanded
                     ? html`<li-layout-structure class="${this.isGroups ? 'group' : 'complex'}" .$$id="${this.$$id}" .layout="${this.item}"></li-layout-structure>`
@@ -640,7 +626,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
         this.item.$root.actions.forEach(i => {
             if (this.item.id === i.props.id) i.props.label = this.item.label;
         });
-        localStorage.setItem(this.$$.fileName + this.item.$root.id, JSON.stringify(this.item.$root.actions));
+        localStorage.setItem(this.$$.actionsFileName + this.item.$root.id, JSON.stringify(this.item.$root.actions));
         this.$$update();
     }
     _keydownGroupLabel(e) {

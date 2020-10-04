@@ -74,6 +74,14 @@ export class LiElement extends LitElement {
                 this.__saves = this.__saves || [];
                 this.__saves.push(k);
             }
+            if (prop && prop.local) {
+                this.__locals = this.__locals || [];
+                this.__locals.push(k);
+            }
+            if (prop && prop.global) {
+                this.__globals = this.__globals || [];
+                this.__globals.push(k);
+            }
             if (!prop || prop.default === undefined) continue;
             this[k] = prop.default;
         }
@@ -106,43 +114,92 @@ export class LiElement extends LitElement {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
         }
-        if (this._$$id !== undefined) {
-            this._$$id = this._$$id || this.id || this.$ulid;
+        if (this._$$id !== undefined || this.__saves) {
+            this._$$id = this._$$id || this.id || this.localName;
             this.$$id = this._$$id;
             if (!LI._$$[this.$$id])
                 LI._$$[this.$$id] = {
                     _$$: {},
-                    _observe: {}
+                    _$$$: {}
                 };
-            LI._$$[this.$$id]._observe.update = icaro({ value: 0 })
+            LI._$$[this.$$id]._$$$ = icaro({});
+            LI._$$[this.$$id]._$$$.update = icaro({ value: 0 });
         }
     }
     connectedCallback() {
         super.connectedCallback();
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id != undefined && $$id.update && this._observe && this._observe.update)
-            this._observe.update.listen(this.fnUpdate);
-        if (this.__saves) {
+        if ($$id != undefined && $$id.update && this.$$$ && this.$$$.update)
+            this.$$$.update.listen(this.fnUpdate);
+        if (this.$$$ && this.__saves) {
             this.__saves.forEach(i => {
                 const v = JSON.parse(localStorage.getItem(this._saveFileName));
-                if (v) 
-                    this.$$[i] = this[i] = v[this.localName + '.' + i];
+                if (v)
+                this.$$[i] = this.$$$[i] = this[i] = v[this.localName + '.' + i];
             })
             this.__enableSave = true;
+        }
+        if (this.$$$ && this.__locals) {
+            this.__locals.forEach(i => {
+                this.$$$.listen(this.fnLocals);
+                if (this.$$$[i] === undefined)
+                    this.$$$[i] = this[i];
+                else
+                    this[i] = this.$$$[i];
+            });
+
+        }
+        if (this.$$$ && this.__globals) {
+            this.__globals.forEach(i => {
+                LI.$$$.listen(this.fnGlobals);
+                if (LI.$$$[i] === undefined)
+                    LI.$$$[i] = this[i];
+                else
+                    this[i] = LI.$$$[i];
+            });
+
         }
     }
     disconnectedCallback() {
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id != undefined && $$id.update && this._observe && this._observe.update)
-            this._observe.update.unlisten(this.fnUpdate);
+        if ($$id != undefined && $$id.update && this.$$$ && this.$$$.update)
+            this.$$$.update.unlisten(this.fnUpdate);
+        if (this.$$$ && this.__locals)
+            this.__locals.forEach(i => {
+                this.$$$.unlisten(this.fnLocals);
+            })
+        if (this.$$$ && this.__globals)
+            this.__globals.forEach(i => {
+                LI.$$$.unlisten(this.fnGlobals);
+            })
         if (this._$$id)
             delete LI._$$[this.$$id];
         super.disconnectedCallback();
     }
     fnUpdate = (e) => { this.requestUpdate() }
+    fnLocals = (e) => {
+        if (this.__locals) {
+            this.__locals.forEach(i => {
+                if (e.has(i)) {
+                    this[i] = e.get(i);
+                    //console.log(i, this[i]);
+                }
+            })
+        }
+    }
+    fnGlobals = (e) => {
+        if (this.__globals) {
+            this.__globals.forEach(i => {
+                if (e.has(i)) {
+                    this[i] = e.get(i);
+                    //console.log(i, this[i]);
+                }
+            })
+        }
+    }
 
     get $$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$'] ? LI._$$[this.$$id]['_$$'] : undefined }
-    get _observe() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_observe'] ? LI._$$[this.$$id]['_observe'] : undefined }
+    get $$$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$$'] ? LI._$$[this.$$id]['_$$$'] : undefined }
     $$update(property, value) {
         if (!property)
             this.requestUpdate();
@@ -151,7 +208,7 @@ export class LiElement extends LitElement {
     $$observe(property, callback) { LI.$$observe.call(this, property, callback) }
     $$unobserve(property) { LI.$$unobserve.call(this, property, this) }
 
-    //get $root() { return this.getRootNode().host; }
+    get $root() { return this.getRootNode().host; }
     get _saveFileName() { return ((this.$$id || this.id || this.localName) + '.saves') }
 
     firstUpdated() {
@@ -160,6 +217,7 @@ export class LiElement extends LitElement {
         this.renderRoot.querySelectorAll('[id]').forEach(node => {
             this.$id[node.id] = node;
         });
+        this._isFirstUpdated = true;
     }
 
     // notify : https://github.com/morbidick/lit-element-notify
@@ -173,6 +231,13 @@ export class LiElement extends LitElement {
                 v[this.localName + '.' + prop] = this[prop];
                 localStorage.setItem(this._saveFileName, JSON.stringify(v));
             }
+            if (this._isFirstUpdated) {
+                if (this.__locals && this.__locals.includes(prop))
+                    this.$$$[prop] = this[prop];
+                if (this.__globals && this.__globals.includes(prop))
+                    LI.$$$[prop] = this[prop];
+            }
+
             const declaration = this.constructor._classProperties.get(prop);
 
             if (this._setTabulatorData) this._setTabulatorData(prop, this[prop]);
@@ -191,8 +256,9 @@ export class LiElement extends LitElement {
 }
 
 
-const _$$ = { $$: {}, _$$: {}, _observe: {} };
-_$$._observe.update = icaro({ value: 0 });
+const _$$ = { $$: {}, _$$: {}, _$$$: {} };
+_$$._$$$ = icaro({});
+_$$._$$$.update = icaro({ value: 0 });
 const _$temp = {};
 _$temp.throttles = new Map();
 _$temp.debounces = new Map();
@@ -217,24 +283,24 @@ class CLI {
     }
     get _$$() { return _$$._$$; }
     get $$() { return _$$.$$; }
-    get _observe() { return _$$._observe; }
+    get $$$() { return _$$._$$$; }
     $$update(property, value) {
-        if (!this._observe) return;
-        if (!property && this._observe.update)
-            ++this._observe.update.value;
-        else if (this._observe[property])
-            this._observe[property]['value'] = value;
+        if (!this.$$$) return;
+        if (!property && this.$$$.update)
+            ++this.$$$.update.value;
+        else if (this.$$$[property])
+            this.$$$[property]['value'] = value;
     }
     $$observe(property, callback, obj = { _value: '' }) {
-        if (!this._observe || !property) return;
+        if (!this.$$$ || !property) return;
         LI.$$unlisten(property, callback);
-        this._observe[property] = icaro({});
-        this._observe[property].listen(callback);
-        this._observe[property]['value'] = obj;
+        this.$$$[property] = icaro({});
+        this.$$$[property].listen(callback);
+        this.$$$[property]['value'] = obj;
     }
     $$unlisten(property, callback) {
-        if (this._observe && this._observe[property])
-            this._observe[property].unlisten(callback);
+        if (this.$$$ && this.$$$[property])
+            this.$$$[property].unlisten(callback);
     }
 
     ulidToDateTime(ulid) {

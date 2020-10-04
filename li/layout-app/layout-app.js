@@ -6,7 +6,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
     static get properties() {
         return {
             outside: { type: Boolean, default: false, reflect: true },
-            sides: { type: String, default: '240, 240' },
+            sides: { type: String, default: '240, 240', save: true },
             minSize: { type: Number, default: 128 },
             hide: { type: String, default: '' },
             over: { type: Boolean, default: false, reflect: true },
@@ -65,6 +65,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
             //this._lastWidthR = this.minSize;
             this._r = this._r < 0 ? this._r : this._r * -1;
         }
+        this.sides = (this._widthL || ('-' + (this._lastWidthL || this.minSize))) + ',' + (this._widthR || ('-' + (this._lastWidthR || this.minSize)));
         this._move = '';
         window.dispatchEvent(new Event('resize'));
     }
@@ -86,6 +87,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
             this.isOver = this.over || this.overLeft ? true : false;
         }
         this._widthL = this._l < 0 ? 0 : l;
+        this.sides = (this._widthL || ('-' + (this._lastWidthL || this.minSize))) + ',' + (this._widthR || ('-' + (this._lastWidthR || this.minSize)));
         window.dispatchEvent(new Event('resize'));
     }
     _hideR(e) {
@@ -100,6 +102,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
             this.isOver = this.over || this.overRight ? true : false;
         }
         this._widthR = this._r < 0 ? 0 : r;
+        this.sides = (this._widthL || ('-' + (this._lastWidthL || this.minSize))) + ',' + (this._widthR || ('-' + (this._lastWidthR || this.minSize)));
         window.dispatchEvent(new Event('resize'));
     }
     _hideAll() {
