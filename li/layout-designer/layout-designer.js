@@ -377,7 +377,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                     }
                 }
             </style>
-            <li-layout-app hide="r">
+            <li-layout-app hide="r" id="layout.layout-app">
                 <div slot="app-top">li-layout-designer</div>
                 <div slot="app-top-right">
                 ${this.designMode

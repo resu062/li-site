@@ -217,6 +217,10 @@ export class LiElement extends LitElement {
         this.renderRoot.querySelectorAll('[id]').forEach(node => {
             this.$id[node.id] = node;
         });
+        this.$refs = {};
+        this.renderRoot.querySelectorAll('[ref]').forEach(node => {
+            this.$refs[node.getAttribute('ref')] = node;
+        });
         this._isFirstUpdated = true;
     }
 
