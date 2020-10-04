@@ -7,7 +7,7 @@ import '../tree/tree.js';
 class BaseItem {
     constructor($$id) {
         this._$$id = $$id;
-        this.id = LI.ulid();
+        this.id = 'main';
         this.label = '';
         this._checked = true;
         this._expanded = false;
@@ -349,18 +349,14 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         }
     }
 
-    constructor() {
-        super();
-        this.$$.actionsFileName = this.id + '.actions';
-        this.$$.selected = {};
-        this.$$.selection = [];
-        this.$$.selectionID = [];
-        this.$$.actions = {};
-    }
-
     updated(changedProps) {
         super.update(changedProps);
         if (changedProps.has('item') && this.item) {
+            this.$$.actionsFileName = (this.item.id || this.id || this.$$id) + '.actions';
+            this.$$.selected = {};
+            this.$$.selection = [];
+            this.$$.selectionID = [];
+            this.$$.actions = {};
             this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.$$id);
             this.layout.$root = this.layout;
         }

@@ -115,7 +115,7 @@ export class LiElement extends LitElement {
             this.$urlInfo = url;
         }
         if (this._$$id !== undefined || this.__saves) {
-            this._$$id = this._$$id || this.id || this.localName;
+            this._$$id = this._$$id || this.id || this.localName.replace('li-', '');
             this.$$id = this._$$id;
             if (!LI._$$[this.$$id])
                 LI._$$[this.$$id] = {
@@ -129,7 +129,7 @@ export class LiElement extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id != undefined && $$id.update && this.$$$ && this.$$$.update)
+        if ($$id !== undefined && $$id.update && this.$$$ && this.$$$.update)
             this.$$$.update.listen(this.fnUpdate);
         if (this.$$$ && this.__saves) {
             this.__saves.forEach(i => {
@@ -209,7 +209,7 @@ export class LiElement extends LitElement {
     $$unobserve(property) { LI.$$unobserve.call(this, property, this) }
 
     get $root() { return this.getRootNode().host; }
-    get _saveFileName() { return ((this.$$id || this.id || this.localName) + '.saves') }
+    get _saveFileName() { return ((this.$$id || this.id || this.localName.replace('li-', '')) + '.saves') }
 
     firstUpdated() {
         super.firstUpdated();
