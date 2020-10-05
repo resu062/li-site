@@ -91,15 +91,27 @@ class GroupItem extends BaseItem {
     }
 
     insert(target, item, to) {
+        const selection = this.$$.selection
         if (to === 'tabsGrouping') {
             this.tabsGrouping();
             return;
         }
         let idx = this.items.indexOf(target);
         if (['right', 'bottom'].includes(to)) ++idx;
-        this.items.splice(idx, 0, item)
-        item.$owner.items.splice(item.$owner.items.indexOf(item), 1);
-        item.$owner = this;
+        if (selection && selection.includes(item)) {
+            selection.reverse().forEach(i => {
+                this.items.splice(idx, 0, i);
+                i.$owner.items.splice(i.$owner.items.indexOf(i), 1);
+                deleteRecursive(i.$owner);
+                i.$owner = this;
+            })
+        }
+        else {
+            this.items.splice(idx, 0, item);
+            item.$owner.items.splice(item.$owner.items.indexOf(item), 1);
+            deleteRecursive(item.$owner);
+            item.$owner = this;
+        }
     }
 
     tabsGrouping(item, selection) {
@@ -239,11 +251,12 @@ const deleteTab = (item, props, save = false) => {
     propsItem.items.splice(props.index, 1);
     saveToLocalStorage(item, save);
 }
-const focus = (e, item, selection = []) => {
+const focus = (e, item) => {
+    let selection = item.$$.selection || [];
     if (!item.$$.designMode) return;
     const source = e.target.item;
     if (!item.$$.selected || selection.length === 0) item.$$.selected = source;
-    if (e.ctrlKey) {
+    if (e.ctrlKey || e.metaKey) {
         if (item.$$.selected.$root !== source.$root) return;
         if (selection.includes(source)) {
             selection.splice(selection.indexOf(source), 1);
@@ -262,7 +275,6 @@ const focus = (e, item, selection = []) => {
     }
     item.$$.selection = selection;
     item.$$.selectionID = selection.map(i => i.id);
-    return item.$$.selection;
 }
 const fn = { move, hide, expanded, addTab, deleteTab }
 
@@ -409,8 +421,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         return {
             $$id: { type: String, update: true },
             layout: { type: Object, default: undefined },
-            items: { type: Array, default: [] },
-            selection: { type: Array, default: [] }
+            items: { type: Array, default: [] }
         }
     }
 
@@ -432,13 +443,33 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
                 }
             </style>
             ${this.items.map(item => html`
-                <li-layout-container .$$id="${this.$$id}" .item=${item}  @click="${this._focus}"></li-layout-container>
+                <li-layout-container .$$id="${this.$$id}" .item=${item} @click="${this._focus}" @contextmenu="${(e) => this._menu(e, item)}"></li-layout-container>
             `)}
         `;
     }
 
     _focus(e) {
-        this.selection = focus(e, this.layout, this.selection);
+        e.stopPropagation();
+        focus(e, this.layout);
+        this.$$update();
+    }
+    async _menu(e, item) {
+        e.stopPropagation();
+        e.preventDefault();
+        let val = await LI.show('dropdown', 'tester-cell', { type: 'text', value: 'actions', props: { list: ['grouping', '...ungrouping', '...tabs', '...untabs'], hideButton: true, readOnly: true } }, {});
+        let action = '';
+        switch (val.detail.value) {
+            case 'grouping':
+                action = { action: 'move', props: { item: item.id, target: item.id, to: 'grouping' } };
+                break;
+            default:
+                break;
+        }
+        if (action) {
+            item.actions.push(action);
+            fn[action.action](item, action.props, true);
+            this.$$update();
+        }
     }
 });
 
@@ -451,7 +482,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             iconSize: { type: Number, local: true },
             designMode: { type: Boolean, default: false, local: true },
             showGroupName: { type: Boolean, default: false, local: true },
-            showGroup: { type: Boolean, default: false, local: true }
+            showGroup: { type: Boolean, default: false, local: true },
         }
     }
 
@@ -463,9 +494,6 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     }
     get isTabs() {
         return this.item instanceof TabsItem;
-    }
-    get isSelected() {
-        return this.$$.selection.includes(item);
     }
 
     static get styles() {
@@ -541,7 +569,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 <div style="${this.isBlock && this.showGroup && this.designMode ? 'border: 1px solid red; margin: 4px;' : ''}">
                 ${!this.isGroups || (this.isGroups && this.showGroupName && this.designMode)
                     ? html`
-                        <div class="row ${this.designMode ? 'design-row' : ''} ${this.$$.isSelected ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" 
+                        <div class="row ${this.designMode ? 'design-row' : ''} ${this.$$.selection.includes(this.item) ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" 
                                 @dragstart="${this._dragstart}" @dragend="${this._dragend}" @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                         ${this.item && this.item.items && this.item.items.length
                             ? html`<li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" 

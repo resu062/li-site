@@ -27,6 +27,7 @@ customElements.define('li-tester-cell', class LiTesterCell extends LiElement {
                     background: lightyellow; 
                     padding: 2px;
                     border:1px solid lightblue; 
+                    filter: brightness(95%);
                 }
                 #input {
                     font-size: 1em;
@@ -66,8 +67,10 @@ customElements.define('li-tester-cell', class LiTesterCell extends LiElement {
     render() {
         return html`
             <div class="cell">
-                <input id="input" type="${this.type}" value="${this.value}" @keydown="${e => this._change(e)}"/>
-                <li-button name="check" size="16" fill="lightblue" color="lightblue" @click="${this._tap}"></li-button>
+                <input id="input" type="${this.type}" value="${this.value}" @keydown="${e => this._change(e)}" ?readonly="${this.props && this.props.readOnly}"/>
+                ${this.props && this.props.hideButton ? html`` : html`
+                    <li-button name="check" size="16" fill="lightblue" color="lightblue" @click="${this._tap}"></li-button>
+                `}
             </div>
             <div class="list">
                 ${this.props && this.props.list ? this.props.list.map(l => html`<div class="cells" @click="${this._tap}">${l}</div>`) : ``}
@@ -86,6 +89,6 @@ customElements.define('li-tester-cell', class LiTesterCell extends LiElement {
     _tap(e) {
         let el = this.$id.input;
         this.value = this.type === 'checkbox' ? el.checked : e.target.className ? e.target.innerText : el.value;
-        LI.fire(document, "dropdownDataChange", { target: this, value: this.value} );
+        LI.fire(document, "dropdownDataChange", { target: this, value: this.value });
     }
 });
