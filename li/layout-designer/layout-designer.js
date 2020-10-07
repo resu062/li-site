@@ -41,6 +41,7 @@ class BaseItem {
 class LayoutItem extends BaseItem {
     constructor(item, props = {}, root, owner, $$id) {
         super($$id);
+        this._expanded = item && item.expanded || false;
         this.$item = item;
         this.$props = props;
         this.$root = root;
