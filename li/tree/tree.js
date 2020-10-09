@@ -6,14 +6,15 @@ import '../checkbox/checkbox.js';
 customElements.define('li-tree', class LiTree extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, update: true },
+            _$$id: { type: String, default: '', update: true },
             item: { type: Object, default: {} },
             iconSize: { type: String, default: '28' },
             margin: { type: String, default: '0' },
             fullBorder: { type: Boolean, default: false },
             colorBorder: { type: String, default: 'lightgray' },
             verticalLine: { type: Boolean, default: true },
-            allowCheck: { type: Boolean, default: true }
+            allowCheck: { type: Boolean, default: true },
+            selected: { type: Object, default: {}, local: true }
         }
     }
 
@@ -30,13 +31,20 @@ customElements.define('li-tree', class LiTree extends LiElement {
                 margin-left: 14px;
                 overflow: hidden;
             }
+            .row:hover {
+                box-shadow: inset 0 -2px 0 0 black;
+                cursor: pointer;
+            }
+            .selected {
+                background-color: lightyellow;
+            }
         `;
     }
 
     render() {
         return html`
             ${this.items.map(i => html`
-                <div style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
+                <div class="row ${this.selected === i ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}" @click="${(e) => this._focus(e, i)}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length
                             ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" .toggled="${i.expanded}"
@@ -60,6 +68,10 @@ customElements.define('li-tree', class LiTree extends LiElement {
     }
     _checked(e, i) {
         i.checked = e.target.toggled;
+        this.$$update();
+    }
+    _focus(e, i) {
+        this.selected = i;
         this.$$update();
     }
 });
