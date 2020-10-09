@@ -114,20 +114,35 @@ export class LiElement extends LitElement {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
         }
-        if (this._$$id !== undefined || this.__saves) {
-            this._$$id = this._$$id || this.id || this.localName.replace('li-', '');
-            this.$$id = this._$$id;
-            if (!LI._$$[this.$$id])
+        // if (!this.$$id && this._$$id !== undefined || this.__saves) {
+        //     this._$$id = this._$$id || this.id || this.localName.replace('li-', '');
+        //     this.$$id = this._$$id;
+        //     if (!LI._$$[this.$$id]) {
+        //         LI._$$[this.$$id] = {
+        //             _$$: {},
+        //             _$$$: {}
+        //         };
+        //         LI._$$[this.$$id]._$$$ = icaro({});
+        //         LI._$$[this.$$id]._$$$.update = icaro({ value: 0 });
+        //     }
+        // }
+    }
+    connectedCallback() {
+        super.connectedCallback();
+
+        if (this.$$id !== undefined || this.__saves) {
+            this.$$id = this.$$id || this.id || this.localName.replace('li-', '');
+            this._$$id = this.$$id;
+            if (!LI._$$[this.$$id]) {
                 LI._$$[this.$$id] = {
                     _$$: {},
                     _$$$: {}
                 };
-            LI._$$[this.$$id]._$$$ = icaro({});
-            LI._$$[this.$$id]._$$$.update = icaro({ value: 0 });
+                LI._$$[this.$$id]._$$$ = icaro({});
+                LI._$$[this.$$id]._$$$.update = icaro({ value: 0 });
+            }
         }
-    }
-    connectedCallback() {
-        super.connectedCallback();
+
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
         if ($$id !== undefined && $$id.update && this.$$$ && this.$$$.update)
             this.$$$.update.listen(this.fnUpdate);
@@ -135,7 +150,7 @@ export class LiElement extends LitElement {
             this.__saves.forEach(i => {
                 const v = JSON.parse(localStorage.getItem(this._saveFileName));
                 if (v)
-                this.$$[i] = this.$$$[i] = this[i] = v[this.localName + '.' + i];
+                    this.$$[i] = this.$$$[i] = this[i] = v[this.localName + '.' + i];
             })
             this.__enableSave = true;
         }

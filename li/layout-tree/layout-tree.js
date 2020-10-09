@@ -17,7 +17,8 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             complex: { type: String, default: 'tree' },
             complexExt: { type: String, default: 'tree-line' },
             view: { type: String, default: '' },
-            allowCheck: { type: Boolean, default: false }
+            allowCheck: { type: Boolean, default: false },
+            selected: { type: Object, default: {}, local: true }
         }
     }
 
@@ -36,13 +37,20 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             .tree-line {
                 border-left: 1px dashed lightgray;
             }
+            .row:hover {
+                box-shadow: inset 0 -2px 0 0 black;
+                cursor: pointer;
+            }
+            .selected {
+                background-color: lightyellow;
+            }
         `;
     }
 
     render() {
         return html`
             ${this.items.map(i => html`
-                <div style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
+                <div class="row ${this.selected === i ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}" @click="${(e) => this._focus(e, i)}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length
                             ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
@@ -55,13 +63,17 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}" .allowCheck ="${this.allowCheck}"></li-layout-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}" .allowCheck ="${this.allowCheck}" .$$id="${this.$$id}"></li-layout-tree>` : ''}
                 </div>
             `)}
         `
     }
     _click(e, i) {
         i.expanded = e.target.toggled;
+        this.$$update();
+    }
+    _focus(e, i) {
+        this.selected = i;
         this.$$update();
     }
 });

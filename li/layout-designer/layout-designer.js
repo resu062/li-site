@@ -349,7 +349,7 @@ function dragOver(item, e) {
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
         return {
-            _$$id: { type: String, default: '', update: true },
+            $$id: { type: String, default: '', update: true },
             item: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
             keyLabel: { type: String, default: 'label' },
