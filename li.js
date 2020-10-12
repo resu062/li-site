@@ -130,9 +130,9 @@ export class LiElement extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        if (this.$$id !== undefined || this.__saves) {
-            this.$$id = this.$$id || this.id || this.localName.replace('li-', '');
-            this._$$id = this.$$id;
+        if (!this.$$id && this._$$id !== undefined) {
+            this._$$id = this._$$id || this.id || this.localName;
+            this.$$id = this._$$id;
             if (!LI._$$[this.$$id]) {
                 LI._$$[this.$$id] = {
                     _$$: {},

@@ -46,7 +46,7 @@ class LayoutItem extends BaseItem {
         this.$props = props;
         this.$root = root;
         this.$owner = owner;
-        this.id = item[props.keyID || 'id'] || this.id;
+        this.id = item[props.keyID || 'id'] || LI.ulid();
         this.label = item[props.keyLabel || 'label'] || '';
     }
 
@@ -58,7 +58,7 @@ class LayoutItem extends BaseItem {
             if (this._items.length) {
                 this._items.forEach(i => {
                     i._level = this.id;
-                    i._$$id = this._$$id;
+                    i._$$id = this.$$id;
                 });
                 this._level = this.id;
                 this.$$.actions[this.level] = [];
@@ -170,7 +170,11 @@ function deleteRecursive(item) {
             _item = i;
             i = i.$owner;
         }
-        return;
+        //return;
+    } else if (item.items && item.items.length === 1 && (item.items[0] instanceof BlockItem || item.items[0] instanceof GroupItem)) {
+        item.items[0].$owner = item.$owner;
+        item.items[0].$root = item.$root;
+        item.$owner.items.splice(item.$owner.items.indexOf(item), 1, item.items[0]);
     }
     item.items.forEach(i => deleteRecursive(i))
 }
@@ -341,15 +345,13 @@ function dragOver(item, e) {
 
     item.$$.dragInfo.targetItem = item;
 
-    // здесь можно устанавливать отладочные сообщения на псевдоэлементы
-    // в релизе тоже можно выводить пояснения для пользователей
     return Math.round(Math.abs(e.layerX / 3) * 3);
 }
 
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, default: '', update: true },
+            _$$id: { type: String, default: '', update: true },
             item: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
             keyLabel: { type: String, default: 'label' },

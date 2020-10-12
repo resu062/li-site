@@ -119,7 +119,7 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
             .pnl-spl {
                 top: 0;
                 bottom: 0;
-                position: absolute;
+                position: fixed;
                 max-width: 4px;
                 min-width: 4px;
                 cursor: col-resize;
