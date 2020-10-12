@@ -117,9 +117,6 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
                 top: 0; left: 0; bottom: 0; right: 0;
             }
             .pnl-spl {
-                top: 0;
-                bottom: 0;
-                position: fixed;
                 max-width: 4px;
                 min-width: 4px;
                 cursor: col-resize;
@@ -194,8 +191,8 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
             </div>
         ` : "";
     }
-    get leftSplitter() { return html`<div class="pnl-spl" @mousedown="${e => this._movePanel('left')}" style="left:${this._widthL-2}"></div>` }
-    get rightSplitter() { return html`<div class="pnl-spl" @mousedown="${e => this._movePanel('right')}" style="right:${this._widthR-2}"></div>` }
+    get leftSplitter() { return html`<div class="pnl-spl" @mousedown="${e => this._movePanel('left')}"></div>` }
+    get rightSplitter() { return html`<div class="pnl-spl" @mousedown="${e => this._movePanel('right')}"></div>` }
     get tempPanel() { return html`<div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indx}"></div>` }
     get shadowPanel() { return this.isOver ? html`<div style="position:absolute;top:0;bottom:0;left:0;right:0;z-index:98;background:gray;opacity:.5;cursor:pointer;transition:5s;" @click="${this._hideAll}"></div>` : '' }
     get body() {
