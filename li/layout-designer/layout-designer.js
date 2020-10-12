@@ -208,31 +208,6 @@ const deleteTab = (item, props, save = false) => {
     propsItem.items.splice(props.index, 1);
     saveToLocalStorage(item, save);
 }
-const focus = (e, item) => {
-    let selection = item.$$.selection || [];
-    if (!item.$$.designMode) return;
-    const source = e.target.item;
-    if (!item.$$.selected || selection.length === 0) item.$$.selected = source;
-    if (e.ctrlKey || e.metaKey) {
-        if (item.$$.selected.$root !== source.$root) return;
-        if (selection.includes(source)) {
-            selection.splice(selection.indexOf(source), 1);
-            return;
-        }
-        selection.splice(selection.length, 0, source)
-    } else if (e.shiftKey) {
-        if (item.$$.selected.$root !== source.$root) return;
-        const from = item.$$.selected.$root.items.indexOf(item.$$.selected);
-        const to = item.$$.selected.$root.items.indexOf(source);
-        const arr = item.$$.selected.$root.items.slice((from < to ? from : to), (from > to ? from : to) + 1)
-        selection.splice(0, selection.length, ...arr);
-    } else {
-        item.$$.selected = source;
-        selection.splice(0, selection.length, source)
-    }
-    item.$$.selection = selection;
-    item.$$.selectionID = selection.map(i => i.id);
-}
 const fn = { move, hide, expanded, addTab, deleteTab }
 
 function dragOver(item, e) {
@@ -406,7 +381,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 
     _focus(e) {
         e.stopPropagation();
-        focus(e, this.layout);
+        ldfn.focus(e, this.layout);
         this.$$update();
     }
     async _menu(e, item) {
