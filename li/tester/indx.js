@@ -9,7 +9,7 @@ export const indx = {
     'li-icons': { label: 'Иконки' },
     icons: [{ label: 'index', url: url + '/icons' }],
 
-    'li-checkbox': { label: 'Checkbox', props: { size: 48, fill: 'green'} },
+    'li-checkbox': { label: 'Checkbox', props: { size: 48, fill: 'green' } },
     checkbox: [{ label: 'index', url: url + '/checkbox' }],
 
     'li-button': { label: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
@@ -50,42 +50,55 @@ export const indx = {
     'li-tree': {
         label: 'li-tree', props: {
             allowCheck: true,
-            item: [
-                { label: 1 },
-                { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
-                { label: 3 },
-                { label: 4 },
-                { label: 5 },
-                { label: 6 },
-                { label: 7 },
-                { label: 8 },
-                { label: 9 },
-                { label: 10 },
-                { label: 11 },
-                { label: 12, items: [{ label: '16' }, { label: '17' }, { label: '161' }, { label: '171' }, { label: '162' }, { label: '172' }] },
-                { label: 13 },
-                {
-                    label: 14, items: [{ label: '14.1' }, {
-                        label: '14.2', items: [
+            item: {
+                id: 'tree',
+                label: 'main', items: [
+                    { label: 1 },
+                    { label: 2, items: [{ label: '2.1' }, { label: '2.2' }, { label: '2.3' }, { label: '2.4' }, { label: '2.5' }, { label: '2.6' }] },
+                    { label: 3 },
+                    { label: 4 },
+                    { label: 5 },
+                    { label: 6 },
+                    { label: 7 },
+                    { label: 8 },
+                    { label: 9 },
+                    { label: 10 },
+                    { label: 11 },
+                    { label: 12, items: [{ label: '12.1' }, { label: '12.2' }, { label: '12.3' }, { label: '12.4' }, { label: '12.5' }, { label: '12.6' }] },
+                    { label: 13 },
+                    {
+                        label: 14, items: [
+                            { label: '14.1' },
                             {
-                                label: '14.2.1',
-                                items: [
-                                    { label: 2, items: [{ label: '2.1' }, { label: '2.2' }] },
-                                    { label: 12, items: [{ label: '16' }, { label: '17' }] },
-                                    { label: 13 },
-                                    { label: 14, items: [{ label: '14.1' }, { label: '14.2', items: [{ label: '14.2.1' }] }] },
-                                    { label: 15 },
-                                ]
-                            }]
-                    }]
-                },
-                { label: 15 },
-                { label: 16 },
-                { label: 17 },
-                { label: 18 },
-                { label: 19 },
-                { label: 20 },
-            ]
+                                label: '14.2', items: [
+                                    {
+                                        label: '14.2.1',
+                                        items: [
+                                            { label: '14.2.1.1', items: [{ label: '14.2.1.1.1' }, { label: '14.2.1.1.2' }] },
+                                            { label: '14.2.1.2', items: [{ label: '14.2.1.2.1' }, { label: '14.2.1.2.2' }] },
+                                            { label: '14.2.1.3' },
+                                            { label: '14.2.1.4', items: [{ label: '14.2.1.4.1' }, { label: '14.2.1.4.2', items: [{ label: '14.2.1.4.2.1' }, { label: '14.2.1.4.2.2' }, { label: '14.2.1.4.2.3' }, { label: '14.2.1.4.2.4' }] }] },
+                                            { label: '14.2.1.5' },
+                                        ]
+                                    },
+                                    { label: '14.2.2' },
+                                    { label: '14.2.3' },
+                                    { label: '14.2.4' },
+                                    { label: '14.2.5' }],
+        
+                            },
+                            { label: '14.3' },
+                            { label: '14.4' },
+                            { label: '14.5' },],
+                    },
+                    { label: 15 },
+                    { label: 16 },
+                    { label: 17 },
+                    { label: 18 },
+                    { label: 19 },
+                    { label: 20 },
+                ]
+            }
         }
     },
     tree: [{ label: 'index', url: url + '/tree' }],
@@ -97,6 +110,7 @@ export const indx = {
             keyID: 'name',
             id: 'layout',
             item: {
+                id: 'layout',
                 fields: [
                     { name: 1 },
                     { name: 2, fields: [{ name: '2.1' }, { name: '2.2' }, { name: '2.3' }, { name: '2.4' }, { name: '2.5' }, { name: '2.6' }] },

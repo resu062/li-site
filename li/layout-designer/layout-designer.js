@@ -1,74 +1,9 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
+import { BaseItem, LItem, ldfn } from '../../lib/li-utils/li-data.js';
 import '../button/button.js';
 import '../layout-app/layout-app.js'
 import '../tree/tree.js';
-
-class BaseItem {
-    constructor($$id) {
-        this._$$id = $$id;
-        this.id = 'main';
-        this.label = '';
-        this._checked = true;
-        this._expanded = false;
-    }
-    get $$id() { return this._$$id || this.$root._$$id }
-    get $$() { return LI._$$[this.$$id]._$$ }
-    get level() { return this._level || this.$root._level || this.id || 'main' }
-    get actions() { return LI._$$[this.$$id]._$$.actions[this.level] }
-
-    get checked() { return this._checked; }
-    set checked(v) {
-        this._checked = v;
-        this.applyAction('hide', v);
-    }
-    get expanded() { return this._expanded; }
-    set expanded(v) {
-        this._expanded = v;
-        this.applyAction('expanded', v);
-    }
-    setChecked(v) { this._checked = v; }
-    setExpanded(v) { this._expanded = v; }
-    applyAction(name, v) {
-        if (!this.$$.designMode) return;
-        const item = { action: name, props: { item: this.id + '', value: v } };
-        const level = this.level2 || this.level;
-        this.$$.actions[level].splice(this.$$.actions[level].length, 0, item);
-        saveToLocalStorage(this, true);
-    }
-}
-
-class LayoutItem extends BaseItem {
-    constructor(item, props = {}, root, owner, $$id) {
-        super($$id);
-        this._expanded = item && item.expanded || false;
-        this.$item = item;
-        this.$props = props;
-        this.$root = root;
-        this.$owner = owner;
-        this.id = item[props.keyID || 'id'] || LI.ulid();
-        this.label = item[props.keyLabel || 'label'] || '';
-    }
-
-    get items() {
-        if (!this._items) {
-            this._items = (this.$item[this.$props.keyItems || 'items'] || []).map(i => {
-                return new LayoutItem(i, this.$props, this, this);
-            });
-            if (this._items.length) {
-                this._items.forEach(i => {
-                    i._level = this.id;
-                    i._$$id = this.$$id;
-                });
-                this._level = this.id;
-                this.$$.actions[this.level] = [];
-                this.level2 = this.$root.level;
-                loadFromLocalStorage(this);
-            }
-        }
-        return this._items;
-    }
-}
 
 class GroupItem extends BaseItem {
     constructor(props, target, owner) {
@@ -147,6 +82,22 @@ class TabsItem extends GroupItem {
     }
 }
 
+ldfn.applyAction = (item, action, props) => {
+    switch (action) {
+        case 'setItems':
+            loadFromLocalStorage(item);
+            break;
+        case 'hide':
+        case 'expanded':
+            if (!item.$$.designMode) return;
+            item.$$.actions[props.level].splice(item.$$.actions[props.level].length, 0, { action, props: { item: props.item + '', value: props.value } });
+            saveToLocalStorage(item, true);
+            break;
+        default:
+            break;
+    }
+}
+
 function findRecursive(id) {
     if (!this || !this.items) return;
     let items = this.items.filter(i => i.$root.id === this.$root.id);
@@ -189,6 +140,7 @@ function saveToLocalStorage(item, save) {
     if (save && item.$$.designMode && item.$$.actions)
         localStorage.setItem(item.$$.actionsFileName, JSON.stringify(item.$$.actions));
 }
+
 
 let img = new Image();
 img.src = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAQCAYAAABQrvyxAAAACXBIWXMAAAsSAAALEgHS3X78AAAAa0lEQVRIiWPU6v91RFv4jwIv+78/DEMIfP7JxHL1LcsDFpDjJ7p8kB5KjoeB/D0CDExDLeSRAcjtTIPHOeSBUQ8MNBj1wECDUQ8MNBj1wECDUQ8MNGACteqGquNBbgc3SUGtuiHZnH7L8gAAtichl6hs6rYAAAAASUVORK5CYII=`
@@ -353,6 +305,7 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         return {
             _$$id: { type: String, default: '', update: true },
             item: { type: Object, default: undefined },
+            litem: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
             keyLabel: { type: String, default: 'label' },
             keyItems: { type: String, default: 'items' },
@@ -372,8 +325,8 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
             this.$$.selection = [];
             this.$$.selectionID = [];
             this.$$.actions = {};
-            this.layout = new LayoutItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.$$id);
-            this.layout.$root = this.layout;
+            this.litem = new LItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.$$id);
+            this.litem.$root = this.litem;
         }
     }
 
@@ -404,17 +357,17 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                     <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" .toggled="${this.designMode}" @click="${() => this.designMode = this.$$.designMode = !this.designMode}"></li-button>
                 </div>
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: 1px solid lightgray;border-bottom:none">
-                    <li-tree .$$id="${this.$$id}" .item="${this.layout}"></li-tree>
+                    <li-tree .$$id="${this.$$id}" .litem="${this.litem}"></li-tree>
                 </div>
                 <div slot="app-main">
-                    <li-layout-structure .$$id="${this.$$id}" .layout="${this.layout}" id="structure" slot="app-main" style="padding: 4px;"></li-layout-structure>
+                    <li-layout-structure .$$id="${this.$$id}" .layout="${this.litem}" id="structure" slot="app-main" style="padding: 4px;"></li-layout-structure>
                 </div>
             </li-layout-app>
         `;
     }
 
     _resetLayout(e) {
-        localStorage.removeItem(this.layout.$$.actionsFileName);
+        localStorage.removeItem(this.litem.$$.actionsFileName);
         document.location.reload();
     }
 });
