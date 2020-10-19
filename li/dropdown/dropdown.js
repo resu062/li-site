@@ -160,6 +160,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             div { 
                 position: fixed;
                 overflow-y: auto;
+                z-index: 99;
             }
         `;
     }

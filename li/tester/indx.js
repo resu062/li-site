@@ -47,6 +47,23 @@ export const indx = {
     },
     table: [{ label: 'index', url: url + '/table' }],
 
+    'li-tabs': {
+        label: 'li-tabs',
+        props: {
+            vertical: true,
+            horizontal: true,
+            item: [
+                { label: 'tab-001', icon: 'android' },
+                { label: 'tab-002' },
+                { label: 'tab-003' },
+                { label: 'tab-004' },
+                { label: 'tab-005' },
+                { label: 'tab-000000005', icon: 'refresh' },
+            ]
+        }
+    },
+    tabs: [{ label: 'index', url: url + '/tree' }],
+
     'li-tree': {
         label: 'li-tree', props: {
             allowCheck: true,
@@ -85,7 +102,7 @@ export const indx = {
                                     { label: '14.2.3' },
                                     { label: '14.2.4' },
                                     { label: '14.2.5' }],
-        
+
                             },
                             { label: '14.3' },
                             { label: '14.4' },
