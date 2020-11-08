@@ -15,6 +15,9 @@ export const indx = {
     'li-button': { label: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
     button: [{ label: 'index', url: url + '/button' }, { label: 'index-2', url: url + '/button/index-2.html' }],
 
+    'li-dropdown': { label: 'DropDown', props: { component: 'press index or index-2' } },
+    dropdown: [{ label: 'index', url: url + '/dropdown' }, { label: 'index-2', url: url + '/dropdown/index-2.html' }],
+
     'li-table': {
         label: 'li-table', props: {
             options: {
