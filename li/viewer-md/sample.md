@@ -1,5 +1,5 @@
 <div style="position:relative;padding-bottom:48%; margin:10px">
-    <iframe src="https://www.youtube.com/embed/bi2xKlZfYos?start=0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen 
+    <iframe src="https://www.youtube.com/embed/cQy2BQAVtVc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen 
     	style="position:absolute;width:100%;height:100%;"></iframe>
 </div>
 
@@ -13,33 +13,32 @@ this is a \:smile\: => :smile: emoji
 
 
 ```javascript
-import '/components/buttons/icon/icon.js';
+import { html, css } from '../../lib/lit-element/lit-element.js';
+import { LiElement } from '../../li.js';
+import '../button/button.js';
 
-ODA({
-    is: 'my-component',
-    template: `
-        <div ~for="items" ~is="item.tag" ~props="item"></div>
-        <button @tap="_log">Console log</button>
-    `,
-    props:{
-        items:[
-            {tag: 'oda-icon', icon: 'tools:magnify', size: 96},
-            {tag: 'oda-icon', icon: 'icons:android', size: 64, fill: 'green'},
-            {tag: 'oda-icon', icon: 'icons:alarm', size: 32, fill: 'orange'}
-        ]
-    },
-    ready() {
-        alert('ready ... ')
-    },
-    attached() {
-        alert('attached ... ')
-        setTimeout(() => {
-            console.log('iframe-log')
-        }, 500);
-    },
-    _log() {
-        alert('log ... ')
-        console.log(new Date());
+customElements.define('li-layout-panel', class LiLayoutPanel extends LiElement {
+    static get properties() {
+        return {
+
+        }
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+
+    }
+
+    static get styles() {
+        return css`
+
+        `;
+    }
+
+    render() {
+        return html`
+            
+        `;
     }
 });
 
@@ -55,37 +54,44 @@ ODA({
 
 ```xml
 <style>
-    * { 
-        color: orange;
+    body {
+        padding: 0px;
+        margin: 0px;
+        background: lightyellow
     }
+
 </style>
 ```
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Template</title>
-        <script type="module" src="/oda.js"></script>
-    </head>
-    <body>
-        <my-component></my-component>
-        <script type="module">
-            ODA({
-                is: 'my-component',
-                template: `
-                    <p>{{text}}</p>
-                    <p ~html="text"></p>
-                `,
-                props: {
-                    text: '<span style="color: red"> Текст должен быть красным</span>'
-                }
+<div>
+    <li-dropdown id="drop">
+        <div id="content" style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;display: flex;flex-direction: column">
+            <section class="section-buttons">
+                <h2>Buttons icon</h2>
+                <lit-button class="primary icon" aria-label="search">
+                    <lit-icon icon="search" aria-hidden="true">OK</lit-icon>
+                </lit-button>
+                <lit-button class="primary icon" aria-label="menu">
+                    <lit-icon icon="menu" aria-hidden="true"></lit-icon>
+                </lit-button>
+                <lit-button class="primary icon">
+                    <lit-icon icon="crop" aria-label="crop"></lit-icon>
+                </lit-button>
+            </section>
 
-            });
-        </script>
-    </body>
-</html>
+            <section class="section-buttons section-max-width" style="font-size: 62.5%;">
+                <h2>Buttons block</h2>
+                <lit-button class="primary block margin-bottom">Primary block</lit-button>
+                <lit-button class="secondary block margin-bottom">Secondary block</lit-button>
+                <lit-button class="success block">Success block</lit-button>
+            </section>
+
+            <lit-button id="ok" class="primary block" style="padding: 10px">OK</lit-button>
+
+        </div>
+    </li-dropdown>
+</div>
 ```
 
 Содержимое второго тега **p** в данном примере будет заменено значением свойства **text**, интерпретированного как обычный HTML. В первом теге **p** свойство **text** интерпретируется как обычный текст.
@@ -132,76 +138,6 @@ This is LIKE message ...
 This is FAQ message ...
 ```
 
-### Demo Highlighting <span style="color:orange">ODA framework</span> code on Markdown
-
-Создадим первый компонент **Hello, World!**
-
-```html 
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>WELCOME</title>
-        <script type="module" src="/oda.js"></script>
-    </head>
-    <body>
-        <welcome-component></welcome-component>
-        <script type="module">
-          ODA({
-              is: 'welcome-component',
-              template:`<span>{{text}}</span>`,
-              props: {
-                  text: 'Hello, World !!!'
-              }
-          });
-        </script>
-    </body>
-</html>
-```
-
-```javascript
-ODA({
-    is: 'welcome-component',
-    template:`<span>{{text}}</span>`,
-    props: {
-        text: 'Hello, World !!!'
-    }
-});
-```
-
-```javascript
-ODA({
-    is: 'base-component1',
-    template: `
-        <div>Parent 1</div>
-    `
-});
-```
-
-```javascript
-ODA({
-    is: 'base-component2',
-    template: `
-        <div>Parent 2</div>
-    `
-});
-```
-
-```javascript
-ODA({
-    is: 'derived-component',
-    extends: 'base-component1, base-component2',
-    template: `
-        <div>Descendant</div>
-    `
-})
-```
-
-```html
-<welcome-component></welcome-component>
-```
-
-
 # H1 Demo
 ## H2 Demo
 ### H3 Demo
@@ -243,27 +179,27 @@ Numbered list:
 An [example](http://example.com).
 
 
-[ ZIP-архив](https://odant.org/web/oda/dist/oda.zip)
+[ ZIP-архив](https://xxx.org/web/xxx/dist/xxx.zip)
 
 CDN
 ~~~html
-<script type="module" src="https://cdn.jsdelivr.net/gh/odajs/oda-framework@master/oda.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/xxx/xxx-framework@master/xxx.js"></script>
 ~~~
 ~~~html
-<script type="module" src="https://unpkg.com/browse/oda-framework@0.0.1/oda.json"></script>
+<script type="module" src="https://unpkg.com/browse/xxx-framework@0.0.1/xxx.json"></script>
 ~~~
 
 NPM
 
 ~~~
- npm i oda-framework
+ npm i xxx-framework
 ~~~
 
-#  Сравнение СУБД: MS SQL и ODANT
+#  Сравнение СУБД: MS SQL и xxx
 
-В таблице приведены ряд критериев, по которым можно сравнить ODANT с реляционной СУБД MS SQL. Ниже — комментарии по некоторым вопросам.
+В таблице приведены ряд критериев, по которым можно сравнить xxx с реляционной СУБД MS SQL. Ниже — комментарии по некоторым вопросам.
 
-| № | Характеристика | Реализация в ODANT | Реализация в MS SQL |
+| № | Характеристика | Реализация в xxx | Реализация в MS SQL |
 |:---:|:---|:---:|:---:|
 | **1** | **Универсальные свойства СУБД** | | | 
 | 1.1 | Транзакционность | В терминах реляционной базы данных нет. Развернутый комментарий ниже. | Есть |
@@ -274,7 +210,7 @@ NPM
 | 1.6 | Процедуры | Есть. Реализуются в виде классов, которые предоставляют свои методы другим классам. | Есть |
 | 1.7 | Функции | Есть. Реализуются в виде классов, которые предоставляют свои методы другим классам. | Есть |
 | 1.8 | Job | Есть. Реализуется в виде классов, код методов которых выполняется на сервере. Запуск выполнения по событиям возможен. | Есть |
-| 1.9 | Контроль uid ссылок. \(при изменении источника кеш не обновляется в зависимых объектах\) | Ссылка, аналогичная uid ссылке в реляционной базе данных, не используется в ODANT по идеологическим причинам, хотя технически она реализуема. В ODANT используется понятие связи, у которой другое поведение. | Есть |
+| 1.9 | Контроль uid ссылок. \(при изменении источника кеш не обновляется в зависимых объектах\) | Ссылка, аналогичная uid ссылке в реляционной базе данных, не используется в xxx по идеологическим причинам, хотя технически она реализуема. В xxx используется понятие связи, у которой другое поведение. | Есть |
 | **2** | **Администрирование, инструменты разработки** | | | 
 | 2.1 | Трекинг запросов | Есть. Изменение базы данных происходит ВСЕГДА через изменение объектов. Отслеживание изменений объектов реализовано. | Есть |
 | 2.2 | План запроса | Нет | Есть |
@@ -306,23 +242,23 @@ NPM
 
 >Понятие транзакции было разработано и реализовано в эпоху табличных реляционных баз данных. В таких БД прикладные сущности, как правило, не могут быть реализованы в одной таблице, а располагаются сразу в нескольких связанных таблицах. В этом случае операция в БД с одной прикладной сущностью требует обращения сразу к нескольким таблицам. При этом могут возникать различные проблемы, связанные как с прерыванием операций, так и со случаями параллельной работы нескольких пользователей с одними и теми же сущностями.
 
->В объектной базе данных ODANT прикладная сущность описывается одним классом, а действие производится над объектом класса. В ODANT сервер контролирует целостность сущности — объекта — при операциях с ним. Можно говорить о том, что механизм транзакций, который обеспечивает целостность БД, реализован на уровне сервера, не требуя дополнительного управления на уровне программиста. При этом механизма транзакций, привычного специалистам по работе с SQL СУБД — нет.
+>В объектной базе данных xxx прикладная сущность описывается одним классом, а действие производится над объектом класса. В xxx сервер контролирует целостность сущности — объекта — при операциях с ним. Можно говорить о том, что механизм транзакций, который обеспечивает целостность БД, реализован на уровне сервера, не требуя дополнительного управления на уровне программиста. При этом механизма транзакций, привычного специалистам по работе с SQL СУБД — нет.
 
 ### Целостность объектной БД — это целостность объектов, которая контролируются сервером. Для полноценной работы этого механизма необходимо построение правильной структуры данных.
 
-У программистов, которые ранее работали только с табличными реляционными БД, возникает проблема при переходе на объектную СУБД ODANT. Они в процессе разработки пытаются реализовать структуру данных аналогичную той, которую они применяют в РСУБД. И при работе с этой структурой у них возникает потребность в транзакционности. Данная проблема решается формированием правильной структуры данных и идеологией построения приложений.
+У программистов, которые ранее работали только с табличными реляционными БД, возникает проблема при переходе на объектную СУБД xxx. Они в процессе разработки пытаются реализовать структуру данных аналогичную той, которую они применяют в РСУБД. И при работе с этой структурой у них возникает потребность в транзакционности. Данная проблема решается формированием правильной структуры данных и идеологией построения приложений.
 
 ## Контроль uid ссылок
 
 Еще одно понятие, которое присуще идеологии реляционных табличных БД. Рассмотрим простой пример.
 
-[![](http://csc.odant.org/wp-content/uploads/2018/07/sch.jpg "")](http://csc.odant.org/wp-content/uploads/2018/07/sch.jpg "")
+[![](http://csc.xxx.org/wp-content/uploads/2018/07/sch.jpg "")](http://csc.xxx.org/wp-content/uploads/2018/07/sch.jpg "")
 
 В таблице «Прайс-лист» информация о продавце товара дана только в виде кода продавца \(uid\). А все остальное — в таблице «Продавцы». Если нужно получить прайс-лист, в который будет вставлена информация о продавце, выполняется SQL запрос, которые объединит данные таблиц «Прайс-лист» и «Продавцы».
 
-Подобная реализация в ODANT возможна, но обычно не применяется. В ODANT в прайс-листе атрибут, связанный с продавцом, будет включать в себя необходимое описание этого продавца \(как минимум — название, может быть адрес, телефон, а может — полные реквизиты\). При этом можно установить связь этого атрибута с классом «Продавцы», и в этой связи будет информация по uid продавца. Но поведение этой связи сложное и настраивается в зависимости от прикладной задачи. Связь бывает статической или динамической, можно настроить, какая часть информации из объекта «Продавец» будет импортироваться.
+Подобная реализация в xxx возможна, но обычно не применяется. В xxx в прайс-листе атрибут, связанный с продавцом, будет включать в себя необходимое описание этого продавца \(как минимум — название, может быть адрес, телефон, а может — полные реквизиты\). При этом можно установить связь этого атрибута с классом «Продавцы», и в этой связи будет информация по uid продавца. Но поведение этой связи сложное и настраивается в зависимости от прикладной задачи. Связь бывает статической или динамической, можно настроить, какая часть информации из объекта «Продавец» будет импортироваться.
 
-Контроль ссылочной целостности в реляционных БД подразумевает следующее. Если мы попытаемся удалить запись в таблице «Продавцы», на которую ссылается запись в таблице «Прайс-лист», то SQL эту операцию заблокирует. Этот контроль нам необходим, так как данные о продавце есть только в записи таблицы «Продавцы». Но в ODANT все не так. Данные о продавце есть в объекте «Прайс-лист». И в случае удаления объекта из класса «Продавцы» данные этого продавца останутся. Поэтому контроля ссылочной целостности в том виде, как это реализовано в табличных БД, в ODANT нет.
+Контроль ссылочной целостности в реляционных БД подразумевает следующее. Если мы попытаемся удалить запись в таблице «Продавцы», на которую ссылается запись в таблице «Прайс-лист», то SQL эту операцию заблокирует. Этот контроль нам необходим, так как данные о продавце есть только в записи таблицы «Продавцы». Но в xxx все не так. Данные о продавце есть в объекте «Прайс-лист». И в случае удаления объекта из класса «Продавцы» данные этого продавца останутся. Поэтому контроля ссылочной целостности в том виде, как это реализовано в табличных БД, в xxx нет.
 
 ### Еще раз отметим, если мы захотим, то сможем с помощью XQuery получить результат как при выполнении SQL запроса.
 
