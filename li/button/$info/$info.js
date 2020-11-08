@@ -6,7 +6,7 @@ export const list = {
     color: ['fill', 'color', 'back', 'borderColor'],
     _color: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray', 'transparent'],
     toggledClass: ['toggledClass'],
-    _toggledClass: ['none', 'left90', 'right90', 'left360', 'right360'],
+    _toggledClass: ['ontoggled', 'left90', 'right90', 'left360', 'right360', 'none'],
     notoggledClass: ['notoggledClass'],
     _notoggledClass: ['notoggled', 'left90', 'right90', 'left360', 'right360', 'none']
 }
