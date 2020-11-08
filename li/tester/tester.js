@@ -18,8 +18,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
     get _columns() {
         return [
             { title: 'Name', field: 'name', width: 150, bottomCalc: 'count' },
-            {
-                title: 'Value', field: 'value', hozAlign: 'center', width: '100%', responsive: true,
+            { title: 'Value', field: 'value', hozAlign: 'center', width: '100%', responsive: true,
                 cellClick: async (e, cell, el = this.component) => {
                     var editor = document.createElement("input");
                     let type = cell.getData().type.name.toLowerCase();
@@ -76,15 +75,12 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     ${Object.keys(indx).map(key => html`
-                        ${key.startsWith('li-')
-                ? html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>`
-                : html`<div style="display: flex;font-size:10px;flex-wrap:wrap">
-
-                            ${indx[key].map(i => 
+                        ${key.startsWith('li-') ?
+                            html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>` :
+                            html`<div style="display: flex;font-size:10px;flex-wrap:wrap">${indx[key].map(i =>
                                 html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
-                            )}
-                        </div>`}`
-        )}
+                            )}</div>`}`
+                    )}
                 </div>
                 <div slot="app-right" style="padding-right:4px;padding-top:4px;height: 99%;">
                     <li-table id="prg" .options="${this.options}"></li-table>
