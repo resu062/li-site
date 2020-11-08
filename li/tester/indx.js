@@ -179,6 +179,9 @@ export const indx = {
     },
     'layout-designer': [{ label: 'index', url: url + '/layout-designer' }],
 
+    'li-layout-grid': { label: 'li-layout-grid' },
+    'layout-grid': [{ label: 'index', url: url + '/layout-grid' }],
+
     'li-layout-app': { label: 'li-layout-app' },
     'layout-app': [{ label: 'index', url: url + '/layout-app' }, { label: 'demo', url: url + '/layout-app/demo.html' }, { label: 'demo2', url: url + '/layout-app/demo2.html' }],
 
