@@ -251,9 +251,9 @@ export class LiElement extends LitElement {
                 localStorage.setItem(this._saveFileName, JSON.stringify(v));
             }
             if (this._isFirstUpdated) {
-                if (this.__locals && this.__locals.includes(prop))
+                if (this.$$$ && this.__locals && this.__locals.includes(prop))
                     this.$$$[prop] = this[prop];
-                if (this.__globals && this.__globals.includes(prop))
+                if (this.$$$ && this.__globals && this.__globals.includes(prop))
                     LI.$$$[prop] = this[prop];
             }
 
