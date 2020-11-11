@@ -79,20 +79,25 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
             e.stopPropagation();
             e.preventDefault();
             const k = 0.9,
-                zoom = Math.min(2000, e.deltaY > 0 ? this.zoom * k : this.zoom / k);
+                zoom = e.deltaY > 0 ? Math.min(2000, this.zoom / k) : Math.max(1 / 100000000, this.zoom * k);
             this._scale(zoom);
         } else
             this._resizeRuller();
     }
     _scale(zoom, step) {
         this.zoom = zoom;
-        if (step) {
-            this._step = step;
+        zoom = zoom > 1 ? Math.min(2000, zoom) : Math.max(1 / 100000000, zoom);
+        if (zoom === 2000 || zoom === 1 / 100000000) {
+            this.zoom = zoom;
         } else {
-            let _step = this._step;
-            if ((_step * zoom) > 50 && this._unit !== 'mm') _step = _step / 10;
-            else if ((_step * zoom) < 5) _step = _step * 10;
-            this._step = _step;
+            if (step) {
+                this._step = step;
+            } else {
+                let _step = this._step;
+                if ((_step * zoom) > 50 && this._unit !== 'mm') _step = _step / 10;
+                else if ((_step * zoom) < 5) _step = _step * 10;
+                this._step = _step;
+            }
         }
         this._resizeRuller();
     }
@@ -110,7 +115,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
         return html`
             <div style="font-size:12px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid lightgray;padding-bottom:4px">
                 <li-button size="20" name="add" @click="${() => this._scale(this.zoom *= 1.1)}"></li-button>
-                <li-button size="20" width="120" icon="" @click="${() => this._scale(1, 10)}">${this._percentText}</li-button>
+                <li-button size="20" width="120" @click="${() => this._scale(1, 10)}">${this._percentText}</li-button>
                 <li-button size="20" name="remove" @click="${() => this._scale(this.zoom *= 0.9)}"></li-button>
             </div>
             <div style="display:flex;height:25px;margin-bottom:5px">
