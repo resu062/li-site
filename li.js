@@ -1,21 +1,22 @@
-import { LitElement } from './lib/lit-element/lit-element.js';
-import { directive } from './lib/lit-html/lib/directive.js';
-import { AWN } from './lib/awesome-notifications/modern.var.js';
-import { ulid, decodeTime } from './lib/ulid/ulid.js';
-import './lib/icaro/icaro.js';
-import './lib/pouchdb/pouchdb-7.2.1.js';
+import { LitElement } from './lib/lit-element/lit-element.js'
+import { directive } from './lib/lit-html/lib/directive.js'
+import { AWN } from './lib/awesome-notifications/modern.var.js'
+import { ulid, decodeTime } from './lib/ulid/ulid.js'
+import './lib/icaro/icaro.js'
+import './lib/pouchdb/pouchdb-7.2.1.js'
 
-const urlLI = import.meta.url;
+const urlLI = import.meta.url
 
-window.globalThis = window.globalThis || window;
+window.globalThis = window.globalThis || window
 
-const camelToKebab = camel => camel.replace(/([a-z](?=[A-Z]))|([A-Z](?=[A-Z][a-z]))/g, '$1$2-').toLowerCase();
+const camelToKebab = camel => camel.replace(/([a-z](?=[A-Z]))|([A-Z](?=[A-Z][a-z]))/g, '$1$2-').toLowerCase()
 
-Object.defineProperty(Array.prototype, 'has', { enumerable: false, value: Array.prototype.includes });
-Object.defineProperty(Array.prototype, 'clear', { enumerable: false, value: function() { this.splice(0); } });
-Object.defineProperty(Array.prototype, 'last', { enumerable: false, get() { return this[this.length - 1]; } });
-Object.defineProperty(Array.prototype, 'add', { enumerable: false, value: function(...item) { for (let i of item) { if (this.includes(i)) continue; this.push(i); } } });
-Object.defineProperty(Array.prototype, 'remove', { enumerable: false, value: function(...items) { for (const item of items) { const idx = this.indexOf(item); if (idx < 0) continue; this.splice(idx, 1); } } });
+Object.defineProperty(Array.prototype, 'has', { enumerable: false, value: Array.prototype.includes })
+Object.defineProperty(Array.prototype, 'clear', { enumerable: false, value: function() { this.splice(0) } })
+Object.defineProperty(Array.prototype, 'first', { enumerable: false, get() { return this[0] } })
+Object.defineProperty(Array.prototype, 'last', { enumerable: false, get() { return this[this.length - 1] } })
+Object.defineProperty(Array.prototype, 'add', { enumerable: false, value: function(...item) { for (let i of item) { if (this.includes(i)) continue; this.push(i) } } })
+Object.defineProperty(Array.prototype, 'remove', { enumerable: false, value: function(...items) { for (const item of items) { const idx = this.indexOf(item); if (idx < 0) continue; this.splice(idx, 1) } } })
 
 window.LIRect = window.LIRect || class LIRect {
     constructor(element) {
@@ -36,7 +37,7 @@ window.LIRect = window.LIRect || class LIRect {
             this.ok = false;
         }
     }
-};
+}
 if (!window.DOMRect) {
     window.DOMRect = function(x, y, width, height) {
         this.x = x;
@@ -51,7 +52,7 @@ if (!window.DOMRect) {
 }
 document.addEventListener('mousedown', (e) => {
     LI.mousePos = new DOMRect(e.pageX, e.pageY);
-});
+})
 
 
 const eventNameForProperty = function(name, { notify, attribute } = {}) {
@@ -63,6 +64,7 @@ const eventNameForProperty = function(name, { notify, attribute } = {}) {
         return `${name.toLowerCase()}-changed`;
     }
 }
+
 export class LiElement extends LitElement {
     constructor() {
         super();
@@ -103,9 +105,10 @@ export class LiElement extends LitElement {
                     if (this.__lookupSetter__(property) === undefined) {
                         this.updated(new Map([[property, oldValue]]));
                     }
-                });
+                })
             }
-        });
+        })
+
         const name = this.localName.replace('li-', '');
         let url = `${urlLI.replace('li.js', '')}li/${name}/${name}.js`;
         this.$url = url;
@@ -239,7 +242,6 @@ export class LiElement extends LitElement {
         this._isFirstUpdated = true;
     }
 
-    // notify : https://github.com/morbidick/lit-element-notify
     update(changedProps) {
         super.update(changedProps);
 
@@ -256,11 +258,10 @@ export class LiElement extends LitElement {
                 if (this.$$$ && this.__globals && this.__globals.includes(prop))
                     LI.$$$[prop] = this[prop];
             }
-
-            const declaration = this.constructor._classProperties.get(prop);
-
             if (this._setTabulatorData) this._setTabulatorData(prop, this[prop]);
 
+   // notify : https://github.com/morbidick/lit-element-notify
+            const declaration = this.constructor._classProperties.get(prop);
             if (!declaration || !declaration.notify) continue;
             const type = eventNameForProperty(prop, declaration);
             const value = this[prop];
@@ -268,7 +269,7 @@ export class LiElement extends LitElement {
                 detail: { value },
                 bubbles: false,
                 composed: true
-            }));
+            }))
             //console.log(type);
         }
     }

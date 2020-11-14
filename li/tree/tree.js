@@ -67,7 +67,8 @@ customElements.define('li-tree', class LiTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.verticalLine ? 'complex-line' : ''}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-tree .litem="${i.items}" margin="${Number(this.margin)}" .$$id="${this.$$id}" .allowCheck="${this.allowCheck}"></li-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`<li-tree .litem="${i.items}" .$$id="${this.$$id}" .allowCheck="${this.allowCheck}" margin="${Number(this.margin)}"
+                        .iconSize="${this.iconSize}" .verticalLine="${this.verticalLine}" .fullBorder="${this.fullBorder}" .colorBorder="${this.colorBorder}"></li-tree>` : ''}
                 </div>
             `)}
         `
