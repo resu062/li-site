@@ -191,8 +191,24 @@ export const indx = {
     'li-editor-ace': { label: 'li-editor-ace', props: { theme: 'dracula', mode: 'javascript', src: 'console.log(this.properties) // description' } },
     'editor-ace': [{ label: 'index', url: url + '/editor-ace' }],
 
+    'li-editor-html': {
+        label: 'li-editor-html', props: {
+            src: `
+            <div style="display:flex;flex-direction:column;color: blue;">
+                <h3>HTML editor:</h3>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/FiprFmgz5pI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <div>
+            <br>
+            <span style="color:gray">...</span>
+        ` }
+    },
+    'editor-html': [{ label: 'index', url: url + '/editor-html' }],
+
     'li-viewer-md': { label: 'li-viewer-md', props: { src: url + '/viewer-md/sample.md' } },
     'viewer-md': [{ label: 'index', url: url + '/viewer-md' }],
+
+    // 'li-chart-apex': { label: 'li-chart-apex' },
+    // 'chart-apex': [{ label: 'index', url: url + '/chart-apex' }],
 
     'li-tester': { label: 'li-tester' },
     tester: [{ label: 'index', url: url + '/tester' }, { label: 'index2', url: url + '/tester/index-2.html' }],

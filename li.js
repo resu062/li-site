@@ -33,9 +33,8 @@ window.LIRect = window.LIRect || class LIRect {
             this.right = pos.right;
             this.width = pos.width;
             this.height = pos.height;
-        } else {
+        } else
             this.ok = false;
-        }
     }
 }
 if (!window.DOMRect) {
@@ -50,21 +49,13 @@ if (!window.DOMRect) {
         this.height = height;
     }
 }
-document.addEventListener('mousedown', (e) => {
-    LI.mousePos = new DOMRect(e.pageX, e.pageY);
-})
-
+document.addEventListener('mousedown', (e) => LI.mousePos = new DOMRect(e.pageX, e.pageY));
 
 const eventNameForProperty = function(name, { notify, attribute } = {}) {
-    if (notify && typeof notify === 'string') {
-        return notify;
-    } else if (attribute && typeof attribute === 'string') {
-        return `${attribute}-changed`;
-    } else {
-        return `${name.toLowerCase()}-changed`;
-    }
+    if (notify && typeof notify === 'string') return notify;
+    else if (attribute && typeof attribute === 'string') return `${attribute}-changed`;
+    else return `${name.toLowerCase()}-changed`;
 }
-
 export class LiElement extends LitElement {
     constructor() {
         super();
@@ -91,20 +82,16 @@ export class LiElement extends LitElement {
         // double binding - sync : https://github.com/morbidick/lit-element-notify
         this.sync = directive((property, eventName) => (part) => {
             part.setValue(this[property]);
-            // mark the part so the listener is only attached once
             if (!part.syncInitialized) {
                 part.syncInitialized = true;
-
                 const notifyingElement = part.committer.element;
                 const notifyingProperty = part.committer.name;
                 const notifyingEvent = eventName || eventNameForProperty(notifyingProperty);
-
                 notifyingElement.addEventListener(notifyingEvent, (e) => {
                     const oldValue = this[property];
                     this[property] = e.detail.value;
-                    if (this.__lookupSetter__(property) === undefined) {
+                    if (this.__lookupSetter__(property) === undefined)
                         this.updated(new Map([[property, oldValue]]));
-                    }
                 })
             }
         })
@@ -117,18 +104,6 @@ export class LiElement extends LitElement {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
         }
-        // if (!this.$$id && this._$$id !== undefined || this.__saves) {
-        //     this._$$id = this._$$id || this.id || this.localName.replace('li-', '');
-        //     this.$$id = this._$$id;
-        //     if (!LI._$$[this.$$id]) {
-        //         LI._$$[this.$$id] = {
-        //             _$$: {},
-        //             _$$$: {}
-        //         };
-        //         LI._$$[this.$$id]._$$$ = icaro({});
-        //         LI._$$[this.$$id]._$$$.update = icaro({ value: 0 });
-        //     }
-        // }
     }
     connectedCallback() {
         super.connectedCallback();
@@ -137,10 +112,7 @@ export class LiElement extends LitElement {
             this._$$id = this._$$id || this.id || this.localName;
             this.$$id = this._$$id;
             if (!LI._$$[this.$$id]) {
-                LI._$$[this.$$id] = {
-                    _$$: {},
-                    _$$$: {}
-                };
+                LI._$$[this.$$id] = { _$$: {}, _$$$: {} };
                 LI._$$[this.$$id]._$$$ = icaro({});
                 LI._$$[this.$$id]._$$$.update = icaro({ value: 0 });
             }
@@ -152,69 +124,38 @@ export class LiElement extends LitElement {
         if (this.$$$ && this.__saves) {
             this.__saves.forEach(i => {
                 const v = JSON.parse(localStorage.getItem(this._saveFileName));
-                if (v)
-                    this.$$[i] = this.$$$[i] = this[i] = v[this.localName + '.' + i];
+                if (v) this.$$[i] = this.$$$[i] = this[i] = v[this.localName + '.' + i];
             })
             this.__enableSave = true;
         }
         if (this.$$$ && this.__locals) {
             this.__locals.forEach(i => {
                 this.$$$.listen(this.fnLocals);
-                if (this.$$$[i] === undefined)
-                    this.$$$[i] = this[i];
-                else
-                    this[i] = this.$$$[i];
+                if (this.$$$[i] === undefined) this.$$$[i] = this[i];
+                else this[i] = this.$$$[i];
             });
 
         }
         if (this.$$$ && this.__globals) {
             this.__globals.forEach(i => {
                 LI.$$$.listen(this.fnGlobals);
-                if (LI.$$$[i] === undefined)
-                    LI.$$$[i] = this[i];
-                else
-                    this[i] = LI.$$$[i];
+                if (LI.$$$[i] === undefined) LI.$$$[i] = this[i];
+                else this[i] = LI.$$$[i];
             });
 
         }
     }
     disconnectedCallback() {
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id != undefined && $$id.update && this.$$$ && this.$$$.update)
-            this.$$$.update.unlisten(this.fnUpdate);
-        if (this.$$$ && this.__locals)
-            this.__locals.forEach(i => {
-                this.$$$.unlisten(this.fnLocals);
-            })
-        if (this.$$$ && this.__globals)
-            this.__globals.forEach(i => {
-                LI.$$$.unlisten(this.fnGlobals);
-            })
-        if (this._$$id)
-            delete LI._$$[this.$$id];
+        if ($$id != undefined && $$id.update && this.$$$ && this.$$$.update) this.$$$.update.unlisten(this.fnUpdate);
+        if (this.$$$ && this.__locals) this.__locals.forEach(i => this.$$$.unlisten(this.fnLocals));
+        if (this.$$$ && this.__globals) this.__globals.forEach(i => LI.$$$.unlisten(this.fnGlobals))
+        if (this._$$id) delete LI._$$[this.$$id];
         super.disconnectedCallback();
     }
     fnUpdate = (e) => { this.requestUpdate() }
-    fnLocals = (e) => {
-        if (this.__locals) {
-            this.__locals.forEach(i => {
-                if (e.has(i)) {
-                    this[i] = e.get(i);
-                    //console.log(i, this[i]);
-                }
-            })
-        }
-    }
-    fnGlobals = (e) => {
-        if (this.__globals) {
-            this.__globals.forEach(i => {
-                if (e.has(i)) {
-                    this[i] = e.get(i);
-                    //console.log(i, this[i]);
-                }
-            })
-        }
-    }
+    fnLocals = (e) => { if (this.__locals) this.__locals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
+    fnGlobals = (e) => { if (this.__globals) this.__globals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
 
     get $$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$'] ? LI._$$[this.$$id]['_$$'] : undefined }
     get $$$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$$'] ? LI._$$[this.$$id]['_$$$'] : undefined }
@@ -232,13 +173,9 @@ export class LiElement extends LitElement {
     firstUpdated() {
         super.firstUpdated();
         this.$id = {};
-        this.renderRoot.querySelectorAll('[id]').forEach(node => {
-            this.$id[node.id] = node;
-        });
+        this.renderRoot.querySelectorAll('[id]').forEach(node => this.$id[node.id] = node);
         this.$refs = {};
-        this.renderRoot.querySelectorAll('[ref]').forEach(node => {
-            this.$refs[node.getAttribute('ref')] = node;
-        });
+        this.renderRoot.querySelectorAll('[ref]').forEach(node => this.$refs[node.getAttribute('ref')] = node);
         this._isFirstUpdated = true;
     }
 
@@ -260,21 +197,15 @@ export class LiElement extends LitElement {
             }
             if (this._setTabulatorData) this._setTabulatorData(prop, this[prop]);
 
-   // notify : https://github.com/morbidick/lit-element-notify
+            // notify : https://github.com/morbidick/lit-element-notify
             const declaration = this.constructor._classProperties.get(prop);
             if (!declaration || !declaration.notify) continue;
             const type = eventNameForProperty(prop, declaration);
             const value = this[prop];
-            this.dispatchEvent(new CustomEvent(type, {
-                detail: { value },
-                bubbles: false,
-                composed: true
-            }))
-            //console.log(type);
+            this.dispatchEvent(new CustomEvent(type, { detail: { value }, bubbles: false, composed: true }))
         }
     }
 }
-
 
 const _$$ = { $$: {}, _$$: {}, _$$$: {} };
 _$$._$$$ = icaro({});
@@ -306,10 +237,8 @@ class CLI {
     get $$$() { return _$$._$$$; }
     $$update(property, value) {
         if (!this.$$$) return;
-        if (!property && this.$$$.update)
-            ++this.$$$.update.value;
-        else if (this.$$$[property])
-            this.$$$[property]['value'] = value;
+        if (!property && this.$$$.update) ++this.$$$.update.value;
+        else if (this.$$$[property]) this.$$$[property]['value'] = value;
     }
     $$observe(property, callback, obj = { _value: '' }) {
         if (!this.$$$ || !property) return;
@@ -319,13 +248,9 @@ class CLI {
         this.$$$[property]['value'] = obj;
     }
     $$unlisten(property, callback) {
-        if (this.$$$ && this.$$$[property])
-            this.$$$[property].unlisten(callback);
+        if (this.$$$ && this.$$$[property]) this.$$$[property].unlisten(callback);
     }
 
-    ulidToDateTime(ulid) {
-        return new Date(decodeTime(ulid));
-    }
     async createComponent(comp, props = {}) {
         comp = comp || {};
         if (typeof comp === 'string') {
@@ -346,17 +271,9 @@ class CLI {
         return host.show(comp);
     }
 
-    listen(target, event, callback, options) {
-        if (target && event && callback) event.split(',').forEach(i => target.addEventListener(i.trim(), callback, options));
-    }
-
-    unlisten(target, event, callback, options) {
-        if (target && event && callback) event.split(',').forEach(i => target.removeEventListener(i.trim(), callback, options));
-    }
-
-    fire(target, event, detail = {}) {
-        if (target && event) target.dispatchEvent(new CustomEvent(event, { detail }));
-    }
+    listen(target, event, callback, options) { if (target && event && callback) event.split(',').forEach(i => target.addEventListener(i.trim(), callback, options)) }
+    unlisten(target, event, callback, options) { if (target && event && callback) event.split(',').forEach(i => target.removeEventListener(i.trim(), callback, options)) }
+    fire(target, event, detail = {}) { if (target && event) target.dispatchEvent(new CustomEvent(event, { detail })) }
 
     throttle(key, func, delay = 0, immediate = false) {
         let pending = _$temp.throttles.get(key);
@@ -379,6 +296,15 @@ class CLI {
         _$temp.debounces.set(key, pending)
     }
 
+    dates(d = new Date()) {
+        const utc = d.toISOString();
+        const local = new Date(d.getTime() - (d.getTimezoneOffset()) * 60 * 1000).toISOString().slice(0, -5).replace('T', ' ');
+        return { utc, local };
+    }
+    ulidToDateTime(ulid) {
+        return new Date(decodeTime(ulid));
+    }
+
     action(act) {
         const dates = this.dates();
         const ulid = this.ulid();
@@ -388,9 +314,6 @@ class CLI {
                 case 'addItem':
                     let id = ulid + ':$';
                     let db = new PouchDB('http://admin:54321@127.0.0.1:5984/lidb');
-
-                    // console.log(act, id);
-                    // console.dir(db);
                     db.put({
                         _id: id,
                         ulid,
@@ -434,12 +357,6 @@ class CLI {
                     break;
             }
         }
-    }
-
-    dates(d = new Date()) {
-        const utc = d.toISOString();
-        const local = new Date(d.getTime() - (d.getTimezoneOffset()) * 60 * 1000).toISOString().slice(0, -5).replace('T', ' ');
-        return { utc, local };
     }
 }
 globalThis.LI = new CLI();
