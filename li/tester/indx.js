@@ -183,7 +183,7 @@ export const indx = {
     'layout-designer': [{ label: 'index', url: url + '/layout-designer' }],
 
     'li-layout-grid': { label: 'li-layout-grid' },
-    'layout-grid': [{ label: 'index', url: url + '/layout-grid' }],
+    'layout-grid': [{ label: 'index', url: url + '/layout-grid' }, { label: 'scheme-designer', url: url + '/layout-scheme' }],
 
     'li-layout-app': { label: 'li-layout-app' },
     'layout-app': [{ label: 'index', url: url + '/layout-app' }, { label: 'demo', url: url + '/layout-app/demo.html' }, { label: 'demo2', url: url + '/layout-app/demo2.html' }],
@@ -215,4 +215,5 @@ export const indx = {
 
     'li-app': { label: 'li-app' },
     app: [{ label: 'index', url: url + '/app' }],
+    
 }

@@ -6,11 +6,11 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
     static get properties() {
         return {
             _$$id: { type: String, default: '', update: true },
+            _bs: { type:Object, default: {}, local: true },
             zoom: { type: Number, default: 1, local: true },
             _step: { type: Number, default: 10, local: true },
             _width: { type: Number, default: 10000, local: true },
             _height: { type: Number, default: 10000, local: true },
-            _bs: { type:Object, default: {}, local: true },
             _grid: { type: Object, default: {}, local: true }
         }
     }
