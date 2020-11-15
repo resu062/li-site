@@ -6,43 +6,204 @@
     layout_scheme.item = {
         label: 'li-scheme-designer-1',
         items: [
-            { id: '000', label: 'li-scheme-test-block-000', x: 100, y: 100 },
             {
-                id: '001', label: 'li-scheme-test-block-001', x: 200, y: 200,
+                id: '000', label: 'oda-scheme-test-block-000', x: 100, y: 200,
                 model: {
                     top: [
                         {
-                            icon: 'icons:add',
+                            icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'blue' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'link', action: 'deleteConnector'
+                        }
+                    ],
+                    bottom: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'link', disabled: true
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'link', action: 'deleteConnector'
+                        }
+                    ],
+                    left: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'link', action: 'deleteConnector'
+                        }
+                    ],
+                    right: [
+                        {
+                            size: 20, disableDrag: true, title: 'disableDrag',
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'link'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '001', label: 'oda-scheme-test-block-001', x: 130, y: 450, tag: 'oda-button',
+                style: { 'min-height': '60px' },
+                model: {
+                    top: [
+                        {
+                            icon: 'add', disableDrag: true, editMode: true,
                             action() {
-                                this.model.top.splice( -1, 0, {
+                                this.model.top.splice(-1, 0, {
                                     style: { border: '1px dashed green', 'border-radius': '50%' },
-                                    icon: 'editor:insert-link', action() {
-                                        this.model.top.splice(this.model.top.length - 1);
-                                    }
+                                    icon: 'link', action: 'deleteConnector'
                                 });
-                            },
-                            link: { pin: { top: '0001-top-0' } }
+                            }
                         },
                         {
                             style: { border: '1px dashed green', 'border-radius': '50%' },
-                            icon: 'icons:link',
-                            link: { pin: { top: '0001-top-1' } }
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px dashed green', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px dashed green', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector'
                         }
                     ],
                     right: [
                         {
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
-                            icon: 'icons:add',
+                            icon: 'add', disableDrag: true, editMode: true,
                             action() {
                                 this.model.right.push({
                                     style: { border: '1px double silver', 'border-radius': '1rem/2rem' },
                                     backgroundColor: 'yellow',
-                                    icon: 'editor:insert-link', action() {
+                                    icon: 'link', action() {
                                         this.model.right.splice(this.model.right.length - 1);
                                     }
                                 });
-                            },
-                            link: { id: "0002", pin: { left: 0 }, selected: false, linkColor: 'red' }
+                            }
+                        },
+                        {
+                            style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
+                            backgroundColor: 'yellow',
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
+                            backgroundColor: 'yellow',
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
+                            backgroundColor: 'yellow',
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
+                            backgroundColor: 'yellow',
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
+                            backgroundColor: 'yellow',
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
+                            backgroundColor: 'yellow',
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
+                            backgroundColor: 'yellow',
+                            icon: 'link', action: 'deleteConnector'
                         }
                     ],
                     bottom: [],
@@ -50,7 +211,7 @@
                     staticMenu: {
                         top: [
                             {
-                                icon: 'communication:call-split',
+                                icon: 'call-split',
                                 action() {
                                     console.log('split');
                                 },
@@ -59,7 +220,7 @@
                         ],
                         bottom: [
                             {
-                                icon: 'communication:import-export',
+                                icon: 'import-export', disabled: true,
                                 action() {
                                     console.log('import-export');
                                 },
@@ -70,26 +231,36 @@
                     dynamicMenu: {
                         top: [
                             {
-                                icon: 'av:not-interested',
-                                action: 'deleteLink',
+                                icon: 'not-interested',
+                                action: 'deleteAllLinks',
                                 title: 'deleteAllLinks',
                                 style: { fill: 'red', margin: '2px' },
                                 editMode: true
+                            }
+                        ],
+                        bottom: [
+                            {
+                                icon: 'settings',
+                                action() {
+                                    console.log('settings')
+                                },
+                                style: { margin: '2px' },
                             }
                         ]
                     }
                 }
             },
             {
-                id: '002', label: 'li-scheme-test-block-002', x: 300, y: 400,
+                id: '002', label: 'oda-scheme-test-block-002', x: 520, y: 100,
                 model: {
                     left: [
                         {
                             style: { border: '1px dashed gray', 'border-radius': '50% 0 0 50%' },
-                            icon: 'icons:add', action() {
+                            icon: 'add', disableDrag: true, editMode: true,
+                            action() {
                                 this.model.left.push({
                                     style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
-                                    icon: 'editor:insert-link', action() {
+                                    icon: 'link', action() {
                                         this.model.left.splice(this.model.left.length - 1);
                                     }
                                 });
@@ -97,39 +268,299 @@
                         },
                         {
                             style: { border: '1px dotted lime', 'border-radius': '50% 0 0 50%' },
-                            icon: 'icons:link', link: { pin: { top: '0002-left-1' } }
+                            icon: 'link',
+                            link: {
+                                id: '000',
+                                position: 'right',
+                                index: 0
+                            }
+                        },
+                        {
+                            style: { border: '1px dotted lime', 'border-radius': '50% 0 0 50%' },
+                            icon: 'link',
+                            link: {
+                                id: '001',
+                                position: 'right',
+                                index: 4
+                            }
+                        },
+                        {
+                            style: { border: '1px dotted lime', 'border-radius': '50% 0 0 50%' },
+                            icon: 'link',
+                            link: {
+                                id: '001',
+                                position: 'right',
+                                index: 1
+                            }
+                        },
+                        {
+                            style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
+                            icon: 'link', action() {
+                                this.model.left.splice(this.model.left.length - 1);
+                            }
+                        },
+                        {
+                            style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
+                            icon: 'link', action() {
+                                this.model.left.splice(this.model.left.length - 1);
+                            }
+                        },
+                        {
+                            style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
+                            icon: 'link', action() {
+                                this.model.left.splice(this.model.left.length - 1);
+                            }
+                        },
+                        {
+                            style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
+                            icon: 'link', action() {
+                                this.model.left.splice(this.model.left.length - 1);
+                            }
+                        },
+                        {
+                            style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
+                            icon: 'link', action() {
+                                this.model.left.splice(this.model.left.length - 1);
+                            }
                         }
                     ],
                     right: [
+                        { style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } },
+                        { style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } },
                         { style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } }
                     ]
                 }
             },
             {
-                id: '003', label: 'li-scheme-test-block-003', x: 500, y: 500,
+                id: '003', label: 'oda-scheme-test-block-003', x: 900, y: 350,
                 style: { 'border': '1px solid red', background: 'lightyellow', color: 'blue', 'min-width': '300px', width: 'calc(100% - 12px)', height: '40px' },
                 model: {
                     right: [
                         {
-                            style: { border: '1px solid gray', 'border-radius': '5%', color: 'red' },
-                            icon: 'icons:error'
+                            size: 24, title: "I'm android",
+                            style: { border: '1px solid green', 'border-radius': '2px', fill: 'green', padding: '2px', 'border-radius': '50%' },
+                            icon: 'android'
                         }
                     ],
                     top: [
                         {
                             style: { border: '2px solid green', 'border-radius': '50% 5%' },
-                            icon: 'icons:add',
+                            icon: 'add', disableDrag: true, editMode: true,
                             action: 'addDefaultConnector'
+                        },
+                        {
+                            type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
+                            style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
+                        },
+                        {
+                            type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
+                            style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
+                        },
+                        {
+                            type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
+                            style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
+                        },
+                        {
+                            type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
+                            style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
                         }
                     ],
                     bottom: [
                         {
-                            icon: 'icons:link',
-                            link: { pin: { top: '0003-bottom-0' } }
+                            icon: 'add', disableDrag: true, editMode: true,
+                            action: 'addConnector',
+                            connector: {
+                                style: { border: '2px solid blue', 'border-radius': '50%' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '001',
+                                position: 'top',
+                                index: 3
+                            }
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector'
+                        }
+                    ],
+                    left: [
+                        {
+                            icon: 'add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '001',
+                                position: 'right',
+                                index: 2
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '001',
+                                position: 'right',
+                                index: 3
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '002',
+                                position: 'right',
+                                index: 0
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'link', action: 'deleteConnector'
+                        }
+                    ],
+                    dynamicMenu: {
+                        top: [
+                            {
+                                icon: 'delete',
+                                action: 'deleteBlock',
+                                title: 'delete current block',
+                                style: { fill: 'red', margin: '2px' },
+                                editMode: true
+                            }
+                        ]
+                    }
+                },
+            },
+            {
+                id: '004', label: 'oda-scheme-test-block-004', x: 1200, y: 40, tag: 'oda-palette',
+                model: {
+                    top: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                    ],
+                    bottom: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '003',
+                                position: 'top',
+                                index: 4
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '003',
+                                position: 'right',
+                                index: 0
+                            }
+                        }
+                    ],
+                    left: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
+                                icon: 'link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '002',
+                                position: 'right',
+                                index: 2
+                            }
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
+                            icon: 'link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
+                            icon: 'link', action: 'deleteConnector',
+                            link: {
+                                id: '003',
+                                position: 'top',
+                                index: 4
+                            }
+                        }
+                    ],
+                    right: [
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
                         }
                     ]
-                },
-            }
+                }
+            },
         ]
     }
 </script>
