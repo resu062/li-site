@@ -9,7 +9,9 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
             zoom: { type: Number, default: 1, local: true },
             _step: { type: Number, default: 10, local: true },
             _width: { type: Number, default: 10000, local: true },
-            _height: { type: Number, default: 10000, local: true }
+            _height: { type: Number, default: 10000, local: true },
+            _bs: { type:Object, default: {}, local: true },
+            _grid: { type: Object, default: {}, local: true }
         }
     }
 
@@ -28,6 +30,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
         this.__mousewheel = this._mousewheel.bind(this);
         this._resizeRuller();
         LI.listen(this, 'mousewheel', this.__mousewheel, true);
+        this._grid = this.$refs.main;
     }
 
     _resizeRuler_h(zoom = this.zoom, _step = this._step) {
@@ -100,6 +103,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
             }
         }
         this._resizeRuller();
+        this.$$update();
     }
 
     static get styles() {

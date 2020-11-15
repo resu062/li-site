@@ -181,7 +181,7 @@ export class LiElement extends LitElement {
 
     update(changedProps) {
         super.update(changedProps);
-
+        if (!changedProps) return;
         for (const prop of changedProps.keys()) {
             if (this.__enableSave && this.__saves && this.__saves.includes(prop)) {
                 let v = JSON.parse(localStorage.getItem(this._saveFileName));
