@@ -69,20 +69,22 @@ class BlockItem {
                     if (i.model[p])
                         i.model[p].forEach(c => {
                             c.index = count;
-                            c._disabled = c.disabled || (action === 'dragStart' && this._bs?.line?.show && c.disableDrag);
+                            c._disabled = c.disabled || (action === 'dragStart' && this._bs?.line?.show && c.disableDrag) || false;
                             if (action === 'deleteAllLinks' && c.link && c.link.id === this.id) delete c.link;
                             count++;
                         })
                 })
         })
-        if (this._bs._main) this._bs._main.render();
+        if (this._bl) this._bl.$$update();
+        if (this._bs._main) this._bs._main.$$update();
     }
     deleteBlock() {
         ODA[('showDialog')]('oda-scheme-ask', { text: 'Delete current block?' }, { parent: this, flex: 'noflex' }).then(res => {
             if (res) {
                 this.$owner.items.splice(this.$owner.items.indexOf(this), 1);
                 clearSelectedBlocks(this.$owner.items[0]);
-                this._bs._main.render();
+                if (this._bl) this._bl.$$update();
+                if (this._bs._main) this._bs._main.$$update();
             }
         }).catch(e => { })
     }
@@ -118,11 +120,11 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
     static get properties() {
         return {
             _$$id: { type: String, default: '', update: true },
+            _bs: { type: Object, default: {}, local: true },
             zoom: { type: Number, default: 1, local: true },
             _step: { type: Number, default: 10, local: true },
             _width: { type: Number, default: 10000, local: true },
             _height: { type: Number, default: 10000, local: true },
-            _bs: { type: Object, default: {}, local: true },
             item: { type: Object, default: {} },
             block: { type: Object, default: {} },
             editMode: { type: Boolean, default: true },
@@ -161,7 +163,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
 
     render() {
         return html`
-            <li-layout-grid .$$id="${this.$$id}" ref="main">
+            <li-layout-grid .$$id="${this.$$id}" ref="main"  @mousemove="${this._move}" @mouseup="${this._up}">
                 <div slot="layout-grid-main">
                     ${svg`
                         <svg width="${this._width * 10}" height="${this._height * 10}" style="zoom: ${this.zoom || 1}; position:absolute;top:0;left:0;background-color:transparent;">
@@ -171,7 +173,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                         </svg>
                     `}
                     ${(this.block?.items || []).map(bl => html`
-                        <li-layout-scheme-block .$$id="${this.$$id}" .bl="${bl}"></li-layout-scheme-block>
+                        <li-layout-scheme-block .$$id="${this.$$id}" .bl="${bl}" @mousedown="${this._down}"></li-layout-scheme-block>
                     `)}
                     ${svg`
                         <svg width="${this._width * 10}" height="${this._height * 10}" style="zoom: ${this.zoom || 1}; position:absolute;top:0;left:0;background-color:transparent;pointer-events:none;z-index:9">
@@ -225,7 +227,34 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
         //if (this.brokenLine) return `M${l.x1} ${l.y1} L ${l.x1 + 27.5} ${l.y1} ${l.x2 - 27.5} ${l.y2} ${l.x2} ${l.y2} ${l.x2 - 6} ${l.y2 - 3} ${l.x2 - 6} ${l.y2 + 3} ${l.x2} ${l.y2}`;
         return `M${l.x1},${l.y1} Q${(l.x1 + l.x2) / 2},${l.y1} ${(l.x1 + l.x2) / 2},${(l.y1 + l.y2) / 2}  T${l.x2},${l.y2}`;
     }
-});
+
+    _down(e) {
+        this.detail = {
+            state: 'start',
+            start: {
+                x: e.clientX,
+                y: e.clientY
+            }, ddx: 0, ddy: 0, dx: 0, dy: 0,
+            bl: e.target
+        };
+    }
+    _up(e) {
+        this.detail = undefined;
+        this.$$update();
+    }
+    _move(e) {
+        if (this.detail) {
+            this.detail.x = e.clientX;
+            this.detail.y = e.clientY;
+            this.detail.ddx = -(this.detail.dx - (e.clientX - this.detail.start.x));
+            this.detail.ddy = -(this.detail.dy - (e.clientY - this.detail.start.y));
+            this.detail.dx = e.clientX - this.detail.start.x;
+            this.detail.dy = e.clientY - this.detail.start.y;
+            if (this.detail.bl.bl) this.detail.bl.bl.move(this.detail.ddx, this.detail.ddy);
+            this.detail.bl.$$update();
+        }
+    }
+})
 
 customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extends LiElement {
     static get properties() {
@@ -262,7 +291,6 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                 position: absolute;
                 left: 0;
                 top: 0;
-                cursor: pointer;
                 color: gray;
                 font-family: Arial;
                 font-size: 18px;
@@ -277,6 +305,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                 width: 100%;
                 padding: 2px;
                 background-color: white;
+                cursor: pointer;
             }
             .info-block {
                 border-radius: 2px;
@@ -391,10 +420,6 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
         `;
     }
 
-    _tap() {
-
-    }
-
     _click(e) {
         e.stopPropagation();
         this.bl.select(e);
@@ -416,28 +441,35 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         }
     }
 
-    get draggable() { return this.item?._disabled || this.item?.disableDrag || !this.bl?._bs?.editMode ? 'false' : 'true' }
+    get draggable() { return (this.item?._disabled || this.item?.disableDrag || !this._bs?.editMode) ? 'false' : 'true' }
+    get disabled() {
+        if (this._bs?.line?.connector === this) return false;
+        return this.item?.disabled || this.item?._disabled || this._bs?.line?.bl === this.bl
+    }
     get _style() {
-        let s = { ...(this.item?.style || {}), ...{ transform: this.dragover ? 'scale(2)' : 'scale(1)', 'z-index': this.dragover ? 1 : 0 } } || {};
+        let s = {
+            ...(this.item?.style || {}), ...{
+                transform: this.dragover ? 'scale(2)' : 'scale(1)',
+                'z-index': this.dragover ? 9 : 0, cursor: this.draggable ? 'pointer' : '', margin: '2px', transition: 'transform 100ms',
+                cursor: this.disabled ? 'cursor: default !important' : '', opacity: this.disabled ? '0.4' : '', 'user-select': this.disabled ? 'none' : '',
+                'pointer-events': this.disabled ? 'none' : '', filter: this.disabled ? 'grayscale(80%)' : ''
+            } || {}
+        };
         s = Object.entries(s).map(([k, v]) => `${k}:${v}`).join(';')
         return s;
     }
 
     static get styles() {
         return css`
-            :host {
-                margin: 2px;
-                transition: transform 100ms;
-                cursor: pointer;
-            }
+
         `
     }
 
     render() {
         return html`
-            <div style="${this._style}" draggable="${this.draggable}" ?disabled="${this.item?.disabled || this.item?._disabled || this.bl?._bs?.line?.bl === this.bl}" title="${this.item?.title}"
-                @click="${this.tap}" @dragstart="${(e) => this.dragstart(e)}" @drag="${this.drag}" @dragover="${this.dragover}" @dragleave="${this.dragleave}" 
-                    @dragend="${this.dragend}" @drop="${this.drop}">
+            <div style="${this._style}" draggable="${this.draggable}" title="${this.item?.title}" @mousedown="${this._down}"
+                @click="${this._tap}" @dragstart="${this._dragstart}" @drag="${this._drag}" @dragover="${this._dragover}" @dragleave="${this._dragleave}" 
+                    @dragend="${this._dragend}" @drop="${this._drop}">
                 ${!(this.item?.icon) ? html`` : html`
                     <li-icon  name="${this.item?.icon}" size="${this.item?.size || this.defaultSize}" fill="${this.item?.color}" ></li-icon>
                 `}
@@ -445,12 +477,11 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         `;
     }
 
-    down(e) {
+    _down(e) {
         e.stopPropagation();
     }
-    tap() {
-        console.log('tap')
-        if (!this.item.action || !this.bl?._bs?.editMode) return;
+    _tap(e) {
+        if (!this.item.action || !this._bs?.editMode) return;
         this.bl.setConnectors();
         if (typeof this.item.action === 'string') {
             if (this.bl[this.item.action])
@@ -460,51 +491,53 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         this.bl._bs = undefined;
         this.$$update();
     }
-    dragstart(e) {
-        let bs = this.bl._bs;
+    _dragstart(e) {
+        let bs = this._bs;
+        bs.line.connector = this;
         bs.line.bl = this.bl;
         bs.line.item = this;
         bs.line.x1 = bs.line.x2 = e.x - this._grid.offsetLeft + this._grid.scrollLeft;
         bs.line.y1 = bs.line.y2 = e.y - this._grid.offsetTop + this._grid.scrollTop;
         bs.line.show = true;
         this.bl.setConnectors('dragStart');
+        this.$$update();
         //this.bl._bs = undefined;
     }
-    drag(e) {
-        let bs = this.bl._bs;
+    _drag(e) {
+        let bs = this._bs;
         if (bs.line.show && e.x !== 0) {
             bs.line.x2 = e.x - this._grid.offsetLeft + this._grid.scrollLeft;
             bs.line.y2 = e.y - this._grid.offsetTop + this._grid.scrollTop;
             this.bl._bs = undefined;
         }
     }
-    dragover(e) {
-        if (this.bl._bs.line.show && this.draggable && !this.item._disabled && !this.item.disableDrag && this.bl?._bs?.line?.bl !== this.bl) {
+    _dragover(e) {
+        if (this._bs.line.show && this.draggable && !this.item._disabled && !this.item.disableDrag && this._bs?.line?.bl !== this.bl) {
             e.preventDefault()
             this.dragover = true;
         } else
             this.dragover = false;
     }
-    dragleave() {
+    _dragleave() {
         this.dragover = false;
     }
-    dragend(e) {
-        this._dragend();
+    _dragend(e) {
+        this._clearDrag();
     }
-    drop() {
-        const l = this.bl._bs.line.item;
+    _drop() {
+        const l = this._bs.line.item;
         this.item.link = { id: l.bl.id, position: l.position, index: l.item.index };
-        this._dragend();
+        this._clearDrag();
     }
-    dragend() {
-        let bs = this.bl._bs;
+    _clearDrag() {
+        let bs = this._bs;
         bs.line.x1 = bs.line.x2;
         bs.line.y1 = bs.line.y2;
-        bs.line.bl = undefined;
+        bs.line.bl = bs.line.connector = undefined;
         bs.line.show = false;
         this.dragover = false;
         this.bl.setConnectors();
-        this.bl._bs = undefined;
+        //this.bl._bs = undefined;
     }
 
 });
