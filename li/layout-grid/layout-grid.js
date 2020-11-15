@@ -6,7 +6,6 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
     static get properties() {
         return {
             _$$id: { type: String, default: '', update: true },
-            _bs: { type: Object, default: {}, local: true },
             _width: { type: Number, default: 10000, local: true }, _height: { type: Number, default: 10000, local: true }, _gridMain: { type: Object, default: {}, local: true },
             zoom: { type: Number, default: 1 },
             _step: { type: Number, default: 10 }
@@ -21,7 +20,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
     }
     get _sizeBig() { return this.zoom * this._step / 10 * 100 }
     get _sizeSmall() { return this._step === 0.1 ? 0 : this._sizeBig / 10 }
-    get _mainHeight() { return window.innerHeight - (this.$refs && this.$refs.main && this.$refs.main.offsetTop || 0) }
+    get _mainHeight() { return window.innerHeight - (this.$refs?.main?.offsetTop || 0) }
 
     firstUpdated() {
         super.firstUpdated();
@@ -32,8 +31,8 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
     }
 
     _resizeRuler_h(zoom = this.zoom, _step = this._step) {
-        const _cvWidth = this.$refs && this.$refs.main && this.$refs.main.offsetWidth;
-        const _scrollDx = this.$refs && this.$refs.main && this.$refs.main.scrollLeft;
+        const _cvWidth = this.$refs?.main?.offsetWidth;
+        const _scrollDx = this.$refs?.main?.scrollLeft;
         const ctx = this._initRuler(this.$refs.ruler_h, _cvWidth, 25);
         let k = Math.round(_cvWidth / _step / zoom);
         for (let i = Math.round(_scrollDx / zoom / _step); i < Math.round(k + _scrollDx / zoom / _step); i++) {
@@ -45,8 +44,8 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
         }
     }
     _resizeRuler_v(zoom = this.zoom, _step = this._step) {
-        const _cvHeight = this.$refs && this.$refs.main && this.$refs.main.offsetHeight;
-        const _scrollDy = this.$refs && this.$refs.main && this.$refs.main.scrollTop;
+        const _cvHeight = this.$refs?.main?.offsetHeight;
+        const _scrollDy = this.$refs?.main?.scrollTop;
         const ctx = this._initRuler(this.$refs.ruler_v, 25, _cvHeight);
         ctx.rotate(.5 * Math.PI);
         let k = Math.round(_cvHeight / _step / zoom);
@@ -86,10 +85,10 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
             this._resizeRuller();
     }
     _scale(zoom, step) {
-        this._bs.zoom = this.zoom = zoom;
+        this.$$.zoom = this.zoom = zoom;
         zoom = zoom > 1 ? Math.min(2000, zoom) : Math.max(1 / 100000000, zoom);
         if (zoom === 2000 || zoom === 1 / 100000000) {
-            this._bs.zoom = this.zoom = zoom;
+            this.$$.zoom = this.zoom = zoom;
         } else {
             if (step) {
                 this._step = step;
@@ -129,7 +128,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
             </div>
             <div style="display:flex;">
                 <div style="width:25px;margin-right:5px"><canvas ref="ruler_v"></canvas></div>
-                <div ref="main" style="height:${this._mainHeight};position:relative;overflow:auto" @mousewheel="${this._resizeRuller}">
+                <div ref="main" style="height:${this._mainHeight};position:relative;overflow:auto;" @mousewheel="${this._resizeRuller}">
                     <svg width=${this._width} height="${this._height}" :preserve-aspect-ratio="'xMinYMin meet'">
                         <defs>
                             <pattern id="smallGrid" patternUnits="userSpaceOnUse" width="${this._sizeSmall}" height="${this._sizeSmall}">
@@ -144,7 +143,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
                         </defs>
                         <rect width="100%" height="100%" fill="url(#grid)" vector-effect="non-scaling-stroke"></rect>
                     </svg>
-                    <slot name="layout-grid-main"></slot>  
+                    <slot name="layout-grid-main"></slot>
                 </div>
             </div>
         `;
