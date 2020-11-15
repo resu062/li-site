@@ -219,6 +219,14 @@ class CLI {
         this.icaro = icaro;
         this.PouchDB = PouchDB;
         this.awnOptions = {
+            position: 'bottom-right',
+            durations: { 
+                success: 2000,
+                tip: 2000,
+                warning: 2000,
+                alert: 2000,
+                info: 2000
+            },
             icons: {
                 prefix: "<li-icon name='",
                 success: "check-circle' fill='#40871d' size=32",

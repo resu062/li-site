@@ -6,12 +6,10 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
     static get properties() {
         return {
             _$$id: { type: String, default: '', update: true },
-            _bs: { type:Object, default: {}, local: true },
-            zoom: { type: Number, default: 1, local: true },
-            _step: { type: Number, default: 10, local: true },
-            _width: { type: Number, default: 10000, local: true },
-            _height: { type: Number, default: 10000, local: true },
-            _grid: { type: Object, default: {}, local: true }
+            _bs: { type: Object, default: {}, local: true },
+            _width: { type: Number, default: 10000, local: true }, _height: { type: Number, default: 10000, local: true }, _gridMain: { type: Object, default: {}, local: true },
+            zoom: { type: Number, default: 1 },
+            _step: { type: Number, default: 10 }
         }
     }
 
@@ -27,10 +25,10 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
 
     firstUpdated() {
         super.firstUpdated();
+        this._gridMain = this.$refs.main;
         this.__mousewheel = this._mousewheel.bind(this);
         this._resizeRuller();
         LI.listen(this, 'mousewheel', this.__mousewheel, true);
-        this._grid = this.$refs.main;
     }
 
     _resizeRuler_h(zoom = this.zoom, _step = this._step) {
@@ -88,10 +86,10 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
             this._resizeRuller();
     }
     _scale(zoom, step) {
-        this.zoom = zoom;
+        this._bs.zoom = this.zoom = zoom;
         zoom = zoom > 1 ? Math.min(2000, zoom) : Math.max(1 / 100000000, zoom);
         if (zoom === 2000 || zoom === 1 / 100000000) {
-            this.zoom = zoom;
+            this._bs.zoom = this.zoom = zoom;
         } else {
             if (step) {
                 this._step = step;
@@ -103,7 +101,10 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
             }
         }
         this._resizeRuller();
-        this.$$update();
+        setTimeout(() => {
+            this.$$update();
+        }, 10)
+
     }
 
     static get styles() {
