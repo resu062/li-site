@@ -5,20 +5,21 @@ import '../button/button.js';
 import '../icon/icon.js';
 
 class BlockItem {
-    constructor(item, uuid) {
+    constructor(item, uuid, _bs) {
         if (uuid) {
+            if (_bs)
+                this.__bs = _bs;
             this._uuid = uuid;
-            _bus[this.uuid].$root = this;
+            this.__bs.$root = this;
         }
         this.$item = item;
-        this._id = item.id || item.name || getUUID();
+        this._id = item.id || item.name || LI.ulid();
         this.selected = false;
         this.disabled = false;
         this.tag = item.tag || 'div';
     }
     get uuid() { return this._uuid }
-    get _bs() { return _bus[this.uuid] || {} }
-    set _bs(v) { return }
+    get _bs() { return this.__bs || {} }
     get id() { return this._id }
     get label() { return this.$item.label || this.$item.name || 'block' }
     get items() {
@@ -27,6 +28,7 @@ class BlockItem {
             if (this._items.length) {
                 this._items.forEach(i => {
                     i._uuid = this._uuid;
+                    i.__bs = this._bs;
                     i._owner = this;
                 })
             }
@@ -36,8 +38,8 @@ class BlockItem {
     get $owner() { return this._owner || this }
     get model() { return this.$item.model }
     get transform() {
-        let x = (this.$item.x * (this._bs.zoom || 1));
-        let y = (this.$item.y * (this._bs.zoom || 1));
+        let x = (this.$item.x * (this._bs?.zoom || 1));
+        let y = (this.$item.y * (this._bs?.zoom || 1));
         return `translate3d(${x}px, ${y}px, 0px)`
     }
     select(e) {
@@ -46,20 +48,23 @@ class BlockItem {
         this.selected = true;
     }
     move(x, y) {
-        this.$item.x += x / (this._bs.zoom || 1);
-        this.$item.y += y / (this._bs.zoom || 1);
+        this.$item.x += x / (this._bs?.zoom || 1);
+        this.$item.y += y / (this._bs?.zoom || 1);
     }
     addDefaultConnector(position) {
         if (!this._bs.editMode) return;
         this.model[position].splice(this.model[position].length, 0, defaultConnector);
+        LI.notifier.success('Add default connector: <br>' + this.label)
     }
     addConnector(position, index) {
         if (!this._bs.editMode) return;
         this.model[position].splice(this.model[position].length, 0, this.model[position][index].connector || defaultConnector);
+        LI.notifier.success('Add connector: <br>' + this.label)
     }
     deleteConnector(position, index) {
         if (!this._bs.editMode) return;
         this.model[position].splice(index, 1);
+        LI.notifier.info('Delete connector: <br>' + this.label)
     }
     setConnectors(action = '') {
         this.$owner.items.forEach(i => {
@@ -70,30 +75,20 @@ class BlockItem {
                         i.model[p].forEach(c => {
                             c.index = count;
                             c._disabled = c.disabled || (action === 'dragStart' && this._bs?.line?.show && c.disableDrag) || false;
-                            if (action === 'deleteAllLinks' && c.link && c.link.id === this.id) delete c.link;
+                            if (action === 'deleteAllLinks' && c.link && (c.link.id === this.id || i.id === this.id)) delete c.link;
                             count++;
                         })
                 })
         })
-        if (this._bl) this._bl.$$update();
-        if (this._bs._main) this._bs._main.$$update();
     }
     deleteBlock() {
-        ODA[('showDialog')]('oda-scheme-ask', { text: 'Delete current block?' }, { parent: this, flex: 'noflex' }).then(res => {
-            if (res) {
-                this.$owner.items.splice(this.$owner.items.indexOf(this), 1);
-                clearSelectedBlocks(this.$owner.items[0]);
-                if (this._bl) this._bl.$$update();
-                if (this._bs._main) this._bs._main.$$update();
-            }
-        }).catch(e => { })
+        this.deleteAllLinks();
+        //this.$owner.items.splice(this.$owner.items.indexOf(this), 1);
+        //LI.notifier.warning('Delete block')
     }
     deleteAllLinks() {
-        ODA[('showDialog')]('oda-scheme-ask', { text: 'Delete all links?' }, { parent: this, flex: 'noflex' }).then(res => {
-            if (res) {
-                this.setConnectors('deleteAllLinks');
-            }
-        }).catch(e => { })
+        this.setConnectors('deleteAllLinks');
+        LI.notifier.warning('Delete all links: <br>' + this.label)
     }
     getBlock(id) {
         for (const i of this.$owner.items)
@@ -108,27 +103,20 @@ const defaultConnector = {
 function clearSelectedBlocks(bl) {
     bl.$owner.items.forEach(i => {
         i.selected = false;
-        i._bl.render();
+        i._bl.$$update();
     })
 }
-
-const _bus = {};
-const getUUID = function b(a) { return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b) };
 
 
 customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement {
     static get properties() {
         return {
             _$$id: { type: String, default: '', update: true },
-            _bs: { type: Object, default: {}, local: true },
-            zoom: { type: Number, default: 1, local: true },
-            _step: { type: Number, default: 10, local: true },
-            _width: { type: Number, default: 10000, local: true },
-            _height: { type: Number, default: 10000, local: true },
+            _bs: { type: Object, default: {}, local: true }, zoom: { type: Number, default: 1, local: true },
+            _width: { type: Number, default: 10000, local: true }, _height: { type: Number, default: 10000, local: true },
+            editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, default: {}, local: true },
             item: { type: Object, default: {} },
             block: { type: Object, default: {} },
-            editMode: { type: Boolean, default: true },
-            _grid: { type: Object, default: {}, local: true }
         }
     }
 
@@ -139,15 +127,13 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
 
     updated(changedProps) {
         super.update(changedProps);
-        if (changedProps.has('item') && this.item) {
-            this.uuid = this.item.id = this.item.id || this.id || getUUID();
-            _bus[this.uuid] = {
-                fileName: 'oda-scheme-designer-' + this.uuid, zoom: 1,
+        if (changedProps.has('item') && this.item && this.item.items) {
+            this.uuid = this.item.id = this.item.id || this.id || LI.ulid();
+            this._bs = {
+                fileName: 'oda-scheme-designer-' + this.uuid, zoom: this._bs.zoom,
                 editMode: this.editMode, selectedBlock: undefined, line: { show: false, x1: 0, y1: 0, x2: 0, y2: 0 }
             };
-            this.block = new BlockItem(this.item, this.uuid);
-            this._bs = this.block._bs;
-            //this.block.items[0].setConnectors();
+            this.block = new BlockItem(this.item, this.uuid, this._bs);
         }
     }
 
@@ -166,7 +152,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             <li-layout-grid .$$id="${this.$$id}" ref="main"  @mousemove="${this._move}" @mouseup="${this._up}">
                 <div slot="layout-grid-main">
                     ${svg`
-                        <svg width="${this._width * 10}" height="${this._height * 10}" style="zoom: ${this.zoom || 1}; position:absolute;top:0;left:0;background-color:transparent;">
+                        <svg width="${this._width}" height="${this._height}" style="position:absolute;top:0;left:0;background-color:transparent;">
                             ${(this.links || []).map(l => svg`
                                 <path d="${this._link(l)}" style="stroke-width: ${l.selected ? '4px' : '2px'};cursor:pointer;z-index:-1" fill="none" opacity="0.5" stroke="${l.color || 'red'}"></path>
                             `)}
@@ -176,9 +162,9 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                         <li-layout-scheme-block .$$id="${this.$$id}" .bl="${bl}" @mousedown="${this._down}"></li-layout-scheme-block>
                     `)}
                     ${svg`
-                        <svg width="${this._width * 10}" height="${this._height * 10}" style="zoom: ${this.zoom || 1}; position:absolute;top:0;left:0;background-color:transparent;pointer-events:none;z-index:9">
-                            ${!(this.bl?.model) ? svg`` : svg`    
-                                <line x1="${this._bs?.line?.x1}" :1="${this._bs?.line?.y1}" x2="${this._bs?.line?.x2}" y2="${this._bs?.line?.y2}" style="stroke:red; stroke-width:2px;stroke-dasharray:2"></line>
+                        <svg width="${this._width}" height="${this._height}" style="position:absolute;top:0;left:0;background-color:transparent;pointer-events:none;z-index:9">
+                            ${!(this._bs?.line?.show) ? svg`` : svg`    
+                                <line x1="${this._bs?.line?.x1}" y1="${this._bs?.line?.y1}" x2="${this._bs?.line?.x2}" y2="${this._bs?.line?.y2}" style="stroke:red; stroke-width:2px;stroke-dasharray:2"></line>
                             `}
                         </svg>
                     `}
@@ -186,7 +172,6 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             </li-layout-grid>
         `;
     }
-
 
     get links() {
         if (!this.block || !this.block.items || !this._bs || !this.$refs?.main) return [];
@@ -203,17 +188,19 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                                 if (s) {
                                     s = s.getBoundingClientRect();
                                     const block = b.getBlock(i.link.id)
-                                    let l = block._bl._getConnector(i.link.position, i.link.index);
-                                    if (l) {
-                                        l = l.getBoundingClientRect();
-                                        links.push({
-                                            x1: (l.x + l.width / 2) * (this._bs.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft,
-                                            y1: (l.y + l.height / 2) * (this._bs.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop,
-                                            x2: (s.x + s.width / 2 - (this.brokenLine ? 14 : 0)) * (this._bs.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft,
-                                            y2: (s.y + s.height / 2) * (this._bs.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop,
-                                            selected: false, color: i.link.color || `hsla(${color}, 90%, 40%, 1)`,
-                                        })
-                                        color = i.link.color ? color : color + 73;
+                                    if (block && block._bl) {
+                                        let l = block._bl._getConnector(i.link.position, i.link.index);
+                                        if (l) {
+                                            l = l.getBoundingClientRect();
+                                            links.push({
+                                                x1: (l.x + l.width / 2) * (this._bs.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft,
+                                                y1: (l.y + l.height / 2) * (this._bs.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop,
+                                                x2: (s.x + s.width / 2 - (this.brokenLine ? 14 : 0)) * (this._bs.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft,
+                                                y2: (s.y + s.height / 2) * (this._bs.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop,
+                                                selected: false, color: i.link.color || `hsla(${color}, 90%, 40%, 1)`,
+                                            })
+                                            color = i.link.color ? color : color + 73;
+                                        }
                                     }
                                 }
                             }
@@ -260,12 +247,9 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
     static get properties() {
         return {
             $$id: { type: String, update: true },
-            _bs: { type: Object, default: {}, local: true },
-            zoom: { type: Number, default: 1, local: true },
+            _bs: { type: Object, default: {}, local: true }, editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, default: {}, local: true },
             bl: { type: Object, default: {} },
             defaultSize: { type: Number, default: 24 },
-            editMode: { type: Boolean, default: true },
-            _grid: { type: Object, default: {}, local: true }
         }
     }
 
@@ -335,7 +319,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
 
     render() {
         return html`
-            <div class="hhost vertical" style="zoom: ${this.zoom || 1}; transform: ${this.bl?.transform}; z-index: ${this.bl?.selected ? 1 : 0}">
+            <div class="hhost vertical" style="zoom: ${this._bs.zoom || 1}; transform: ${this.bl?.transform}; z-index: ${this.bl?.selected ? 1 : 0}">
                 ${!(this.bl?.model) ? html`` : html`
                     <div class="connectors" style="cursor: ${this.bl?._bs?.editMode ? 'pointer' : 'default'}">
                         ${!(this.bl?.model?.left?.length) ? html`` : html`
@@ -366,27 +350,27 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                         <div class="info-block" is="${this.bl?.tag}" style="${this._s(this.bl?.$item.style)}">${this.bl?.label}</div>
                         <div class="horizontal" style="width: 100%; justify-content: space-between;position:absolute;top:0">
                             ${(this.bl?.model?.staticMenu?.top || [] || []).map(i => html`
-                                ${!(i.editMode ? this.editMode : !i.editMode) ? html`` : html`
-                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(i) => _tap(i.action)}" disabled="${i.disabled}"></li-icon>
+                                ${(i.editMode ? !this.editMode : i.editMode) ? html`` : html`
+                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(e) => this._tap(e, i.action)}" disabled="${i.disabled}"></li-icon>
                                 `}
                             `)}
                             <div class="flex"></div>
-                            ${(this.bl?.model?.dynamicMenu?.top || [] || []).map(i => html`
-                                ${!(i.editMode ? this.editMode : !i.editMode) ? html`` : html`
-                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(i) => _tap(i.action)}" disabled="${i.disabled}"></li-icon>
+                            ${((this.bl?.selected && this.bl?.model?.dynamicMenu?.top) || []).map(i => html`
+                                ${(i.editMode ? !this.editMode : i.editMode) ? html`` : html`
+                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(e) => this._tap(e, i.action)}" disabled="${i.disabled}"></li-icon>
                                 `}
                             `)}
                         </div>
                         <div class="horizontal" style="width: 100%; justify-content: space-between;position:absolute;bottom:0">
                             ${(this.bl?.model?.staticMenu?.bottom || [] || []).map(i => html`
-                                ${!(i.editMode ? this.editMode : !i.editMode) ? html`` : html`
-                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(i) => _tap(i.action)}" disabled="${i.disabled}"></li-icon>
+                                ${(i.editMode ? !this.editMode : i.editMode) ? html`` : html`
+                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(e) => this._tap(e, i.action)}" disabled="${i.disabled}"></li-icon>
                                 `}
                             `)}
                             <div class="flex"></div>
-                            ${(this.bl?.model?.dynamicMenu?.botoom || [] || []).map(i => html`
-                                ${!(i.editMode ? this.editMode : !i.editMode) ? html`` : html`
-                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(i) => _tap(i.action)}" disabled="${i.disabled}"></li-icon>
+                            ${((this.bl?.selected && this.bl?.model?.dynamicMenu?.bottom) || []).map(i => html`
+                                ${(i.editMode ? !this.editMode : i.editMode) ? html`` : html`
+                                    <li-icon name="${i.icon}" size="${i.size || this.defaultSize}" fill="$(i.style?.color || 'gray'}" style="${this._s(i.style)}" title="${i.title}" @click="${(e) => this._tap(e, i.action)}" disabled="${i.disabled}"></li-icon>
                                 `}
                             `)}
                         </div>
@@ -425,23 +409,32 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
         this.bl.select(e);
         this.$$update();
     }
+    _tap(e, action) {
+        e.stopPropagation();
+        if (!action || !this._bs?.editMode) return;
+        if (typeof action === 'string') {
+            if (this.bl[action])
+                this.bl[action]();
+        } else
+            action.call(this.bl);
+        this.$$update();
+    }
 });
 
 customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnector extends LiElement {
     static get properties() {
         return {
             $$id: { type: String, update: true },
-            _bs: { type: Object, default: {}, local: true },
-            bl: { type: Object, default: {} },
+            _bs: { type: Object, default: {}, local: true }, editMode: { type: Boolean, default: true }, _gridMain: { type: Object, default: {}, local: true },
             item: { type: Object, default: {} },
+            bl: { type: Object, default: {} },
             defaultSize: { type: Number, default: 18 },
             position: { type: String, default: '' },
-            dragover: { type: Boolean, default: false },
-            _grid: { type: Object, default: {}, local: true }
+            dragover: { type: Boolean, default: false }
         }
     }
 
-    get draggable() { return (this.item?._disabled || this.item?.disableDrag || !this._bs?.editMode) ? 'false' : 'true' }
+    get draggable() { return (this.item?._disabled || this.item?.disableDrag || !this.editMode) ? 'false' : 'true' }
     get disabled() {
         if (this._bs?.line?.connector === this) return false;
         return this.item?.disabled || this.item?._disabled || this._bs?.line?.bl === this.bl
@@ -449,8 +442,7 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
     get _style() {
         let s = {
             ...(this.item?.style || {}), ...{
-                transform: this.dragover ? 'scale(2)' : 'scale(1)',
-                'z-index': this.dragover ? 9 : 0, cursor: this.draggable ? 'pointer' : '', margin: '2px', transition: 'transform 100ms',
+                transform: this.dragover ? 'scale(2)' : 'scale(1)', cursor: this.draggable ? 'pointer' : 'default !important', margin: '2px', transition: 'transform 100ms',
                 cursor: this.disabled ? 'cursor: default !important' : '', opacity: this.disabled ? '0.4' : '', 'user-select': this.disabled ? 'none' : '',
                 'pointer-events': this.disabled ? 'none' : '', filter: this.disabled ? 'grayscale(80%)' : ''
             } || {}
@@ -461,7 +453,9 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
 
     static get styles() {
         return css`
-
+            :host {
+                z-index: 1;
+            }
         `
     }
 
@@ -481,14 +475,13 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         e.stopPropagation();
     }
     _tap(e) {
-        if (!this.item.action || !this._bs?.editMode) return;
+        if (!this.item.action || !this.editMode) return;
         this.bl.setConnectors();
         if (typeof this.item.action === 'string') {
             if (this.bl[this.item.action])
                 this.bl[this.item.action](this.position, this.item.index);
         } else
             this.item.action.call(this.bl, this.position, this.item.index);
-        this.bl._bs = undefined;
         this.$$update();
     }
     _dragstart(e) {
@@ -496,19 +489,18 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         bs.line.connector = this;
         bs.line.bl = this.bl;
         bs.line.item = this;
-        bs.line.x1 = bs.line.x2 = e.x - this._grid.offsetLeft + this._grid.scrollLeft;
-        bs.line.y1 = bs.line.y2 = e.y - this._grid.offsetTop + this._grid.scrollTop;
+        bs.line.x1 = bs.line.x2 = e.x - this._gridMain.offsetLeft + this._gridMain.scrollLeft;
+        bs.line.y1 = bs.line.y2 = e.y - this._gridMain.offsetTop + this._gridMain.scrollTop;
         bs.line.show = true;
         this.bl.setConnectors('dragStart');
         this.$$update();
-        //this.bl._bs = undefined;
     }
     _drag(e) {
         let bs = this._bs;
         if (bs.line.show && e.x !== 0) {
-            bs.line.x2 = e.x - this._grid.offsetLeft + this._grid.scrollLeft;
-            bs.line.y2 = e.y - this._grid.offsetTop + this._grid.scrollTop;
-            this.bl._bs = undefined;
+            bs.line.x2 = e.x - this._gridMain.offsetLeft + this._gridMain.scrollLeft;
+            bs.line.y2 = e.y - this._gridMain.offsetTop + this._gridMain.scrollTop;
+            this.$$update();
         }
     }
     _dragover(e) {
@@ -537,7 +529,6 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         bs.line.show = false;
         this.dragover = false;
         this.bl.setConnectors();
-        //this.bl._bs = undefined;
+        this.$$update();
     }
-
 });
