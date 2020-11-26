@@ -121,7 +121,7 @@ customElements.define('li-accordion-item', class LiAccordionItem extends LiEleme
             <div class="bar">
                 <li-icon .iconSize="${this.iconSize * .7}" .name="${this.iconName}" .icon="${this.icon}" style="opacity: .5"></li-icon>
                 <div style="text-align:center; flex: 1">${this.label}</div>
-                <li-button .iconSize="${this.iconSize * .7}" .name="${'chevron-right'}" style="opacity: .5;margin-right: 4px;" .toggled="${this.expanded}" toggledClass="right90" radius="50%"></li-button>
+                <li-button .iconSize="${this.iconSize * .7}" .name="${'chevron-right'}" style="opacity: .5;margin-right: 4px;" .toggled="${this.expanded}" toggledClass="right90" radius="50%" @click="${this.focus}"></li-button>
             </div>
             <div style="display:flex;flex-direction:column;overflow: hidden;flex:1;">
                 <slot ?hidden="${!this.expanded}"></slot>
