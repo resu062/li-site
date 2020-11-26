@@ -3,19 +3,19 @@ url = url.replace('/tester/indx.js', '');
 
 export const indx = {
 
-    'li-icon': { label: 'Иконка', props: { name: 'refresh', fill: 'red', speed: 1, blink: 1, size: 128 } },
+    'li-icon': { label: 'li-icon', props: { name: 'refresh', fill: 'red', speed: 1, blink: 1, size: 128 } },
     icon: [{ label: 'index', url: url + '/icon' }],
 
-    'li-icons': { label: 'Иконки' },
+    'li-icons': { label: 'li-icons' },
     icons: [{ label: 'index', url: url + '/icons' }],
 
-    'li-checkbox': { label: 'Checkbox', props: { size: 48, fill: 'green' } },
+    'li-checkbox': { label: 'li-checkbox', props: { size: 48, fill: 'green' } },
     checkbox: [{ label: 'index', url: url + '/checkbox' }],
 
-    'li-button': { label: 'Кнопка', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
+    'li-button': { label: 'li-button', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
     button: [{ label: 'index', url: url + '/button' }, { label: 'index-2', url: url + '/button/index-2.html' }],
 
-    'li-dropdown': { label: 'DropDown', props: { component: 'press index or index-2' } },
+    'li-dropdown': { label: 'li-dropdown', props: { component: 'press index or index-2' } },
     dropdown: [{ label: 'index', url: url + '/dropdown' }, { label: 'index-2', url: url + '/dropdown/index-2.html' }],
 
     'li-table': {
@@ -210,10 +210,17 @@ export const indx = {
     // 'li-chart-apex': { label: 'li-chart-apex' },
     // 'chart-apex': [{ label: 'index', url: url + '/chart-apex' }],
 
+    'li-qr-code': { label: 'li-qr-code', props: { value: 'https://resu062.github.io/li-site/li/tester/' } },
+    'qr-code': [{ label: 'index', url: url + '/qr-code' }],
+
     'li-tester': { label: 'li-tester' },
     tester: [{ label: 'index', url: url + '/tester' }, { label: 'index2', url: url + '/tester/index-2.html' }],
 
     'li-app': { label: 'li-app' },
     app: [{ label: 'index', url: url + '/app' }],
-    
+
+    'li-xxx': { label: 'misc demo' },
+    xxx: [{ label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
+    { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }
+    ],
 }

@@ -76,7 +76,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     ${Object.keys(indx).map(key => html`
                         ${key.startsWith('li-') ?
-                            html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" label="${key}" width="auto" @click="${this._tap}"></li-button>` :
+                            html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" .label2="${key}" label="${indx[key].label}" width="auto" @click="${this._tap}"></li-button>` :
                             html`<div style="display: flex;font-size:10px;flex-wrap:wrap">${indx[key].map(i =>
                                 html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
                             )}</div>`}`
@@ -150,7 +150,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
         if (this.component) this.removeChild(this.component);
         //this.component = undefined;
         this.$id.slot.name = "?";
-        let el = e.target.label;
+        let el = e.target.label2 || e.target.label;
         let props = { ...indx[el].props };
         this.component = await LI.createComponent(el, props);
         this.component.setAttribute('slot', 'app-test');
