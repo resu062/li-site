@@ -50,7 +50,7 @@ class BlockItem {
         let val = '';
         if (this.$$$?._gridMain) {
             const translate = {
-                left: () => { val = `translate3d(0px, 500px, 0px)` },
+                left: () => { val = `translate3d(0px, ${this.$$$?._gridMain.offsetHeight / 2}px, 0px)` },
                 top: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth / 2}px, 0px, 0px)` },
                 right: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth - 30}px, ${this.$$$?._gridMain.offsetHeight / 2}px, 0px)` },
                 bottom: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth / 2}px, ${this.$$$?._gridMain.offsetHeight - 40}px, 0px)` }
