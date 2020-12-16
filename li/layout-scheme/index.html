@@ -1,5 +1,6 @@
 <script type="module" src="./layout-scheme.js"></script>
-<link rel="stylesheet" href="../../lib/awesome-notifications/style.css"></link>
+<link rel="stylesheet" href="../../lib/awesome-notifications/style.css">
+</link>
 
 <li-layout-scheme id="layout_scheme"></li-layout-scheme>
 
@@ -8,121 +9,147 @@
         label: 'li-scheme-designer-1',
         items: [
             {
-                id: '000', label: 'li-scheme-test-block-000', x: 100, y: 50,
+                id: '000', type: 'block', label: 'li-scheme-test-block-000', x: 150, y: 96,
                 model: {
                     top: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
                             action: 'addConnector',
                             size: 20, disableDrag: true,
                             connector: {
                                 style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             icon: 'add', disableDrag: true, style: { fill: 'blue' }, editMode: true,
                             action: 'addConnector',
                             size: 20, disableDrag: true,
                             connector: {
                                 style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 3,
                             style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 4,
                             style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 5,
                             style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         }
                     ],
                     bottom: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
                             action: 'addConnector',
                             size: 20, disableDrag: true,
                             connector: {
                                 style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
-                            icon: 'link', disabled: true
+                            icon: 'insert-link', disabled: true
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 3,
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 4,
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         }
                     ],
                     left: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
                             action: 'addConnector',
                             size: 20, disableDrag: true,
                             connector: {
                                 style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '005',
+                                position: 'right',
+                                idc: 1
+                            }
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 3,
                             style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         }
                     ],
                     right: [
                         {
+                            id: 0,
                             size: 20, disableDrag: true, title: 'disableDrag',
                             style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                            icon: 'link'
+                            icon: 'insert-link'
                         },
                         {
+                            id: 1,
                             size: 20, title: 'disableDelete',
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
-                            icon: 'link'
+                            icon: 'insert-link'
                         },
                         {
+                            id: 2,
                             size: 20, title: 'disableDelete',
                             style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                            icon: 'link'
+                            icon: 'insert-link'
                         },
                         {
+                            id: 3,
                             size: 12, title: 'enableDelete',
                             style: { border: '2px solid gray', 'border-radius': '50%', },
                             icon: 'remove', action: 'deleteConnector'
                         },
                         {
+                            id: 4,
                             size: 12, title: 'enableDelete',
                             style: { border: '2px solid gray', 'border-radius': '50%', },
                             icon: 'remove', action: 'deleteConnector'
                         },
                         {
+                            id: 5,
                             size: 12, title: 'enableDelete',
                             style: { border: '2px solid gray', 'border-radius': '50%', },
                             icon: 'remove', action: 'deleteConnector'
@@ -131,80 +158,97 @@
                 }
             },
             {
-                id: '001', label: 'li-scheme-test-block-001', x: 100, y: 450, tag: 'li-button',
+                id: '001', type: 'block', label: 'li-scheme-test-block-001', x: 180, y: 730, tag: 'li-button',
                 style: { 'min-height': '60px' },
                 model: {
                     top: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, editMode: true,
                             action() {
                                 this.model.top.splice(-1, 0, {
                                     style: { border: '1px dashed green', 'border-radius': '50%' },
-                                    icon: 'link', action: 'deleteConnector'
+                                    icon: 'insert-link', action: 'deleteConnector'
                                 });
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '1px dashed green', 'border-radius': '50%' },
                             icon: 'link', action: 'deleteConnector'
                         },
                         {
+                            id: 2,
                             style: { border: '1px dashed green', 'border-radius': '50%' },
                             icon: 'link', action: 'deleteConnector'
                         },
                         {
+                            id: 3,
                             style: { border: '1px dashed green', 'border-radius': '50%' },
                             icon: 'link', action: 'deleteConnector'
                         }
                     ],
                     right: [
                         {
+                            id: 0,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             icon: 'add', disableDrag: true, editMode: true,
                             action() {
                                 this.model.right.push({
                                     style: { border: '1px double silver', 'border-radius': '1rem/2rem' },
                                     backgroundColor: 'yellow',
-                                    icon: 'link', action() {
+                                    icon: 'insert-link', action() {
                                         this.model.right.splice(this.model.right.length - 1);
                                     }
                                 });
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             backgroundColor: 'yellow',
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 2,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             backgroundColor: 'yellow',
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 3,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             backgroundColor: 'yellow',
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 4,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             backgroundColor: 'yellow',
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 5,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             backgroundColor: 'yellow',
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 6,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             backgroundColor: 'yellow',
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 7,
                             style: { border: '1px double orange', 'border-radius': '1rem/2rem' },
                             backgroundColor: 'yellow',
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '000',
+                                position: 'right',
+                                idc: 3
+                            }
                         }
                     ],
                     bottom: [],
@@ -212,7 +256,7 @@
                     staticMenu: {
                         top: [
                             {
-                                icon: 'call-split',
+                                icon: 'communication:call-split',
                                 action() {
                                     console.log('split');
                                 },
@@ -221,7 +265,7 @@
                         ],
                         bottom: [
                             {
-                                icon: 'import-export', disabled: true,
+                                icon: 'communication:import-export', disabled: true,
                                 action() {
                                     console.log('import-export');
                                 },
@@ -232,7 +276,7 @@
                     dynamicMenu: {
                         top: [
                             {
-                                icon: 'not-interested',
+                                icon: 'av:not-interested',
                                 action: 'deleteAllLinks',
                                 title: 'deleteAllLinks',
                                 style: { fill: 'red', margin: '2px' },
@@ -252,194 +296,250 @@
                 }
             },
             {
-                id: '002', label: 'li-scheme-test-block-002', x: 500, y: 200,
+                id: '002', type: 'block', label: 'li-scheme-test-block-002', x: 550, y: 100,
                 model: {
                     left: [
                         {
+                            id: 0,
                             style: { border: '1px dashed gray', 'border-radius': '50% 0 0 50%' },
                             icon: 'add', disableDrag: true, editMode: true,
                             action() {
                                 this.model.left.push({
                                     style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
-                                    icon: 'link', action() {
+                                    icon: 'insert-link', action() {
                                         this.model.left.splice(this.model.left.length - 1);
                                     }
                                 });
                             },
                         },
                         {
+                            id: 1,
                             style: { border: '1px dotted lime', 'border-radius': '50% 0 0 50%' },
                             icon: 'link',
                             link: {
                                 id: '000',
                                 position: 'right',
-                                index: 0
+                                idc: 0
                             }
                         },
                         {
+                            id: 2,
                             style: { border: '1px dotted lime', 'border-radius': '50% 0 0 50%' },
                             icon: 'link',
                             link: {
                                 id: '001',
                                 position: 'right',
-                                index: 4
+                                idc: 4
                             }
                         },
                         {
+                            id: 3,
                             style: { border: '1px dotted lime', 'border-radius': '50% 0 0 50%' },
                             icon: 'link',
                             link: {
                                 id: '001',
                                 position: 'right',
-                                index: 1
+                                idc: 1
                             }
                         },
                         {
+                            id: 4,
                             style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
-                            icon: 'link', action() {
+                            icon: 'insert-link', action() {
                                 this.model.left.splice(this.model.left.length - 1);
                             }
                         },
                         {
+                            id: 5,
                             style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
-                            icon: 'link', action() {
+                            icon: 'insert-link', action() {
                                 this.model.left.splice(this.model.left.length - 1);
                             }
                         },
                         {
+                            id: 6,
                             style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
-                            icon: 'link', action() {
+                            icon: 'insert-link', action() {
                                 this.model.left.splice(this.model.left.length - 1);
                             }
                         },
                         {
+                            id: 7,
                             style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
-                            icon: 'link', action() {
+                            icon: 'insert-link', action() {
                                 this.model.left.splice(this.model.left.length - 1);
                             }
                         },
                         {
+                            id: 8,
                             style: { border: '1px dotted blue', 'border-radius': '50% 0 0 50%' },
-                            icon: 'link', action() {
+                            icon: 'insert-link', action() {
                                 this.model.left.splice(this.model.left.length - 1);
+                            },
+                            link: {
+                                id: '005',
+                                position: 'right',
+                                idc: 2
                             }
                         }
                     ],
                     right: [
-                        { style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } },
-                        { style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } },
-                        { style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } }
+                        { id: 0, style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } },
+                        { id: 1, style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } },
+                        { id: 2, style: { border: '2px solid maroon', 'border-radius': '0 50% 50% 0', height: '16px', width: '16px' } }
                     ]
                 }
             },
             {
-                id: '003', label: 'li-scheme-test-block-003', x: 900, y: 500,
+                id: '003', type: 'block', label: 'li-scheme-test-block-003', x: 800, y: 350,
                 style: { 'border': '1px solid red', background: 'lightyellow', color: 'blue', 'min-width': '300px', width: 'calc(100% - 12px)', height: '40px' },
                 model: {
                     right: [
                         {
+                            id: 0,
                             size: 24, title: "I'm android",
                             style: { border: '1px solid green', 'border-radius': '2px', fill: 'green', padding: '2px', 'border-radius': '50%' },
                             icon: 'android'
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
                         }
                     ],
                     top: [
                         {
+                            id: 0,
                             style: { border: '2px solid green', 'border-radius': '50% 5%' },
                             icon: 'add', disableDrag: true, editMode: true,
                             action: 'addDefaultConnector'
                         },
                         {
+                            id: 1,
+                            type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
+                            style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime',
+                            link: {
+                                id: '000',
+                                position: 'top',
+                                idc: 2
+                            }
+                        },
+                        {
+                            id: 2,
                             type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
                             style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
                         },
                         {
+                            id: 3,
                             type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
                             style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
                         },
                         {
-                            type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
-                            style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
-                        },
-                        {
+                            id: 4,
                             type: 'default', icon: 'link', action: 'deleteConnector', size: '16', service: false,
                             style: { border: '2px solid red', 'border-radius': '50% 5%', 'background-color': 'transparent' }, color: 'lime'
                         }
                     ],
                     bottom: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, editMode: true,
                             action: 'addConnector',
                             connector: {
                                 style: { border: '2px solid blue', 'border-radius': '50%' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '2px solid blue', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '001',
                                 position: 'top',
-                                index: 3
+                                idc: 3
                             }
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid blue', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 3,
                             style: { border: '2px solid blue', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '000',
+                                position: 'bottom',
+                                idc: 2
+                            }
                         }
                     ],
                     left: [
                         {
+                            id: 0,
                             icon: 'add',
                             action: 'addConnector', disableDrag: true, editMode: true,
                             connector: {
                                 style: { border: '2px solid red', 'border-radius': '50%' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '2px solid red', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '001',
                                 position: 'right',
-                                index: 2
+                                idc: 2
                             }
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid red', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '001',
                                 position: 'right',
-                                index: 3
+                                idc: 3
                             }
                         },
                         {
+                            id: 3,
                             style: { border: '2px solid red', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '002',
                                 position: 'right',
-                                index: 0
+                                idc: 0
                             }
                         },
                         {
+                            id: 4,
                             style: { border: '2px solid red', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '008',
+                                position: 'top',
+                                idc: 1
+                            }
                         },
                         {
+                            id: 5,
                             style: { border: '2px solid red', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 6,
                             style: { border: '2px solid red', 'border-radius': '50%' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '000',
+                                position: 'left',
+                                idc: 3
+                            }
                         }
                     ],
                     dynamicMenu: {
@@ -456,105 +556,124 @@
                 },
             },
             {
-                id: '004', label: 'li-scheme-test-block-004', x: 1200, y: 40, tag: 'li-palette',
+                id: '004', type: 'block', label: 'li-scheme-test-block-004', x: 1200, y: 50,
                 model: {
                     top: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
                             action: 'addConnector',
                             size: 20, disableDrag: true,
                             connector: {
                                 style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                     ],
                     bottom: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
                             action: 'addConnector',
                             size: 20, disableDrag: true,
                             connector: {
                                 style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '003',
                                 position: 'top',
-                                index: 4
+                                idc: 4
                             }
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector'
                         },
                         {
+                            id: 3,
                             style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '003',
                                 position: 'right',
-                                index: 0
+                                idc: 0
                             }
                         }
                     ],
                     left: [
                         {
+                            id: 0,
                             icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
                             action: 'addConnector',
                             size: 20, disableDrag: true,
                             connector: {
                                 style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
-                                icon: 'link', action: 'deleteConnector'
+                                icon: 'insert-link', action: 'deleteConnector'
                             }
                         },
                         {
+                            id: 1,
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '002',
                                 position: 'right',
-                                index: 2
+                                idc: 2
                             }
                         },
                         {
+                            id: 2,
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
-                            icon: 'link', action: 'deleteConnector'
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '006',
+                                position: 'bottom',
+                                idc: 3
+                            }
                         },
                         {
+                            id: 3,
                             style: { border: '2px solid orange', 'border-radius': '50%', background: 'lightyellow' },
-                            icon: 'link', action: 'deleteConnector',
+                            icon: 'insert-link', action: 'deleteConnector',
                             link: {
                                 id: '003',
                                 position: 'top',
-                                index: 4
+                                idc: 4
                             }
                         }
                     ],
                     right: [
                         {
+                            id: 0,
                             size: 12, title: 'enableDelete',
                             style: { border: '2px solid gray', 'border-radius': '50%', },
                             icon: 'remove', action: 'deleteConnector'
                         },
                         {
+                            id: 1,
                             size: 12, title: 'enableDelete',
                             style: { border: '2px solid gray', 'border-radius': '50%', },
                             icon: 'remove', action: 'deleteConnector'
                         },
                         {
+                            id: 2,
                             size: 12, title: 'enableDelete',
                             style: { border: '2px solid gray', 'border-radius': '50%', },
                             icon: 'remove', action: 'deleteConnector'
@@ -562,6 +681,155 @@
                     ]
                 }
             },
+            {
+                id: '005', type: 'left', x: 0, y: 500,
+                style: 'max-width: 0px',
+                model: {
+                    right: [
+                        {
+                            id: 0,
+                            icon: 'add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '006', type: 'top', x: 1000, y: 0,
+                style: '',
+                model: {
+                    bottom: [
+                        {
+                            id: 0,
+                            icon: 'add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '002',
+                                position: 'right',
+                                idc: 1
+                            }
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '007', type: 'right', x: 2000, y: 500,
+                style: '',
+                model: {
+                    left: [
+                        {
+                            id: 0,
+                            icon: 'add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '004',
+                                position: 'right',
+                                idc: 1
+                            }
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '003',
+                                position: 'right',
+                                idc: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                id: '008', type: 'bottom', x: 1000, y: 1000,
+                style: '',
+                model: {
+                    top: [
+                        {
+                            id: 0,
+                            icon: 'add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '001',
+                                position: 'right',
+                                idc: 5
+                            }
+                        }
+                    ]
+                }
+            }
+
         ]
     }
 </script>

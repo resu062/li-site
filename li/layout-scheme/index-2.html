@@ -1,0 +1,382 @@
+<script type="module" src="./layout-scheme.js"></script>
+<link rel="stylesheet" href="../../lib/awesome-notifications/style.css">
+</link>
+
+<li-layout-scheme id="layout_scheme"></li-layout-scheme>
+
+<script type="module">
+    layout_scheme.item = {
+        label: 'oda-scheme-designer-1',
+        items: [
+            {
+                id: '000', type: 'block', label: 'oda-scheme-test-block-000', x: 200, y: 100,
+                model: {
+                    top: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'blue' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    bottom: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', disabled: true
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    left: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    right: [
+                        {
+                            size: 20, disableDrag: true, title: 'disableDrag',
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '001', type: 'block', label: 'oda-scheme-test-block-001', x: 700, y: 400,
+                model: {
+                    top: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'blue' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    bottom: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', disabled: true
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    left: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    right: [
+                        {
+                            size: 20, disableDrag: true, title: 'disableDrag',
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '002', type: 'block', label: 'oda-scheme-test-block-002', x: 300, y: 700,
+                model: {
+                    top: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'blue' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    bottom: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', disabled: true
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    left: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    right: [
+                        {
+                            size: 20, disableDrag: true, title: 'disableDrag',
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+        ]
+    }
+</script>
