@@ -183,7 +183,7 @@ export const indx = {
     'layout-designer': [{ label: 'index', url: url + '/layout-designer' }],
 
     'li-layout-grid': { label: 'li-layout-grid' },
-    'layout-grid': [{ label: 'index', url: url + '/layout-grid' }, { label: 'scheme-designer', url: url + '/layout-scheme' }],
+    'layout-grid': [{ label: 'index', url: url + '/layout-grid' }, { label: 'scheme-designer', url: url + '/layout-scheme' }, , { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }],
 
     'li-layout-app': { label: 'li-layout-app' },
     'layout-app': [{ label: 'index', url: url + '/layout-app' }, { label: 'demo', url: url + '/layout-app/demo.html' }, { label: 'demo2', url: url + '/layout-app/demo2.html' }],
@@ -220,7 +220,8 @@ export const indx = {
     app: [{ label: 'index', url: url + '/app' }],
 
     'li-xxx': { label: 'misc demo' },
-    xxx: [{ label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
+    xxx: [{ label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' },
+     { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
     { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }
     ],
 }
