@@ -11,5 +11,7 @@ What is here?
 You can view static website using created components here:
 https://resu062.github.io/li-site/li/tester/
 
+Not completed, I study in my free time from my main work ...
+
 Contacts:
 resu062@gmail.com
