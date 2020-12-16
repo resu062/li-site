@@ -1,9 +1,11 @@
 ## li-site
-# Learn LitElement
+# Learning LitElement
 
 What is here?
   - small modifications to lit element in file li.js
-  - creation of various components
+  - components created using li.js(lit element) in a folder li
+  - useful components in a folder lib
+  - test examples from different sources of using lit element in a folder test
 
 
 You can view static-site here:
