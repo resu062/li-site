@@ -52,8 +52,8 @@ class BlockItem {
             const translate = {
                 left: () => { val = `translate3d(0px, ${this.$$$?._gridMain.offsetHeight / 2}px, 0px)` },
                 top: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth / 2}px, 0px, 0px)` },
-                right: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth - 30}px, ${this.$$$?._gridMain.offsetHeight / 2}px, 0px)` },
-                bottom: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth / 2}px, ${this.$$$?._gridMain.offsetHeight - 40}px, 0px)` }
+                right: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth - 42}px, ${this.$$$?._gridMain.offsetHeight / 2}px, 0px)` },
+                bottom: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth / 2}px, ${this.$$$?._gridMain.offsetHeight - 42}px, 0px)` }
             }
             if (this.$item.type && translate[this.$item.type])
                 translate[this.$item.type]();
@@ -94,7 +94,7 @@ class BlockItem {
         this.$owner.items.forEach(i => {
             if (i.model)
                 ['top', 'bottom', 'left', 'right'].forEach(p => {
-                    let count = 0;
+                    let count = 1;
                     if (i.model[p])
                         i.model[p].forEach(c => {
                             if (!c.id && c.id !== 0) c.id = LI.ulid();
@@ -243,7 +243,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                             int = p,
                             out = i.link.position,
                             path = i.link.position + '-' + p,
-                            idx = (c + 1) * shift;
+                            idx = (c + 1) * shift + shift / 2;
                         let x11 = (out === 'left' ? x1 - (shift + odx) : out === 'right' ? x1 + (shift + odx) : x1),
                             y11 = (out === 'top' ? y1 - (shift + odx) : out === 'bottom' ? y1 + (shift + odx) : y1),
                             x21 = (int === 'left' ? x2 - (shift + idx) : int === 'right' ? x2 + (shift + idx) : x2),
@@ -253,15 +253,17 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                             'left-left': () => { x = x11 > x21 ? x21 : x11; y = x11 > x21 ? y1 : y21 },
                             'left-right': () => {
                                 if (x11 > x21) x21 = x11;
-                                else { x21 = _x = x2 + (shift + idx); x = x11; y = _y = y21 + (y11 - y21) / 2; }
+                                else { x21 = _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; }
                             },
                             'left-top': () => {
-                                if (x21 < x1 - odx) { x11 = x21; if (y11 > y21) { x11 = x = x21 + (x1 - x21) / 2; y = y21; } }
-                                else { _x = x2; x = x11; y = _y = y21 + (y11 - y21) / 2; if (y11 > y21) y = _y = y21; }
+                                if (x21 < x11) { x = x11; y = y21; if (y11 > y21) { x = x11; y = y21; } }
+                                else { _x = x2; x = x11; y = y21; if (y11 > y21) y = _y = y21; }
                             },
                             'left-bottom': () => {
-                                if (x11 > x21) { x11 = x21; if (y11 < y21) { x11 = x = x21 + (x1 - x21) / 2; y = y21; } }
-                                else { _x = x2; x = x11; y = _y = y21 + (y11 - y21) / 2; if (y21 > y1) y = _y = y21; }
+                                if (x11 > x21) {
+                                    if (y11 > y21) { x = x11; y = y21 } if (y11 < y21) { x = x11; y = y21; }
+                                }
+                                else { x = x11; y = y21 }
                             },
                             'right-right': () => { x = x11 < x21 ? x21 : x11; y = x11 < x21 ? y1 : y21 },
                             'right-left': () => {
@@ -269,12 +271,12 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                                 else { x21 = _x = x2 - (shift + idx); x = x11; y = _y = y21 + (y11 - y21) / 2; }
                             },
                             'right-top': () => {
-                                if (x21 > x1 - odx) { x11 = x21; if (y11 > y21) { x11 = x = x21 + (x1 - x21) / 2; y = y21; } }
-                                else { _x = x2; x = x11; y = _y = y21 + (y11 - y21) / 2; if (y11 > y21) y = _y = y21; }
+                                if (x21 > x11) { x = x11; y = y21; if (y11 > y21) { x = x11; y = y21; } }
+                                else { x = x11; y = y21; if (y11 > y21) y = y21; }
                             },
                             'right-bottom': () => {
-                                if (x11 < x21) { x11 = x21; if (y11 < y21) { x11 = x = x21 + (x1 - x21) / 2; y = y21; } }
-                                else { _x = x2; x = x11; y = _y = y21 + (y11 - y21) / 2 - odx; if (y21 > y1 - odx - idx) y = _y = y21; }
+                                if (x11 < x21) { x = x11; y = y21; if (y11 < y21) { x = x11; y = y21; } }
+                                else { x = x11; y = y21 }
                             },
                             'top-top': () => { y = y11 < y21 ? y11 : y21; x = y11 < y21 ? x2 : x11 },
                             'top-left': () => {
@@ -287,20 +289,20 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                             },
                             'top-bottom': () => {
                                 if (y11 > y2) y21 = y11;
-                                else { y21 = _y = y2 + (shift + idx); y = y11; x = _x = x21 + (x11 - x21) / 2; }
+                                else { y21 = _y = y2 + (shift + idx); y = y11; x = _x = x21 + (x11 - x21 + idx) / 2 - odx; }
                             },
                             'bottom-bottom': () => { y = y11 < y21 ? y21 : y11; x = y11 < y21 ? x1 : x21 },
                             'bottom-left': () => {
-                                if (x11 < x21) { if (y11 < y21) { y11 = y21 } else { y = y11; _y = y21; x = _x = x11 + (x21 - x11) / 2 } }
-                                else { if (y11 < y21) { _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; } else { y = y11; x = x21; } }
+                                if (x11 < x21) { if (y11 < y21) { y11 = y21 } else { y = y11; x = x21 } }
+                                else { if (y11 < y21) { x = x21; y = y11; } else { y = y11; x = x21; } }
                             },
                             'bottom-right': () => {
-                                if (x11 > x21) { if (y11 < y21) { y11 = y21 } else { y = y11; _y = y21; x = _x = x11 + (x21 - x11) / 2 } }
-                                else { if (y11 < y21) { _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; } else { y = y11; x = x21; } }
+                                if (x11 > x21) { if (y11 < y21) { y11 = y21 } else { y = y11; x = x21 } }
+                                else { if (y11 < y21) { x = x21; y = y11 } else { y = y11; x = x21; } }
                             },
                             'bottom-top': () => {
                                 if (y11 < y21) y21 = y11;
-                                else { y21 = _y = y2 - (shift + idx); y = y11; x = _x = x21 + (x11 - x21 - idx) / 2; }
+                                else { y21 = _y = y2 - (shift + idx); y = y11; x = _x = x21 + (x11 - x21 + idx) / 2 - odx; }
                             },
                         }
                         if (_links[path]) _links[path]();
