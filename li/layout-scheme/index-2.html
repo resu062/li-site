@@ -6,10 +6,10 @@
 
 <script type="module">
     layout_scheme.item = {
-        label: 'oda-scheme-designer-1',
+        label: 'li-scheme-designer-1',
         items: [
             {
-                id: '000', type: 'block', label: 'oda-scheme-test-block-000', x: 200, y: 100,
+                id: '000', type: 'block', label: 'li-scheme-test-block-000', x: 200, y: 100,
                 model: {
                     top: [
                         {
@@ -132,7 +132,7 @@
                 }
             },
             {
-                id: '001', type: 'block', label: 'oda-scheme-test-block-001', x: 700, y: 400,
+                id: '001', type: 'block', label: 'li-scheme-test-block-001', x: 700, y: 400,
                 model: {
                     top: [
                         {
@@ -255,7 +255,7 @@
                 }
             },
             {
-                id: '002', type: 'block', label: 'oda-scheme-test-block-002', x: 300, y: 700,
+                id: '002', type: 'block', label: 'li-scheme-test-block-002', x: 300, y: 600,
                 model: {
                     top: [
                         {
@@ -377,6 +377,277 @@
                     ]
                 }
             },
+            {
+                id: '003', type: 'block', label: 'li-scheme-test-block-003', x: 1100, y: 200,
+                model: {
+                    top: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'blue' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid blue', 'border-radius': '50%', background: 'lightblue' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    bottom: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'orange' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', disabled: true
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    left: [
+                        {
+                            icon: 'add', disableDrag: true, style: { fill: 'green' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ],
+                    right: [
+                        {
+                            size: 20, disableDrag: true, title: 'disableDrag',
+                            style: { border: '2px solid red', 'border-radius': '50%', background: 'tomato' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid orange', 'border-radius': '50%', background: 'yellow' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 20, title: 'disableDelete',
+                            style: { border: '2px solid green', 'border-radius': '50%', background: 'lightgreen' },
+                            icon: 'insert-link'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        },
+                        {
+                            size: 12, title: 'enableDelete',
+                            style: { border: '2px solid gray', 'border-radius': '50%', },
+                            icon: 'remove', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '005', type: 'left', x: 0, y: 500,
+                style: 'max-width: 0px',
+                model: {
+                    right: [
+                        {
+                            id: 0,
+                            icon: 'icons:add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '006', type: 'top', x: 1000, y: 0,
+                style: '',
+                model: {
+                    bottom: [
+                        {
+                            id: 0,
+                            icon: 'icons:add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '002',
+                                position: 'right',
+                                idc: 1
+                            }
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        }
+                    ]
+                }
+            },
+            {
+                id: '007', type: 'right', x: 2000, y: 500,
+                style: '',
+                model: {
+                    left: [
+                        {
+                            id: 0,
+                            icon: 'icons:add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '004',
+                                position: 'right',
+                                idc: 1
+                            }
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '003',
+                                position: 'right',
+                                idc: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                id: '008', type: 'bottom', x: 1000, y: 1000,
+                style: '',
+                model: {
+                    top: [
+                        {
+                            id: 0,
+                            icon: 'icons:add',
+                            action: 'addConnector', disableDrag: true, editMode: true,
+                            connector: {
+                                style: { border: '2px solid red', 'border-radius': '50%' },
+                                icon: 'insert-link', action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            id: 1,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 2,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector'
+                        },
+                        {
+                            id: 3,
+                            style: { border: '2px solid red', 'border-radius': '50%' },
+                            icon: 'insert-link', action: 'deleteConnector',
+                            link: {
+                                id: '001',
+                                position: 'right',
+                                idc: 5
+                            }
+                        }
+                    ]
+                }
+            }
         ]
     }
 </script>
