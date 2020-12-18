@@ -8,7 +8,5 @@ What is here?
   - test examples from different sources of using lit element (and not only) in a folder test
 
 
-You can view static website using created components here:
+You can view website using created components here:
 https://resu062.github.io/li-site/li/tester/
-
-Not completed, I study in my free time from my main work ...
