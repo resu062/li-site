@@ -49,11 +49,15 @@ class BlockItem {
         }
         let val = '';
         if (this.$$$?._gridMain) {
+            let sl = this.$$$._gridMain.scrollLeft || 0,
+                st = this.$$$._gridMain.scrollTop || 0,
+                ow = this.$$$._gridMain.offsetWidth || 0,
+                oh = this.$$$._gridMain.offsetHeight || 0;
             const translate = {
-                left: () => { val = `translate3d(0px, ${this.$$$?._gridMain.offsetHeight / 2}px, 0px)` },
-                top: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth / 2}px, 0px, 0px)` },
-                right: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth - 42}px, ${this.$$$?._gridMain.offsetHeight / 2}px, 0px)` },
-                bottom: () => { val = `translate3d(${this.$$$?._gridMain.offsetWidth / 2}px, ${this.$$$?._gridMain.offsetHeight - 42}px, 0px)` }
+                left: () => { val = `translate3d(${sl + 2}px, ${st + oh / 2}px, 0px)` },
+                top: () => { val = `translate3d(${sl + ow / 2}px, ${st + 2}px, 0px)` },
+                right: () => { val = `translate3d(${sl + ow - 42}px, ${st + oh / 2}px, 0px)` },
+                bottom: () => { val = `translate3d(${sl + ow / 2}px, ${st + oh - 42}px, 0px)` }
             }
             if (this.$item.type && translate[this.$item.type])
                 translate[this.$item.type]();
@@ -236,10 +240,12 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                         //odx = (l.item.index || 0 + 1) * shift;
                         if (!l) return;
                         l = l.getBoundingClientRect();
-                        const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft,
-                            y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop,
-                            x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft,
-                            y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop,
+                        const st = this.$refs.main.$refs.main.scrollTop || 0,
+                            sl = this.$refs.main.$refs.main.offsetLeft.scrollLeft || 0;
+                        const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft + sl,
+                            y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop + st,
+                            x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft + sl,
+                            y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop + st,
                             int = p,
                             out = i.link.position,
                             path = i.link.position + '-' + p,
