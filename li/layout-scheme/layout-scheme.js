@@ -125,7 +125,6 @@ function clearSelectedBlocks(bl) {
     })
 }
 
-
 customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement {
     static get properties() {
         return {
@@ -154,12 +153,8 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             this.block = new BlockItem(this.item, this.uuid, this.$$, this.$$$, undefined, true);
             this.block?.items[0].setConnectors();
             this.$$update();
-
-            this.$$$.listen(fn(this.editMode))
         }
     }
-
-    fnLocals = (e) => { console.log(e) }
 
     static get styles() {
         return css`
@@ -231,7 +226,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                         if (!l) return;
                         l = l.getBoundingClientRect();
                         const st = this.$$$._gridMain.scrollTop || 0,
-                            sl = this.$$$._gridMain.offsetLeft.scrollLeft || 0;
+                            sl = this.$$$._gridMain.scrollLeft || 0;
                         const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$$._gridMain.offsetLeft + sl,
                             y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$$._gridMain.offsetTop + st,
                             x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$$._gridMain.offsetLeft + sl,
