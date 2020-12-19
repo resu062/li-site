@@ -5,41 +5,28 @@ import '../button/button.js';
 import '../icon/icon.js';
 
 class BlockItem {
-    constructor(item, uuid, $$, $$$) {
-        if (uuid) {
-            if ($$)
-                this.__$$ = $$;
-            if ($$$)
-                this.__$$$ = $$$;
-            this._uuid = uuid;
-            this.__$$.$root = this;
-        }
+    constructor(item, uuid, $$, $$$, owner, root) {
+        this._uuid = uuid;
+        this._$$ = $$;
+        this._$$$ = $$$;
+        this._$owner = owner;
+        if (root) this._$$.$root = this;
         this.$item = item;
         this._id = item.id || item.name || LI.ulid();
         this.selected = false;
         this.disabled = false;
-        this.tag = item.tag || 'div';
+        this.tag = item.tag || '';
     }
     get uuid() { return this._uuid }
-    get $$() { return this.__$$ || {} }
-    get $$$() { return this.__$$$ || {} }
+    get $$() { return this._$$ || {} }
+    get $$$() { return this._$$$ || {} }
     get id() { return this._id }
     get label() { return this.$item.label || this.$item.name || 'block' }
     get items() {
-        if (!this._items) {
-            this._items = (this.$item.items || []).map(i => new BlockItem(i));
-            if (this._items.length) {
-                this._items.forEach(i => {
-                    i._uuid = this._uuid;
-                    i.__$$ = this.$$;
-                    i.__$$$ = this.$$$;
-                    i._owner = this;
-                })
-            }
-        }
+        if (!this._items) this._items = (this.$item.items || []).map(i => new BlockItem(i, this._uuid, this.$$, this.$$$, this));
         return this._items;
     }
-    get $owner() { return this._owner || this }
+    get $owner() { return this._$owner || this }
     get model() { return this.$item.model }
     get transform() {
         if (this.$item.type === 'block') {
@@ -164,12 +151,15 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             this.$$.zoom = this.$$.zoom;
             this.$$.editMode = this.editMode;
             this.$$.line = { show: false, x1: 0, y1: 0, x2: 0, y2: 0 };
-            this.block = new BlockItem(this.item, this.uuid, this.$$, this.$$$);
+            this.block = new BlockItem(this.item, this.uuid, this.$$, this.$$$, undefined, true);
             this.block?.items[0].setConnectors();
-            //this._gridMain = this.$refs.main;
             this.$$update();
+
+            this.$$$.listen(fn(this.editMode))
         }
     }
+
+    fnLocals = (e) => { console.log(e) }
 
     static get styles() {
         return css`
@@ -240,12 +230,12 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                         //odx = (l.item.index || 0 + 1) * shift;
                         if (!l) return;
                         l = l.getBoundingClientRect();
-                        const st = this.$refs.main.$refs.main.scrollTop || 0,
-                            sl = this.$refs.main.$refs.main.offsetLeft.scrollLeft || 0;
-                        const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft + sl,
-                            y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop + st,
-                            x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$refs.main.$refs.main.offsetLeft + sl,
-                            y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$refs.main.$refs.main.offsetTop + st,
+                        const st = this.$$$._gridMain.scrollTop || 0,
+                            sl = this.$$$._gridMain.offsetLeft.scrollLeft || 0;
+                        const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$$._gridMain.offsetLeft + sl,
+                            y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$$._gridMain.offsetTop + st,
+                            x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$$._gridMain.offsetLeft + sl,
+                            y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$$._gridMain.offsetTop + st,
                             int = p,
                             out = i.link.position,
                             path = i.link.position + '-' + p,
