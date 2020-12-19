@@ -294,7 +294,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                                 else { if (y11 > y21) { _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; } else { y = y11; x = x21; } }
                             },
                             'top-bottom': () => {
-                                if (y11 > y2) y21 = y11;
+                                if (y11 > y21) y21 = y11;
                                 else { y21 = _y = y2 + (shift + idx); y = y11; x = _x = x21 + (x11 - x21 + idx) / 2 - odx; }
                             },
                             'bottom-bottom': () => { y = y11 < y21 ? y21 : y11; x = y11 < y21 ? x1 : x21 },

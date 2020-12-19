@@ -51,8 +51,10 @@ customElements.define('li-icon', class LiIcon extends LiElement {
                 }); 
             }
             if (changedProperties.has('blink') || changedProperties.has('speed')) {
-                this.$id.animate.beginElement();
-                this.$id.animateTransform.beginElement();
+                if (this.$id.animate) {
+                    this.$id.animate.beginElement();
+                    this.$id.animateTransform.beginElement();
+                }
             }
         }
     }

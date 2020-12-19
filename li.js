@@ -79,27 +79,10 @@ export class LiElement extends LitElement {
             this[k] = prop.default;
         }
 
-        // double binding - sync : https://github.com/morbidick/lit-element-notify
-        this.sync = directive((property, eventName) => (part) => {
-            part.setValue(this[property]);
-            if (!part.syncInitialized) {
-                part.syncInitialized = true;
-                const notifyingElement = part.committer.element;
-                const notifyingProperty = part.committer.name;
-                const notifyingEvent = eventName || eventNameForProperty(notifyingProperty);
-                notifyingElement.addEventListener(notifyingEvent, (e) => {
-                    const oldValue = this[property];
-                    this[property] = e.detail.value;
-                    if (this.__lookupSetter__(property) === undefined)
-                        this.updated(new Map([[property, oldValue]]));
-                })
-            }
-        })
-
         const name = this.localName.replace('li-', '');
         let url = `${urlLI.replace('li.js', '')}li/${name}/${name}.js`;
         this.$url = url;
-        this.$ulid = this.$ulid || LI.ulid()
+        this.$ulid = this.$ulid || LI.ulid();
         if (this._useInfo) {
             url = `${urlLI.replace('li.js', '')}li/${name}/$info/$info.js`;
             this.$urlInfo = url;
@@ -119,26 +102,25 @@ export class LiElement extends LitElement {
         }
 
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id !== undefined && $$id.update && this.$$$ && this.$$$.update)
-            this.$$$.update.listen(this.fnUpdate);
+        if ($$id !== undefined && $$id.update && this.$$$ && this.$$$.update) this.$$$.update.listen(this.fnUpdate);
         if (this.$$$ && this.__saves) {
             this.__saves.forEach(i => {
                 const v = JSON.parse(localStorage.getItem(this._saveFileName));
                 if (v) this.$$[i] = this.$$$[i] = this[i] = v[this.localName + '.' + i];
-            })
+            });
             this.__enableSave = true;
         }
         if (this.$$$ && this.__locals) {
+            this.$$$.listen(this.fnLocals);
             this.__locals.forEach(i => {
-                this.$$$.listen(this.fnLocals);
                 if (this.$$$[i] === undefined) this.$$$[i] = this[i];
                 else this[i] = this.$$$[i];
             });
 
         }
         if (this.$$$ && this.__globals) {
+            LI.$$$.listen(this.fnGlobals);
             this.__globals.forEach(i => {
-                LI.$$$.listen(this.fnGlobals);
                 if (LI.$$$[i] === undefined) LI.$$$[i] = this[i];
                 else this[i] = LI.$$$[i];
             });
@@ -148,8 +130,8 @@ export class LiElement extends LitElement {
     disconnectedCallback() {
         const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
         if ($$id != undefined && $$id.update && this.$$$ && this.$$$.update) this.$$$.update.unlisten(this.fnUpdate);
-        if (this.$$$ && this.__locals) this.__locals.forEach(i => this.$$$.unlisten(this.fnLocals));
-        if (this.$$$ && this.__globals) this.__globals.forEach(i => LI.$$$.unlisten(this.fnGlobals))
+        if (this.$$$ && this.__locals) this.$$$.unlisten(this.fnLocals);
+        if (this.$$$ && this.__globals) LI.$$$.unlisten(this.fnGlobals);
         if (this._$$id) delete LI._$$[this.$$id];
         super.disconnectedCallback();
     }
@@ -160,8 +142,7 @@ export class LiElement extends LitElement {
     get $$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$'] ? LI._$$[this.$$id]['_$$'] : undefined }
     get $$$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$$'] ? LI._$$[this.$$id]['_$$$'] : undefined }
     $$update(property, value) {
-        if (!property)
-            this.requestUpdate();
+        if (!property) this.requestUpdate();
         LI.$$update.call(this, property, value);
     }
     $$observe(property, callback) { LI.$$observe.call(this, property, callback) }
@@ -220,7 +201,7 @@ class CLI {
         this.PouchDB = PouchDB;
         this.awnOptions = {
             position: 'bottom-right',
-            durations: { 
+            durations: {
                 success: 2000,
                 tip: 2000,
                 warning: 2000,
