@@ -1,0 +1,323 @@
+<script type="module" src="./layout-scheme.js"></script>
+<!-- <link rel="stylesheet" href="../../lib/awesome-notifications/style.css"></link> -->
+
+<li-layout-scheme id="layout_scheme"></li-layout-scheme>
+
+<script type="module">
+    layout_scheme.linkColor = 'green';
+    layout_scheme.item = {
+        label: 'li-scheme-designer-1',
+        items: [
+            {
+                id: '000', type: 'block', label: 'Исходные данные', x: 100, y: 200,
+                style: { 'border-radius': '2px', border: '2px solid green', 'border-bottom': '16px solid green', background: 'white', width: '100px', height: '110px', 'text-align': 'center' },
+                model: {
+                    left: [
+                        {
+                            size: 20,
+                            style: { border: '2px dotted green', background: 'lightgreen', width: '10px', height: '20px', 'border-radius': '10px 0 0 10px' },
+                        }
+                    ],
+                    right: [
+                        {
+                            id: 0, size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                        }
+                    ],
+                    staticMenu: {
+                        top: [
+                            {
+                                icon: 'input',
+                                style: { margin: '8px', fill: 'green' },
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: '001', type: 'block', label: 'Прибыль', x: 300, y: 100,
+                style: { 'border-radius': '2px', border: '2px solid green', 'border-bottom': '16px solid green', background: 'white', width: '100px', height: '110px', 'text-align': 'center' },
+                model: {
+                    left: [
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '000',
+                                position: 'right',
+                                idc: 0
+                            }
+                        },
+                        {
+                            size: 20,
+                            style: { border: '2px dotted green', background: 'lightgreen', width: '10px', height: '20px', 'border-radius': '10px 0 0 10px' },
+                        }
+                    ],
+                    right: [
+                        {
+                            id: 0,
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                        }
+                    ],
+                    staticMenu: {
+                        top: [
+                            {
+                                icon: 'menu',
+                                style: { margin: '8px', fill: 'green' },
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: '002', type: 'block', label: 'Точка без убыточности', x: 300, y: 400,
+                style: { 'border-radius': '2px', border: '2px solid green', 'border-bottom': '24px solid green', background: 'white', width: '100px', height: '110px', 'text-align': 'center' },
+                model: {
+                    left: [
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '000',
+                                position: 'right',
+                                idc: 0
+                            }
+                        },
+                        {
+                            size: 20,
+                            style: { border: '2px dotted green', background: 'lightgreen', width: '10px', height: '20px', 'border-radius': '10px 0 0 10px' },
+                        }
+                    ],
+                    right: [
+                        {
+                            id: 0, size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                        }
+                    ],
+                    staticMenu: {
+                        top: [
+                            {
+                                icon: 'android',
+                                style: { margin: '8px', fill: 'green' },
+                            }
+                        ],
+                        bottom: [
+                            {
+                                icon: 'remove-red-eye',
+                                action() {
+                                    alert('pressed button - "Точка безубыточности"');
+                                },
+                                style: { margin: '2px', fill: 'lightgreen' },
+                            }
+                        ]
+                    }
+                },
+            },
+            {
+                id: '003', type: 'block', label: 'Расчет параметров', x: 500, y: 100,
+                style: { 'border-radius': '2px', border: '2px solid green', 'border-bottom': '24px solid green', background: 'white', width: '100px', height: '140px', 'text-align': 'center' },
+                model: {
+                    left: [
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '001',
+                                position: 'right',
+                                idc: 0
+                            }
+                        }
+                    ],
+                    right: [
+                        {
+                            id: 0, size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                        },
+                        {
+                            id: 1, size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' }
+                        },
+                        {
+                            id: 2, size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' }
+                        },
+                        {
+                            id: 3, size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' }
+                        }
+                    ],
+                    staticMenu: {
+                        top: [
+                            {
+                                icon: 'settings',
+                                style: { margin: '8px', fill: 'green' },
+                            }
+                        ]
+                    },
+                    dynamicMenu: {
+                        bottom: [
+                            {
+                                icon: 'add',
+                                action() {
+                                    alert('pressed button - "Расчет параметров"');
+                                },
+                                style: { margin: '2px', fill: 'lightgreen' },
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: '004', type: 'block', label: 'Объединение', x: 750, y: 50,
+                style: { 'border-radius': '2px', border: '2px solid green', 'border-bottom': '24px solid green', background: 'white', width: '100px', height: '100%', 'text-align': 'center' },
+                model: {
+                    right: [
+                        {
+                            id: 0, size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' }
+                        }
+                    ],
+                    left: [
+                        {
+                            id: 0,
+                            icon: 'add', disableDrag: true, style: { fill: 'red' }, editMode: true,
+                            action: 'addConnector',
+                            size: 20, disableDrag: true,
+                            connector: {
+                                style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                                action: 'deleteConnector'
+                            }
+                        },
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '003',
+                                position: 'right',
+                                idc: 0
+                            }
+                        },
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '003',
+                                position: 'right',
+                                idc: 1
+                            }
+                        },
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '003',
+                                position: 'right',
+                                idc: 2
+                            }
+                        },
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '003',
+                                position: 'right',
+                                idc: 3
+                            }
+                        }
+                    ],
+                    staticMenu: {
+                        bottom: [
+                            {
+                                icon: 'settings',
+                                action() {
+                                    alert('pressed button - "Объединение"');
+                                },
+                                style: { margin: '2px', fill: 'lightgreen' },
+                            }
+                        ],
+                        top: [
+                            {
+                                icon: 'playlist-add',
+                                style: { margin: '8px', fill: 'green' },
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: '005', type: 'block', label: 'Чувст вительность', x: 950, y: 300,
+                style: { 'border-radius': '2px', border: '2px solid green', 'border-bottom': '16px solid green', background: 'white', width: '100px', height: '110px', 'text-align': 'center' },
+                model: {
+                    left: [
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '004',
+                                position: 'right',
+                                idc: 0
+                            }
+                        },
+                        {
+                            size: 20,
+                            style: { border: '2px dotted green', background: 'lightgreen', width: '10px', height: '20px', 'border-radius': '10px 0 0 10px' },
+                            link: {
+                                id: '002',
+                                position: 'right',
+                                idc: 0
+                            }
+                        }
+                    ],
+                    right: [
+                        {
+                            id: 0,
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                        }
+                    ],
+                    staticMenu: {
+                        top: [
+                            {
+                                icon: 'assessment',
+                                style: { margin: '8px', fill: 'green' },
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                id: '006', type: 'block', label: 'Таблица чувст вительности', x: 1150, y: 400,
+                style: { 'border-radius': '2px', border: '2px solid green', 'border-bottom': '16px solid green', background: 'white', width: '100px', height: '110px', 'text-align': 'center' },
+                model: {
+                    left: [
+                        {
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                            link: {
+                                id: '005',
+                                position: 'right',
+                                idc: 0
+                            }
+                        }
+                    ],
+                    right: [
+                        {
+                            id: 0,
+                            size: 20,
+                            style: { border: '2px solid green', background: 'lightgreen', width: '10px', height: '20px' },
+                        }
+                    ],
+                    staticMenu: {
+                        top: [
+                            {
+                                icon: 'grid-on',
+                                style: { margin: '8px', fill: 'green' },
+                            }
+                        ]
+                    }
+                }
+            },
+        ]
+    }
+</script>

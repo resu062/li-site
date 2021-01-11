@@ -66,20 +66,20 @@ class BlockItem {
         con.id = LI.ulid();
         this.model[position].splice(this.model[position].length, 0, con);
         this.setConnectors();
-        LI.notifier.success('Add default connector: <br>' + this.label)
+        //LI.notifier.success('Add default connector: <br>' + this.label)
     }
     addConnector(position, index) {
         if (!this.$$.editMode) return;
-        let con = { ...{}, ...this.model[position][index].connector } || { ...{}, ...defaultConnector };
+        let con = { ...{}, ...this.model[position][index-1].connector } || { ...{}, ...defaultConnector };
         con.id = LI.ulid();
         this.model[position].splice(this.model[position].length, 0, con);
         this.setConnectors();
-        LI.notifier.success('Add connector: <br>' + this.label)
+        //LI.notifier.success('Add connector: <br>' + this.label)
     }
     deleteConnector(position, index) {
         if (!this.$$.editMode) return;
         this.model[position].splice(index, 1);
-        LI.notifier.info('Delete connector: <br>' + this.label)
+        //LI.notifier.info('Delete connector: <br>' + this.label)
     }
     setConnectors(action = '') {
         this.$owner.items.forEach(i => {
@@ -101,12 +101,12 @@ class BlockItem {
         this.deleteAllLinks();
         clearSelectedBlocks(this);
         this.$owner.items.splice(this.$owner.items.indexOf(this), 1);
-        LI.notifier.warning('Delete block')
+        //LI.notifier.warning('Delete block')
         this.setConnectors();
     }
     deleteAllLinks() {
         this.setConnectors('deleteAllLinks');
-        LI.notifier.warning('Delete all links: <br>' + this.label)
+        //LI.notifier.warning('Delete all links: <br>' + this.label)
     }
     getBlock(id) {
         for (const i of this.$owner.items)
@@ -133,7 +133,9 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, default: {}, local: true },
             item: { type: Object, default: {} },
             block: { type: Object, default: {} },
-            shift: { type: Number, default: 10 }
+            shift: { type: Number, default: 10 },
+            linkColor: { type: String, default: '' },
+            showGrid: { type: Boolean, default: true }
         }
     }
 
@@ -166,41 +168,50 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
         `;
     }
 
-    render() {
+    get _main() {
         return html`
-            <li-layout-grid .$$id="${this.$$id}" ref="main" @mousemove="${this._move}" @mouseup="${this._up}">
-                <div slot="layout-grid-main">
-                    ${svg`
-                        <svg width="${this._width}" height="${this._height}" style="position:absolute;top:0;left:0;background-color:transparent;">
-                            <defs>
-                                <marker id="head" viewBox="0 0 10 10"
-                                    refX="15" refY="5" 
-                                    markerUnits="strokeWidth"
-                                    markerWidth="7" markerHeight="7"
-                                    orient="auto">
-                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="blue"/> 
-                                        <!-- <circle fill="blue" cx="5" cy="5" r="2"/> -->
-                                </marker>
-                            </defs>
-                            ${(this.links || []).map(l => svg`
-                                <path marker-end='url(#head)' d="${this._shift(l)}" style="stroke-width: ${l.selected ? '4px' : '2px'};cursor:pointer;z-index:-1" fill="none" opacity=".5" stroke="${l.color || 'red'}"></path>      
-                                <path d="${this._link(l)}" style="stroke-width: ${l.selected ? '4px' : '2px'};cursor:pointer;z-index:-1" fill="none" opacity=".5" stroke="${l.color || 'red'}"></path>
-                            `)}
-                        </svg>
-                    `}
-                    ${(this.block?.items || []).map(bl => html`
-                        <li-layout-scheme-block .$$id="${this.$$id}" .bl="${bl}" @mousedown="${this._down}"></li-layout-scheme-block>
-                    `)}
-                    ${svg`
-                        <svg width="${this._width}" height="${this._height}" style="position:absolute;top:0;left:0;background-color:transparent;pointer-events:none;z-index:9">
-                            ${!(this.$$?.line?.show) ? svg`` : svg`    
-                                <line x1="${this.$$?.line?.x1}" y1="${this.$$?.line?.y1}" x2="${this.$$?.line?.x2}" y2="${this.$$?.line?.y2}" style="stroke:red; stroke-width:2px;stroke-dasharray:2"></line>
-                            `}
-                        </svg>
-                    `}
-                </div>
-            </li-layout-grid>
-        `;
+            <div slot="layout-grid-main">
+                ${svg`
+                    <svg width="${this._width}" height="${this._height}" style="position:absolute;top:0;left:0;background-color:transparent;">
+                        <defs>
+                            <marker id="head" viewBox="0 0 10 10"
+                                refX="15" refY="5" 
+                                markerUnits="strokeWidth"
+                                markerWidth="7" markerHeight="7"
+                                orient="auto">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="${this.linkColor || "blue"}"/> 
+                            </marker>
+                        </defs>
+                        ${(this.links || []).map(l => svg`
+                            <path marker-end='url(#head)' d="${this._shift(l)}" style="stroke-width: ${l.selected ? '4px' : '2px'};cursor:pointer;z-index:-1" fill="none" opacity=".5" stroke="${l.color || 'red'}"></path>      
+                            <path d="${this._link(l)}" style="stroke-width: ${l.selected ? '4px' : '2px'};cursor:pointer;z-index:-1" fill="none" opacity=".5" stroke="${l.color || 'red'}"></path>
+                        `)}
+                    </svg>
+                `}
+                ${(this.block?.items || []).map(bl => html`
+                    <li-layout-scheme-block .$$id="${this.$$id}" .bl="${bl}" @mousedown="${this._down}"></li-layout-scheme-block>
+                `)}
+                ${svg`
+                    <svg width="${this._width}" height="${this._height}" style="position:absolute;top:0;left:0;background-color:transparent;pointer-events:none;z-index:9">
+                        ${!(this.$$?.line?.show) ? svg`` : svg`    
+                            <line x1="${this.$$?.line?.x1}" y1="${this.$$?.line?.y1}" x2="${this.$$?.line?.x2}" y2="${this.$$?.line?.y2}" style="stroke:red; stroke-width:2px;stroke-dasharray:2"></line>
+                        `}
+                    </svg>
+                `}
+            </div>
+        `
+    }
+
+    render() {
+        return html` ${this.showGrid ? html`
+                <li-layout-grid .$$id="${this.$$id}" ref="main" @mousemove="${this._move}" @mouseup="${this._up}">
+                    ${this._main}
+                </li-layout-grid>
+            ` :  html`
+                <slot name="layout-grid-main"></slot>
+                ${this._main}
+            `}
+        `
     }
 
     get links() {
@@ -297,7 +308,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                             },
                         }
                         if (_links[path]) _links[path]();
-                        let color = i.link.color || `hsla(${_color}, 90%, 40%, 1)`;
+                        let color = this.linkColor || i.link.color || `hsla(${_color}, 90%, 40%, 1)`;
                         links.push({ x1, y1, x2, y2, int, out, path, x11, y11, x21, y21, x, y, _x, _y, color, selected: false })
                         _color = i.link.color ? _color : _color + 47;
                     }
