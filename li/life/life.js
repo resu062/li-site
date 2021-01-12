@@ -64,7 +64,7 @@ customElements.define('li-life', class LiLife extends LiElement {
             <svg width="${this.cols*this.size}" height="${this.rows*this.size}">
                 ${BOARD.map((row,r) => row.map((col,c) =>{
                     return svg`<rect class="${col.alive ? 'alive' : ''} ${col.hasAlive ? 'haslive' : ''}" x="${c*this.size}" y="${r*this.size}" width="${this.size}" height="${this.size}" @click="${this.toggleCell}" @mouseenter="${this.toggleCell}"/>`
-               2 }))}        
+                }))}        
             </svg> 
         `;
     }
