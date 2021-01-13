@@ -3,13 +3,10 @@ import { LiElement } from '../../li.js';
 
 let ROWS, COLS, FRACTION, BOARD = [], _BOARD = [], first = true;
 const isAlive = ((row, col) => { return BOARD && BOARD[row] && BOARD[row][col] && BOARD[row][col].alive || false });
-const liveNighbourCount = (row, col) => {
-    return isAlive(row - 1, col - 1) + isAlive(row - 1, col) + isAlive(row - 1, col + 1)
+const willLive = (row, col) => {
+    let neighbours = isAlive(row - 1, col - 1) + isAlive(row - 1, col) + isAlive(row - 1, col + 1)
         + isAlive(row, col - 1) + isAlive(row, col + 1)
         + isAlive(row + 1, col - 1) + isAlive(row + 1, col) + isAlive(row + 1, col + 1);
-}
-const willLive = (row, col) => {
-    let neighbours = liveNighbourCount(row, col);
     return neighbours === 3 || neighbours === 2 && isAlive(row, col);
 }
 const generateBoardState = (liveFunc) => {
