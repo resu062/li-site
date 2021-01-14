@@ -1,10 +1,6 @@
 <meta charset="utf-8">
 <script type="module" src="./life.js"></script>
+<script type="module" src="../monitor/monitor.js"></script>
 
 <li-life></li-life>
-
-<script type="module">
-    setTimeout(() => {
-        javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
-    }, 1000);
-</script>
+<li-monitor></li-monitor>
