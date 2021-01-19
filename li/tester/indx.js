@@ -15,9 +15,6 @@ export const indx = {
     'li-button': { label: 'li-button', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
     button: [{ label: 'index', url: url + '/button' }, { label: 'index-2', url: url + '/button/index-2.html' }],
 
-    'li-dropdown': { label: 'li-dropdown', props: { component: 'press index or index-2' } },
-    dropdown: [{ label: 'index', url: url + '/dropdown' }, { label: 'index-2', url: url + '/dropdown/index-2.html' }],
-
     'li-table': {
         label: 'li-table', props: {
             options: {
@@ -220,10 +217,12 @@ export const indx = {
     'li-app': { label: 'li-app' },
     app: [{ label: 'index', url: url + '/app' }],
 
-    'li-xxx': { label: 'misc demo' },
-    xxx: [{ label: 'life', url: url + '/life' }, { label: 'life-monitor', url: url + '/life/index-2.html' }, { label: 'fireworks-monitor', url: url + '/monitor' },
-        { label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' },
-        { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
-        { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }
+    'li-xxx':
+        { label: 'misc demo' },
+    xxx: [{ label: 'index', url: url + '/xxx' },
+    { label: 'life', url: url + '/life' }, { label: 'life-monitor', url: url + '/life/index-2.html' }, { label: 'fireworks-monitor', url: url + '/monitor' },
+    { label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' },
+    { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
+        { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
     ],
 }
