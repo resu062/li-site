@@ -194,7 +194,7 @@ export const indx = {
             src: `
             <div style="display:flex;flex-direction:column;color: blue;">
                 <h3>HTML editor:</h3>
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/FiprFmgz5pI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/LSWlHKvlnZ8" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>        <div>
             <div>
             <br>
             <span style="color:gray">...</span>
