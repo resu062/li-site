@@ -221,9 +221,9 @@ export const indx = {
     app: [{ label: 'index', url: url + '/app' }],
 
     'li-xxx': { label: 'misc demo' },
-    xxx: [{ label: 'life', url: url + '/life' }, { label: 'life2', url: url + '/life/index-2.html' },
-    { label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' },
-    { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
-    { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }
+    xxx: [{ label: 'life', url: url + '/life' }, { label: 'life2', url: url + '/life/index-2.html' }, { label: 'monitor', url: url + '/monitor' },
+        { label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' },
+        { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
+        { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' },
     ],
 }

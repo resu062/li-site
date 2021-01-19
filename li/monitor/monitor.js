@@ -2,7 +2,22 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 
 customElements.define('li-monitor', class LiMonitor extends LiElement {
-    static get properties() { return { pref: { type: Object }, startTime: { type: Object }, frame: { type: Number }, fps: { type: String }, memory: { type: String } } }
+    static get properties() {
+        return {
+            monitorWidth: { type: Number, default: 180 },
+            barHeight: { type: Number, default: 10 },
+            second: { type: String, default: '' },
+            fps: { type: String, default: '' },
+            memory: { type: String, default: '' },
+            _fpsMax: { type: Number, default: 60 },
+            _fpsArr: { type: Array, default: [] },
+            _memoryMax: { type: Number, default: 0 },
+            _memoryArr: { type: Array, default: [] },
+            _frame: { type: Number, default: 0 },
+            _startTime: { type: Object },
+            _perf: { type: Object }
+        }
+    }
 
     static get styles() {
         return css`
@@ -15,49 +30,75 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
                 bottom: 0;
                 right: 0;
                 margin: 8px;
+                z-index: 9;
+                padding: 2px;
 
             }
             .monitor {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                width: 180px;
-                height: 40px;
                 padding: 2px;
+            }
+            .horizontal {
+                display: flex;
+            }
+            .bars {
+                justify-content: flex-end; 
+                align-items: flex-end;
+            }
+            .bar {
+                border:solid 1px gray;
+                margin-right:1px;
             }
         `;
     }
 
     render() {
         return html`
-            <div class="monitor">
-                <div class="monitor">fps: ${this.fps}</div>
-                <div class="monitor">memory: ${this.memory}</div>
+            <div class="monitor" style="width:${this.monitorWidth}px">
+                <div class="horizontal" style="justify-content: space-between; margin-bottom: 2px;">
+                    <div style="color: gray">sec: ${this.second}</div>
+                    <div>${this.fps} fps</div>
+                </div>
+                <div class="horizontal bars" style="height:${this.barHeight}px">
+                    ${this._fpsArr.map(f => html`<div class="bar" style="height:${f * this.barHeight / this._fpsMax}px"></div>`)}
+                </div>
+                <div class="horizontal" style="justify-content: flex-end; margin: 2px 0;">${this.memory}</div>
+                <div class="horizontal bars" style="height:${this.barHeight}px">
+                    ${this._memoryArr.map(m => html`<div class="bar" style="height:${m * this.barHeight / this._memoryMax}px"></div>`)}
+                </div>
             </div>
         `;
     }
 
     firstUpdated() {
         super.firstUpdated();
-        this.frame = 0;
-        let perf = this.perf = window.performance || {};
+        this._second = performance.now();
+        let perf = this._perf = window.performance || {};
         if (!perf && !perf.memory) perf.memory = { usedJSHeapSize: 0 };
         if (perf && !perf.memory) perf.memory = { usedJSHeapSize: 0 };
-        this.startTime = performance.now();
+        this._startTime = performance.now();
         this.tick();
     }
 
     tick() {
-        let time = performance.now();
-        this.frame++;
-        if (time - this.startTime > 1000) {
-            let ms = this.perf.memory.usedJSHeapSize;
-            this.memory = this.bytesToSize(ms, 2);
-            this.fps = (this.frame / ((time - this.startTime) / 1000)).toFixed(1);
-            this.startTime = time;
-            this.frame = 0;
-        }
         requestAnimationFrame(() => this.tick());
+        let time = performance.now();
+        this._frame++;
+        if (time - this._startTime > 500) {
+            this.second = ((time - this._second) / 1000).toFixed(0);
+            let ms = this._perf.memory.usedJSHeapSize;
+            this.memory = this.bytesToSize(ms, 2);
+            this._memoryMax = ms > this._memoryMax ? ms : this._memoryMax;
+            this._memoryArr.push(ms);
+            if (this._memoryArr.length > this.monitorWidth / 3) this._memoryArr = this._memoryArr.splice(-this.monitorWidth / 3);
+            this.fps = (this._frame / ((time - this._startTime) / 500) * 2).toFixed(1);
+            this._fpsArr.push(this.fps);
+            if (this._fpsArr.length > this.monitorWidth / 3) this._fpsArr = this._fpsArr.splice(-this.monitorWidth / 3);
+            this._startTime = time;
+            this._frame = 0;
+        }
     }
 
     bytesToSize(bytes, nFractDigit) {
