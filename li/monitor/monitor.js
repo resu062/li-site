@@ -15,7 +15,7 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
             _memoryArr: { type: Array, default: [] },
             _frame: { type: Number, default: 0 },
             _startTime: { type: Object },
-            _perf: { type: Object }
+            _perf: { type: Object },
         }
     }
 
