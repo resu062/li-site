@@ -220,6 +220,9 @@ export const indx = {
     'li-three-meshline': { label: 'MeshLine-Three.js' },
     'three-meshline': [{ label: 'index', url: url + '/three-meshline' }],
 
+    'li-three-line2': { label: 'Line2-Three.js' },
+    'three-line2': [{ label: 'index', url: url + '/three-line2' }],
+
     'li-xxx':
         { label: 'misc demo' },
     xxx: [{ label: 'index', url: url + '/xxx' },

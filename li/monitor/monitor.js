@@ -9,36 +9,39 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
             second: { type: String, default: '' },
             fps: { type: String, default: '' },
             memory: { type: String, default: '' },
+            translateX: { type: Number, default: 0, save: true },
+            translateY: { type: Number, default: 0, save: true },
             _fpsMax: { type: Number, default: 60 },
             _fpsArr: { type: Array, default: [] },
             _memoryMax: { type: Number, default: 0 },
             _memoryArr: { type: Array, default: [] },
             _frame: { type: Number, default: 0 },
-            _startTime: { type: Object },
-            _perf: { type: Object },
         }
     }
 
     static get styles() {
         return css`
-            :host {
+            .monitor {
                 font-family: sans-serif;
                 border: 1px solid gray;
                 background: lightgray;
                 box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
                 position: fixed;
-                bottom: 0;
-                right: 0;
+                left: 0;
+                top: 0;
                 margin: 8px;
                 z-index: 9;
                 padding: 2px;
-
-            }
-            .monitor {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 padding: 2px;
+                -webkit-touch-callout: none; /* iOS Safari */
+                -webkit-user-select: none; /* Safari */
+                -khtml-user-select: none; /* Konqueror HTML */
+                -moz-user-select: none; /* Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none;
             }
             .horizontal {
                 display: flex;
@@ -56,9 +59,10 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
 
     render() {
         return html`
-            <div class="monitor" style="width:${this.monitorWidth}px">
+            <div class="monitor" style="width:${this.monitorWidth}px; transform :translate3d(${this.translateX}px, ${this.translateY}px, 0px); cursor: pointer;" 
+                    @mousedown="${this._down}">
                 <div class="horizontal" style="justify-content: space-between; margin-bottom: 2px;">
-                    <div style="color: gray">sec: ${this.second}</div>
+                    <div style="color: gray" @click="${this._clearSecond}">sec: ${this.second}</div>
                     <div>${this.fps} fps</div>
                 </div>
                 <div class="horizontal bars" style="height:${this.barHeight}px">
@@ -74,6 +78,8 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
 
     firstUpdated() {
         super.firstUpdated();
+        document.addEventListener('mouseup', this._up.bind(this));
+        document.addEventListener('mousemove', this._move.bind(this));
         this._second = performance.now();
         let perf = this._perf = window.performance || {};
         if (!perf && !perf.memory) perf.memory = { usedJSHeapSize: 0 };
@@ -108,5 +114,26 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
         let precision = Math.pow(10, nFractDigit);
         let i = Math.floor(Math.log(bytes) / Math.log(1024));
         return Math.round(bytes * precision / Math.pow(1024, i)) / precision + ' ' + sizes[i];
+    }
+
+    _clearSecond() {
+        this._second = performance.now();
+        this.second = 0;
+    }
+
+    _down(e) {
+        this.detail = {
+            x: e.clientX - this.translateX,
+            y: e.clientY - this.translateY
+        };
+    }
+    _up(e) {
+        this.detail = undefined;
+    }
+    _move(e) {
+        if (this.detail) {
+            const x = this.translateX = e.clientX - this.detail.x;
+            const y = this.translateY = e.clientY - this.detail.y;
+        }
     }
 });
