@@ -13,7 +13,8 @@ import '../monitor/monitor.js';
 customElements.define('li-three-line2', class LiThreeLine2 extends LiElement {
     static get properties() {
         return {
-            rotate: { type: Boolean, default: true },
+            showMonitor: { type: Boolean, default: true, save: true },
+            rotate: { type: Boolean, default: true, save: true },
             speed: { type: Number, default: 45 },
             x: { type: Number, default: 0 },
             y: { type: Number, default: 30 },
@@ -35,7 +36,7 @@ customElements.define('li-three-line2', class LiThreeLine2 extends LiElement {
     render() {
         return html`
             <canvas id="canvas"></canvas>
-            <li-monitor></li-monitor>
+            ${this.showMonitor ? html`<li-monitor></li-monitor>` : html``}
         `;
     }
 
