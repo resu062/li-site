@@ -14,8 +14,8 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
             y: { type: Number, default: 30 },
             z: { type: Number, default: 10 },
             step: { type: Number, default: 10 },
-            wLine: { type: Number, default: 12 },
-            wXYZ: { type: Number, default: 6 },
+            wLine: { type: Number, default: 10 },
+            wXYZ: { type: Number, default: 3 },
         }
     }
 
@@ -58,8 +58,6 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
             0x247ba0,
             0x70c1b3,
         ];
-        this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
-        this.onWindowResize();
     }
 
     updateGraph() {
@@ -68,6 +66,7 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
         this.createLines();
         this.scene.add(this.graph);
         this.animate();
+        this.onWindowResize();
     }
 
     makeLine(geo, c, w) {
@@ -77,7 +76,7 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
             useMap: false,
             color: new THREE.Color(this.colors[c]),
             opacity: 1,
-            resolution: this.resolution,
+            resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
             sizeAttenuation: false,
             lineWidth: w || 10,
         });
@@ -101,11 +100,21 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
                 if (i === 5) line[j + 1] = y + -(5 - j / 30) * Math.cos(.08 * j) + j / 30 - 10;
                 line[j + 2] = z + Number(this.step) * i;
             }
-            this.makeLine(line, i + 1, Number(this.wLine || 14));
+            this.makeLine(line, i + 1, Number(this.wLine || 10));
         }
-        this.makeLine(new Float32Array([-30, -30, -30, 30, -30, -30]), 0, Number(this.wXYZ || 6));
-        this.makeLine(new Float32Array([-30, -30, -30, -30, 30, -30]), 0, Number(this.wXYZ || 6));
-        this.makeLine(new Float32Array([-30, -30, -30, -30, -30, 30]), 0, Number(this.wXYZ || 6));
+        this.makeLine(new Float32Array([-30, -30, -30, 30, -30, -30]), 0, Number(this.wXYZ || 3));
+        this.makeLine(new Float32Array([-30, -30, -30, -30, 30, -30]), 0, Number(this.wXYZ || 3));
+        this.makeLine(new Float32Array([-30, -30, -30, -30, -30, 30]), 0, Number(this.wXYZ || 3));
+
+        const material = new THREE.LineBasicMaterial({
+            color: 0xff00ff
+        });
+        const points = [];
+        points.push( new THREE.Vector3( -30, -30, -30) );
+        points.push( new THREE.Vector3(30, -30, -30) );
+        const geometry = new THREE.BufferGeometry().setFromPoints( points );
+        const line = new THREE.Line( geometry, material );
+        this.graph.add( line );
     }
 
     onWindowResize() {
