@@ -46,7 +46,8 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.clock = new THREE.Clock();
         this.colors = [
-            0x50514f,
+            //0x50514f,
+            0x0080ff,
             0xff0000,
             0xf4f1bb,
             0x9bc1bc,
@@ -98,7 +99,7 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
                 if (i === 5) line[j + 1] = y + -(5 - j / 30) * Math.cos(.08 * j) + j / 30 - 10;
                 line[j + 2] = z + Number(this.step) * i;
             }
-            this.makeLine(line, i + 1, 10);
+            this.makeLine(line, i + 1, 14);
         }
         let s = 0;
         let arr = [-30, -30, -30, 30, -30, -30, -30, -30, -30, -30, 30, -30, -30, -30, -30, -30, -30, 30];
@@ -110,7 +111,7 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
                 line.vertices.push(new THREE.Vector3([arr[s + 3]], arr[s + 4], arr[s + 5]));
             }
             s += 6;
-            this.makeLine(line, 0, 5);
+            this.makeLine(line, 0, 7);
         }
     }
 
