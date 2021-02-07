@@ -2,11 +2,15 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 
 import * as THREE from '../../lib/threejs/three.module.js';
-import { MeshLine, MeshLineMaterial } from '../../lib/threejs/THREE.MeshLine.js';
 import { OrbitControls } from '../../lib/threejs/OrbitControls.js';
+
+import { Line2 } from '../../lib/threejs/lines/Line2.js';
+import { LineMaterial } from '../../lib/threejs/lines/LineMaterial.js';
+import { LineGeometry } from '../../lib/threejs/lines/LineGeometry.js';
+
 import '../monitor/monitor.js';
 
-customElements.define('li-three-meshline', class LiThreeMeshline extends LiElement {
+customElements.define('li-three-line2', class LiThreeLine2 extends LiElement {
     static get properties() {
         return {
             rotate: { type: Boolean, default: true },
@@ -15,7 +19,7 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
             y: { type: Number, default: 30 },
             z: { type: Number, default: 10 },
             step: { type: Number, default: 10 },
-            linewidth: { type: Number, default: 10 }
+            linewidth: { type: Number, default: 5 }
         }
     }
 
@@ -37,6 +41,10 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
 
     firstUpdated() {
         super.firstUpdated();
+        this.init();
+    }
+    
+    init() {
         window.addEventListener('resize', () => this.onWindowResize());
         this.container = this.$id.canvas;
         this.scene = new THREE.Scene();
@@ -65,23 +73,40 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
         this.graph = new THREE.Object3D();
         this.createLines();
         this.scene.add(this.graph);
+        this.createLines();
         this.animate();
         this.onWindowResize();
     }
 
-    makeLine(geo, c, w) {
-        const g = new MeshLine();
-        g.setGeometry(geo);
-        const material = new MeshLineMaterial({
-            useMap: false,
-            color: new THREE.Color(this.colors[c]),
-            opacity: 1,
-            resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
-            sizeAttenuation: false,
-            lineWidth: w || 10,
+    makeLine(points, c, w) {
+        const positions = [];
+        const colors = [];
+        const spline = new THREE.CatmullRomCurve3(points);
+        const divisions = Math.round(6 * points.length);
+        const point = new THREE.Vector3();
+        const color = new THREE.Color();
+        for (let i = 0, l = divisions; i < l; i++) {
+            const t = i / l;
+            spline.getPoint(t, point);
+            positions.push(point.x, point.y, point.z);
+            color.set(this.colors[c])
+            if (c === 0) color.setHSL(t, 1.0, 0.5);
+            colors.push(color.r, color.g, color.b);
+        }
+        const geometry = new LineGeometry();
+        geometry.setPositions(positions);
+        geometry.setColors(colors);
+        const matLine = new LineMaterial({
+            color: 0xffffff,
+            linewidth: w || 5,
+            vertexColors: true,
+            resolution:  new THREE.Vector2(window.innerWidth, window.innerHeight),
+            dashed: false
         });
-        const mesh = new THREE.Mesh(g.geometry, material);
-        this.graph.add(mesh);
+        const line = new Line2(geometry, matLine);
+        line.computeLineDistances();
+        line.scale.set(1, 1, 1);
+        this.graph.add(line);
     }
 
     createLines() {
@@ -90,6 +115,7 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
         let z = Number(this.z - 30) || 0;
         for (let i = 0; i < 6; i++) {
             let line = new Float32Array(600);
+            let points = [];
             for (let j = 0; j < 200 * 3; j += 3) {
                 line[j] = x + .1 * j;
                 if (i === 0) line[j + 1] = y + 5 * Math.sin(.01 * j);
@@ -99,16 +125,35 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
                 if (i === 4) line[j + 1] = y + Math.exp(.005 * j);
                 if (i === 5) line[j + 1] = y + -(5 - j / 30) * Math.cos(.08 * j) + j / 30 - 10;
                 line[j + 2] = z + Number(this.step) * i;
+                points.push(new THREE.Vector3(line[j], line[j + 1], line[j + 2]));
             }
-            this.makeLine(line, i + 1, Number(this.linewidth || 10));
+            this.makeLine(points, i + 1, Number(this.linewidth || 10));
         }
-        // this.makeLine([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(30, -30, -30)], 0, Number(this.xyzwidth || 3));
-        // this.makeLine([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, 30, -30)], 0, Number(this.xyzwidth || 3));
-        // this.makeLine([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, -30, 30)], 0, Number(this.xyzwidth || 3));
 
-        this.graph.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(30, -30, -30)]), new THREE.LineBasicMaterial({ color: 0x0080ff })));
-        this.graph.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, 30, -30)]), new THREE.LineBasicMaterial({ color: 0x0080ff })));
-        this.graph.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, -30, 30)]), new THREE.LineBasicMaterial({ color: 0x0080ff })));
+        const curve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(-30, 5, -30),
+            new THREE.Vector3(-25, 0, -30),
+            new THREE.Vector3(-20, -5, -30),
+            new THREE.Vector3(-15, 0, -30),
+            new THREE.Vector3(-10, 0, -30),
+            new THREE.Vector3(-5, 5, -30),
+            new THREE.Vector3(0, 0, -30),
+            new THREE.Vector3(5, -5, -30),
+            new THREE.Vector3(10, 0, -30),
+            new THREE.Vector3(15, 0, -30),
+            new THREE.Vector3(20, 5, -30),
+            new THREE.Vector3(25, 0, -30),
+            new THREE.Vector3(30, -5, -30),
+        ]);
+        const points = curve.getPoints(50);
+        this.makeLine(points, 0, Number(this.linewidth || 10));
+
+        this.makeLine(new THREE.CatmullRomCurve3([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(30, -30, -30)]).getPoints(), 6, 1);
+        this.makeLine(new THREE.CatmullRomCurve3([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, 30, -30)]).getPoints(), 6, 1);
+        this.makeLine(new THREE.CatmullRomCurve3([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, -30, 30)]).getPoints(), 6, 1);
+        //this.graph.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(30, -30, -30)]), new THREE.LineBasicMaterial({ color: 0x0080ff })));
+        //this.graph.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, 30, -30)]), new THREE.LineBasicMaterial({ color: 0x0080ff })));
+        //this.graph.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, -30, 30)]), new THREE.LineBasicMaterial({ color: 0x0080ff })));
     }
 
     onWindowResize() {
