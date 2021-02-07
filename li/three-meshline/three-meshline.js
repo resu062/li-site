@@ -110,7 +110,7 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
                 line.vertices.push(new THREE.Vector3([arr[s + 3]], arr[s + 4], arr[s + 5]));
             }
             s += 6;
-            this.makeLine(line, 0, 2);
+            this.makeLine(line, 0, 3);
         }
     }
 
