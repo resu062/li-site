@@ -217,6 +217,9 @@ export const indx = {
     'li-app': { label: 'li-app' },
     app: [{ label: 'index', url: url + '/app' }],
 
+    'li-three-meshline': { label: 'MeshLine-Three.js' },
+    'three-meshline': [{ label: 'index', url: url + '/three-meshline' }],
+
     'li-xxx':
         { label: 'misc demo' },
     xxx: [{ label: 'index', url: url + '/xxx' },
