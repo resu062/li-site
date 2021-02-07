@@ -14,13 +14,15 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
             y: { type: Number, default: 30 },
             z: { type: Number, default: 10 },
             step: { type: Number, default: 10 },
+            wLine: { type: Number, default: 12 },
+            wXYZ: { type: Number, default: 6 },
         }
     }
 
     updated(changedProperties) {
         let update = false;
         changedProperties.forEach((oldValue, propName) => {
-            update = ['x', 'y', 'z', 'step'].includes(propName);
+            update = ['x', 'y', 'z', 'step', 'wLine', 'wXYZ'].includes(propName);
             //console.log(`${propName} changed. oldValue: ${oldValue}, newValue: ${this[propName]}`);
         });
         if (update) this.updateGraph();
@@ -99,20 +101,11 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
                 if (i === 5) line[j + 1] = y + -(5 - j / 30) * Math.cos(.08 * j) + j / 30 - 10;
                 line[j + 2] = z + Number(this.step) * i;
             }
-            this.makeLine(line, i + 1, 14);
+            this.makeLine(line, i + 1, Number(this.wLine || 14));
         }
-        let s = 0;
-        let arr = [-30, -30, -30, 30, -30, -30, -30, -30, -30, -30, 30, -30, -30, -30, -30, -30, -30, 30];
-        for (let i = 0; i < 3; i++) {
-            let line = new THREE.BufferGeometry();
-            line.vertices = [];
-            for (let j = 0; j < 1; j++) {
-                line.vertices.push(new THREE.Vector3(arr[s], arr[s + 1], arr[s + 2]));
-                line.vertices.push(new THREE.Vector3([arr[s + 3]], arr[s + 4], arr[s + 5]));
-            }
-            s += 6;
-            this.makeLine(line, 0, 7);
-        }
+        this.makeLine(new Float32Array([-30, -30, -30, 30, -30, -30]), 0, Number(this.wXYZ || 6));
+        this.makeLine(new Float32Array([-30, -30, -30, -30, 30, -30]), 0, Number(this.wXYZ || 6));
+        this.makeLine(new Float32Array([-30, -30, -30, -30, -30, 30]), 0, Number(this.wXYZ || 6));
     }
 
     onWindowResize() {
