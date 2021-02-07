@@ -101,8 +101,8 @@ customElements.define('li-three-meshline', class LiThreeMeshline extends LiEleme
             }
             this.makeLine(line, i + 1, Number(this.linewidth || 10));
         }
-        // this.makeLine([new THREE.Vector3( -30, -30, -30), new THREE.Vector3(30, -30, -30)], 0, Number(this.xyzwidth || 3));
-        // this.makeLine([new THREE.Vector3( -30, -30, -30), new THREE.Vector3(-30, 30, -30)], 0, Number(this.xyzwidth || 3));
+        // this.makeLine([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(30, -30, -30)], 0, Number(this.xyzwidth || 3));
+        // this.makeLine([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, 30, -30)], 0, Number(this.xyzwidth || 3));
         // this.makeLine([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(-30, -30, 30)], 0, Number(this.xyzwidth || 3));
 
         this.graph.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-30, -30, -30), new THREE.Vector3(30, -30, -30)]), new THREE.LineBasicMaterial({ color: 0x0080ff })));
