@@ -217,10 +217,50 @@ export const indx = {
     'li-app': { label: 'li-app' },
     app: [{ label: 'index', url: url + '/app' }],
 
-    'li-three-meshline': { label: 'MeshLine-Three.js' },
+    'li-chart': {
+        label: 'li-chart (chart.js)', props: {
+            type: 'bar',
+            data: {
+                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                datasets: [...[{
+                    label: '# of Votes',
+                    data: [12, 19, 3, 5, 2, 3],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            } 
+        }
+    },
+    'chart': [{ label: 'index', url: url + '/chart' }],
+
+    'li-three-meshline': { label: 'meshLine (three.js)' },
     'three-meshline': [{ label: 'index', url: url + '/three-meshline' }],
 
-    'li-three-line2': { label: 'Line2-Three.js' },
+    'li-three-line2': { label: 'line2 (three.js)' },
     'three-line2': [{ label: 'index', url: url + '/three-line2' }],
 
     'li-xxx':
@@ -229,6 +269,6 @@ export const indx = {
     { label: 'life', url: url + '/life' }, { label: 'life-monitor', url: url + '/life/index-2.html' }, { label: 'fireworks-monitor', url: url + '/monitor' },
     { label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' },
     { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
-        { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
+    { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
     ],
 }
