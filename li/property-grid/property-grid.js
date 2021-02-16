@@ -1,6 +1,6 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
-import { LItem, ldfn } from './li-data.js';
+// import { LItem, ldfn } from './li-data.js';
 import '../button/button.js';
 import '../checkbox/checkbox.js';
 
@@ -24,10 +24,10 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 
     getData() {
         if (!this.litem) {
-            this._inspectedObject = this.$id.btn;
-            const data = makeData(this);
-            this.litem = new LItem(data, this.props, undefined, undefined, this.$$id);
-            this.litem.$root = this.litem;
+            this._inspectedObject = window//this.$id.btn;
+            this.litem = makeData(this._inspectedObject, this.expertMode);
+            // this.litem = new LItem(data, this.props, undefined, undefined, this.$$id);
+            // this.litem.$root = this.litem;
         }
     }
 
@@ -49,15 +49,48 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 });
 
 const exts = /^(_|\$)/;
-function makeData(el) {
-    const expert = el.expertMode;
-    const data = { label: el._inspectedObject?.localName, items: [] };
-    const props = el._inspectedObject.constructor._classProperties;
-    for (const key of props.keys()) {
-        if (!expert && exts.test(key)) continue;
-        let value = el._inspectedObject[key];
-        if (value != null && value.constructor.name === "Object") value = '[Object Object]';
-        data.items.push({ label: key, value, items: [] });
+function makeData(el, expert) {
+    const data = { label: el?.localName, items: [] };
+    const props = el.constructor._classProperties;
+    if (props) {
+        for (const key of props.keys()) {
+            if (!expert && exts.test(key)) continue;
+            let value = el[key],
+                is = false
+            if (value != null && value.constructor.name === "Array") {
+                value = 'array [' + value.length + ']';
+                is = true;//el[key].props || el[key].properties || expert || false;
+            }
+            else if (value != null && (value.constructor.name === "Object" || value.toString().includes('object'))) {
+                value = '[Object]';
+                is = true;//el[key].props || el[key].properties || expert || false;
+            }
+
+            data.items.push({ label: key, value, is, el: el[key], items: [] });
+        }
+    }
+    let obj = el;
+    while (obj) {
+        let names = Object.getOwnPropertyNames(obj);
+        for (let key of names) {
+            if (!expert && exts.test(key)) continue;
+            if (/^(__|props|properties)/.test(key)) continue;
+            const d = Object.getOwnPropertyDescriptor(obj, key);
+            if (!d || typeof d.value === 'function') continue;
+            let value = el[key],
+                is = false
+            if (value != null && value.constructor.name === "Array") {
+                value = 'Array [' + value.length + ']';
+                is = true;//el[key].props || el[key].properties || expert || false;
+            }
+            else if (value != null && (value.constructor.name === "Object" || value.toString().includes('object'))) {
+                value = '[Object]';
+                is = expert || el[key].props || el[key].properties || false;
+            }
+            data.items.push({ label: key, value, is, el: el[key], items: [] });
+        }
+        if (!expert) break;
+        obj = obj.__proto__;
     }
     return data;
 }
@@ -81,7 +114,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     static get styles() {
         return css`
             .complex {
-                background-color: hsla(0, 0%, 90%, .5);
+                background-color: hsla(90, 50%, 50%, .075);
                 box-shadow: inset 0 -2px 0 0 gray;
                 overflow: hidden;
             }
@@ -112,31 +145,30 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
             ${this._items.map(i => html`
                 <div class="row ${this.$$ && this.$$.selection && this.$$.selection.includes(i) ? 'selected' : ''}" style="border-bottom: .5px solid lightgray" @click="${(e) => this._focus(e, i)}">
                     <div style="display:flex;align-items:center;${'border-bottom: 1px solid ' + this.colorBorder}">
-                        ${i.items && i.items.length
+                        ${i.items?.length || i.is
                 ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" .toggled="${i.expanded}"
                                     @click="${(e) => this._expanded(e, i)}" size="${this.iconSize - 2}"></li-button>`
                 : html`<div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`}
-                        ${this.allowCheck ? html`<li-checkbox .toggled="${i.checked}" @click="${(e) => this._checked(e, i)}"></li-checkbox>` : html``}
                         <div style="overflow:hidden;display:flex;padding:0 2px;max-width:${this.labelColumn}px;min-width:${this.labelColumn}px;white-space: nowrap;height:${this.iconSize}px;align-items: center;">${i.label || i.name}</div>
                         <input id="input" value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;border-left:1px solid lightgray;height:${this.iconSize}px;align-items: center;">
                     </div>
                 </div>
                 <div class="complex">
-                    ${i.items && i.items.length && i.expanded ? html`<li-property-tree .litem="${i.items}" .$$id="${this.$$id}"></li-property-tree>` : html``}
+                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .litem="${i.data}" .$$id="${this.$$id}"></li-property-tree>` : html``}
                 </div>
             `)}
         `
     }
     _expanded(e, i) {
         i.expanded = e.target.toggled;
-        this.$$update();
-    }
-    _checked(e, i) {
-        i.checked = e.target.toggled;
+        if (i.expanded)
+            i.data = makeData(i.el, this.expertMode);
+        else
+            i.data = [];
         this.$$update();
     }
     _focus(e, item) {
-        ldfn.focus(e, item, item);
-        this.$$update();
+        // ldfn.focus(e, item, item);
+        // this.$$update();
     }
 });
