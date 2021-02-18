@@ -100,6 +100,7 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
             this._memoryArr.push(ms);
             if (this._memoryArr.length > this.monitorWidth / 3) this._memoryArr = this._memoryArr.splice(-this.monitorWidth / 3);
             this.fps = (this._frame / ((time - this._startTime) / 500) * 2).toFixed(1);
+            this.fps = this.fps > this._fpsMax ? this._fpsMax : this.fps;
             this._fpsArr.push(this.fps);
             if (this._fpsArr.length > this.monitorWidth / 3) this._fpsArr = this._fpsArr.splice(-this.monitorWidth / 3);
             this._startTime = time;
