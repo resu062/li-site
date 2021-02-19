@@ -29,7 +29,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
     }
 
     getData() {
-        this.inspectedObject = this;
+        this.inspectedObject = this.$id.btn;
         this.item = makeData(this.inspectedObject, this.expertMode);
         const obj = {};
         this.item.items.map(i => {
@@ -90,11 +90,11 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             <div class="header">
                 <div class="label">${this.item?.label || 'PropertyGrid'}</div>
                 <div class="buttons" >
-                    <li-button id="btn" name="radio-button-checked" title="view focused" @click="${(e) => this._focused()}"></li-button>
-                    <li-button id="btn" name="refresh" title="refresh" @click="${(e) => this._expert()}"></li-button>
-                    <li-button id="btn" name="sort" title="sort" @click="${(e) => this._sort()}"></li-button>
-                    <li-button id="btn" toggledClass="ontoggled" name="list" title="group"></li-button>
-                    <li-button id="btn" toggledClass="ontoggled" name="settings" title="expertMode" @click="${(e) => this._expert(e)}"></li-button>
+                    <li-button class="btn" name="radio-button-checked" title="view focused" @click="${(e) => this._focused()}"></li-button>
+                    <li-button class="btn" name="refresh" title="refresh" @click="${(e) => this._expert()}"></li-button>
+                    <li-button class="btn" name="sort" title="sort" @click="${(e) => this._sort()}"></li-button>
+                    <li-button class="btn" id="btn" toggledClass="ontoggled" name="list" title="group"></li-button>
+                    <li-button class="btn" toggledClass="ontoggled" name="settings" title="expertMode" @click="${(e) => this._expert(e)}"></li-button>
                 </div>
             </div>
             <div class="container">
@@ -196,7 +196,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
                                     @click="${(e) => this._expanded(e, i)}" size="${this.iconSize - 2}"></li-button>`
                 : html`<div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`}
                         <div class="label" style="max-width:${this.labelColumn}px;min-width:${this.labelColumn}px;height:${this.iconSize}px;">${i.label || i.name}</div>
-                        <input id="input" value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;border-left:1px solid lightgray;height:${this.iconSize}px;align-items: center;">
+                        <input id="input" value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;border-left:1px solid lightgray;height:${this.iconSize}px;align-items: center;" @change="${(e) => this._change(e, i)}">
                     </div>
                 </div>
                 <div class="complex">
@@ -216,9 +216,15 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     _focus(e, i) {
         this.focused = i;
     }
+    _change(e, i) {
+        if (i && i.label in i.obj)
+            i.obj[i.label] = e.target.value;
+    }
 })
 
 function makeData(el, expert) {
+    let obj = el;
+
     const fn = (key, category = 'no category') => {
         let value = el[key],
             is = false
@@ -230,7 +236,7 @@ function makeData(el, expert) {
             value = '[Object]';
             is = true;
         }
-        data.items.push({ label: key, value, is, el: el[key], items: [], category });
+        data.items.push({ label: key, value, is, el: el[key], items: [], category, obj });
     }
 
     const exts = /^(_|\$)/;
@@ -244,7 +250,6 @@ function makeData(el, expert) {
         }
     }
 
-    let obj = el;
     while (obj) {
         let names = Object.getOwnPropertyNames(obj);
         for (let key of names) {
