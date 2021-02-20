@@ -6,39 +6,25 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
     static get properties() {
         return {
             _$$id: { type: String, default: '', update: true },
-            inspectedObject: { type: Object, default: undefined },
+            io: { type: Object, default: undefined },
             ioProperties: { type: Object, default: {} },
             expertMode: { type: Boolean, default: false, local: true },
+            group: { type: Boolean, default: false, local: true },
             item: { type: Object, default: undefined },
             iconSize: { type: String, default: '28', local: true },
             sort: { type: String, default: 'none', local: true },
             labelColumn: { type: Number, default: 250, local: true },
-            focused: { type: Object, default: undefined, local: true },
-            testOBJ: {
-                type: Object, default: {
-                    obj1: { name: 'test Object1', arr: [{ prop1: 1 }, { prop2: 2 }, { prop3: 3, arr: [{ prop1: 1 }, { prop2: 2 }, { prop3: 3, arr: [{ prop1: 1 }, { prop2: 2 }, { prop3: 3 }] }] }], description: 'note...' },
-                    obj2: { name: 'test Object2', arr: [{ prop1: 1 }, { prop2: 2 }, { prop3: 3, arr: [{ prop1: 1 }, { prop2: 2 }, { prop3: 3, arr: [{ prop1: 1 }, { prop2: 2 }, { prop3: 3 }] }] }], description: 'note...' }
-                },
-            }
+            focused: { type: Object, default: undefined, local: true }
         }
     }
 
     firstUpdated() {
         super.firstUpdated();
+        this.io = this.$id.btn;
         this.getData();
     }
 
-    getData() {
-        this.inspectedObject = this.$id.btn;
-        this.item = makeData(this.inspectedObject, this.expertMode);
-        const obj = {};
-        this.item.items.map(i => {
-            let cat = i.category || 'no category';
-            obj[cat] = obj[cat] || [];
-            obj[cat].push(i);
-        })
-        this._item = obj;
-    }
+    get args() { return { expert: this.expertMode, group: this.group, sort: this.sort } };
 
     static get styles() {
         return css`
@@ -90,10 +76,10 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             <div class="header">
                 <div class="label">${this.item?.label || 'PropertyGrid'}</div>
                 <div class="buttons" >
-                    <li-button class="btn" name="radio-button-checked" title="view focused" @click="${(e) => this._focused()}"></li-button>
+                    <li-button class="btn" name="radio-button-checked" title="view focused" @click="${(e) => this._showFocused()}"></li-button>
                     <li-button class="btn" name="refresh" title="refresh" @click="${(e) => this._expert()}"></li-button>
                     <li-button class="btn" name="sort" title="sort" @click="${(e) => this._sort()}"></li-button>
-                    <li-button class="btn" id="btn" toggledClass="ontoggled" name="list" title="group"></li-button>
+                    <li-button class="btn" id="btn" toggledClass="ontoggled" name="list" title="group" @click="${(e) => this._expert(e)}"></li-button>
                     <li-button class="btn" toggledClass="ontoggled" name="settings" title="expertMode" @click="${(e) => this._expert(e)}"></li-button>
                 </div>
             </div>
@@ -101,32 +87,53 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 ${Object.keys(this._item || {}).map(key => html`
                     <div class="group">
                         <div class="group-header">${key}</div>
-                        <li-property-tree class="tree" .item="${this._item[key]}" .$$id="${this.$$id}"></li-property-tree>
+                        <li-property-tree class="tree" .item="${this._item[key]}" .$$id="${this.$$id}" .args="${this.args}"></li-property-tree>
                     </div>
                 `)}
             </div>
         `
     }
+
+    getData(io = this.io, _io) {
+        if (!_io)
+            this._io = makeData(io, this.args);
+        const obj = {};
+        this.ioLength = 0;
+        this._io.items.map(i => {
+            let cat = i.category || 'no category';
+            obj[cat] = obj[cat] || [];
+            obj[cat].push(i);
+        })
+        this._item = obj;
+        this.$$update();
+    }
+    _scroll(e) {
+        // if (!this.$refs?.splitter) return
+        // this._top = (e.target.scrollTop - 2) + 'px';
+        // requestAnimationFrame(() => {
+        //     this.$refs.splitter.style.top = this._top;
+        //     this.$refs.splitter2.style.top = this._top;
+        // })
+    }
     _expert(e) {
-        this.expertMode = e?.target?.toggled || e ? e?.target?.toggled : this.expertMode;
-        this.getData();
-        //this.$$update();
+        this.expertMode = !this.expertMode;
+        const _io = this.isShowFocused ? this._io : undefined;
+        this.getData(this.io, _io);
     }
     _sort(e) {
         this.sort = this.sort === 'none' ? 'ascending' : this.sort === 'ascending' ? 'descending' : 'none';
-        this.getData();
-        //this.$$update();
+        const io = this.isShowFocused ? this.focused.el || this.focused : this.io;
+        this.getData(io);
     }
-    _focused(e) {
+    _group(e) {
+        this.group = !this.group;
+        this.getData();
+    }
+    _showFocused(e) {
         if (this.focused) {
-            this.item = makeData(this.focused.el, this.expertMode);
-            const obj = {};
-            this.item.items.map(i => {
-                let cat = i.category || 'no category';
-                obj[cat] = obj[cat] || [];
-                obj[cat].push(i);
-            })
-            this._item = obj;
+            this.isShowFocused = !this.isShowFocused;
+            //const io = this.isShowFocused ? this.focused.el || this.focused : this.io;
+            this.getData(this.focused.el);
         }
     }
 })
@@ -140,7 +147,8 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
             props: { type: Object, default: {} },
             iconSize: { type: String, default: '28', local: true },
             labelColumn: { type: Number, default: 250, local: true },
-            focused: { type: Object, default: undefined, local: true }
+            focused: { type: Object, default: undefined, local: true },
+            args: { type: Object }
         }
     }
 
@@ -189,7 +197,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     render() {
         return html`
             ${this._items.map(i => html`
-                <div class="row ${this.$$ && this.$$.selection && this.$$.selection.includes(i) ? 'selected' : ''} ${this.focused===i?'focused':''}" style="border-bottom: .5px solid lightgray" @click="${(e) => this._focus(e, i)}">
+                <div class="row ${this.$$ && this.$$.selection && this.$$.selection.includes(i) ? 'selected' : ''} ${this.focused === i ? 'focused' : ''}" style="border-bottom: .5px solid lightgray" @click="${(e) => this._focus(e, i)}">
                     <div style="display:flex;align-items:center;${'border-bottom: 1px solid ' + this.colorBorder}">
                         ${i.items?.length || i.is
                 ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" .toggled="${i.expanded}"
@@ -200,7 +208,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
                     </div>
                 </div>
                 <div class="complex">
-                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" .$$id="${this.$$id}"></li-property-tree>` : html``}
+                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" .$$id="${this.$$id}" .args="${this.args}"></li-property-tree>` : html``}
                 </div>
             `)}
         `
@@ -208,7 +216,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     _expanded(e, i) {
         i.expanded = e.target.toggled;
         if (i.expanded)
-            i.data = makeData(i.el, this.expertMode);
+            i.data = makeData(i.el, this.args);
         else
             i.data = [];
         this.$$update();
@@ -222,26 +230,48 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     }
 })
 
-function makeData(el, expert) {
-    let obj = el;
-
-    const fn = (key, category = 'no category') => {
-        let value = el[key],
-            is = false
-        if (value && Array.isArray(value)) {
-            value = 'Array [' + value.length + ']';
-            is = true;
-        }
-        else if (value !== null && typeof value === 'object') {
-            value = '[Object]';
-            is = true;
-        }
-        data.items.push({ label: key, value, is, el: el[key], items: [], category, obj });
+function makeData(el, { expert, group, sort }) {
+    const editors = {
+        'boolean': 'checkbox',
+        'number': 'number',
+        'string': 'text'
     }
-
+    let obj = el;
     const exts = /^(_|\$)/;
-    const data = { label: el?.localName, items: [] };
+    const label = el?.constructor?.name || el?.localName || '';
+    const data = { label, items: [] };
     const props = el.constructor._classProperties;
+
+    function fn(key, category = 'no category', props) {
+        //if (!group) category = '...';
+        let value = el[key], is, type;
+        const _docs = undefined;
+        if (el[key] && el[key]._docs) _docs = el[key]._docs;
+        const item = { label: key, value, el: el[key], items: [], category, obj, _docs };
+        if (value && Array.isArray(value)) {
+            Object.defineProperty(item, 'value', { get() { return 'Array [' + (this?.obj && this.obj[this.label] ? this.obj[this.label].length : '') + ']'; } });
+            is = 'array';
+            type = 'text';
+        } else if (value !== null && typeof value === 'object') {
+            Object.defineProperty(item, 'value', { get() { return '[Object]'; } });
+            is = 'object';
+            type = 'text';
+        } else {
+            type = props && props[key] && props[key].type ? props[key].type.name.toLowerCase() : undefined;
+            if (!type)
+                type = typeof el[key];
+            if (editors[type])
+                type = editors[type];
+            item.type = type || 'text';
+            Object.defineProperty(item, 'value', {
+                get() { try { return this.obj[this.label] } catch (err) { return value } },
+                set(v) { this.obj[this.label] = v; }
+            });
+        }
+        if (props && props[key] && props[key].list) item.list = props[key].list;
+        item.is = is;
+        data.items.push(item);
+    }
 
     if (props) {
         for (const key of props.keys()) {
@@ -262,6 +292,11 @@ function makeData(el, expert) {
         if (!expert) break;
         obj = obj.__proto__;
     }
-
+    if (sort === 'ascending' || sort === 'descending') {
+        data.items.sort((a, b) => {
+            if (a.label > b.label) return sort === 'ascending' ? 1 : -1;
+            if (b.label > a.label) return sort === 'ascending' ? -1 : 1;
+        });
+    }
     return data;
 }
