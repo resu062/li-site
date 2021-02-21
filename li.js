@@ -147,7 +147,7 @@ export class LiElement extends LitElement {
         if (!property) this.requestUpdate();
         LI.$$update.call(this, property, value);
     }
-    $$listen(property, fn) {
+    $$$listen(property, fn) {
         if (!this.$$$) this._initBus();
         if (this.$$$[property] === undefined) this.$$$[property] = this[property] || '';
         if (!this.__locals.includes(property)) this.__locals.push(property);
@@ -155,7 +155,7 @@ export class LiElement extends LitElement {
         this._fnListeners.set(fn, (e) => this.fnListen(e, property, fn));
         this.$$$.listen(this._fnListeners.get(fn))
     }
-    $$unlisten(property, fn) {
+    $$$unlisten(property, fn) {
         if (this._fnListeners.has(fn)) {
             this.$$$.unlisten(this._fnListeners.get(fn));
             this._fnListeners.delete(fn);
@@ -201,6 +201,10 @@ export class LiElement extends LitElement {
             this.dispatchEvent(new CustomEvent(type, { detail: { value }, bubbles: false, composed: true }))
         }
     }
+
+    listen(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.addEventListener(i.trim(), callback, options)) }
+    unlisten(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.removeEventListener(i.trim(), callback, options)) }
+    fire(event, detail = {}) { if (event) this.dispatchEvent(new CustomEvent(event, { detail })) }
 }
 
 const _$$ = { $$: {}, _$$: {}, _$$$: {} };

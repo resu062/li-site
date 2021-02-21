@@ -10,7 +10,7 @@ customElements.define('li-button', class LiButton extends LiElement {
             textAlign: { type: String, default: 'center' },
             name: { type: String, default: '' },
             fill: { type: String, default: '' },
-            color: { type: String, default: 'gray' },
+            color: { type: String, default: 'gray', list: ['gray', 'red', 'yellow', 'green', 'orange', 'blue'] },
             borderColor: { type: String, default: '' },
             back: { type: String, default: '#fdfdfd' },
             size: { type: Number, default: 24 },
