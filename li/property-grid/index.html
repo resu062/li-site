@@ -1,6 +1,7 @@
 <script type="module" src="./property-grid.js"></script>
+<script type="module" src="../button/button.js"></script>
 <style>
-    html * {
+    body {
         color: gray;
         font-family: Arial;
         margin: 0;
@@ -10,8 +11,11 @@
     }
 </style>
 
-<li-property-grid id="grid"></li-property-grid>
+<li-button id="lbtn" width="200px" name="android" fill="green" color="red" size="64" border="2px" radius="8px" label="I'm button"></li-button>
+<li-property-grid id="pg">
+    <!-- <li-button id="lbtn" width="200px" name="android" fill="green" color="red" size="64" border="2px" radius="8px" label="I'm button"></li-button> -->
+</li-property-grid>
 
 <script type="module">
-    
+    pg.io = lbtn;
 </script>
