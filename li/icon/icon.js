@@ -7,8 +7,8 @@ customElements.define('li-icon', class LiIcon extends LiElement {
     static get properties() {
         return {
             _useInfo: {type: Boolean, default: true },
-            name: { type: String, default: '' },
-            fill: { type: String, default: 'currentColor', list: ['red', 'blue', 'green'] },
+            name: { type: String, default: '', isIcon: true },
+            fill: { type: String, default: 'currentColor' },
             stroke: { type: String, default: 'currentColor' },
             strokeWidth: { type: Number, default: 0 },
             size: { type: Number, default: 24 },

@@ -1,5 +1,5 @@
 export const list = {
-    icon: ['name'],
-    color: ['fill', 'stroke'],
-    _color: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray']
+    stroke: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray'],
+    fill: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray'],
+    color: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray']
 }

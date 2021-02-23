@@ -172,7 +172,7 @@ export class LiElement extends LitElement {
         this.renderRoot.querySelectorAll('[id]').forEach(node => this.$id[node.id] = node);
         this.$refs = {};
         this.renderRoot.querySelectorAll('[ref]').forEach(node => this.$refs[node.getAttribute('ref')] = node);
-        this._isFirstUpdated = true;
+        this.__isFirstUpdated = true;
     }
 
     update(changedProps) {
@@ -185,13 +185,12 @@ export class LiElement extends LitElement {
                 v[this.localName + '.' + prop] = this[prop];
                 localStorage.setItem(this._saveFileName, JSON.stringify(v));
             }
-            if (this._isFirstUpdated) {
+            if (this.__isFirstUpdated) {
                 if (this.$$$ && this.__locals && this.__locals.includes(prop))
                     this.$$$[prop] = this[prop];
                 if (this.$$$ && this.__globals && this.__globals.includes(prop))
                     LI.$$$[prop] = this[prop];
             }
-            if (this._setTabulatorData) this._setTabulatorData(prop, this[prop]);
 
             // notify : https://github.com/morbidick/lit-element-notify
             const declaration = this.constructor._classProperties.get(prop);
