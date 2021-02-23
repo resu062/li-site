@@ -214,6 +214,9 @@ export const indx = {
     'li-tester': { label: 'li-tester' },
     tester: [{ label: 'index', url: url + '/tester' }, { label: 'index2', url: url + '/tester/index-2.html' }],
 
+    'li-property-grid': { label: 'li-property-grid' },
+    'property-grid': [{ label: 'index', url: url + '/property-grid' }],
+
     'li-app': { label: 'li-app' },
     app: [{ label: 'index', url: url + '/app' }],
 

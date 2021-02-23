@@ -1,11 +1,13 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../button/button.js';
+import '../icon/icons/icons.js';
 
 customElements.define('li-property-grid', class LiPropertyGrid extends LiElement {
     static get properties() {
         return {
             _$$id: { type: String, default: '', update: true },
+            label: { type: String },
             io: { type: Object, default: undefined },
             ioProperties: { type: Object, default: {} },
             expertMode: { type: Boolean, default: false, local: true },
@@ -105,7 +107,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
     render() {
         return html`
             <div class="hheader">
-                <div class="label">${this.item?.label || 'PropertyGrid'}</div>
+                <div class="label">${this.item?.label || this.label || 'PropertyGrid'}</div>
                 <div class="buttons" >
                     <li-button class="btn" ?toggled="${this.isShowFocused}" toggledClass="ontoggled" name="radio-button-checked" title="view focused" @click="${this._showFocused}"></li-button>
                     <li-button class="btn" name="refresh" title="refresh" @click="${(e) => this._expert(e)}"></li-button>
@@ -135,11 +137,11 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         `
     }
 
-    getData() {
+    async getData() {
         this.item = [];
         this.$$update();
         const io = this.isShowFocused ? this.focused.el || this.focused || this.io : this.io;
-        this._io = makeData(io, this.args);
+        this._io = await makeData(io, this.args);
         const obj = {};
         this.ioLength = 0;
         this._io.items.map(i => {
@@ -259,10 +261,10 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
             `)}
         `
     }
-    _expanded(e, i) {
+    async _expanded(e, i) {
         i.expanded = e.target.toggled;
         if (i.expanded)
-            i.data = makeData(i.el, this.args);
+            i.data = await makeData(i.el, this.args);
         else
             i.data = [];
         this.$$update();
@@ -286,7 +288,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     }
 })
 
-function makeData(el, { expert, group, sort }) {
+async function makeData(el, { expert, group, sort }) {
     const editors = {
         'boolean': 'checkbox',
         'number': 'number',
@@ -298,7 +300,7 @@ function makeData(el, { expert, group, sort }) {
     const data = { label, items: [] };
     const props = el.constructor._classProperties;
 
-    function fn(key, category = 'no category', props) {
+    function fn(key, category = 'no category', props, list) {
         //if (!group) category = '...';
         let value = el[key], is, type;
         const _docs = undefined;
@@ -325,14 +327,29 @@ function makeData(el, { expert, group, sort }) {
             });
         }
         if (props && props.get(key) && props.get(key).list) item.list = props.get(key).list;
+        if (list) item.list = [...(item.list || []), ...list];
         item.is = is;
         data.items.push(item);
     }
 
     if (props) {
+        let info;
+        if (props.has('_useInfo')) {
+            try {
+                info = el.$urlInfo ? await import(el.$urlInfo) : undefined;
+            } catch (err) { }
+        }
         for (const key of props.keys()) {
+            let list;
             if (!expert && exts.test(key)) continue;
-            fn(key, 'properties', props);
+            if (info?.list && info.list[key]) {
+                list = info.list[key];
+            }
+            if (props.get(key).isIcon) {
+                list = list || [];
+                Object.keys(icons).map(i => list.push(i));
+            }
+            fn(key, 'properties', props, list);
         }
     }
 
