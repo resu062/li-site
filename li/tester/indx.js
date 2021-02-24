@@ -214,7 +214,44 @@ export const indx = {
     'li-tester': { label: 'li-tester' },
     tester: [{ label: 'index', url: url + '/tester' }, { label: 'index2', url: url + '/tester/index-2.html' }],
 
-    'li-property-grid': { label: 'li-property-grid' },
+    'li-property-grid': {
+        label: 'li-property-grid',
+        props: {
+            io: {
+                name: 'User1',
+                _note: 'Hidden note...',
+                nestedObject1: [
+                    {
+                        itemId: 1,
+                        itemDetails: {
+                            name: "C",
+                            caregory: "Programming Language",
+                            price: 500,
+                        },
+                        itemCategory: "Basic",
+                    },
+                    {
+                        itemId: 2,
+                        itemDetails: {
+                            name: "C++",
+                            caregory: "Programming Language",
+                            price: 700,
+                        },
+                        itemCategory: "Beginner",
+                    },
+                    {
+                        itemId: 1,
+                        itemDetails: {
+                            name: "Java Script",
+                            caregory: "Web Development",
+                            price: 1500,
+                        },
+                        itemCategory: "Advanced",
+                    }
+                ],
+            }
+        }
+    },
     'property-grid': [{ label: 'index', url: url + '/property-grid' }],
 
     'li-app': { label: 'li-app' },
@@ -255,7 +292,7 @@ export const indx = {
                         }
                     }]
                 }
-            } 
+            }
         }
     },
     'chart': [{ label: 'index', url: url + '/chart' }],

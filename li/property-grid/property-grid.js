@@ -23,7 +23,6 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 
     firstUpdated() {
         super.firstUpdated();
-        this.sss = this;
         this.$$$listen('dblClick', () => {
             if (!this.$$$.dblClick) return;
             this.focused = this.$$$.dblClick;
@@ -33,7 +32,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
     }
 
     updated(changedProperties) {
-        if (changedProperties.has('io')) this.getData();
+        if (changedProperties.has('io') && this.io) this.getData();
     }
 
     get args() { return { expert: this.expertMode, group: this.group, sort: this.sort } };
