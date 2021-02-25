@@ -51,6 +51,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 display: flex;
                 background-color: gray;
                 z-index: 1;
+                overflow: hidden;
             }
             .label {
                 display: flex;
@@ -59,6 +60,8 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 justify-content: center;
                 font-size: large;
                 color: white;
+                overflow: hidden;
+                white-space: nowrap;
             }
             .buttons {
                 display: flex;
@@ -115,7 +118,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                     <li-button class="btn" ?toggled="${this.expert}" toggledClass="ontoggled" name="settings" title="expertMode" @click="${(e) => this._expert(e, true)}"></li-button>
                 </div>
             </div>
-            <div class="container" @mouseup="${() => this._splitter = false}" @mousemove="${this._move}" style="user-select:${this._splitter ? 'none' : 'unset'}" @scroll="${this._scroll}">
+            <div ref="cnt" class="container" @mouseup="${() => this._splitter = false}" @mousemove="${this._move}" style="user-select:${this._splitter ? 'none' : 'unset'}" @scroll="${this._scroll}">
                 <div class="splitter2" ref="splitter2" style="left:${this.labelColumn + 31}px;top:${this._top};"></div>
                 <div class="splitter" ref="splitter" style="left:${this.labelColumn + 31}px;top:${this._top};" @mousedown="${() => this._splitter = true}"></div>
                 ${Object.keys(this.item || {}).map(key => html`
@@ -149,6 +152,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             obj[cat].push(i);
         })
         this.item = obj;
+        if (this.$refs?.cnt) this.$refs.cnt.scrollTop = 0;
         this.$$update();
     }
     _expert(e, expert) {
