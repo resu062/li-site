@@ -115,9 +115,9 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                     <li-button class="btn" ?toggled="${this.expert}" toggledClass="ontoggled" name="settings" title="expertMode" @click="${(e) => this._expert(e, true)}"></li-button>
                 </div>
             </div>
-            <div class="container" @mouseup="${() => this._splitter = false}" @mousemove="${this._move}" style="user-select:${this._splitter ? 'none' : 'unset'}">
-                <div class="splitter2" ref="splitter2" style="left:${this.labelColumn + 31}px"></div>
-                <div class="splitter" ref="splitter" style="left:${this.labelColumn + 31}px" @mousedown="${() => this._splitter = true}"></div>
+            <div class="container" @mouseup="${() => this._splitter = false}" @mousemove="${this._move}" style="user-select:${this._splitter ? 'none' : 'unset'}" @scroll="${this._scroll}">
+                <div class="splitter2" ref="splitter2" style="left:${this.labelColumn + 31}px;top:${this._top};"></div>
+                <div class="splitter" ref="splitter" style="left:${this.labelColumn + 31}px;top:${this._top};" @mousedown="${() => this._splitter = true}"></div>
                 ${Object.keys(this.item || {}).map(key => html`
                     <div class="group">
                        ${this.group ? html`<div class="group-header">${key}</div>` : html``}
@@ -177,6 +177,14 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             w = w <= 0 ? 0 : w;
             this.labelColumn = w;
         });
+    }
+    _scroll(e) {
+        if (!this.$refs?.splitter) return
+        this._top = (e.target.scrollTop - 2) + 'px';
+        requestAnimationFrame(() => {
+            this.$refs.splitter.style.top = this._top;
+            this.$refs.splitter2.style.top = this._top;
+        })
     }
 })
 
