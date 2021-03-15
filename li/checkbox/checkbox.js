@@ -66,6 +66,6 @@ customElements.define('li-checkbox', class LiCheckbox extends LiElement {
             this.useIndeterminate = false;
             this.toggled = !this.toggled;
         }
-        this.$$update();
+        this.$update();
     }
 });

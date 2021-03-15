@@ -23,7 +23,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 
     firstUpdated() {
         super.firstUpdated();
-        this.$$$listen('dblClick', () => {
+        this.$listen('dblClick', () => {
             if (!this.$$$.dblClick) return;
             this.focused = this.$$$.dblClick;
             this.isShowFocused = true;
@@ -124,7 +124,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 <div class="splitter" ref="splitter" style="left:${this.labelColumn + 31}px;top:${this._top};" @mousedown="${() => this._splitter = true}"></div>
                 ${Object.keys(this.item || {}).map(key => html`
                     <div class="group">
-                       ${this.group ? html`<div class="group-header">${key}</div>` : html``}
+                       ${this.group ? html`<div class="group-header">${key} [${this.item[key].length}]</div>` : html``}
                         <li-property-tree class="tree" .item="${this.item[key]}" ._partid="${this._partid}" .args="${this.args}"></li-property-tree>
                     </div>
                 `)}
@@ -150,7 +150,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 
     async getData() {
         this.item = [];
-        //this.$$update();
+        //this.$update();
         const io = this.isShowFocused ? this.focused.el || this.focused || this.io : this.io;
         this._io = await makeData(io, this.args);
         const obj = {};
@@ -163,7 +163,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         })
         this.item = obj;
         if (this.$refs?.cnt) this.$refs.cnt.scrollTop = 0;
-        this.$$update();
+        this.$update();
     }
     _expert(e, expert) {
         if (expert) this.expertMode = !this.expertMode;
@@ -288,7 +288,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
             i.data = await makeData(i.el, this.args);
         else
             i.data = [];
-        this.$$update();
+        this.$update();
     }
     _focus(e, i) {
         this.focused = i;
@@ -299,13 +299,13 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
             else i.obj[i.label] = e.target.value;
         }
     }
-    _dblclick(e, i) {
-        this.$$$.dblClick = i;
+    _dblclick(e, item) {
+        this.$fire('dblClick', item);
     }
     async _openDropdown(e, i, idx) {
         let val = await LI.show('dropdown', 'tester-cell', { type: i.type, value: i.value, props: { list: i.list } }, { parent: e.target, useParent: false });
         e.target.value = i.obj[i.label] = val.detail.value;
-        this.$$update();
+        this.$update();
     }
 })
 

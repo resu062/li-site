@@ -74,7 +74,7 @@ customElements.define('li-tabs', class LiTabs extends LiElement {
             default:
                 break;
         }
-        this.$$update();
+        this.$update();
     }
     _clickCell(e) {
         if (e.target._target && e.target._target.id === 'btn3') {
@@ -85,6 +85,6 @@ customElements.define('li-tabs', class LiTabs extends LiElement {
                 this.item.items.splice(this.item.items.indexOf(e.target.item), 1);
             }
         }
-        this.$$update();
+        this.$update();
     }
 });

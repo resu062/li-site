@@ -382,7 +382,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
     _focus(e) {
         e.stopPropagation();
         ldfn.focus(e, this.layout);
-        this.$$update();
+        this.$update();
     }
     async _menu(e, item) {
         e.stopPropagation();
@@ -399,7 +399,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
         if (action) {
             item.actions.push(action);
             fn[action.action](item, action.props, true);
-            this.$$update();
+            this.$update();
         }
     }
 });
@@ -523,11 +523,11 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
     execute(action) {
         this.item.actions.push(action);
         fn[action.action](this.item, action.props, true);
-        this.$$update();
+        this.$update();
     }
     _toggleExpand(e) {
         this.item.expanded = e.target.toggled;
-        this.$$update();
+        this.$update();
     }
     _dragstart(e) {
         this.$$.dragItem = this.item;
@@ -582,7 +582,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
             if (this.item.id === i.props.id) i.props.label = this.item.label;
         });
         localStorage.setItem(this.$$.actionsFileName + this.item.$root.id, JSON.stringify(this.item.$root.actions));
-        this.$$update();
+        this.$update();
     }
     _keydownGroupLabel(e) {
         if (e.key === 'Enter') this._closeEditGroupLabel(e);

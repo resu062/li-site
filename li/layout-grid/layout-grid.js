@@ -101,7 +101,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
         }
         this._resizeRuller();
         setTimeout(() => {
-            this.$$update();
+            this.$update();
         }, 10)
 
     }

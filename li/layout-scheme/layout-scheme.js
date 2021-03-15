@@ -70,7 +70,7 @@ class BlockItem {
     }
     addConnector(position, index) {
         if (!this.$$.editMode) return;
-        let con = { ...{}, ...this.model[position][index-1].connector } || { ...{}, ...defaultConnector };
+        let con = { ...{}, ...this.model[position][index - 1].connector } || { ...{}, ...defaultConnector };
         con.id = LI.ulid();
         this.model[position].splice(this.model[position].length, 0, con);
         this.setConnectors();
@@ -121,7 +121,7 @@ const defaultConnector = {
 function clearSelectedBlocks(bl) {
     bl.$owner.items.forEach(i => {
         i.selected = false;
-        i._bl.$$update();
+        i._bl.$update();
     })
 }
 
@@ -141,7 +141,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
 
     connectedCallback() {
         super.connectedCallback();
-        this.$$update();
+        this.$update();
     }
 
     updated(changedProps) {
@@ -154,7 +154,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             this.$$.line = { show: false, x1: 0, y1: 0, x2: 0, y2: 0 };
             this.block = new BlockItem(this.item, this.uuid, this.$$, this.$$$, undefined, true);
             this.block?.items[0].setConnectors();
-            this.$$update();
+            this.$update();
         }
     }
 
@@ -207,7 +207,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                 <li-layout-grid ._partid="${this._partid}" ref="main" @mousemove="${this._move}" @mouseup="${this._up}">
                     ${this._main}
                 </li-layout-grid>
-            ` :  html`
+            ` : html`
                 <slot name="layout-grid-main"></slot>
                 ${this._main}
             `}
@@ -338,7 +338,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
     }
     _up(e) {
         this.detail = undefined;
-        this.$$update();
+        this.$update();
     }
     _move(e) {
         if (this.detail) {
@@ -349,7 +349,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             this.detail.dx = e.clientX - this.detail.start.x;
             this.detail.dy = e.clientY - this.detail.start.y;
             if (this.detail.bl.bl) this.detail.bl.bl.move(this.detail.ddx, this.detail.ddy);
-            this.detail.bl.$$update();
+            this.detail.bl.$update();
         }
     }
 })
@@ -522,7 +522,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
     _click(e) {
         e.stopPropagation();
         this.bl.select(e);
-        this.$$update();
+        this.$update();
     }
     _tap(e, action) {
         e.stopPropagation();
@@ -532,7 +532,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                 this.bl[action]();
         } else
             action.call(this.bl);
-        this.$$update();
+        this.$update();
     }
 });
 
@@ -597,7 +597,7 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
                 this.bl[this.item.action](this.position, this.item.index);
         } else
             this.item.action.call(this.bl, this.position, this.item.index);
-        this.$$update();
+        this.$update();
     }
     _dragstart(e) {
         let bs = this.$$;
@@ -608,14 +608,14 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         bs.line.y1 = bs.line.y2 = e.y - this._gridMain.offsetTop + this._gridMain.scrollTop;
         bs.line.show = true;
         this.bl.setConnectors('dragStart');
-        this.$$update();
+        this.$update();
     }
     _drag(e) {
         let bs = this.$$;
         if (bs.line.show && e.x !== 0) {
             bs.line.x2 = e.x - this._gridMain.offsetLeft + this._gridMain.scrollLeft;
             bs.line.y2 = e.y - this._gridMain.offsetTop + this._gridMain.scrollTop;
-            this.$$update();
+            this.$update();
         }
     }
     _dragover(e) {
@@ -644,6 +644,6 @@ customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnecto
         bs.line.show = false;
         this.dragover = false;
         this.bl.setConnectors();
-        this.$$update();
+        this.$update();
     }
 });
