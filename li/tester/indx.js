@@ -311,4 +311,7 @@ export const indx = {
     { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
     { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
     ],
+
+    'li-tetris': { label: 'li-tetris' },
+    'tetris': [{ label: 'index', url: url + '/tetris' }],
 }
