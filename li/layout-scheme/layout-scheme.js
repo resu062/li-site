@@ -5,10 +5,9 @@ import '../button/button.js';
 import '../icon/icon.js';
 
 class BlockItem {
-    constructor(item, uuid, $$, $$$, owner, root) {
+    constructor(item, uuid, $$, owner, root) {
         this._uuid = uuid;
         this._$$ = $$;
-        this._$$$ = $$$;
         this._$owner = owner;
         if (root) this._$$.$root = this;
         this.$item = item;
@@ -19,11 +18,10 @@ class BlockItem {
     }
     get uuid() { return this._uuid }
     get $$() { return this._$$ || {} }
-    get $$$() { return this._$$$ || {} }
     get id() { return this._id }
     get label() { return this.$item.label || this.$item.name || 'block' }
     get items() {
-        if (!this._items) this._items = (this.$item.items || []).map(i => new BlockItem(i, this._uuid, this.$$, this.$$$, this));
+        if (!this._items) this._items = (this.$item.items || []).map(i => new BlockItem(i, this._uuid, this.$$, this));
         return this._items;
     }
     get $owner() { return this._$owner || this }
@@ -35,11 +33,11 @@ class BlockItem {
             return `translate3d(${x}px, ${y}px, 0px)`;
         }
         let val = '';
-        if (this.$$$?._gridMain) {
-            let sl = this.$$$._gridMain.scrollLeft || 0,
-                st = this.$$$._gridMain.scrollTop || 0,
-                ow = this.$$$._gridMain.offsetWidth || 0,
-                oh = this.$$$._gridMain.offsetHeight || 0;
+        if (this.$$?._gridMain) {
+            let sl = this.$$._gridMain.scrollLeft || 0,
+                st = this.$$._gridMain.scrollTop || 0,
+                ow = this.$$._gridMain.offsetWidth || 0,
+                oh = this.$$._gridMain.offsetHeight || 0;
             const translate = {
                 left: () => { val = `translate3d(${sl + 2}px, ${st + oh / 2}px, 0px)` },
                 top: () => { val = `translate3d(${sl + ow / 2}px, ${st + 2}px, 0px)` },
@@ -152,7 +150,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
             this.$$.zoom = this.$$.zoom;
             this.$$.editMode = this.editMode;
             this.$$.line = { show: false, x1: 0, y1: 0, x2: 0, y2: 0 };
-            this.block = new BlockItem(this.item, this.uuid, this.$$, this.$$$, undefined, true);
+            this.block = new BlockItem(this.item, this.uuid, this.$$, undefined, true);
             this.block?.items[0].setConnectors();
             this.$update();
         }
@@ -236,12 +234,12 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                         //odx = (l.item.index || 0 + 1) * shift;
                         if (!l) return;
                         l = l.getBoundingClientRect();
-                        const st = this.$$$._gridMain.scrollTop || 0,
-                            sl = this.$$$._gridMain.scrollLeft || 0;
-                        const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$$._gridMain.offsetLeft + sl,
-                            y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$$._gridMain.offsetTop + st,
-                            x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$$._gridMain.offsetLeft + sl,
-                            y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$$._gridMain.offsetTop + st,
+                        const st = this.$$._gridMain.scrollTop || 0,
+                            sl = this.$$._gridMain.scrollLeft || 0;
+                        const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$._gridMain.offsetLeft + sl,
+                            y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$._gridMain.offsetTop + st,
+                            x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$._gridMain.offsetLeft + sl,
+                            y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$._gridMain.offsetTop + st,
                             int = p,
                             out = i.link.position,
                             path = i.link.position + '-' + p,

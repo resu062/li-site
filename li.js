@@ -87,46 +87,46 @@ export class LiElement extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._initBus();
-        if (this.$$$ && this.__saves) {
+        if (this.$$ && this.__saves) {
             this.__saves.forEach(i => {
                 const v = JSON.parse(localStorage.getItem(this._saveFileName));
-                if (v) this.$$[i] = this.$$$[i] = this[i] = v[this.localName + '.' + i];
+                if (v) this.$$[i] = this.$$[i] = this[i] = v[this.localName + '.' + i];
             });
             this.__enableSave = true;
         }
-        if (this.$$$ && this.__locals) {
-            this.$$$.listen(this.fnLocals);
+        if (this.$$ && this.__locals) {
+            this.$$.listen(this.fnLocals);
             this.__locals.forEach(i => {
-                if (this.$$$[i] === undefined) this.$$$[i] = this[i];
-                else this[i] = this.$$$[i];
+                if (this.$$[i] === undefined) this.$$[i] = this[i];
+                else this[i] = this.$$[i];
             });
 
         }
-        if (this.$$$ && this.__globals) {
-            LI.$$$.listen(this.fnGlobals);
+        if (this.$$ && this.__globals) {
+            LI.$$.listen(this.fnGlobals);
             this.__globals.forEach(i => {
-                if (LI.$$$[i] === undefined) LI.$$$[i] = this[i];
-                else this[i] = LI.$$$[i];
+                if (LI.$$[i] === undefined) LI.$$[i] = this[i];
+                else this[i] = LI.$$[i];
             });
 
         }
     }
     disconnectedCallback() {
-        if (this.$$$?.update) this.$$$.update.unlisten(this.fnUpdate);
-        if (this.$$$ && this.__locals) this.$$$.unlisten(this.fnLocals);
-        if (LI.$$$ && this.__globals) LI.$$$.unlisten(this.fnGlobals);
+        if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
+        if (this.$$ && this.__locals) this.$$.unlisten(this.fnLocals);
+        if (LI.$$ && this.__globals) LI.$$.unlisten(this.fnGlobals);
         super.disconnectedCallback();
     }
     _initBus() {
         if (this.$props.get('_partid') || this.__saves) {
-            if (this.$$$?.update) this.$$$.update.unlisten(this.fnUpdate);
+            if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
             this._partid = this._partid || this.id || this.$ulid || this.localName;
             if (!LI._$$[this._partid]) {
-                LI._$$[this._partid] = { _$$: {}, _$$$: {} };
-                LI._$$[this._partid]._$$$ = icaro({});
-                LI._$$[this._partid]._$$$.update = icaro({ value: 0 });
+                LI._$$[this._partid] = { _$$: {}, _$$: {} };
+                LI._$$[this._partid]._$$ = icaro({});
+                LI._$$[this._partid]._$$.update = icaro({ value: 0 });
             }
-            this.$$$.update.listen(this.fnUpdate);
+            this.$$.update.listen(this.fnUpdate);
         }
     }
     fnUpdate = (e) => { this.requestUpdate() }
@@ -135,7 +135,6 @@ export class LiElement extends LitElement {
     fnListen = (e, property, fn) => { if (e.has(property)) fn() }
 
     get $$() { return this._partid && LI._$$[this._partid] && LI._$$[this._partid]['_$$'] ? LI._$$[this._partid]['_$$'] : undefined }
-    get $$$() { return this._partid && LI._$$[this._partid] && LI._$$[this._partid]['_$$$'] ? LI._$$[this._partid]['_$$$'] : undefined }
     get $root() { return this.getRootNode().host; }
     get _saveFileName() { return ((this.id || this._partid || this.localName.replace('li-', '')) + '.saves') }
 
@@ -162,10 +161,10 @@ export class LiElement extends LitElement {
                 localStorage.setItem(this._saveFileName, JSON.stringify(v));
             }
             if (this.__isFirstUpdated) {
-                if (this.$$$ && this.__locals && this.__locals.includes(prop))
-                    this.$$$[prop] = this[prop];
-                if (this.$$$ && this.__globals && this.__globals.includes(prop))
-                    LI.$$$[prop] = this[prop];
+                if (this.$$ && this.__locals && this.__locals.includes(prop))
+                    this.$$[prop] = this[prop];
+                if (this.$$ && this.__globals && this.__globals.includes(prop))
+                    LI.$$[prop] = this[prop];
             }
 
             // notify : https://github.com/morbidick/lit-element-notify
@@ -179,30 +178,30 @@ export class LiElement extends LitElement {
 
     $update(property, value) { LI.$update.call(this, property, value) }
     $listen(property, fn) {
-        if (!this.$$$) this._initBus();
-        if (this.$$$[property] === undefined) this.$$$[property] = this[property] || '';
+        if (!this.$$) this._initBus();
+        if (this.$$[property] === undefined) this.$$[property] = this[property] || '';
         if (!this.__locals.includes(property)) this.__locals.push(property);
         this._fnListeners = this._fnListeners || new WeakMap();
         this._fnListeners.set(fn, (e) => this.fnListen(e, property, fn));
-        this.$$$.listen(this._fnListeners.get(fn))
+        this.$$.listen(this._fnListeners.get(fn))
     }
     $unlisten(property, fn) {
         if (this._fnListeners.has(fn)) {
-            this.$$$.unlisten(this._fnListeners.get(fn));
+            this.$$.unlisten(this._fnListeners.get(fn));
             this._fnListeners.delete(fn);
             this.__locals.splice(this.__locals.indexOf(property), 1);
         }
     }
-    $fire(property, value) { if (this.$$$ && property) this.$$$[property] = value }
+    $fire(property, value) { if (this.$$ && property) this.$$[property] = value }
 
     listen(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.addEventListener(i.trim(), callback, options)) }
     unlisten(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.removeEventListener(i.trim(), callback, options)) }
     fire(event, detail = {}) { if (event) this.dispatchEvent(new CustomEvent(event, { detail })) }
 }
 
-const _$$ = { _$$: {}, __$$: {}, __$$$: {} };
-_$$.__$$$ = icaro({});
-_$$.__$$$.update = icaro({ value: 0 });
+const __$$ = { _$$: {}, $$: {} };
+__$$.$$ = icaro({});
+__$$.$$.update = icaro({ value: 0 });
 const _$temp = {};
 _$temp.throttles = new Map();
 _$temp.debounces = new Map();
@@ -233,16 +232,15 @@ class CLI {
         this.notifier = new AWN(this.awnOptions);
         this.$url = urlLI;
     }
-    get _$$() { return _$$._$$; }
-    get $$() { return _$$.__$$; }
-    get $$$() { return _$$.__$$$; }
+    get _$$() { return __$$._$$; }
+    get $$() { return __$$.$$; }
     $update(property, value) {
-        if (!this.$$$) {
+        if (!this.$$) {
             this.requestUpdate();
             return;
         }
-        if (!property && this.$$$.update) ++this.$$$.update.value;
-        else if (this.$$$[property]) this.$$$[property]['value'] = value;
+        if (!property && this.$$.update) ++this.$$.update.value;
+        else if (this.$$[property]) this.$$[property]['value'] = value;
     }
 
     async createComponent(comp, props = {}) {
