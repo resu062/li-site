@@ -169,10 +169,11 @@ export class LiElement extends LitElement {
 
             // notify : https://github.com/morbidick/lit-element-notify
             const declaration = this.constructor._classProperties.get(prop);
-            if (!declaration || !declaration.notify) continue;
-            const type = eventNameForProperty(prop, declaration);
-            const value = this[prop];
-            this.dispatchEvent(new CustomEvent(type, { detail: { value }, bubbles: false, composed: true }))
+            if (declaration?.notify) {
+                const type = eventNameForProperty(prop, declaration);
+                const value = this[prop];
+                this.dispatchEvent(new CustomEvent(type, { detail: { value }, bubbles: false, composed: true }))
+            }
         }
     }
 
