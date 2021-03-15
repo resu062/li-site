@@ -6,7 +6,7 @@ import '../checkbox/checkbox.js';
 customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, default: ''},
+            _partid: { type: String, default: '' },
             ulid: { type: String, default: '' },
             item: { type: Object, default: {} },
             iconSize: { type: Number, default: 28 },
@@ -53,10 +53,10 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                 <div class="row ${this.selected === i ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}" @click="${(e) => this._focus(e, i)}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length
-                            ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
+                ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
                                 @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
-                            : html`<div style="min-width:${this.iconSize+2}px;width:${this.iconSize+2}px;min-height:${this.iconSize+2}px;height:${this.iconSize+2}px"></div>`
-                        }
+                : html`<div style="min-width:${this.iconSize + 2}px;width:${this.iconSize + 2}px;min-height:${this.iconSize + 2}px;height:${this.iconSize + 2}px"></div>`
+            }
                         ${this.allowCheck ? html`<li-checkbox></li-checkbox>` : html``}
                         <div style="padding:2px;width:${this.labelWidth}px;">${i.label || i.name}</div>
                         <div style="flex:1"></div>
@@ -70,10 +70,10 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     }
     _click(e, i) {
         i.expanded = e.target.toggled;
-        this.$$update();
+        this.$update();
     }
     _focus(e, i) {
         this.selected = i;
-        this.$$update();
+        this.$update();
     }
 });

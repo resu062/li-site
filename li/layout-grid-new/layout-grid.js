@@ -26,7 +26,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
     }
     _update() {
 
-        this.$$update();
+        this.$update();
     }
 
     static get styles() {
@@ -76,7 +76,7 @@ customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
                         <text x="${i * this._sizeBig + 4 - this._scrollTop}" y="0" style="font-size:12px;fill:gray;transform: rotate(90deg);">${i * this._unitVal}</text>
                     `)}
                 </svg>
-                <div ref="grid" style="height:${this._mainHeight};position:relative;overflow:auto;" @mousewheel="${this._resizeRuller}"  @scroll="${() => this.$$update()}">
+                <div ref="grid" style="height:${this._mainHeight};position:relative;overflow:auto;" @mousewheel="${this._resizeRuller}"  @scroll="${() => this.$update()}">
                     <svg width=${this._w} height="${this._h}" :preserve-aspect-ratio="'xMinYMin meet'">
                         <defs>
                             <pattern id="smallGrid" patternUnits="userSpaceOnUse" width="${this._sizeSmall}" height="${this._sizeSmall}">
