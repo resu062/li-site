@@ -9,7 +9,7 @@ export const indx = {
     'li-icons': { label: 'li-icons' },
     icons: [{ label: 'index', url: url + '/icons' }],
 
-    'li-checkbox': { label: 'li-checkbox', props: { size: 48, fill: 'green' } },
+    'li-checkbox': { label: 'li-checkbox', props: { size: 64, fill: 'lightblue' } },
     checkbox: [{ label: 'index', url: url + '/checkbox' }],
 
     'li-button': { label: 'li-button', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },

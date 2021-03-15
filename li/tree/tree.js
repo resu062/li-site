@@ -7,7 +7,7 @@ import '../checkbox/checkbox.js';
 customElements.define('li-tree', class LiTree extends LiElement {
     static get properties() {
         return {
-            _$$id: { type: String, default: '', update: true },
+            _partid: { type: String, default: '', update: true },
             item: { type: Object, default: undefined },
             litem: { type: Object, default: undefined },
             props: { type: Object, default: {} },
@@ -23,7 +23,7 @@ customElements.define('li-tree', class LiTree extends LiElement {
     updated(changedProps) {
         super.update(changedProps);
         if (changedProps.has('item') && this.item) {
-            this.litem = new LItem(this.item, this.props, undefined, undefined, this.$$id);
+            this.litem = new LItem(this.item, this.props, undefined, undefined, this._partid);
             this.litem.$root = this.litem;
         }
     }
@@ -67,7 +67,7 @@ customElements.define('li-tree', class LiTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.verticalLine ? 'complex-line' : ''}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-tree .litem="${i.items}" .$$id="${this.$$id}"></li-tree>` : html``}
+                    ${i.items && i.items.length && i.expanded ? html`<li-tree .litem="${i.items}" ._partid="${this._partid}"></li-tree>` : html``}
                 </div>
             `)}
         `

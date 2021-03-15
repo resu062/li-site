@@ -91,8 +91,6 @@ export class LiElement extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._initBus();
-        const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id !== undefined && $$id.update && this.$$$ && this.$$$.update) this.$$$.update.listen(this.fnUpdate);
         if (this.$$$ && this.__saves) {
             this.__saves.forEach(i => {
                 const v = JSON.parse(localStorage.getItem(this._saveFileName));
@@ -118,33 +116,33 @@ export class LiElement extends LitElement {
         }
     }
     disconnectedCallback() {
-        const $$id = this.$props.get('_$$id') || this.$props.get('$$id') || undefined;
-        if ($$id != undefined && $$id.update && this.$$$ && this.$$$.update) this.$$$.update.unlisten(this.fnUpdate);
+        if (this.$$$?.update) this.$$$.update.unlisten(this.fnUpdate);
         if (this.$$$ && this.__locals) this.$$$.unlisten(this.fnLocals);
-        if (this.$$$ && this.__globals) LI.$$$.unlisten(this.fnGlobals);
-        if (this._$$id) delete LI._$$[this.$$id];
+        if (LI.$$$ && this.__globals) LI.$$$.unlisten(this.fnGlobals);
         super.disconnectedCallback();
     }
     _initBus() {
-        if (!this.$$id && this._$$id !== undefined || this.__saves) {
-            this._$$id = this._$$id || this.id || this.localName;
-            this.$$id = this._$$id;
-            if (!LI._$$[this.$$id]) {
-                LI._$$[this.$$id] = { _$$: {}, _$$$: {} };
-                LI._$$[this.$$id]._$$$ = icaro({});
-                LI._$$[this.$$id]._$$$.update = icaro({ value: 0 });
+        if (this.$props.get('_partid') || this.__saves) {
+            if (this.$$$?.update) this.$$$.update.unlisten(this.fnUpdate);
+            this._partid = this._partid || this.id || this.$ulid || this.localName;
+            if (!LI._$$[this._partid]) {
+                LI._$$[this._partid] = { _$$: {}, _$$$: {} };
+                LI._$$[this._partid]._$$$ = icaro({});
+                LI._$$[this._partid]._$$$.update = icaro({ value: 0 });
             }
+            this.$$$.update.listen(this.fnUpdate);
         }
     }
-    fnUpdate = (e) => { this.requestUpdate() }
+    fnUpdate = (e) => { 
+        this.requestUpdate() 
+    }
     fnLocals = (e) => { if (this.__locals) this.__locals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnGlobals = (e) => { if (this.__globals) this.__globals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnListen = (e, property, fn) => { if (e.has(property)) fn() }
 
-    get $$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$'] ? LI._$$[this.$$id]['_$$'] : undefined }
-    get $$$() { return this.$$id && LI._$$[this.$$id] && LI._$$[this.$$id]['_$$$'] ? LI._$$[this.$$id]['_$$$'] : undefined }
+    get $$() { return this._partid && LI._$$[this._partid] && LI._$$[this._partid]['_$$'] ? LI._$$[this._partid]['_$$'] : undefined }
+    get $$$() { return this._partid && LI._$$[this._partid] && LI._$$[this._partid]['_$$$'] ? LI._$$[this._partid]['_$$$'] : undefined }
     $$update(property, value) {
-        if (!property) this.requestUpdate();
         LI.$$update.call(this, property, value);
     }
     $$$listen(property, fn) {
@@ -164,7 +162,7 @@ export class LiElement extends LitElement {
     }
 
     get $root() { return this.getRootNode().host; }
-    get _saveFileName() { return ((this.$$id || this.id || this.localName.replace('li-', '')) + '.saves') }
+    get _saveFileName() { return ((this.id || this._partid || this.localName.replace('li-', '')) + '.saves') }
 
     firstUpdated() {
         super.firstUpdated();
@@ -243,7 +241,10 @@ class CLI {
     get $$() { return _$$.$$; }
     get $$$() { return _$$._$$$; }
     $$update(property, value) {
-        if (!this.$$$) return;
+        if (!this.$$$) {
+            this.requestUpdate();
+            return;
+        }
         if (!property && this.$$$.update) ++this.$$$.update.value;
         else if (this.$$$[property]) this.$$$[property]['value'] = value;
     }
