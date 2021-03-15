@@ -151,6 +151,9 @@ export class LiElement extends LitElement {
     update(changedProps) {
         super.update(changedProps);
         if (!changedProps) return;
+        if (changedProps.has('_partid')) {
+            this._initBus();
+        }
         for (const prop of changedProps.keys()) {
             if (this.__enableSave && this.__saves && this.__saves.includes(prop)) {
                 let v = JSON.parse(localStorage.getItem(this._saveFileName));
