@@ -6,7 +6,7 @@ import '../button/button.js';
 customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
     static get properties() {
         return {
-            _$$id: { type: String, default: '', update: true },
+            _partid: { type: String, default: '', update: true },
             src: { type: String, default: '' },
             editable: { type: Boolean, default: true }
         }

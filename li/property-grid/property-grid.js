@@ -6,7 +6,7 @@ import '../icon/icons/icons.js';
 customElements.define('li-property-grid', class LiPropertyGrid extends LiElement {
     static get properties() {
         return {
-            _$$id: { type: String, default: '', update: true },
+            _partid: { type: String, default: '', update: true },
             label: { type: String },
             io: { type: Object, default: undefined },
             ioProperties: { type: Object, default: {} },
@@ -108,6 +108,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 
     render() {
         return html`
+            <slot @slotchange=${this.slotchange}></slot>
             <div class="hheader">
                 <div class="label">${this.item?.label || this.label || 'PropertyGrid'}</div>
                 <div class="buttons" >
@@ -124,14 +125,14 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 ${Object.keys(this.item || {}).map(key => html`
                     <div class="group">
                        ${this.group ? html`<div class="group-header">${key}</div>` : html``}
-                        <li-property-tree class="tree" .item="${this.item[key]}" .$$id="${this.$$id}" .args="${this.args}"></li-property-tree>
+                        <li-property-tree class="tree" .item="${this.item[key]}" ._partid="${this._partid}" .args="${this.args}"></li-property-tree>
                     </div>
                 `)}
             </div>  
             <div style="display: flex;">
-                <div class="hheader" style="height:28px" style="width:${this.labelColumn + 32}px">
+                <div class="hheader" style="height:28px" style="width:${this.labelColumn + 32}px;align-items:center;">
                     <div style="padding-left:8px; color: white">
-                        <!--{{ioLength}}-->
+                        ${this.ioLength}
                     </div>
                 </div>
                 <div class="hheader" style="flex: 1;margin-left:1px;height:28px; left:${this.labelColumn + 32}px"></div>
@@ -139,9 +140,17 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         `
     }
 
+    slotchange() {
+        setTimeout(() => {
+            this.focused = undefined;
+            this.io = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
+            this.io._partid = this._partid;
+        }, 20);
+    }
+
     async getData() {
         this.item = [];
-        this.$$update();
+        //this.$$update();
         const io = this.isShowFocused ? this.focused.el || this.focused || this.io : this.io;
         this._io = await makeData(io, this.args);
         const obj = {};
@@ -150,6 +159,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             let cat = i.category || 'no category';
             obj[cat] = obj[cat] || [];
             obj[cat].push(i);
+            ++this.ioLength;
         })
         this.item = obj;
         if (this.$refs?.cnt) this.$refs.cnt.scrollTop = 0;
@@ -195,7 +205,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 customElements.define('li-property-tree', class LiPropertyTree extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, default: '', update: true },
+            _partid: { type: String, default: '', update: true },
             expertMode: { type: Boolean, default: false, local: true },
             item: { type: Object, default: undefined },
             props: { type: Object, default: {} },
@@ -267,7 +277,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
                     </div>
                 </div>
                 <div class="complex">
-                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" .$$id="${this.$$id}" .args="${this.args}"></li-property-tree>` : html``}
+                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" ._partid="${this._partid}" .args="${this.args}"></li-property-tree>` : html``}
                 </div>
             `)}
         `

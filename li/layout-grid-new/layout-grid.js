@@ -5,7 +5,7 @@ import '../button/button.js';
 customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {
     static get properties() {
         return {
-            _$$id: { type: String, default: '', update: true },
+            _partid: { type: String, default: '', update: true },
             width: { type: Number, default: 0, local: true },
             height: { type: Number, default: 0, local: true },
             zoom: { type: Number, default: 1, local: true },

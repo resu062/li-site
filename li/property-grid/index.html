@@ -1,7 +1,8 @@
 <script type="module" src="./property-grid.js"></script>
-<script type="module" src="../button/button.js"></script>
+<script type="module" src="../checkbox/checkbox.js"></script>
 <style>
-    html, body {
+    html,
+    body {
         color: gray;
         font-family: Arial;
         margin: 0;
@@ -12,9 +13,42 @@
     }
 </style>
 
-<li-button id="lbtn" width="200px" name="android" fill="green" color="red" size="64" border="2px" radius="8px" label="I'm button"></li-button>
-<li-property-grid id="pg"></li-property-grid>
+<li-property-grid>
+    <li-checkbox id="chk" fill="green" size="64"></li-checkbox>
+</li-property-grid>
 
 <script type="module">
-    pg.io = lbtn;
+    chk.testData = {
+        name: 'User1',
+        _note: 'Hidden note...',
+        nestedObject1: [
+            {
+                itemId: 1,
+                itemDetails: {
+                    name: "C",
+                    caregory: "Programming Language",
+                    price: 500,
+                },
+                itemCategory: "Basic",
+            },
+            {
+                itemId: 2,
+                itemDetails: {
+                    name: "C++",
+                    caregory: "Programming Language",
+                    price: 700,
+                },
+                itemCategory: "Beginner",
+            },
+            {
+                itemId: 1,
+                itemDetails: {
+                    name: "Java Script",
+                    caregory: "Web Development",
+                    price: 1500,
+                },
+                itemCategory: "Advanced",
+            }
+        ],
+    };
 </script>

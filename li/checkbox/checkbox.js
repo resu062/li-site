@@ -5,7 +5,7 @@ import '../icon/icon.js'
 customElements.define('li-checkbox', class LiCheckbox extends LiElement {
     static get properties() {
         return {
-            _useInfo: { type: Boolean, default: true },
+            //_partid: { type: String, default: '', update: true },
             fill: { type: String, default: 'gray' },
             back: { type: String, default: '#fdfdfd' },
             size: { type: Number, default: 24 },
@@ -66,5 +66,6 @@ customElements.define('li-checkbox', class LiCheckbox extends LiElement {
             this.useIndeterminate = false;
             this.toggled = !this.toggled;
         }
+        this.$$update();
     }
 });

@@ -6,7 +6,7 @@ import '../checkbox/checkbox.js';
 customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     static get properties() {
         return {
-            $$id: { type: String, default: ''},
+            _partid: { type: String, default: ''},
             ulid: { type: String, default: '' },
             item: { type: Object, default: {} },
             iconSize: { type: Number, default: 28 },
@@ -63,7 +63,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}" .allowCheck ="${this.allowCheck}" .$$id="${this.$$id}"></li-layout-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}" .allowCheck ="${this.allowCheck}" ._partid="${this._partid}"></li-layout-tree>` : ''}
                 </div>
             `)}
         `

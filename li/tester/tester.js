@@ -9,15 +9,10 @@ import { indx } from './indx.js';
 customElements.define('li-tester', class LiTester extends LiElement {
     static get properties() {
         return {
+            _partid: { type: String, default: '', update: true },
             label: { type: String, default: '' },
-            component: { type: Object, default: undefined },
-            id: { type: String }
+            component: { type: Object, default: undefined }
         }
-    }
-
-    constructor() {
-        super();
-        this.id= LI.ulid();
     }
 
     get localName() {
@@ -35,7 +30,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
 
     render() {
         return html`
-            <li-layout-app sides="300,300" fill="#9f731350">
+            <li-layout-app sides="300,300" fill="#9f731350" id="li-layout-app-tester" ._partid="${this._partid}">
                 <div slot="app-top">
                     <div>${this.localName}</div>
                 </div>
@@ -53,7 +48,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
                     )}
                 </div>
                 <div slot="app-right" style="margin-right:4px;margin-top:4px;height: 99%;border:1px solid lightgray;">
-                    <li-property-grid id="${this.id}" .io=${this.component} label="${this.localName}"></li-property-grid>
+                    <li-property-grid id="li-layout-app-tester" .io=${this.component} label="${this.localName}" ._partid="${this._partid}"></li-property-grid>
                 </div>
             </li-layout-app>
         `;
@@ -63,6 +58,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
         let el = {};
         if (updateComponent && this.component) el = this.component;
         else el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
+        this.component._partid = this._partid
     }
 
     async _tap(e) {
