@@ -312,6 +312,6 @@ export const indx = {
     { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
     ],
 
-    'li-tetris': { label: 'li-tetris' },
-    'tetris': [{ label: 'index', url: url + '/tetris' }],
+    // 'li-tetris': { label: 'li-tetris' },
+    // 'tetris': [{ label: 'index', url: url + '/tetris' }],
 }
