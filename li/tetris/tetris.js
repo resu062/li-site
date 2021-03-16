@@ -7,17 +7,18 @@ import '../button/button.js';
 
 const COLS = 15;
 const ROWS = 30;
-const BLOCK_SIZE = 30;
+const BLOCK_SIZE = 24;
 const LINES_PER_LEVEL = 10;
+const SLIT = 0.05;
 const COLORS = [
     'none',
-    'cyan',
-    'blue',
-    'orange',
-    'yellow',
-    'green',
-    'purple',
-    'red'
+    '#e36bae',      // I
+    '#19d3da',      // J
+    '#a8dda8',      // L
+    '#f1e189',      // []
+    '#00917c',      // S
+    '#3d7ea6',      // T
+    '#ff7171'       // Z
 ]
 Object.freeze(COLORS);
 const SHAPES = [
@@ -337,7 +338,7 @@ class Board {
             row.forEach((value, x) => {
                 if (value > 0) {
                     this.ctx.fillStyle = COLORS[value];
-                    this.ctx.fillRect(x, y, 1, 1);
+                    this.ctx.fillRect(x + SLIT, y + SLIT, 1 - SLIT, 1 - SLIT);
                 }
             });
         });
@@ -402,7 +403,7 @@ class Piece {
         this.shape.forEach((row, y) => {
             row.forEach((value, x) => {
                 if (value > 0) {
-                    this.ctx.fillRect(this.x + x, this.y + y, 1, 1);
+                    this.ctx.fillRect(this.x + x + SLIT, this.y + y + SLIT, 1 - SLIT, 1 - SLIT);
                 }
             });
         });
