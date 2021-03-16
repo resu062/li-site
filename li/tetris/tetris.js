@@ -169,7 +169,8 @@ let url = import.meta.url;
 customElements.define('li-tetris', class LiTetris extends LiElement {
     static get properties() {
         return {
-            label: { type: String, default: 'TETRIS' }
+            label: { type: String, default: 'TETRIS' },
+            audioEnabled: { type: Boolean, default: true }
         }
     }
 
@@ -192,8 +193,23 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         board = new Board(ctx, ctxNext);
         addEventListener();
         initNext();
+    }
 
-        play();
+    playMusic = function () {
+        if (this.themeMusic) {
+            this.themeMusic.pause();
+        }
+    
+        if (this.audioEnabled) {
+            if (!this.themeMusic) {
+                this.themeMusic = new Audio('./music/TetrisTheme.mp3');
+                this.themeMusic.volume = 0.05;
+                this.themeMusic.loop = true;
+            }
+            this.themeMusic.play();
+        }
+    
+    
     }
 
     static get styles() {
@@ -227,6 +243,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 </div>
 
                 <div slot="app-right" style="display:flex;flex-direction:column; align-items: strech; justify-content: center;height:100%;font-size:large;">
+                    <li-button width="auto" @click="${this._play}">Play</li-button>    
                     <div style="margin:16px;font-size:large;">Score: ${accountValues.score}</div>
                     <div style="margin:16px;font-size:large;">Lines: ${accountValues.lines}</div>
                     <div style="margin:16px;font-size:large;">Level: ${accountValues.level}</div>
@@ -242,6 +259,11 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
 
             </li-layout-app>
         `
+    }
+
+    _play() {
+        play();
+        this.playMusic();
     }
 })
 
@@ -293,6 +315,15 @@ class Board {
         }
         return true;
     }
+    lineClearPlay() {
+        //if (this.audioEnabled) {
+            if (!this.linecleareffect) {
+                this.linecleareffect = new Audio('./music/line.wav');
+                this.linecleareffect.volume = 0.15;
+            }
+            this.linecleareffect.play();
+        //}
+    }
     clearLines() {
         let lines = 0;
         this.grid.forEach((row, y) => {
@@ -303,6 +334,7 @@ class Board {
             }
         });
         if (lines > 0) {
+            this.lineClearPlay();
             account.score += this.getLinesClearedPoints(lines);
             account.lines += lines;
             if (account.lines >= LINES_PER_LEVEL) {
