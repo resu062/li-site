@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Full Height Element</title>
+        <style>
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+            }
+
+            .full-height {
+                height: 100%;
+                background: tomato;
+                opacity: .5;
+                box-shadow: inset 0 0 0 3px red;
+                display: flex;
+                justify-content: center;
+                align-items: stretch;
+            }
+
+            .container {
+                border: 2px solid blue;
+                margin: 10px;
+                flex: 1;
+                background: lightblue;
+                display: flex;
+                justify-content: center;
+                align-items: stretch;
+            }
+
+            .in {
+                border: 1px solid orange;
+                margin: 8px;
+                flex: 1;
+                background: lightyellow;
+            }
+
+            .in4 {
+                flex: 4;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div class="full-height">
+            <div class="container">
+                <div class="in">
+
+                </div>
+                <div class="in in4">
+
+                </div>
+                <div class="in">
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+
+</html>
