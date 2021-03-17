@@ -39,7 +39,7 @@ customElements.define('li-button', class LiButton extends LiElement {
             :host {
                 display: inline-block;
                 vertical-align: middle;
-                font-family:Verdana, Geneva, Tahoma, sans-serif;
+                /* font-family:Verdana, Geneva, Tahoma, sans-serif; */
                 margin: 1px;
                 user-select: none;
             }
