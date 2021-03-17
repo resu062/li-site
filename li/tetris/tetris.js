@@ -5,6 +5,7 @@ import '../button/button.js';
 
 'use strict';
 
+let soundEnabled = true;
 const COLS = 15;
 const ROWS = 30;
 const BLOCK_SIZE = 24;
@@ -20,7 +21,6 @@ const COLORS = [
     '#3d7ea6',      // T
     '#ff7171'       // Z
 ]
-Object.freeze(COLORS);
 const SHAPES = [
     [],
     [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
@@ -31,7 +31,6 @@ const SHAPES = [
     [[0, 6, 0], [6, 6, 6], [0, 0, 0]],
     [[7, 7, 0], [0, 7, 7], [0, 0, 0]]
 ]
-Object.freeze(SHAPES);
 const KEY = {
     ESC: 27,
     SPACE: 32,
@@ -41,7 +40,6 @@ const KEY = {
     DOWN: 40,
     P: 80
 }
-Object.freeze(KEY);
 const POINTS = {
     SINGLE: 100,
     DOUBLE: 300,
@@ -50,7 +48,6 @@ const POINTS = {
     SOFT_DROP: 1,
     HARD_DROP: 2,
 }
-Object.freeze(POINTS);
 const LEVEL = {
     0: 800,
     1: 720,
@@ -75,10 +72,6 @@ const LEVEL = {
     20: 30,
     // 29+ is 20ms
 }
-Object.freeze(LEVEL);
-
-let canvas, ctx, canvasNext, ctxNext, account, requestId, board, time;
-let accountValues = { score: 0, level: 0, lines: 0 }
 
 const moves = {
     [KEY.LEFT]: p => ({ ...p, x: p.x - 1 }),
@@ -87,197 +80,197 @@ const moves = {
     [KEY.SPACE]: p => ({ ...p, y: p.y + 1 }),
     [KEY.UP]: p => board.rotate(p)
 }
-function initNext() {
-    ctxNext.canvas.width = 4 * BLOCK_SIZE;
-    ctxNext.canvas.height = 4 * BLOCK_SIZE;
-    ctxNext.scale(BLOCK_SIZE, BLOCK_SIZE);
-}
-function addEventListener() {
-    document.addEventListener('keydown', event => {
-        if (event.keyCode === KEY.P) {
-            pause();
-        }
-        if (event.keyCode === KEY.ESC) {
-            gameOver();
-        } else if (moves[event.keyCode]) {
-            event.preventDefault();
-            let p = moves[event.keyCode](board.piece);
-            if (event.keyCode === KEY.SPACE) {
-                while (board.valid(p)) {
-                    account.score += POINTS.HARD_DROP;
-                    board.piece.move(p);
-                    p = moves[KEY.DOWN](board.piece);
-                }
-            } else if (board.valid(p)) {
-                board.piece.move(p);
-                if (event.keyCode === KEY.DOWN) {
-                    account.score += POINTS.SOFT_DROP;
-                }
-            }
-        }
-    })
-}
-function resetGame() {
-    account.score = 0;
-    account.lines = 0;
-    account.level = 0;
-    board.reset();
-    time = { start: 0, elapsed: 0, level: LEVEL[account.level] };
-}
-function play() {
-    resetGame();
-    time.start = performance.now();
-    if (requestId) cancelAnimationFrame(requestId);
-    animate();
-}
-function animate(now = 0) {
-    time.elapsed = now - time.start;
-    if (time.elapsed > time.level) {
-        time.start = now;
-        if (!board.drop()) {
-            gameOver();
-            return;
-        }
-    }
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    board.draw();
-    requestId = requestAnimationFrame(animate);
-}
-function gameOver() {
-    cancelAnimationFrame(requestId);
-    ctx.fillStyle = 'black';
-    ctx.fillRect(1, 3, 8, 1.2);
-    ctx.font = '1px Arial';
-    ctx.fillStyle = 'red';
-    ctx.fillText('GAME OVER', 1.8, 4);
-}
-function pause() {
-    if (!requestId) {
-        animate();
-        return;
-    }
-    cancelAnimationFrame(requestId);
-    requestId = null;
-    ctx.fillStyle = 'black';
-    ctx.fillRect(1, 3, 8, 1.2);
-    ctx.font = '1px Arial';
-    ctx.fillStyle = 'yellow';
-    ctx.fillText('PAUSED', 3, 4);
-}
 
-let url = import.meta.url;
 customElements.define('li-tetris', class LiTetris extends LiElement {
     static get properties() {
         return {
+            _partid: {type: String, default: 'tetris'},
             label: { type: String, default: 'TETRIS' },
-            audioEnabled: { type: Boolean, default: true }
+            musicEnabled: { type: Boolean, default: true, save: true },
+            soundEnabled: { type: Boolean, default: true, save: true },
+            account: { type: Object, default: { score: 0, lines: 0, level: 0 } }
         }
     }
 
     firstUpdated() {
         super.firstUpdated();
 
-        canvas = this.$id.board;
-        ctx = canvas.getContext('2d');
-        canvasNext = this.$id.next;
-        ctxNext = canvasNext.getContext('2d');
-
-        account = new Proxy(accountValues, {
-            set: (target, key, value) => {
-                target[key] = value;
-                this.$update();
-                return true;
-            }
-        })
-
-        board = new Board(ctx, ctxNext);
-        addEventListener();
-        initNext();
-    }
-
-    playMusic = function () {
-        if (this.themeMusic) {
-            this.themeMusic.pause();
-        }
-    
-        if (this.audioEnabled) {
-            if (!this.themeMusic) {
-                this.themeMusic = new Audio('./music/TetrisTheme.mp3');
-                this.themeMusic.volume = 0.05;
-                this.themeMusic.loop = true;
-            }
-            this.themeMusic.play();
-        }
-    
-    
+        this.canvas = this.$id.board;
+        this.ctx = this.canvas.getContext('2d');
+        this.canvasNext = this.$id.next;
+        this.ctxNext = this.canvasNext.getContext('2d');
+        this.board = new Board(this);
+        this.addEventListener();
+        this.initNext();
     }
 
     static get styles() {
         return css`
-
+            :host {
+                height: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: stretch;
+            }
+            .panel {
+                display: flex;
+                flex-direction: column;
+                padding: 4px;
+                border: 1px solid lightgray;
+                width: 200px;
+            }
+            .item {
+                margin: 16px;
+                font-size: large;
+            }
+            .account {
+                margin-top: 16px;
+                font-size: small;
+            }
+            .btn {
+                padding: 2px;
+            }
         `;
     }
 
     render() {
         return html`
-            <li-layout-app sides="360,360,1,1" fill="#9f731350">
-
-                <div slot="app-top" style="font-size:xx-large;display:flex;align-items: center; justify-content: center;">
-                    <img src="${url.replace('tetris.js', 'li.png')}" style="max-width:48px;max-height:48px;padding:4px">
-                     ... TETRIS ...
-                    <img src="${url.replace('tetris.js', 'li.png')}" style="max-width:48px;max-height:48px;padding:4px">
+            <div class="panel">
+                <div class="item" align="center" style="font-weight:700;text-decoration:underline">TETRIS</div>
+                <li-button class="btn" width="auto" height="32" border="0" @click="${this._play}">Play</li-button>
+                <li-button class="btn" width="auto" height="32" border="0" @click="${this.pause}">Pause</li-button>
+                <li-button class="btn" width="auto" height="32" border="0" @click="${this._sound}" style="text-decoration: ${this.soundEnabled ? '' : 'line-through'}">Sound</li-button>
+                <li-button class="btn" width="auto" height="32" border="0" @click="${this._music}" style="text-decoration: ${this.musicEnabled ? '' : 'line-through'}">Music</li-button>
+            </div>
+            <canvas id="board" class="no-flex game-board" style="border: 18px solid transparent;box-shadow: inset 0 0 0 1px lightgray;"></canvas>
+            <div class="panel">
+                <div class="account">Score:${this.account.score}</div>
+                <div class="account">Lines:${this.account.lines}</div>
+                <div class="account">Level:${this.account.level}</div>
+                <div class="account" style="display:flex;justify-content:center">
+                    <canvas id="next" style="width:100px"></canvas>
                 </div>
-
-                <div slot="app-left" style="display:flex;flex-direction:column; align-items: strech; justify-content: center;height:100%">
-                    <div style="flex:1"></div>
-                    <li-button width="auto" height="128px" >1</li-button>
-                    <div style="display:flex;align-items: center; justify-content: center;">
-                        <li-button width="auto" height="128px" style="flex:1">2</li-button>
-                        <li-button width="auto" height="128px" style="flex:1">3</li-button>
-                    </div>
-                    <li-button width="auto" height="128px" >4</li-button>
-                </div>
-
-                <div slot="app-main" style="display:flex;align-items: center; justify-content: center;height:100%">
-                    <canvas id="board" class="game-board" style="border: 4px solid lightgray;border-radius:8px"></canvas>
-                </div>
-
-                <div slot="app-right" style="display:flex;flex-direction:column; align-items: strech; justify-content: center;height:100%;font-size:large;">
-                    <li-button width="auto" @click="${this._play}">Play</li-button>    
-                    <div style="margin:16px;font-size:large;">Score: ${accountValues.score}</div>
-                    <div style="margin:16px;font-size:large;">Lines: ${accountValues.lines}</div>
-                    <div style="margin:16px;font-size:large;">Level: ${accountValues.level}</div>
-                    <canvas id="next" class="next" style="width:100px"></canvas>
-                    <div style="flex:1"></div>
-                    <li-button width="auto" height="128px" >1</li-button>
-                    <div style="display:flex;align-items: center; justify-content: center;">
-                        <li-button width="auto" height="128px" style="flex:1">2</li-button>
-                        <li-button width="auto" height="128px" style="flex:1">3</li-button>
-                    </div>
-                    <li-button width="auto" height="128px" >4</li-button>
-                </div>
-
-            </li-layout-app>
+            </div>
         `
     }
 
     _play() {
-        play();
+        this.play();
         this.playMusic();
+    }
+    _sound() {
+        soundEnabled = this.soundEnabled = !this.soundEnabled;
+    }
+    _music() {
+        this.musicEnabled = !this.musicEnabled;
+        this.playMusic();
+    }
+    playMusic = function() {
+        if (this.themeMusic) {
+            this.themeMusic.pause();
+        }
+        if (this.musicEnabled) {
+            //if (!this.themeMusic) {
+            this.themeMusic = new Audio('./music/TetrisTheme.mp3');
+            this.themeMusic.volume = 0.05;
+            this.themeMusic.loop = true;
+            //}
+            this.themeMusic.play();
+        }
+    }
+    initNext() {
+        this.ctxNext.canvas.width = 4 * BLOCK_SIZE;
+        this.ctxNext.canvas.height = 4 * BLOCK_SIZE;
+        this.ctxNext.scale(BLOCK_SIZE, BLOCK_SIZE);
+    }
+    addEventListener() {
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === KEY.P) {
+                this.pause();
+            }
+            if (event.keyCode === KEY.ESC) {
+                this.gameOver();
+            } else if (moves[event.keyCode]) {
+                event.preventDefault();
+                let p;
+                if (event.keyCode === KEY.UP) p = this.board.rotate(this.board.piece);
+                else p = moves[event.keyCode](this.board.piece);
+                if (event.keyCode === KEY.SPACE) {
+                    while (this.board.valid(p)) {
+                        this.account.score += POINTS.HARD_DROP;
+                        this.board.piece.move(p);
+                        p = moves[KEY.DOWN](this.board.piece);
+                    }
+                    if (this.soundEnabled) {
+                        this.linedropeffect = new Audio('./music/drop.mp3');
+                        this.linedropeffect.volume = 0.15;
+                        this.linedropeffect.play();
+                    }
+                } else if (this.board.valid(p)) {
+                    this.board.piece.move(p);
+                    if (event.keyCode === KEY.DOWN) {
+                        this.account.score += POINTS.SOFT_DROP;
+                    }
+                }
+                this.$update();
+            }
+        })
+    }
+    resetGame() {
+        this.account.score = 0;
+        this.account.lines = 0;
+        this.account.level = 0;
+        this.board.reset();
+        this.time = { start: 0, elapsed: 0, level: LEVEL[this.account.level] };
+        this.$update();
+    }
+    play() {
+        this.resetGame();
+        this.time.start = performance.now();
+        if (this.requestId) cancelAnimationFrame(this.requestId);
+        this.animate();
+    }
+    animate(now = 0) {
+        this.time.elapsed = now - this.time.start;
+        if (this.time.elapsed > this.time.level) {
+            this.time.start = now;
+            if (!this.board.drop()) {
+                this.gameOver();
+                return;
+            }
+        }
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.board.draw();
+        this.requestId = requestAnimationFrame(this.animate.bind(this));
+    }
+    gameOver() {
+        cancelAnimationFrame(this.equestId);
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillRect(1, 3, COLS - 2, 1.2);
+        this.ctx.font = '1px Arial';
+        this.ctx.fillStyle = 'red';
+        this.ctx.fillText('GAME OVER', COLS / 2 - 3, 4);
+    }
+    pause() {
+        if (!this.requestId) {
+            this.animate();
+            return;
+        }
+        cancelAnimationFrame(this.requestId);
+        this.requestId = null;
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillRect(1, 3, COLS - 2, 1.2);
+        this.ctx.font = '1px Arial';
+        this.ctx.fillStyle = 'yellow';
+        this.ctx.fillText('PAUSED', COLS / 2 - 2, 4);
     }
 })
 
 class Board {
-    ctx;
-    ctxNext;
-    grid;
-    piece;
-    next;
-    requestId;
-    time;
-    constructor(ctx, ctxNext) {
-        this.ctx = ctx;
-        this.ctxNext = ctxNext;
+    constructor(tet) {
+        this.tet = tet;
+        this.ctx = tet.ctx;
+        this.ctxNext = tet.ctxNext;
         this.init();
     }
     init() {
@@ -316,13 +309,13 @@ class Board {
         return true;
     }
     lineClearPlay() {
-        //if (this.audioEnabled) {
+        if (this.soundEnabled) {
             if (!this.linecleareffect) {
                 this.linecleareffect = new Audio('./music/line.wav');
                 this.linecleareffect.volume = 0.15;
             }
             this.linecleareffect.play();
-        //}
+        }
     }
     clearLines() {
         let lines = 0;
@@ -335,12 +328,12 @@ class Board {
         });
         if (lines > 0) {
             this.lineClearPlay();
-            account.score += this.getLinesClearedPoints(lines);
-            account.lines += lines;
-            if (account.lines >= LINES_PER_LEVEL) {
-                account.level++;
-                account.lines -= LINES_PER_LEVEL;
-                time.level = LEVEL[account.level];
+            this.tet.account.score += this.getLinesClearedPoints(lines);
+            this.tet.account.lines += lines;
+            if (this.tet.account.lines >= LINES_PER_LEVEL) {
+                this.tet.account.level++;
+                this.tet.account.lines -= LINES_PER_LEVEL;
+                this.tet.time.level = LEVEL[account.level];
             }
         }
     }
@@ -408,17 +401,11 @@ class Board {
                         : lines === 4
                             ? POINTS.TETRIS
                             : 0;
-        return (account.level + 1) * lineClearPoints;
+        return (this.tet.account.level + 1) * lineClearPoints;
     }
 }
 
 class Piece {
-    x;
-    y;
-    color;
-    shape;
-    ctx;
-    typeId;
     constructor(ctx) {
         this.ctx = ctx;
         this.spawn();
@@ -446,7 +433,7 @@ class Piece {
         this.shape = p.shape;
     }
     setStartingPosition() {
-        this.x = this.typeId === 4 ? 4 : 3;
+        this.x = this.typeId === 4 ? Math.round(COLS / 2) - 1 : Math.round(COLS / 2) - 2;
     }
     randomizeTetrominoType(noOfTypes) {
         return Math.floor(Math.random() * noOfTypes + 1);
