@@ -18,8 +18,8 @@ const COLORS = [
     '#a8dda8',      // L
     '#f1e189',      // []
     '#00917c',      // S
-    '#3d7ea6',      // T
-    '#ff7171'       // Z
+    '#ff7171',      // T
+    '#3d7ea6'       // Z
 ]
 const SHAPES = [
     [],
@@ -132,7 +132,9 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
             }
             .cnts {
                 flex: 1;
+                margin: 2px;
                 border: 1px solid lightgray;
+                border-radius: 4px;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -156,7 +158,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                         <div class="cnts" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touchstart="${(e) => this.touch(e, KEY.LEFT)}">left</div>
                         <div class="cnts" @mousedown="${(e) => this.down(e, KEY.RIGHT)}" @touchstart="${(e) => this.touch(e, KEY.RIGHT)}">right</div>
                     </div>
-                    <div class="cnts" @mousedown="${(e) => this.down(e, KEY.SPACE)}" @touchstart="${(e) => this.touch(e, KEY.SPACE)}">space</div>
+                    <div class="cnts" @mousedown="${(e) => this.down(e, KEY.DOWN)}" @touchstart="${(e) => this.touch(e, KEY.DOWN)}">down</div>
                 </div>
             </div>
             <canvas id="board" class="no-flex game-board" style="border: 18px solid transparent;box-shadow: inset 0 0 0 1px lightgray;"></canvas>
@@ -211,7 +213,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
     }
     down(e, action) {
         e.preventDefault();
-        if (action === KEY.LEFT || action === KEY.RIGHT)
+        if (action === KEY.LEFT || action === KEY.RIGHT || action === KEY.DOWN)
             this._timer = setInterval(() => {
                 this.action(action);
             }, 100);
@@ -219,7 +221,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
     }
     touch(e, action) {
         e.preventDefault();
-        if (action === KEY.LEFT || action === KEY.RIGHT)
+        if (action === KEY.LEFT || action === KEY.RIGHT || action === KEY.DOWN)
             this._timer = setInterval(() => {
                 this.action(action);
             }, 100);
