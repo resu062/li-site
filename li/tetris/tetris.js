@@ -141,6 +141,15 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this.pause}">Pause</li-button>
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._sound}" style="text-decoration: ${this.soundEnabled ? '' : 'line-through'}">Sound</li-button>
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._music}" style="text-decoration: ${this.musicEnabled ? '' : 'line-through'}">Music</li-button>
+                <div style="flex:1"></div>
+                <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer;">
+                    <div style="flex:1;border: 1px solid lightgray;" @mousedown="${()=>this.action(KEY.UP)}"></div>
+                    <div style="display:flex;flex-direction:row;flex:1">
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.LEFT)}"></div>
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.RIGHT)}"></div>
+                    </div>
+                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.DOWN)}"></div>
+                </div>
             </div>
             <canvas id="board" class="no-flex game-board" style="border: 18px solid transparent;box-shadow: inset 0 0 0 1px lightgray;"></canvas>
             <div class="panel">
@@ -149,6 +158,15 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 <div class="account">Level:${this.account.level}</div>
                 <div class="account" style="display:flex;justify-content:center">
                     <canvas id="next" style="width:100px"></canvas>
+                </div>
+                <div style="flex:1"></div>
+                <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer">
+                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.UP)}"></div>
+                    <div style="display:flex;flex-direction:row;flex:1">
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.LEFT)}"></div>
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.RIGHT)}"></div>
+                    </div>
+                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.SPACE)}"></div>
                 </div>
             </div>
         `
@@ -183,6 +201,30 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.ctxNext.canvas.height = 4 * BLOCK_SIZE;
         this.ctxNext.scale(BLOCK_SIZE, BLOCK_SIZE);
     }
+    action(action) {
+        if (!this._gameStart) return;
+        let p;
+        if (action === KEY.UP) p = this.board.rotate(this.board.piece);
+        else p = moves[action](this.board.piece);
+        if (action === KEY.SPACE) {
+            while (this.board.valid(p)) {
+                this.account.score += POINTS.HARD_DROP;
+                this.board.piece.move(p);
+                p = moves[KEY.DOWN](this.board.piece);
+            }
+            if (this.soundEnabled) {
+                this.linedropeffect = new Audio('./music/drop.mp3');
+                this.linedropeffect.volume = 0.15;
+                this.linedropeffect.play();
+            }
+        } else if (this.board.valid(p)) {
+            this.board.piece.move(p);
+            if (action === KEY.DOWN) {
+                this.account.score += POINTS.SOFT_DROP;
+            }
+        }
+        this.$update();
+    }
     addEventListener() {
         const preventDefault = function(e) { e.preventDefault() },
             updateHtml = (e) => console.log(e);
@@ -194,41 +236,17 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 this.gameOver();
             } else if (moves[event.keyCode]) {
                 event.preventDefault();
-                action(event.keyCode);
+                this.action(event.keyCode);
             }
         })
 
-        const action = (action) => {
-            if (!this._gameStart) return;
-            let p;
-            if (action === KEY.UP) p = this.board.rotate(this.board.piece);
-            else p = moves[action](this.board.piece);
-            if (action === KEY.SPACE) {
-                while (this.board.valid(p)) {
-                    this.account.score += POINTS.HARD_DROP;
-                    this.board.piece.move(p);
-                    p = moves[KEY.DOWN](this.board.piece);
-                }
-                if (this.soundEnabled) {
-                    this.linedropeffect = new Audio('./music/drop.mp3');
-                    this.linedropeffect.volume = 0.15;
-                    this.linedropeffect.play();
-                }
-            } else if (this.board.valid(p)) {
-                this.board.piece.move(p);
-                if (action === KEY.DOWN) {
-                    this.account.score += POINTS.SOFT_DROP;
-                }
-            }
-            this.$update();
-        }
         // document.addEventListener('tap', () => action(KEY.UP));
-        document.addEventListener('dbltap', () => action(KEY.SPACE));
+        document.addEventListener('dbltap', () => this.action(KEY.SPACE));
         //document.addEventListener('longtap', () => this.pause());
-        document.addEventListener('swipeup', () => action(KEY.UP));
-        document.addEventListener('swipedown', () => action(KEY.DOWN));
-        document.addEventListener('swipeleft', () => action(KEY.LEFT));
-        document.addEventListener('swiperight', () => action(KEY.RIGHT));
+        document.addEventListener('swipeup', () => this.action(KEY.UP));
+        document.addEventListener('swipedown', () => this.action(KEY.DOWN));
+        document.addEventListener('swipeleft', () => this.action(KEY.LEFT));
+        document.addEventListener('swiperight', () => this.action(KEY.RIGHT));
         // document.addEventListener('touchmove', preventDefault);
         // document.addEventListener('touchstart', () => this._touchstart = true);
         // document.addEventListener('touchend', () => this._touchstart = false);
