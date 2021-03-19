@@ -251,8 +251,8 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         })
 
         // document.addEventListener('tap', () => action(KEY.UP));
-        document.addEventListener('dbltap', () => this.action(KEY.SPACE));
-        //document.addEventListener('longtap', () => this.pause());
+        // document.addEventListener('dbltap', () => this.action(KEY.SPACE));
+        // document.addEventListener('longtap', () => this.pause());
         document.addEventListener('swipeup', () => this.action(KEY.UP));
         document.addEventListener('swipedown', () => this.action(KEY.DOWN));
         document.addEventListener('swipeleft', () => this.action(KEY.LEFT));
