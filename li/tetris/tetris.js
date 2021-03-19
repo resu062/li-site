@@ -139,6 +139,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 justify-content: center;
                 align-items: center;
                 color: lightgray;
+                font-size: small;
             }
         `;
     }
