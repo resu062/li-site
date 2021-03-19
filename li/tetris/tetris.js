@@ -150,7 +150,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._sound}" style="text-decoration: ${this.soundEnabled ? '' : 'line-through'}">Sound</li-button>
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._music}" style="text-decoration: ${this.musicEnabled ? '' : 'line-through'}">Music</li-button>
                 <div style="flex:1"></div>
-                <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer;">
+                <div style="max-height:400px; flex: 10; display: flex;flex-direction: column;cursor:pointer;">
                     <div class="cnts" @mousedown="${(e) => this.down(e, KEY.UP)}" @touchstart="${(e) => this.touch(e, KEY.UP)}">up</div>
                     <div style="display:flex;flex-direction:row;flex:1">
                         <div class="cnts" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touchstart="${(e) => this.touch(e, KEY.LEFT)}">left</div>
@@ -168,7 +168,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                     <canvas id="next" style="width:100px"></canvas>
                 </div>
                 <div style="flex:1"></div>
-                <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer">
+                <div style="max-height:400px; flex: 10; display: flex;flex-direction: column;cursor:pointer">
                     <div class="cnts" @mousedown="${(e) => this.down(e, KEY.UP)}" @touchstart="${(e) => this.touch(e, KEY.UP)}">up</div>
                     <div style="display:flex;flex-direction:row;flex:1">
                         <div class="cnts" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touchstart="${(e) => this.touch(e, KEY.LEFT)}">left</div>
