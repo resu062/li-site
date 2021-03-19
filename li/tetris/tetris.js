@@ -221,7 +221,6 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 }
             }
             this.$update();
-            if (this._touchstart) this.action(action);
         }
         // document.addEventListener('tap', () => action(KEY.UP));
         document.addEventListener('dbltap', () => action(KEY.SPACE));
@@ -231,8 +230,8 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         document.addEventListener('swipeleft', () => action(KEY.LEFT));
         document.addEventListener('swiperight', () => action(KEY.RIGHT));
         // document.addEventListener('touchmove', preventDefault);
-        document.addEventListener('touchstart', () => this._touchstart = true);
-        document.addEventListener('touchend', () => this._touchstart = false);
+        // document.addEventListener('touchstart', () => this._touchstart = true);
+        // document.addEventListener('touchend', () => this._touchstart = false);
         // document.addEventListener('mousedown', preventDefault);
         // document.addEventListener('mouseleave', preventDefault);
         // document.addEventListener('mousemove', preventDefault);
