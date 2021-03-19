@@ -225,15 +225,15 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         if (action === KEY.UP) p = this.board.rotate(this.board.piece);
         else p = moves[action](this.board.piece);
         if (action === KEY.SPACE) {
-            while (this.board.valid(p)) {
-                this.account.score += POINTS.HARD_DROP;
-                this.board.piece.move(p);
-                p = moves[KEY.DOWN](this.board.piece);
-            }
             if (this.soundEnabled) {
                 this.linedropeffect = new Audio('./music/drop.mp3');
                 this.linedropeffect.volume = 0.15;
                 this.linedropeffect.play();
+            }
+            while (this.board.valid(p)) {
+                this.account.score += POINTS.HARD_DROP;
+                this.board.piece.move(p);
+                p = moves[KEY.DOWN](this.board.piece);
             }
         } else if (this.board.valid(p)) {
             this.board.piece.move(p);
@@ -244,8 +244,6 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.$update();
     }
     addEventListener() {
-        const preventDefault = function(e) { e.preventDefault() },
-            updateHtml = (e) => console.log(e);
         document.addEventListener('keydown', event => {
             if (event.keyCode === KEY.P) {
                 this.pause();
@@ -257,20 +255,6 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 this.action(event.keyCode);
             }
         })
-
-        // document.addEventListener('tap', () => action(KEY.UP));
-        // document.addEventListener('dbltap', () => this.action(KEY.SPACE));
-        // document.addEventListener('longtap', () => this.pause());
-        document.addEventListener('swipeup', () => this.action(KEY.UP));
-        document.addEventListener('swipedown', () => this.action(KEY.DOWN));
-        document.addEventListener('swipeleft', () => this.action(KEY.LEFT));
-        document.addEventListener('swiperight', () => this.action(KEY.RIGHT));
-        // document.addEventListener('touchmove', preventDefault);
-        // document.addEventListener('touchstart', () => this._touchstart = true);
-        // document.addEventListener('touchend', () => this._touchstart = false);
-        // document.addEventListener('mousedown', preventDefault);
-        // document.addEventListener('mouseleave', preventDefault);
-        // document.addEventListener('mousemove', preventDefault);
     }
     resetGame() {
         this.account.score = 0;
@@ -391,7 +375,7 @@ class Board {
             if (this.tet.account.lines >= LINES_PER_LEVEL) {
                 this.tet.account.level++;
                 this.tet.account.lines -= LINES_PER_LEVEL;
-                this.tet.time.level = LEVEL[account.level];
+                this.tet.time.level = LEVEL[this.tet.account.level];
             }
         }
     }
