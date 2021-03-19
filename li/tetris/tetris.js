@@ -1,7 +1,7 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
-import '../layout-app/layout-app.js';
 import '../button/button.js';
+import '../../lib/tocca/Tocca.js';
 
 'use strict';
 
@@ -84,7 +84,7 @@ const moves = {
 customElements.define('li-tetris', class LiTetris extends LiElement {
     static get properties() {
         return {
-            _partid: {type: String, default: 'tetris'},
+            _partid: { type: String, default: 'tetris' },
             label: { type: String, default: 'TETRIS' },
             musicEnabled: { type: Boolean, default: true, save: true },
             soundEnabled: { type: Boolean, default: true, save: true },
@@ -184,6 +184,8 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.ctxNext.scale(BLOCK_SIZE, BLOCK_SIZE);
     }
     addEventListener() {
+        const preventDefault = function(e) { e.preventDefault() },
+            updateHtml = (e) => console.log(e);
         document.addEventListener('keydown', event => {
             if (event.keyCode === KEY.P) {
                 this.pause();
@@ -192,29 +194,47 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 this.gameOver();
             } else if (moves[event.keyCode]) {
                 event.preventDefault();
-                let p;
-                if (event.keyCode === KEY.UP) p = this.board.rotate(this.board.piece);
-                else p = moves[event.keyCode](this.board.piece);
-                if (event.keyCode === KEY.SPACE) {
-                    while (this.board.valid(p)) {
-                        this.account.score += POINTS.HARD_DROP;
-                        this.board.piece.move(p);
-                        p = moves[KEY.DOWN](this.board.piece);
-                    }
-                    if (this.soundEnabled) {
-                        this.linedropeffect = new Audio('./music/drop.mp3');
-                        this.linedropeffect.volume = 0.15;
-                        this.linedropeffect.play();
-                    }
-                } else if (this.board.valid(p)) {
-                    this.board.piece.move(p);
-                    if (event.keyCode === KEY.DOWN) {
-                        this.account.score += POINTS.SOFT_DROP;
-                    }
-                }
-                this.$update();
+                action(event.keyCode);
             }
         })
+
+        const action = (action) => {
+            if (!this._gameStart) return;
+            let p;
+            if (action === KEY.UP) p = this.board.rotate(this.board.piece);
+            else p = moves[action](this.board.piece);
+            if (action === KEY.SPACE) {
+                while (this.board.valid(p)) {
+                    this.account.score += POINTS.HARD_DROP;
+                    this.board.piece.move(p);
+                    p = moves[KEY.DOWN](this.board.piece);
+                }
+                if (this.soundEnabled) {
+                    this.linedropeffect = new Audio('./music/drop.mp3');
+                    this.linedropeffect.volume = 0.15;
+                    this.linedropeffect.play();
+                }
+            } else if (this.board.valid(p)) {
+                this.board.piece.move(p);
+                if (action === KEY.DOWN) {
+                    this.account.score += POINTS.SOFT_DROP;
+                }
+            }
+            this.$update();
+        }
+        // document.addEventListener('tap', () => action(KEY.UP));
+        document.addEventListener('dbltap', () => action(KEY.SPACE));
+        document.addEventListener('longtap', () => this.pause());
+        document.addEventListener('swipeup', () => action(KEY.UP));
+        document.addEventListener('swipedown', () => action(KEY.DOWN));
+        document.addEventListener('swipeleft', () => action(KEY.LEFT));
+        document.addEventListener('swiperight', () => action(KEY.RIGHT));
+        // document.addEventListener('touchmove', preventDefault);
+        // document.addEventListener('touchstart', preventDefault);
+        // document.addEventListener('touchend', preventDefault);
+        // document.addEventListener('mousedown', preventDefault);
+        // document.addEventListener('mouseleave', preventDefault);
+        // document.addEventListener('mousemove', preventDefault);
     }
     resetGame() {
         this.account.score = 0;
@@ -229,6 +249,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.time.start = performance.now();
         if (this.requestId) cancelAnimationFrame(this.requestId);
         this.animate();
+        this._gameStart = true;
     }
     animate(now = 0) {
         this.time.elapsed = now - this.time.start;
@@ -244,7 +265,8 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.requestId = requestAnimationFrame(this.animate.bind(this));
     }
     gameOver() {
-        cancelAnimationFrame(this.equestId);
+        this._gameStart = false;
+        cancelAnimationFrame(this.requestId);
         this.ctx.fillStyle = 'black';
         this.ctx.fillRect(1, 3, COLS - 2, 1.2);
         this.ctx.font = '1px Arial';
@@ -309,7 +331,7 @@ class Board {
         return true;
     }
     lineClearPlay() {
-        if (this.soundEnabled) {
+        if (soundEnabled) {
             if (!this.linecleareffect) {
                 this.linecleareffect = new Audio('./music/line.wav');
                 this.linecleareffect.volume = 0.15;
