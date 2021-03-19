@@ -143,12 +143,12 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._music}" style="text-decoration: ${this.musicEnabled ? '' : 'line-through'}">Music</li-button>
                 <div style="flex:1"></div>
                 <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer;">
-                    <div style="flex:1;border: 1px solid lightgray;" @mousedown="${()=>this.action(KEY.UP)}"></div>
+                    <div style="flex:1;border: 1px solid lightgray;" @mousedown="${(e) => this.down(e, KEY.UP)}" @touch="${(e) => this.touchstart(e, KEY.UP)}"></div>
                     <div style="display:flex;flex-direction:row;flex:1">
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.LEFT)}"></div>
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.RIGHT)}"></div>
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touch="${(e) => this.touchstart(e, KEY.LEFT)}"></div>
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.RIGHT)}" @touch="${(e) => this.touchstart(e, KEY.RIGHT)}"></div>
                     </div>
-                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.DOWN)}"></div>
+                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.DOWN)}" @touch="${(e) => this.touchstart(e, KEY.DOWN)}"></div>
                 </div>
             </div>
             <canvas id="board" class="no-flex game-board" style="border: 18px solid transparent;box-shadow: inset 0 0 0 1px lightgray;"></canvas>
@@ -161,12 +161,12 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 </div>
                 <div style="flex:1"></div>
                 <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer">
-                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.UP)}"></div>
+                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.UP)}" @touch="${(e) => this.touchstart(e, KEY.UP)}"></div>
                     <div style="display:flex;flex-direction:row;flex:1">
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.LEFT)}"></div>
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.RIGHT)}"></div>
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touch="${(e) => this.touchstart(e, KEY.LEFT)}"></div>
+                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.RIGHT)}" @touch="${(e) => this.touchstart(e, KEY.RIGHT)}"></div>
                     </div>
-                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${()=>this.action(KEY.SPACE)}"></div>
+                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.SPACE)}" @touch="${(e) => this.touchstart(e, KEY.SPACE)}"></div>
                 </div>
             </div>
         `
@@ -200,6 +200,16 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.ctxNext.canvas.width = 4 * BLOCK_SIZE;
         this.ctxNext.canvas.height = 4 * BLOCK_SIZE;
         this.ctxNext.scale(BLOCK_SIZE, BLOCK_SIZE);
+    }
+    down(e, action) {
+        console.log(e)
+        e.preventDefault();
+        this.action(action);
+    }
+    touch(e, action) {
+        console.log(e)
+        e.preventDefault();
+        this.action(action);
     }
     action(action) {
         if (!this._gameStart) return;
