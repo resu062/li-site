@@ -5,7 +5,6 @@ import '../../lib/tocca/Tocca.js';
 
 'use strict';
 
-let soundEnabled = true;
 const COLS = 15;
 const ROWS = 30;
 const BLOCK_SIZE = 24;
@@ -38,7 +37,8 @@ const KEY = {
     UP: 38,
     RIGHT: 39,
     DOWN: 40,
-    P: 80
+    P: 80,
+    S: 83
 }
 const POINTS = {
     SINGLE: 100,
@@ -86,6 +86,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         return {
             _partid: { type: String, default: 'tetris' },
             label: { type: String, default: 'TETRIS' },
+            showShadow: { type: Boolean, default: true, save: true },
             musicEnabled: { type: Boolean, default: true, save: true },
             soundEnabled: { type: Boolean, default: true, save: true },
             account: { type: Object, default: { score: 0, lines: 0, level: 0 } }
@@ -147,7 +148,8 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
     render() {
         return html`
             <div class="panel">
-                <div class="item" align="center" style="font-weight:700;text-decoration:underline">TETRIS</div>
+                <div class="item" align="center" @click="${this._shadow}"
+                        style="font-weight:700;text-decoration:underline;cursor:pointer;color:${this.showShadow?'':'red'}">TETRIS</div>
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._play}">Play</li-button>
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this.pause}">Pause</li-button>
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._sound}" style="text-decoration: ${this.soundEnabled ? '' : 'line-through'}">Sound</li-button>
@@ -187,8 +189,11 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.play();
         this.playMusic();
     }
+    _shadow() {
+        this.showShadow = !this.showShadow;
+    }
     _sound() {
-        soundEnabled = this.soundEnabled = !this.soundEnabled;
+        this.soundEnabled = !this.soundEnabled;
     }
     _music() {
         this.musicEnabled = !this.musicEnabled;
@@ -260,6 +265,10 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
             if (this._timer) clearInterval(this._timer);
         })
         document.addEventListener('keydown', event => {
+            if (event.keyCode === KEY.S) {
+                this.showShadow = !this.showShadow;
+                return;
+            }
             if (event.keyCode === KEY.P) {
                 this.pause();
             }
@@ -349,6 +358,21 @@ class Board {
     draw() {
         this.piece.draw();
         this.drawBoard();
+
+        if (this.tet.showShadow) {
+            this.shadow = new Piece(this.ctx, this.tet, this.piece.typeId);
+            this.shadow.shape = this.piece.shape;
+            this.shadow.x = this.piece.x;
+            this.shadow.y = this.piece.y;
+            this.shadow.slit = this.piece.slit;
+            this.shadow.color = 'lightgray';
+            let _p = moves[KEY.DOWN](this.shadow);
+            while (this.valid(_p)) {
+                this.shadow.move(_p);
+                _p = moves[KEY.DOWN](this.shadow);
+            }
+            this.shadow.draw();
+        }
     }
     drop() {
         let p = moves[KEY.DOWN](this.piece);
@@ -366,7 +390,7 @@ class Board {
         return true;
     }
     lineClearPlay() {
-        if (soundEnabled) {
+        if (this.tet.soundEnabled) {
             if (!this.linecleareffect) {
                 this.linecleareffect = new Audio('./music/line.wav');
                 this.linecleareffect.volume = 0.15;
