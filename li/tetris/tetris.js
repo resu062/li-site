@@ -191,7 +191,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.musicEnabled = !this.musicEnabled;
         this.playMusic();
     }
-    playMusic = function() {
+    playMusic = function () {
         if (this.themeMusic) {
             this.themeMusic.pause();
         }
@@ -210,14 +210,20 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.ctxNext.scale(BLOCK_SIZE, BLOCK_SIZE);
     }
     down(e, action) {
-        console.log(e)
         e.preventDefault();
-        this.action(action);
+        if (action === KEY.LEFT || action === KEY.RIGHT)
+            this._timer = setInterval(() => {
+                this.action(action);
+            }, 100);
+        else this.action(action);
     }
     touch(e, action) {
-        console.log(e)
         e.preventDefault();
-        this.action(action);
+        if (action === KEY.LEFT || action === KEY.RIGHT)
+            this._timer = setInterval(() => {
+                this.action(action);
+            }, 100);
+        else this.action(action);
     }
     action(action) {
         if (!this._gameStart) return;
@@ -244,6 +250,12 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.$update();
     }
     addEventListener() {
+        document.addEventListener('touchend', event => {
+            if (this._timer) clearInterval(this._timer);
+        })
+        document.addEventListener('mouseup', event => {
+            if (this._timer) clearInterval(this._timer);
+        })
         document.addEventListener('keydown', event => {
             if (event.keyCode === KEY.P) {
                 this.pause();
