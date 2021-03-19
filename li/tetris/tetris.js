@@ -130,6 +130,14 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
             .btn {
                 padding: 2px;
             }
+            .cnts {
+                flex: 1;
+                border: 1px solid lightgray;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: lightgray;
+            }
         `;
     }
 
@@ -143,12 +151,12 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 <li-button class="btn" width="auto" height="32" border="0" @click="${this._music}" style="text-decoration: ${this.musicEnabled ? '' : 'line-through'}">Music</li-button>
                 <div style="flex:1"></div>
                 <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer;">
-                    <div style="flex:1;border: 1px solid lightgray;" @mousedown="${(e) => this.down(e, KEY.UP)}" @touchstart="${(e) => this.touch(e, KEY.UP)}"></div>
+                    <div class="cnts" @mousedown="${(e) => this.down(e, KEY.UP)}" @touchstart="${(e) => this.touch(e, KEY.UP)}">up</div>
                     <div style="display:flex;flex-direction:row;flex:1">
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touchstart="${(e) => this.touch(e, KEY.LEFT)}"></div>
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.RIGHT)}" @touchstart="${(e) => this.touch(e, KEY.RIGHT)}"></div>
+                        <div class="cnts" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touchstart="${(e) => this.touch(e, KEY.LEFT)}">left</div>
+                        <div class="cnts" @mousedown="${(e) => this.down(e, KEY.RIGHT)}" @touchstart="${(e) => this.touch(e, KEY.RIGHT)}">right</div>
                     </div>
-                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.DOWN)}" @touchstart="${(e) => this.touch(e, KEY.DOWN)}"></div>
+                    <div class="cnts" @mousedown="${(e) => this.down(e, KEY.SPACE)}" @touchstart="${(e) => this.touch(e, KEY.SPACE)}">space</div>
                 </div>
             </div>
             <canvas id="board" class="no-flex game-board" style="border: 18px solid transparent;box-shadow: inset 0 0 0 1px lightgray;"></canvas>
@@ -161,12 +169,12 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 </div>
                 <div style="flex:1"></div>
                 <div style="max-height:400px; height: 400px; display: flex;flex-direction: column;cursor:pointer">
-                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.UP)}" @touchstart="${(e) => this.touch(e, KEY.UP)}"></div>
+                    <div class="cnts" @mousedown="${(e) => this.down(e, KEY.UP)}" @touchstart="${(e) => this.touch(e, KEY.UP)}">up</div>
                     <div style="display:flex;flex-direction:row;flex:1">
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touchstart="${(e) => this.touch(e, KEY.LEFT)}"></div>
-                        <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.RIGHT)}" @touchstart="${(e) => this.touch(e, KEY.RIGHT)}"></div>
+                        <div class="cnts" @mousedown="${(e) => this.down(e, KEY.LEFT)}" @touchstart="${(e) => this.touch(e, KEY.LEFT)}">left</div>
+                        <div class="cnts" @mousedown="${(e) => this.down(e, KEY.RIGHT)}" @touchstart="${(e) => this.touch(e, KEY.RIGHT)}">right</div>
                     </div>
-                    <div style="flex:1;border: 1px solid lightgray" @mousedown="${(e) => this.down(e, KEY.SPACE)}" @touchstart="${(e) => this.touch(e, KEY.SPACE)}"></div>
+                    <div class="cnts" @mousedown="${(e) => this.down(e, KEY.SPACE)}" @touchstart="${(e) => this.touch(e, KEY.SPACE)}">space</div>
                 </div>
             </div>
         `
