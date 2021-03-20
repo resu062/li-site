@@ -125,11 +125,11 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 font-size: large;
             }
             .account {
-                margin-top: 16px;
+                margin-top: 20px;
                 font-size: small;
             }
             .btn {
-                padding: 2px;
+                font-size: small;
             }
             .cnts {
                 flex: 1;
@@ -148,12 +148,12 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
     render() {
         return html`
             <div class="panel">
-                <div class="item" align="center" @click="${this._shadow}"
-                        style="font-weight:700;text-decoration:underline;cursor:pointer;color:${this.showShadow?'':'red'}">TETRIS</div>
-                <li-button class="btn" width="auto" height="32" border="0" @click="${this._play}">Play</li-button>
-                <li-button class="btn" width="auto" height="32" border="0" @click="${this.pause}">Pause</li-button>
-                <li-button class="btn" width="auto" height="32" border="0" @click="${this._sound}" style="text-decoration: ${this.soundEnabled ? '' : 'line-through'}">Sound</li-button>
-                <li-button class="btn" width="auto" height="32" border="0" @click="${this._music}" style="text-decoration: ${this.musicEnabled ? '' : 'line-through'}">Music</li-button>
+                <div class="item" align="center" style="font-weight:700;text-decoration:underline;color:${this.showShadow ? '' : 'red'}">TETRIS</div>
+                <li-button class="btn" width="auto" height="24" border="0" @click="${this._play}">Play</li-button>
+                <li-button class="btn" width="auto" height="24" border="0" @click="${this.pause}">Pause</li-button>
+                <li-button class="btn" width="auto" height="24" border="0" @click="${this._sound}" style="text-decoration: ${this.soundEnabled ? '' : 'line-through'}">Sound</li-button>
+                <li-button class="btn" width="auto" height="24" border="0" @click="${this._music}" style="text-decoration: ${this.musicEnabled ? '' : 'line-through'}">Music</li-button>
+                <li-button class="btn" width="auto" height="24" border="0" @click="${this._shadow}" style="text-decoration: ${this.showShadow ? '' : 'line-through'}">Shadow</li-button>
                 <div style="flex:1"></div>
                 <div style="max-height:400px; flex: 10; display: flex;flex-direction: column;cursor:pointer;">
                     <div class="cnts" @mousedown="${(e) => this.down(e, KEY.UP)}" @touchstart="${(e) => this.touch(e, KEY.UP)}">up</div>
@@ -199,7 +199,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
         this.musicEnabled = !this.musicEnabled;
         this.playMusic();
     }
-    playMusic = function () {
+    playMusic = function() {
         if (this.themeMusic) {
             this.themeMusic.pause();
         }
@@ -389,15 +389,6 @@ class Board {
         }
         return true;
     }
-    lineClearPlay() {
-        if (this.tet.soundEnabled) {
-            if (!this.linecleareffect) {
-                this.linecleareffect = new Audio('./music/line.wav');
-                this.linecleareffect.volume = 0.15;
-            }
-            this.linecleareffect.play();
-        }
-    }
     clearLines() {
         let lines = 0;
         this.grid.forEach((row, y) => {
@@ -408,7 +399,20 @@ class Board {
             }
         });
         if (lines > 0) {
-            this.lineClearPlay();
+            if (this.tet.soundEnabled) {
+                if (!this.linecleareffect) {
+                    this.linecleareffect = new Audio('./music/line.wav');
+                    this.linecleareffect.volume = 0.25;
+                }
+                this.linecleareffect.play();
+                if (lines === 4) {
+                    if (!this.tetriseffect) {
+                        this.tetriseffect = new Audio('./music/tetris.mp3');
+                        this.tetriseffect.volume = 0.5;
+                    }
+                    this.tetriseffect.play();
+                }
+            }
             this.tet.account.score += this.getLinesClearedPoints(lines);
             this.tet.account.lines += lines;
             if (this.tet.account.lines >= LINES_PER_LEVEL) {
