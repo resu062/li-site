@@ -46,7 +46,8 @@ const POINTS = {
     TRIPLE: 500,
     TETRIS: 800,
     SOFT_DROP: 1,
-    HARD_DROP: 2,
+    HARD_DROP: 3,
+    NO_SHADOW_DROP: 5
 }
 const LEVEL = {
     0: 800,
@@ -245,7 +246,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 this.linedropeffect.play();
             }
             while (this.board.valid(p)) {
-                this.account.score += POINTS.HARD_DROP;
+                this.account.score += this.showShadow ? POINTS.HARD_DROP : POINTS.NO_SHADOW_DROP;
                 this.board.piece.move(p);
                 p = moves[KEY.DOWN](this.board.piece);
             }
