@@ -1,0 +1,101 @@
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <script type="module" src="../monitor/monitor.js"></script>
+    </head>
+
+    <body>
+
+        <li-life></li-life>
+        <li-monitor></li-monitor>
+
+        <script type="module">
+            import { html, css, svg } from '../../lib/lit-element/lit-element.js';
+            import { LiElement } from '../../li.js';
+
+            customElements.define('li-life', class LiLife extends LiElement {
+                static get properties() {
+                    return {
+                        // rows: { type: Number, default: 90 },
+                        // cols: { type: Number, default: 190 },
+                        // resolution: { type: Number, default: 10 },
+                        grid: { type: Array }
+                    }
+                }
+
+                static get styles() {
+                    return css`
+                        svg rect {fill: #f0f0f0; }
+                        svg rect.alive { fill: #777; }
+                    `;
+                }
+
+                render() {
+                    return html` 
+                        <div style="font-size: large;font-weight:700;color:red">lit-element Life on svg</div>
+                        <svg width="${this.cols * this.resolution}" height="${this.rows * this.resolution}">
+                            ${this.grid?.map((col, c) =>
+                                svg`<g>
+                                    ${col.map((row, r) => svg`<rect class="${row ? 'alive' : ''}" x="${c * this.resolution}" y="${r * this.resolution}" width="${this.resolution - 1}" height="${this.resolution - 1}"/>`)}
+                                </g >`
+                            )}
+                         </svg>
+                    `;
+                }
+
+                constructor() {
+                    super();
+                    this.cols = 190;
+                    this.rows = 90;
+                    this.resolution = 10;
+                    this.grid = this.make2DArray();
+                    for (let i = 0; i < this.cols; i++)
+                        for (let j = 0; j < this.rows; j++)
+                            this.grid[i][j] = Math.floor(Math.random() * 2);
+                }
+
+                firstUpdated() {
+                    super.firstUpdated();
+                    this.draw();
+                }
+
+                make2DArray(cols = this.cols, rows = this.rows) {
+                    let arr = new Array(cols);
+                    for (let i = 0; i < arr.length; i++) arr[i] = new Array(rows);
+                    return arr;
+                }
+
+                draw() {
+                    let next = this.make2DArray();
+                    for (let i = 0; i < this.cols; i++)
+                        for (let j = 0; j < this.rows; j++) {
+                            let state = this.grid[i][j];
+                            let sum = 0;
+                            let neighbors = this.countNeighbors(this.grid, i, j);
+                            if (state == 0 && neighbors == 3) next[i][j] = 1;
+                            else if (state == 1 && (neighbors < 2 || neighbors > 3)) next[i][j] = 0;
+                            else next[i][j] = state;
+                        }
+                    this.grid = next;
+                    requestAnimationFrame(() => { this.draw() })
+                }
+
+                countNeighbors(grid, x, y) {
+                    let sum = 0;
+                    for (let i = -1; i < 2; i++)
+                        for (let j = -1; j < 2; j++) {
+                            let col = (x + i + this.cols) % this.cols;
+                            let row = (y + j + this.rows) % this.rows;
+                            sum += grid[col][row];
+                        }
+                    sum -= grid[x][y];
+                    return sum;
+                }
+            });
+
+        </script>
+
+    </body>
+
+</html>

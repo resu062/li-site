@@ -306,11 +306,16 @@ export const indx = {
     'li-xxx':
         { label: 'misc demo' },
     xxx: [{ label: 'index', url: url + '/xxx' },
-    { label: 'life', url: url + '/life' }, { label: 'life-monitor', url: url + '/life/index-2.html' }, { label: 'fireworks-monitor', url: url + '/monitor' },
+    { label: 'life svg (opt1)', url: url + '/life' }, { label: 'life svg (opt2)', url: url + '/life/index-on-svg.html' }, { label: 'life canvas (opt2)', url: url + '/life/index-on-canvas.html' },
+    { label: 'fireworks-monitor', url: url + '/monitor' },
     { label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' },
     { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
     { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
     ],
+
+    'li-life': { label: 'li-life (svg opt1)' },
+    'life': [{ label: 'life (canvas opt2)', url: url + '/life/index-on-canvas.html' },
+    { label: 'life (svg opt2)', url: url + '/life/index-on-svg.html' }, { label: 'life (svg opt1)', url: url + '/life' }],
 
     'li-tetris': { label: 'li-tetris' },
     'tetris': [{ label: 'index', url: url + '/tetris' }],
