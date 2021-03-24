@@ -21,7 +21,6 @@ const generateBoardState = (liveFunc) => {
     for (let row = 0; row < ROWS; row++)
         for (let col = 0; col < COLS; col++) {
             BOARD[row][col].alive = _BOARD[row][col].alive;
-            BOARD[row][col].hasAlive = BOARD[row][col].hasAlive || _BOARD[row][col].alive;
         }
 }
 const randomBoardState = () => { return generateBoardState(function () { return Math.random() < FRACTION }) }
@@ -29,8 +28,8 @@ const randomBoardState = () => { return generateBoardState(function () { return 
 customElements.define('li-life', class LiLife extends LiElement {
     static get properties() {
         return {
-            rows: { type: Number, default: 100 },
-            cols: { type: Number, default: 100 },
+            rows: { type: Number, default: 80 },
+            cols: { type: Number, default: 80 },
             size: { type: Number, default: 10 },
             fraction: { type: Number, default: .2 }
         }
@@ -44,18 +43,20 @@ customElements.define('li-life', class LiLife extends LiElement {
 
     static get styles() {
         return css`
-            svg rect { stroke: lightgray; fill: lightyellow; }
-            svg rect.haslive { fill: white; }
-            svg rect.alive { fill: gray; }
+            svg rect { fill: #f0f0f0; }
+            svg rect.alive { fill: #777; }
         `;
     }
 
     render() {
         return html`
             <svg width="${this.cols * this.size}" height="${this.rows * this.size}">
-                ${BOARD.map((row, r) => row.map((col, c) => svg`<rect class="${col.alive ? 'alive' : ''} ${col.hasAlive ? 'haslive' : ''}" 
-                    x="${c * this.size}" y="${r * this.size}" width="${this.size}" height="${this.size}"/>`))}        
-            </svg> 
+                ${BOARD.map((row, r) =>
+                    svg`<g>
+                        ${row.map((col, c) => svg`<rect class="${col.alive ? 'alive' : ''}" x="${c * this.size}" y="${r * this.size}" width="${this.size-1}" height="${this.size-1}"/>`)}
+                    </g >`
+                )}
+            </svg>
         `;
     }
 

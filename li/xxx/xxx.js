@@ -6,8 +6,9 @@ customElements.define('li-xxx', class LiXXX extends LiElement {
         return html`
             <h2>Misc DEMO:</h2>
             <hr>
-            <p><a target="_blank" href="../life/index.html">Games of Life</a></p>
-            <p><a target="_blank" href="../life/index-2.html">Games of Life with FPS and Memory monitor</a></p>
+            <p><a target="_blank" href="../life/index-on-canvas.html">Games of Life (canvas opt2)</a></p>
+            <p><a target="_blank" href="../life/index.html">Games of Life (svg opt1)</a></p>
+            <p><a target="_blank" href="../life/index-on-svg.html">Games of Life (svg opt2)</a></p>
             <p><a target="_blank" href="../monitor/index.html">Fireworks with FPS and Memory monitor</a></p>
             <div>..................................................................................</div>
             <p><a target="_blank" href="../layout-scheme/index.html">Scheme Designer (demo-1)</a></p>
