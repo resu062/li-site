@@ -1,15 +1,25 @@
 <meta charset="utf-8">
 <script type="module" src="./chart.js"></script>
 
-<div style="display:flex;flex-direction: column">
-    <div style="display:flex">
-        <li-chart id="chart1"></li-chart>
-        <li-chart id="chart2"></li-chart>
-    </div>
-    <div style="display:flex">
-        <li-chart id="chart3"></li-chart>
-        <li-chart id="chart4"></li-chart>
-    </div>
+<style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+</style>
+
+<div style="display:flex;flex:1">
+    <li-chart id="chart1"></li-chart>
+    <li-chart id="chart2"></li-chart>
+</div>
+<div style="display:flex;flex:1">
+    <li-chart id="chart3"></li-chart>
+    <li-chart id="chart4"></li-chart>
 </div>
 
 <script type="module">
@@ -42,6 +52,8 @@
         }]]
     };
     chart1.options = chart2.options = chart3.options = chart4.options = {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
             yAxes: [{
                 ticks: {

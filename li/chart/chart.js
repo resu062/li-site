@@ -7,7 +7,9 @@ customElements.define('li-chart', class LiChart extends LiElement {
         return {
             type: { type: String, default: 'line', list: ['line', 'bar', 'pie', 'radar', 'doughnut', 'polarArea'] },
             data: { type: Object },
-            options: { type: Object }
+            options: { type: Object },
+            width: { type: String, default: '100%' },
+            height: { type: String, default: '100%' }
         }
     }
 
@@ -23,7 +25,7 @@ customElements.define('li-chart', class LiChart extends LiElement {
 
     render() {
         return html`
-            <canvas ref="canvas"></canvas>
+            <canvas ref="canvas" width="${this.width}" height="${this.height}"></canvas>
         `;
     }
 
