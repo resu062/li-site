@@ -285,6 +285,8 @@ export const indx = {
                 }]]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     yAxes: [{
                         ticks: {
