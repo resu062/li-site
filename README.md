@@ -15,3 +15,5 @@ Or open single page applications:
 TETRIS: https://resu062.github.io/li-site/li/tetris/
 
 Credit Calculator: https://resu062.github.io/li-site/li/credit-calc/
+
+Games of Life: TETRIS: https://resu062.github.io/li-site/li/life/index-on-canvas.html
