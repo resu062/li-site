@@ -91,19 +91,20 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
                 margin-left: 4px;
                 color: gray;
                 font-family: Arial;
-                width: 150px;
+                width: 200px;
             }
             .cell {
                 padding: 8px;
                 border: 1px solid lightgray;
-                min-width: 110px;
-                max-width: 110px;
+                min-width: 90px;
+                max-width: 90px;
+                overflow: hidden;
             }
             .cell2 {
                 flex: 1;
                 padding: 8px;
                 border: 1px solid lightgray;
-                min-width: 110px;
+                min-width: 80px;
             }
             .even {
                 background: #f0f0f0;
@@ -113,33 +114,32 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
 
     render() {
         return html`
-            <div class="container" style="min-width:600px;max-width:600px">
-                <div style="display:flex;padding: 4px;flex-wrap:wrap">
-                    <div style="display:flex;flex-direction:column;">
-                        <div style="font-weight: 700;text-decoration:underline;margin-bottom:8px;">Кредитный калькулятор</div>
+            <div class="container" style="min-width:400px;max-width:400px">
+                <!-- <div style="display:flex;padding: 4px;flex-wrap:wrap;text-align:center;width:100%"> -->
+                <!-- <div style="display:flex;flex-direction:column;flex:1;justify-content:center;align-items:center;"> -->
+                        <div style="font-weight: 700;text-decoration:underline;margin-bottom:16px;text-align: center">Кредитный калькулятор</div>
                         <div class="input"><span>Сумма кредита</span><input ref="creditAmount" value="${this.creditAmount}" /></div>
                         <div class="input"><span>Проценты (% за год)</span><input ref="loanInterest" type="number" value="${this.loanInterest}" /></div>
                         <div class="input"><span>Срок кредита (месяц)</span><input ref="timeCredit" type="number" value="${this.timeCredit}" /></div>
                         <div class="input"><span>Дата выдачи кредита</span><input ref="date" type="date" value="${this.date}" /></div>
-                        <div class="input"><div class="flex"></div><li-button width="120" label="Вычислить" @click="${this._calc}"></li-button></div>
-                    </div>
-                    <div v style="display:flex;flex-direction:column;flex:1;justify-content:center;align-items:center;">
-                        <div>Ежемесячный платеж</div>
-                        <div style="font-weight: 700">${this.monthlyPayment}</div>
-                        <div>Сумма кредита + Проценты</div>
-                        <div style="font-weight: 700">${this.result}</div>
-                        <div>Итого общая сумма выплат</div>
-                        <div style="font-weight: 700">${this.resultCreditAmount}</div>
-                        <div>Переплата</div>
-                        <div style="font-weight: 700">${this.resultPercent} %</div>
-                    </div>
-                </div>
+                        <div class="input"><div class="flex"></div><li-button name="refresh" @click="${this._calc}"></li-button></div>
+                        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;border:1px solid gray;margin:16px;padding:4px;background:#f0f0f0"> 
+                            <div>Ежемесячный платеж</div>
+                            <div style="font-weight: 700">${this.monthlyPayment}</div>
+                            <div>Сумма кредита + Проценты</div>
+                            <div style="font-weight: 700">${this.result}</div>
+                            <div>Итого общая сумма выплат</div>
+                            <div style="font-weight: 700">${this.resultCreditAmount}</div>
+                            <div>Переплата</div>
+                            <div style="font-weight: 700">${this.resultPercent} %</div>
+                        </div>
+  
                 <li-chart type="bar" .data="${this.data}" .options="${this.options}" style="flex:1;height:100%;"></li-chart>
             </div>
-            <div class="container" style="overflow:auto;width:100%">
+            <div class="container" style="overflow:auto;width:100%;font-size:small">
                     <div style="position:sticky;top:0;display:flex; justify-content: space-between;text-align:center;background:white;font-weight:600;z-index:1">
-                        <div class="cell" style="max-width:100px">№ платежа</div>
-                        <div class="cell" style="min-width:140px;max-width:140px">Дата платежа</div>
+                        <div class="cell" style="min-width:20px;max-width:20px">№</div>
+                        <div class="cell" style="min-width:100px;max-width:100px">Дата платежа</div>
                         <div class="cell">Сумма платежа</div>
                         <div class="cell">Основной долг</div>
                         <div class="cell2">Основной долг / проценты</div>
@@ -149,12 +149,12 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
                     </div>
                 ${(this._dataMonth || []).map(i => html`
                     <div class="${i.id % 2 ? 'odd' : 'even'}" style="display:flex; justify-content: space-between;text-align:right">
-                        <div class="cell" style="max-width:100px">${i.id}</div>
-                        <div class="cell" style="min-width:140px;max-width:140px">${i.date}</div>
+                        <div class="cell" style="min-width:20px;max-width:20px">${i.id}</div>
+                        <div class="cell" style="min-width:100px;max-width:100px">${i.date}</div>
                         <div class="cell">${i.mp}</div>
                         <div class="cell">${i.mdb}</div>
                         <div class="cell2">
-                            <div style="background:linear-gradient(to right, lightgreen ${i.mainDebt * 100 / (i.mainDebt + i.loanInterest)}%, tomato ${i.mainDebt * 100 / (i.mainDebt + i.loanInterest)}%);border:1px solid gray;height: 20px;opacity:.5"></div>
+                            <div style="background:linear-gradient(to right, lightgreen ${i.mainDebt * 100 / (i.mainDebt + i.loanInterest)}%, tomato ${i.mainDebt * 100 / (i.mainDebt + i.loanInterest)}%);border:1px solid gray;height: 13px;opacity:.5"></div>
                         </div>
                         <div class="cell">${i.int}</div>
                         <div class="cell">${i.sum}</div>
