@@ -315,10 +315,13 @@ export const indx = {
     { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
     ],
 
-    'li-life': { label: 'li-life (svg opt1)' },
+    'li-life': { label: 'Games of Life' },
     'life': [{ label: 'life (canvas opt2)', url: url + '/life/index-on-canvas.html' },
     { label: 'life (svg opt2)', url: url + '/life/index-on-svg.html' }, { label: 'life (svg opt1)', url: url + '/life' }],
 
-    'li-tetris': { label: 'li-tetris' },
+    'li-tetris': { label: 'TETRIS' },
     'tetris': [{ label: 'index', url: url + '/tetris' }],
+
+    'li-credit-calc': { label: 'Credit Calculator' },
+    'credit-calc': [{ label: 'index', url: url + '/credit-calc' }],
 }
