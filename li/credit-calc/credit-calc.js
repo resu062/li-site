@@ -181,7 +181,7 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
         this._dataMonth = [];
         let prev = 0;
         let d = this.$refs.date.value ? new Date(this.$refs.date.value) : new Date();
-        this.date = this._dt.getFormattedValue();
+        this.date  = d.toLocaleDateString('fr-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
         for (let i = 0; i < n; i++) {
             let data = {};
             d.setMonth(d.getMonth() + 1);
