@@ -19,3 +19,5 @@ TETRIS: https://resu062.github.io/li-site/li/tetris/
 Credit Calculator: https://resu062.github.io/li-site/li/credit-calc/
 
 Games of Life: https://resu062.github.io/li-site/li/life/index-on-canvas.html
+
+Games of Life: https://resu062.github.io/li-site/li/life/index-on-svg.html
