@@ -8,7 +8,9 @@ What is here?
   - test examples from different sources of using lit element (and not only) in a folder test
 
 
-You can view created components and various applications in li-tester component here: https://resu062.github.io/li-site/li/tester/
+You can view created components and various applications in li-tester component here: 
+
+https://resu062.github.io/li-site/li/tester/
 
 Or open single page applications:
 
