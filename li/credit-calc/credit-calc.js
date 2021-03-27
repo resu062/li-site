@@ -64,13 +64,16 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
             datePattern: ['Y', 'm', 'd'],
             delimiter: '-'
         });
-        this._calc();
+        setTimeout(() => {
+            this._calc();
+        }, 50);
     }
 
     static get styles() {
         return css`
             :host {
                 display: flex;
+                flex-direction: column;
                 height: 100%;
             }
             .container {
@@ -93,6 +96,9 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
                 font-family: Arial;
                 width: 200px;
             }
+            .res {
+                padding: 2px;
+            }
             .cell {
                 padding: 8px;
                 border: 1px solid lightgray;
@@ -114,29 +120,28 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
 
     render() {
         return html`
-            <div class="container" style="min-width:400px;max-width:400px">
-                <!-- <div style="display:flex;padding: 4px;flex-wrap:wrap;text-align:center;width:100%"> -->
-                <!-- <div style="display:flex;flex-direction:column;flex:1;justify-content:center;align-items:center;"> -->
-                        <div style="font-weight: 700;text-decoration:underline;margin-bottom:16px;text-align: center">Кредитный калькулятор</div>
-                        <div class="input"><span>Сумма кредита</span><input ref="creditAmount" value="${this.creditAmount}" /></div>
-                        <div class="input"><span>Проценты (% за год)</span><input ref="loanInterest" type="number" value="${this.loanInterest}" /></div>
-                        <div class="input"><span>Срок кредита (месяц)</span><input ref="timeCredit" type="number" value="${this.timeCredit}" /></div>
-                        <div class="input"><span>Дата выдачи кредита</span><input ref="date" type="date" value="${this.date}" /></div>
-                        <div class="input"><div class="flex"></div><li-button name="refresh" @click="${this._calc}"></li-button></div>
-                        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;border:1px solid gray;margin:16px;padding:4px;background:#f0f0f0"> 
-                            <div>Ежемесячный платеж</div>
-                            <div style="font-weight: 700">${this.monthlyPayment}</div>
-                            <div>Сумма кредита + Проценты</div>
-                            <div style="font-weight: 700">${this.result}</div>
-                            <div>Итого общая сумма выплат</div>
-                            <div style="font-weight: 700">${this.resultCreditAmount}</div>
-                            <div>Переплата</div>
-                            <div style="font-weight: 700">${this.resultPercent} %</div>
-                        </div>
-  
-                <li-chart type="bar" .data="${this.data}" .options="${this.options}" style="flex:1;height:100%;"></li-chart>
+            <div  style="display:flex;">
+                <div class="container" style="min-width:400px;max-width:400px;margin:8px;font-size:large;">
+                    <div style="font-weight: 700;text-decoration:underline;margin-bottom:16px;text-align: center">Кредитный калькулятор</div>
+                    <div class="input"><span>Сумма кредита</span><input ref="creditAmount" value="${this.creditAmount}" /></div>
+                    <div class="input"><span>Проценты (% за год)</span><input ref="loanInterest" type="number" value="${this.loanInterest}" /></div>
+                    <div class="input"><span>Срок кредита (месяц)</span><input ref="timeCredit" type="number" value="${this.timeCredit}" /></div>
+                    <div class="input"><span>Дата выдачи кредита</span><input ref="date" type="date" value="${this.date}" /></div>
+                    <div class="input"><div class="flex"></div><li-button name="refresh" @click="${this._calc}"></li-button></div>
+                    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;border:1px solid gray;margin:16px;padding:2px;background:#f0f0f0"> 
+                        <div class="res">Ежемесячный платеж</div>
+                        <div class="res" style="font-weight: 700">${this.monthlyPayment}</div>
+                        <div class="res">Сумма кредита + Проценты</div>
+                        <div class="res" style="font-weight: 700">${this.result}</div>
+                        <div class="res">Итого общая сумма выплат</div>
+                        <div class="res" style="font-weight: 700">${this.resultCreditAmount}</div>
+                        <div class="res">Переплата</div>
+                        <div class="res" style="font-weight: 700">${this.resultPercent} %</div>
+                    </div>
+                </div>
+                <li-chart type="bar" .data="${this.data}" .options="${this.options}" style="flex:1;border: 1px solid lightgray;margin:8px;padding: 8px"></li-chart>
             </div>
-            <div class="container" style="overflow:auto;width:100%;font-size:small">
+            <div class="container" style="overflow:auto;flex:1;font-size:small;">
                     <div style="position:sticky;top:0;display:flex; justify-content: space-between;text-align:center;background:white;font-weight:600;z-index:1">
                         <div class="cell" style="min-width:20px;max-width:20px">№</div>
                         <div class="cell" style="min-width:100px;max-width:100px">Дата платежа</div>
