@@ -113,13 +113,28 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 display: flex;
                 justify-content: space-between;
                 align-items: stretch;
+                background: url('./back.png');
+                background-size: cover;
             }
+            /* :host::before {
+                content: '';
+                position: fixed;
+                left: 0; right: 0;
+                top: 0; bottom: 0;
+                z-index: -1;
+                background: url('./back.png');
+                background-size: cover;
+                filter: blur(5px);
+                opacity: 0.5;
+            } */
             .panel {
                 display: flex;
                 flex-direction: column;
                 padding: 4px;
-                border: 1px solid lightgray;
+                border: 1px solid gray;
                 width: 200px;
+                background-color: white;
+                opacity: 0.9;
             }
             .item {
                 margin: 16px;
@@ -135,12 +150,12 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
             .cnts {
                 flex: 1;
                 margin: 2px;
-                border: 1px solid lightgray;
+                border: 1px solid gray;
                 border-radius: 4px;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                color: lightgray;
+                color: gray;
                 font-size: small;
             }
         `;
@@ -165,7 +180,9 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                     <div class="cnts" @mousedown="${(e) => this.down(e, KEY.DOWN)}" @touchstart="${(e) => this.touch(e, KEY.DOWN)}">down</div>
                 </div>
             </div>
-            <canvas id="board" class="no-flex game-board" style="border: 18px solid transparent;box-shadow: inset 0 0 0 1px lightgray;"></canvas>
+            <div style="flex:1"></div>
+            <canvas id="board" style="flex:1;border: 18px solid transparent;box-shadow: inset 0 0 0 1px gray;background-color: white;opacity:0.9"></canvas>
+            <div style="flex:1"></div>
             <div class="panel">
                 <div class="account">Score:${this.account.score}</div>
                 <div class="account">Lines:${this.account.lines}</div>
@@ -507,9 +524,8 @@ class Piece {
         this.ctx.fillStyle = this.color;
         this.shape.forEach((row, y) => {
             row.forEach((value, x) => {
-                if (value > 0) {
+                if (value > 0)
                     this.ctx.fillRect(this.x + x + SLIT, this.y + y + SLIT, 1 - SLIT, 1 - SLIT);
-                }
             });
         });
     }
