@@ -7,7 +7,7 @@ import '../../lib/tocca/Tocca.js';
 
 const COLS = 15;
 const ROWS = 30;
-const BLOCK_SIZE = 24;
+const BLOCK_SIZE = 36;
 const LINES_PER_LEVEL = 10;
 const SLIT = 0.05;
 const COLORS = [
@@ -141,7 +141,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 font-size: large;
             }
             .account {
-                margin-top: 20px;
+                margin-top:10px;
                 font-size: small;
             }
             .btn {
@@ -181,14 +181,14 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 </div>
             </div>
             <div style="flex:1"></div>
-            <canvas id="board" style="flex:1;border: 18px solid transparent;box-shadow: inset 0 0 0 1px gray;background-color: white;opacity:0.9"></canvas>
+            <canvas id="board" style="flex:1;border: 18px solid transparent;box-shadow: inset 0 0 0 1px lightgray;background-color: white;opacity:0.9"></canvas>
             <div style="flex:1"></div>
             <div class="panel">
                 <div class="account">Score:${this.account.score}</div>
                 <div class="account">Lines:${this.account.lines}</div>
                 <div class="account">Level:${this.account.level}</div>
                 <div class="account" style="display:flex;justify-content:center">
-                    <canvas id="next" style="width:100px"></canvas>
+                    <canvas id="next" style="width:100px;height:100px"></canvas>
                 </div>
                 <div style="flex:1"></div>
                 <div style="max-height:400px; flex: 10; display: flex;flex-direction: column;cursor:pointer">
