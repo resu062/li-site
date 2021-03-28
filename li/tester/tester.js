@@ -66,7 +66,13 @@ customElements.define('li-tester', class LiTester extends LiElement {
         this.$id.slot.name = "?";
         let el = e.target.label2 || e.target.label;
         let props = { ...indx[el].props };
-        this.component = await LI.createComponent(el, props);
+        if (props.iframe && props.iframe !== 'noiframe') {
+            this.component = document.createElement("iframe");
+            this.component.src = props.iframe;
+            this.component.style.border = 'none';
+        } else {
+            this.component = await LI.createComponent(el, props);
+        }
         this.component.setAttribute('slot', 'app-test');
         this.appendChild(this.component);
         this.slotchange(true);

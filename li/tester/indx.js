@@ -15,8 +15,14 @@ export const indx = {
     'li-button': { label: 'li-button', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
     button: [{ label: 'index', url: url + '/button' }, { label: 'index-2', url: url + '/button/index-2.html' }],
 
+    'li-accordion': { label: 'li-accordion', props: { iframe: '../accordion/index.html' } },
+    accordion: [{ label: 'index', url: url + '/accordion' }, { label: 'index-2', url: url + '/accordion/index-2.html' }],
+
+    'li-dropdown': { label: 'li-dropdown', props: { iframe: '../dropdown/index.html' } },
+    dropdown: [{ label: 'index', url: url + '/dropdown' }, { label: 'index-2', url: url + '/dropdown/index-2.html' }],
+
     'li-table': {
-        label: 'li-table', props: {
+        label: 'li-table (tabulator)', props: {
             options: {
                 maxHeight: "99%",
                 minHeight: 400,
@@ -180,11 +186,14 @@ export const indx = {
     'layout-designer': [{ label: 'index', url: url + '/layout-designer' }],
 
     'li-layout-grid': { label: 'li-layout-grid' },
-    'layout-grid': [{ label: 'index', url: url + '/layout-grid' }, { label: 'scheme-designer', url: url + '/layout-scheme' },
-    { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' }],
+    'layout-grid': [{ label: 'index', url: url + '/layout-grid' }],
+
+    'li-layout-scheme': { label: 'li-scheme-designer', props: { iframe: '../layout-scheme/index-3.html' } },
+    'layout-scheme': [{ label: 'demo-1', url: url + '/layout-scheme' },
+    { label: 'demo-2', url: url + '/layout-scheme/index-2.html' }, { label: 'demo-3', url: url + '/layout-scheme/index-3.html' }],
 
     'li-layout-app': { label: 'li-layout-app' },
-    'layout-app': [{ label: 'index', url: url + '/layout-app' }, { label: 'demo', url: url + '/layout-app/demo.html' }, { label: 'demo2', url: url + '/layout-app/demo2.html' }],
+    'layout-app': [{ label: 'demo-1', url: url + '/layout-app' }, { label: 'demo-2', url: url + '/layout-app/demo.html' }, { label: 'demo-3', url: url + '/layout-app/demo2.html' }],
 
     'li-editor-ace': { label: 'li-editor-ace', props: { theme: 'dracula', mode: 'javascript', src: 'console.log(this.properties) // description' } },
     'editor-ace': [{ label: 'index', url: url + '/editor-ace' }],
@@ -205,11 +214,11 @@ export const indx = {
     'li-viewer-md': { label: 'li-viewer-md', props: { src: url + '/viewer-md/sample.md' } },
     'viewer-md': [{ label: 'index', url: url + '/viewer-md' }],
 
-    // 'li-chart-apex': { label: 'li-chart-apex' },
-    // 'chart-apex': [{ label: 'index', url: url + '/chart-apex' }],
-
     'li-qr-code': { label: 'li-qr-code', props: { value: 'https://resu062.github.io/li-site/li/tester/' } },
     'qr-code': [{ label: 'index', url: url + '/qr-code' }],
+
+    'li-monitor': { label: 'li-monitor (fps-memory)', props: { iframe: '../monitor/index.html' } },
+    monitor: [{ label: 'index', url: url + '/monitor' }],
 
     'li-tester': { label: 'li-tester' },
     tester: [{ label: 'index', url: url + '/tester' }, { label: 'index2', url: url + '/tester/index-2.html' }],
@@ -299,27 +308,20 @@ export const indx = {
     },
     'chart': [{ label: 'index', url: url + '/chart' }],
 
+    'li-chart-apex': { label: 'li-chart-apex', props: { iframe: '../chart-apex/index.html' } },
+    'chart-apex': [{ label: 'index', url: url + '/chart-apex' }],
+
     'li-three-meshline': { label: 'meshLine (three.js)' },
     'three-meshline': [{ label: 'index', url: url + '/three-meshline' }],
 
     'li-three-line2': { label: 'line2 (three.js)' },
     'three-line2': [{ label: 'index', url: url + '/three-line2' }],
 
-    'li-xxx':
-        { label: 'misc demo' },
-    xxx: [{ label: 'index', url: url + '/xxx' },
-    { label: 'life svg (opt1)', url: url + '/life' }, { label: 'life svg (opt2)', url: url + '/life/index-on-svg.html' }, { label: 'life canvas (opt2)', url: url + '/life/index-on-canvas.html' },
-    { label: 'fireworks-monitor', url: url + '/monitor' },
-    { label: 'scheme-designer', url: url + '/layout-scheme' }, { label: 'scheme-designer-2', url: url + '/layout-scheme/index-2.html' }, { label: 'scheme-designer-3', url: url + '/layout-scheme/index-3.html' },
-    { label: 'accordion', url: url + '/accordion' }, , { label: 'accordion-multi', url: url + '/accordion/index-2.html' },
-    { label: 'dropdown', url: url + '/dropdown' }, { label: 'dropdown2', url: url + '/dropdown/index-2.html' }, { label: 'chart-apex', url: url + '/chart-apex' }
-    ],
-
     'li-life': { label: 'Games of Life' },
     'life': [{ label: 'life (canvas opt2)', url: url + '/life/index-on-canvas.html' },
     { label: 'life (svg opt2)', url: url + '/life/index-on-svg.html' }, { label: 'life (svg opt1)', url: url + '/life' }],
 
-    'li-tetris': { label: 'TETRIS' },
+    'li-tetris': { label: 'TETRIS', props: { iframe: '../tetris/index.html' } },
     'tetris': [{ label: 'index', url: url + '/tetris' }],
 
     'li-credit-calc': { label: 'Credit Calculator' },
