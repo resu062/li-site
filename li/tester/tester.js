@@ -16,7 +16,7 @@ customElements.define('li-tester', class LiTester extends LiElement {
     }
 
     get localName() {
-        return this.component && this.component.localName || 'li-tester'
+        return this.component?.localName || 'li-tester'
     }
 
     static get styles() {
@@ -55,10 +55,9 @@ customElements.define('li-tester', class LiTester extends LiElement {
     }
 
     slotchange(updateComponent = false) {
-        let el = {};
-        if (updateComponent && this.component) el = this.component;
-        else el = this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
-        this.component._partid = this._partid
+        if (!(updateComponent === true && this.component))
+            this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
+        if (this.component) this.component._partid = this._partid
     }
 
     async _tap(e) {
@@ -79,7 +78,6 @@ customElements.define('li-tester', class LiTester extends LiElement {
     }
 
     _openUrl(e) {
-        //console.dir(e)
         window.open(e.target.indx.url, 'li-url');
     }
 });
