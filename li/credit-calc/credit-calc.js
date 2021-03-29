@@ -94,7 +94,7 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
                 margin-left: 4px;
                 color: gray;
                 font-family: Arial;
-                width: 200px;
+                width: 140px;
             }
             .res {
                 padding: 2px;
@@ -121,7 +121,7 @@ customElements.define('li-credit-calc', class LiDbCreditCalc extends LiElement {
     render() {
         return html`
             <div  style="display:flex;">
-                <div class="container" style="min-width:400px;max-width:400px;margin:8px;font-size:large;">
+                <div class="container" style="min-width:340px;max-width:340px;margin:8px;font-size:large;">
                     <div style="font-weight: 700;text-decoration:underline;margin-bottom:16px;text-align: center">Кредитный калькулятор</div>
                     <div class="input"><span>Сумма кредита</span><input ref="creditAmount" value="${this.creditAmount}" /></div>
                     <div class="input"><span>Проценты (% за год)</span><input ref="loanInterest" type="number" value="${this.loanInterest}" /></div>
