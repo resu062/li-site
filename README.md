@@ -1,5 +1,4 @@
-## li-site
-# Learning LitElement
+# li-site
 
 What is here?
   - small modifications to lit element in file li.js
