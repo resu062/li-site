@@ -324,6 +324,9 @@ export const indx = {
     'li-tetris': { label: 'TETRIS', props: { iframe: '../tetris/index.html' } },
     'tetris': [{ label: 'index', url: url + '/tetris' }],
 
-    'li-credit-calc': { label: 'Credit Calculator' },
+    'li-valuta': { label: 'Курсы валют' },
+    'credit-valuta': [{ label: 'index', url: url + '/valuta' }],
+
+    'li-credit-calc': { label: 'Кредитный калькулятор' },
     'credit-calc': [{ label: 'index', url: url + '/credit-calc' }],
 }
