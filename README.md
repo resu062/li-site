@@ -16,6 +16,8 @@ Or open single page applications:
 
 TETRIS: https://resu062.github.io/li-site/li/tetris/
 
+Exchange Rates: https://resu062.github.io/li-site/li/valuta/
+
 Credit Calculator: https://resu062.github.io/li-site/li/credit-calc/
 
 Games of Life (canvas): https://resu062.github.io/li-site/li/life/index-on-canvas.html
