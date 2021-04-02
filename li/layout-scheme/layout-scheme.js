@@ -126,7 +126,6 @@ function clearSelectedBlocks(bl) {
 customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, default: '', update: true },
             _width: { type: Number, default: 10000, local: true }, _height: { type: Number, default: 10000, local: true },
             editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, default: {}, local: true },
             item: { type: Object, default: {} },
@@ -187,7 +186,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
                     </svg>
                 `}
                 ${(this.block?.items || []).map(bl => html`
-                    <li-layout-scheme-block ._partid="${this._partid}" .bl="${bl}" @mousedown="${this._down}"></li-layout-scheme-block>
+                    <li-layout-scheme-block .bl="${bl}" @mousedown="${this._down}"></li-layout-scheme-block>
                 `)}
                 ${svg`
                     <svg width="${this._width}" height="${this._height}" style="position:absolute;top:0;left:0;background-color:transparent;pointer-events:none;z-index:9">
@@ -202,7 +201,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
 
     render() {
         return html` ${this.showGrid ? html`
-                <li-layout-grid ._partid="${this._partid}" ref="main" @mousemove="${this._move}" @mouseup="${this._up}">
+                <li-layout-grid ref="main" @mousemove="${this._move}" @mouseup="${this._up}">
                     ${this._main}
                 </li-layout-grid>
             ` : html`
@@ -355,7 +354,6 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
 customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, update: true },
             editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, default: {}, local: true },
             bl: { type: Object, default: {} },
             defaultSize: { type: Number, default: 24 },
@@ -439,7 +437,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                         <div class="connectors" ref="top">
                             ${!(this.item?.editMode ? this.editMode : !this.item?.editMode) ? html`` : html`
                                 ${(this.bl?.model?.top || []).map(item => html`
-                                    <li-layout-scheme-connector ._partid="${this._partid}" .item="${item}" .bl="${this.bl}" position="top"></li-layout-scheme-connector>`)}                     
+                                    <li-layout-scheme-connector .item="${item}" .bl="${this.bl}" position="top"></li-layout-scheme-connector>`)}                     
                             `}
                         </div>
                         ${!(this.bl?.model?.right?.length) ? html`` : html`
@@ -452,7 +450,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                         <div class="connectors vertical" ref="left" style="cursor: ${this.$$?.editMode ? 'pointer' : 'default'}">
                             ${!(this.item?.editMode ? this.editMode : !this.item?.editMode) ? html`` : html`
                                 ${(this.bl?.model?.left || []).map(item => html`
-                                    <li-layout-scheme-connector ._partid="${this._partid}" .item="${item}" .bl="${this.bl}" position="left"></li-layout-scheme-connector>`)} 
+                                    <li-layout-scheme-connector .item="${item}" .bl="${this.bl}" position="left"></li-layout-scheme-connector>`)} 
                             `}
                         </div>
                     `}
@@ -492,7 +490,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                         <div class="connectors vertical" ref="right" style="cursor: ${this.$$?.editMode ? 'pointer' : 'default'}">
                             ${!(this.item?.editMode ? this.editMode : !this.item?.editMode) ? html`` : html`
                                 ${(this.bl?.model?.right || []).map(item => html`
-                                    <li-layout-scheme-connector ._partid="${this._partid}" .item="${item}" .bl="${this.bl}" position="right"></li-layout-scheme-connector>`)} 
+                                    <li-layout-scheme-connector .item="${item}" .bl="${this.bl}" position="right"></li-layout-scheme-connector>`)} 
                             `}
                         </div>
                     `}
@@ -505,7 +503,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
                         <div class="connectors" ref="bottom">
                             ${!(this.item?.editMode ? this.editMode : !this.item?.editMode) ? html`` : html`
                                 ${(this.bl?.model?.bottom || []).map(item => html`
-                                    <li-layout-scheme-connector ._partid="${this._partid}" .item="${item}" .bl="${this.bl}" position="bottom"></li-layout-scheme-connector>`)}                     
+                                    <li-layout-scheme-connector .item="${item}" .bl="${this.bl}" position="bottom"></li-layout-scheme-connector>`)}                     
                             `}
                         </div>
                         ${!(this.bl?.model?.right?.length) ? html`` : html`
@@ -537,7 +535,6 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
 customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnector extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, update: true },
             editMode: { type: Boolean, default: true }, _gridMain: { type: Object, default: {}, local: true },
             item: { type: Object, default: {} },
             bl: { type: Object, default: {} },

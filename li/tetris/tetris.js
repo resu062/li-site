@@ -85,7 +85,6 @@ const moves = {
 customElements.define('li-tetris', class LiTetris extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, default: 'tetris' },
             label: { type: String, default: 'TETRIS' },
             showShadow: { type: Boolean, default: true, save: true },
             musicEnabled: { type: Boolean, default: true, save: true },

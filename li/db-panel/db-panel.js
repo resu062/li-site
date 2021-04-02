@@ -7,7 +7,6 @@ customElements.define('li-db-panel', class LiDbPanel extends LiElement {
     static get properties() {
         return {
             _useInfo: { type: Boolean, default: true },
-            _partid: { type: String, update: true },
             layout: {
                 type: Object, default: {
                     items: [{
@@ -35,7 +34,7 @@ customElements.define('li-db-panel', class LiDbPanel extends LiElement {
     render() {
         return html`
             <div class="container" @contextmenu="${this._contextmenu}">
-                <li-tree ._partid="${this._partid}" .item="${this.layout}" .allowCheck="${false}"></li-tree>
+                <li-tree .item="${this.layout}" .allowCheck="${false}"></li-tree>
             </div>
         `;
     }
