@@ -56,14 +56,14 @@ customElements.define('li-tester', class LiTester extends LiElement {
     slotchange(updateComponent = false) {
         if (!(updateComponent === true && this.component))
             this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
-        if (this.component && !this.component._partid) this.component._partid = this.partid
+        if (this.component && this._partid) this.component._setPartid(this._partid);
     }
 
     async _tap(e) {
         if (this.component) this.removeChild(this.component);
         this.$id.slot.name = "?";
         let el = e.target.label2 || e.target.label;
-        let props = { ...indx[el].props };
+        let props = { ...indx[el].props, _partid: this.partid };
         if (props.iframe && props.iframe !== 'noiframe') {
             this.component = document.createElement("iframe");
             this.component.src = props.iframe;

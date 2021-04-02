@@ -291,18 +291,24 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
         }
     }
 
-    updated(changedProps) {
-        super.update(changedProps);
-        this.id = this.item.id || this.id || this.partid;
-        if (changedProps.has('item') && this.item) {
+    updated(changedProperties) {
+        super.update(changedProperties);
+        if (changedProperties.has('item') && this.item) {
+            this.id = this.item.id || this.id || this.partid;
             this.$$.actionsFileName = this.id + '.actions';
             this.$$.selected = {};
             this.$$.selection = [];
             this.$$.selectionID = [];
             this.$$.actions = {};
-            this.litem = new LItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.id);
+            this.litem = new LItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.partid);
             this.litem.$root = this.litem;
         }
+        let update = false;
+        changedProperties.forEach((oldValue, propName) => {
+            update = ['designMode', 'showGroupName', 'showGroup'].includes(propName);
+            //console.log(`${propName} changed. oldValue: ${oldValue}, newValue: ${this[propName]}`);
+        });
+        if (update) this.$update();
     }
 
     render() {
