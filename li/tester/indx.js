@@ -74,7 +74,6 @@ export const indx = {
         label: 'li-tree', props: {
             allowCheck: true,
             item: {
-                id: 'tree',
                 label: 'main', items: [
                     { label: 1 },
                     { label: 2, items: [{ label: '2.1' }, { label: '2.2' }, { label: '2.3' }, { label: '2.4' }, { label: '2.5' }, { label: '2.6' }] },

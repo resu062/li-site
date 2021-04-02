@@ -121,7 +121,7 @@ export class LiElement extends LitElement {
         super.disconnectedCallback();
     }
     _initBus() {
-        if (!this.$$  && (this.$props.get('_partid') || this.__saves || !this.$root)) {
+        if (!this.$$ && (this.$props.get('_partid') || this.__saves || !this.$root)) {
             if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
             this._partid = this._partid || this.id || this.$ulid || this.localName;
             if (!LI._$$[this._partid]) {
@@ -137,7 +137,13 @@ export class LiElement extends LitElement {
     fnGlobals = (e) => { if (this.__globals) this.__globals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnListen = (e, property, fn) => { if (e.has(property)) fn() }
 
-    get partid() { return this.$root?.partid || this._partid || undefined }
+    _setPartid(_partid) {
+        if (this._partid !== _partid) {
+            this._PARTID = _partid;
+            this.$$.update.listen(this.fnUpdate);
+        }
+    }
+    get partid() { return this._PARTID || this.$root?.partid || this._partid || undefined }
     get $$() { return this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$'] ? LI._$$[this.partid]['_$$'] : undefined }
     get $root() { return this.getRootNode().host; }
     get _saveFileName() { return ((this.id || this.partid || this.localName.replace('li-', '')) + '.saves') }
