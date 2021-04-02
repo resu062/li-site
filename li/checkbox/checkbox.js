@@ -5,7 +5,6 @@ import '../icon/icon.js'
 customElements.define('li-checkbox', class LiCheckbox extends LiElement {
     static get properties() {
         return {
-            //_partid: { type: String, default: '', update: true },
             fill: { type: String, default: 'gray' },
             back: { type: String, default: '#fdfdfd' },
             size: { type: Number, default: 24 },

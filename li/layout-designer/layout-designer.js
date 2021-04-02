@@ -278,7 +278,6 @@ function dragOver(item, e) {
 customElements.define('li-layout-designer', class LiLayoutDesigner extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, default: '', update: true },
             item: { type: Object, default: undefined },
             litem: { type: Object, default: undefined },
             keyID: { type: String, default: 'id' },
@@ -294,13 +293,14 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 
     updated(changedProps) {
         super.update(changedProps);
+        this.id = this.item.id || this.id || this.partid;
         if (changedProps.has('item') && this.item) {
-            this.$$.actionsFileName = (this.item.id || this.id || this._partid) + '.actions';
+            this.$$.actionsFileName = this.id + '.actions';
             this.$$.selected = {};
             this.$$.selection = [];
             this.$$.selectionID = [];
             this.$$.actions = {};
-            this.litem = new LItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this._partid);
+            this.litem = new LItem(this.item, { keyID: this.keyID, keyLabel: this.keyLabel, keyItems: this.keyItems }, undefined, undefined, this.id);
             this.litem.$root = this.litem;
         }
     }
@@ -332,10 +332,10 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
                     <li-button name="settings" toggledClass="ontoggled" style="margin-right: 4px;" .toggled="${this.designMode}" @click="${() => this.designMode = this.$$.designMode = !this.designMode}"></li-button>
                 </div>
                 <div slot="app-left" style="margin:4px 0px 4px 4px; border: 1px solid lightgray;border-bottom:none">
-                    <li-tree ._partid="${this._partid}" .litem="${this.litem}"></li-tree>
+                    <li-tree .litem="${this.litem}"></li-tree>
                 </div>
                 <div slot="app-main">
-                    <li-layout-structure ._partid="${this._partid}" .layout="${this.litem}" id="structure" slot="app-main" style="padding: 4px;"></li-layout-structure>
+                    <li-layout-structure .layout="${this.litem}" id="structure" slot="app-main" style="padding: 4px;"></li-layout-structure>
                 </div>
             </li-layout-app>
         `;
@@ -350,7 +350,6 @@ customElements.define('li-layout-designer', class LiLayoutDesigner extends LiEle
 customElements.define('li-layout-structure', class LiLayoutStructure extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, update: true },
             layout: { type: Object, default: undefined },
             items: { type: Array, default: [] }
         }
@@ -374,7 +373,7 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
                 }
             </style>
             ${this.items.map(item => html`
-                <li-layout-container ._partid="${this._partid}" .item=${item} @click="${this._focus}" @contextmenu="${(e) => this._menu(e, item)}"></li-layout-container>
+                <li-layout-container .item=${item} @click="${this._focus}" @contextmenu="${(e) => this._menu(e, item)}"></li-layout-container>
             `)}
         `;
     }
@@ -407,7 +406,6 @@ customElements.define('li-layout-structure', class LiLayoutStructure extends LiE
 customElements.define('li-layout-container', class LiLayoutContainer extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, update: true },
             item: { type: Object, default: {} },
             dragto: { type: String, default: undefined, reflect: true },
             iconSize: { type: Number, local: true },
@@ -500,7 +498,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                 <div style="${this.isBlock && this.showGroup && this.designMode ? 'border: 1px solid red; margin: 4px;' : ''}">
                 ${!this.isGroups || (this.isGroups && this.showGroupName && this.designMode)
                     ? html`
-                        <div class="row ${this.designMode ? 'design-row' : ''} ${this.$$.selection.includes(this.item) ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" 
+                        <div class="row ${this.designMode ? 'design-row' : ''} ${this.$$?.selection?.includes(this.item) ? 'selected' : ''}" style="display:flex;align-items:center;" draggable="${this.designMode}" 
                                 @dragstart="${this._dragstart}" @dragend="${this._dragend}" @dragover="${this._dragover}" @dragleave="${this._dragleave}" @drop="${this._dragdrop}">
                         ${this.item && this.item.items && this.item.items.length
                             ? html`<li-button back="transparent" size="${this.iconSize}" name="chevron-right" toggledClass="right90" .toggled="${this.item && this.item.expanded}" 
@@ -514,7 +512,7 @@ customElements.define('li-layout-container', class LiLayoutContainer extends LiE
                     : html``
                 }
                 ${this.item && this.item.items && this.item.items.length && this.item.expanded
-                    ? html`<li-layout-structure class="${this.isGroups ? 'group' : 'complex'}" ._partid="${this._partid}" .layout="${this.item}"></li-layout-structure>`
+                    ? html`<li-layout-structure class="${this.isGroups ? 'group' : 'complex'}" .layout="${this.item}"></li-layout-structure>`
                     : html``
                 }   
                 </div>  

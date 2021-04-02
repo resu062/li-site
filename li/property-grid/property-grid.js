@@ -6,7 +6,6 @@ import '../icon/icons/icons.js';
 customElements.define('li-property-grid', class LiPropertyGrid extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, default: '', update: true },
             label: { type: String },
             io: { type: Object, default: undefined },
             ioProperties: { type: Object, default: {} },
@@ -127,7 +126,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 ${Object.keys(this.item || {}).map(key => html`
                     <div class="group">
                        ${this.group ? html`<div class="group-header">${key} [${this.item[key].length}]</div>` : html``}
-                        <li-property-tree class="tree" .item="${this.item[key]}" ._partid="${this._partid}" .args="${this.args}"></li-property-tree>
+                        <li-property-tree class="tree" .item="${this.item[key]}" .args="${this.args}"></li-property-tree>
                     </div>
                 `)}
             </div>  
@@ -146,7 +145,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         setTimeout(() => {
             this.focused = undefined;
             this.io = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
-            this.io._partid = this._partid;
+            this.io._partid = this.partid;
         }, 20);
     }
 
@@ -211,7 +210,6 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
 customElements.define('li-property-tree', class LiPropertyTree extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, default: '', update: true },
             expertMode: { type: Boolean, default: false, local: true },
             item: { type: Object, default: undefined },
             props: { type: Object, default: {} },
@@ -283,7 +281,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
                     </div>
                 </div>
                 <div class="complex">
-                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" ._partid="${this._partid}" .args="${this.args}"></li-property-tree>` : html``}
+                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" .args="${this.args}"></li-property-tree>` : html``}
                 </div>
             `)}
         `
@@ -325,7 +323,7 @@ async function makeData(el, { expert, group, sort, showFunction }) {
     const exts = /^(_|\$)/;
     const label = el?.constructor?.name || el?.localName || '';
     const data = { label, items: [] };
-    const props = el.constructor._classProperties;
+    const props = el?.constructor?._classProperties;
 
     function fn(key, category = 'no category', props, list) {
         //if (!group) category = '...';

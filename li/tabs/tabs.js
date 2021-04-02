@@ -5,7 +5,6 @@ import '../db-cell/db-cell.js';
 customElements.define('li-tabs', class LiTabs extends LiElement {
     static get properties() {
         return {
-            _partid: { type: String, default: '' },
             item: { type: Object, default: {} },
             liSize: { type: Number, default: 28, local: true },
             vertical: { type: Boolean, default: false },

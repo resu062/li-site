@@ -87,6 +87,9 @@ export class LiElement extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._initBus();
+        if (this.$$) {
+            this.$$.update.listen(this.fnUpdate);
+        }
         if (this.$$ && this.__saves) {
             this.__saves.forEach(i => {
                 const v = JSON.parse(localStorage.getItem(this._saveFileName));
@@ -118,7 +121,7 @@ export class LiElement extends LitElement {
         super.disconnectedCallback();
     }
     _initBus() {
-        if (this.$props.get('_partid') || this.__saves) {
+        if (!this.$$  && (this.$props.get('_partid') || this.__saves || !this.$root)) {
             if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
             this._partid = this._partid || this.id || this.$ulid || this.localName;
             if (!LI._$$[this._partid]) {
@@ -126,7 +129,7 @@ export class LiElement extends LitElement {
                 LI._$$[this._partid]._$$ = icaro({});
                 LI._$$[this._partid]._$$.update = icaro({ value: 0 });
             }
-            this.$$.update.listen(this.fnUpdate);
+            //this.$$.update.listen(this.fnUpdate);
         }
     }
     fnUpdate = (e) => { this.requestUpdate() }
@@ -134,9 +137,10 @@ export class LiElement extends LitElement {
     fnGlobals = (e) => { if (this.__globals) this.__globals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnListen = (e, property, fn) => { if (e.has(property)) fn() }
 
-    get $$() { return this._partid && LI._$$[this._partid] && LI._$$[this._partid]['_$$'] ? LI._$$[this._partid]['_$$'] : undefined }
+    get partid() { return this.$root?.partid || this._partid || undefined }
+    get $$() { return this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$'] ? LI._$$[this.partid]['_$$'] : undefined }
     get $root() { return this.getRootNode().host; }
-    get _saveFileName() { return ((this.id || this._partid || this.localName.replace('li-', '')) + '.saves') }
+    get _saveFileName() { return ((this.id || this.partid || this.localName.replace('li-', '')) + '.saves') }
 
     firstUpdated() {
         super.firstUpdated();
@@ -152,6 +156,7 @@ export class LiElement extends LitElement {
         if (!changedProps) return;
         if (changedProps.has('_partid')) {
             this._initBus();
+            this.$$.update.listen(this.fnUpdate);
         }
         for (const prop of changedProps.keys()) {
             if (this.__enableSave && this.__saves && this.__saves.includes(prop)) {
@@ -179,7 +184,10 @@ export class LiElement extends LitElement {
 
     $update(property, value) { LI.$update.call(this, property, value) }
     $listen(property, fn) {
-        if (!this.$$) this._initBus();
+        if (!this.$$) {
+            this._initBus();
+            this.$$.update.listen(this.fnUpdate);
+        }
         if (this.$$[property] === undefined) this.$$[property] = this[property] || '';
         if (!this.__locals.includes(property)) this.__locals.push(property);
         this._fnListeners = this._fnListeners || new WeakMap();

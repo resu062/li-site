@@ -1,5 +1,4 @@
-## li-site
-# Learning LitElement
+# li-site
 
 What is here?
   - small modifications to lit element in file li.js
@@ -16,7 +15,9 @@ Or open single page applications:
 
 TETRIS: https://resu062.github.io/li-site/li/tetris/
 
-Credit Calculator: https://resu062.github.io/li-site/li/credit-calc/
+Exchange Rates (Курсы валют): https://resu062.github.io/li-site/li/valuta/
+
+Credit Calculator (Кредитный калькулятор): https://resu062.github.io/li-site/li/credit-calc/
 
 Games of Life (canvas): https://resu062.github.io/li-site/li/life/index-on-canvas.html
 
