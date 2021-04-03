@@ -144,7 +144,9 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             changedProperties.forEach((oldValue, propName) => update = [
                 'animation', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
             ].includes(propName));
-            if (this._isReady && update) {
+            if (this._isReady && changedProperties.has('animation')){
+                this.loop();
+            } else if (this._isReady && update) {
                 this._updated();
                 this.loop();
             }
@@ -175,6 +177,9 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                 font-size: xx-large;
                 font-weight: 700;
             }
+            canvas {
+                cursor: pointer;
+            }
         `;
     }
 
@@ -187,10 +192,10 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
 
                 </div>
                 <div slot="app-main">
-                <canvas ref="canvas" slot="main" :width="innerWidth" :height="innerHeight"></canvas>
+                <canvas ref="canvas" slot="main" :width="innerWidth" :height="innerHeight" @mousedown="${()=>this.animation=true}" @mouseup="${()=>this.animation=false}"></canvas>
                 </div>
                 <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
-                    <li-property-grid label="oda-l-system" .io="${this}"></li-property-grid>
+                    <li-property-grid label="l-system" .io="${this}"></li-property-grid>
                 </div>
             </li-layout-app>
             <li-monitor .hide="${!this.showMonitor}"></li-monitor>
@@ -205,7 +210,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             enhanceCanvas(this.canvas);
         }
         draw({ ...this.state }, this.commands, this.ctx, this.rotate);
-        this.$update();
+        //this.$update();
 
         if (this.animation)
             //LI.debounce('draw',() => this.loop(), 1000);
