@@ -184,7 +184,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
 
                 </div>
                 <div slot="app-main">
-                <canvas ref="canvas" slot="main" :width="innerWidth" :height="innerHeight" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"></canvas>
+                <canvas ref="canvas" slot="main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
+                        @touchstart="${() => this.animation = true}" @touchend="${() => this.animation = false}"></canvas>
                 </div>
                 <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     <li-property-grid label="l-system" .io="${this}"></li-property-grid>
@@ -195,17 +196,12 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
     }
 
     loop() {
-        if (this.animation) {
-            this.rotate = this.rotate += 1;
-        } else {
-            this.init();
-            //enhanceCanvas(this.canvas);
-        }
-        draw({ ...this.state }, this.commands, this.ctx, this.rotate);
-        //this.$update();
-
         if (this.animation)
-            //LI.debounce('draw',() => this.loop(), 1000);
+            this.rotate = this.rotate += 1;
+        else
+            this.init();
+        draw({ ...this.state }, this.commands, this.ctx, this.rotate);
+        if (this.animation)
             requestAnimationFrame(this.loop.bind(this));
     }
 });
@@ -251,17 +247,4 @@ function draw(state, commands, ctx, rotate) {
     ctx.moveTo(state.x, state.y);
     commands.forEach(c => { cmd[c]() });
     ctx.stroke();
-}
-
-function enhanceCanvas(canvas) {
-    let ratio = window.devicePixelRatio || 1,
-        width = canvas.width = innerWidth,
-        height = canvas.height = innerHeight;
-    if (ratio > 1) {
-        canvas.width = width * ratio;
-        canvas.height = height * ratio;
-        canvas.style.width = width + "px";
-        canvas.style.height = height + "px";
-        this.ctx.scale(ratio, ratio);
-    }
 }
