@@ -9,16 +9,18 @@ What is here?
 
 You can view created components and various applications in li-tester component here: 
 
-https://resu062.github.io/li-site/li/tester/
+https://resu062.github.io/li-js/li/tester/
 
 Or open single page applications:
 
-TETRIS: https://resu062.github.io/li-site/li/tetris/
+TETRIS: https://resu062.github.io/li-js/li/tetris/
 
-Exchange Rates (Курсы валют): https://resu062.github.io/li-site/li/valuta/
+Exchange Rates (Курсы валют): https://resu062.github.io/li-js/li/valuta/
 
-Credit Calculator (Кредитный калькулятор): https://resu062.github.io/li-site/li/credit-calc/
+Credit Calculator (Кредитный калькулятор): https://resu062.github.io/li-js/li/credit-calc/
 
-Games of Life (canvas): https://resu062.github.io/li-site/li/life/index-on-canvas.html
+L-System: https://resu062.github.io/li-js/li/l-system/
 
-Games of Life (svg): https://resu062.github.io/li-site/li/life/index-on-svg.html
+Games of Life (canvas): https://resu062.github.io/li-js/li/life/
+
+Games of Life (svg): https://resu062.github.io/li-js/li/life/
