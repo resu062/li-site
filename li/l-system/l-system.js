@@ -43,7 +43,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.sizeValue = 14;
         this.sizeGrowth = 0.0001;
         this.angleValue = -3669.39;
-        this.angleGrowth =  -0.05531299999999828;
+        this.angleGrowth = -0.05531299999999828;
         this.levels = 30;
         this.rules = 'L: S, S: F+>[F-Y[S]]F)G, Y: --[|F-F-FY], G: FGY[+F]+Y';
 
@@ -89,7 +89,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.commands = []
         this._commands.split('').forEach(c => {
             c = this.symbols[c];
-            if (c && ['F', '+', '-', '[', ']', '!', '|', '<', '>', '(', ')'].includes(c)) this.commands.push(c);
+            if (c && Object.keys(this.symbols).includes(c)) this.commands.push(c);
         })
     }
 
@@ -118,14 +118,6 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         }
         return levelExpr;
     }
-    removeNonInstructions(expr) {
-        return expr.split('').filter(function(e) {
-            if (definitions[e]) {
-                return true;
-            }
-        });
-    }
-
 
     firstUpdated() {
         super.firstUpdated();
@@ -144,7 +136,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             changedProperties.forEach((oldValue, propName) => update = [
                 'animation', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
             ].includes(propName));
-            if (this._isReady && changedProperties.has('animation')){
+            if (this._isReady && changedProperties.has('animation')) {
                 this.loop();
             } else if (this._isReady && update) {
                 this._updated();
@@ -192,7 +184,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
 
                 </div>
                 <div slot="app-main">
-                <canvas ref="canvas" slot="main" :width="innerWidth" :height="innerHeight" @mousedown="${()=>this.animation=true}" @mouseup="${()=>this.animation=false}"></canvas>
+                <canvas ref="canvas" slot="main" :width="innerWidth" :height="innerHeight" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"></canvas>
                 </div>
                 <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     <li-property-grid label="l-system" .io="${this}"></li-property-grid>
@@ -207,7 +199,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             this.rotate = this.rotate += 1;
         } else {
             this.init();
-            enhanceCanvas(this.canvas);
+            //enhanceCanvas(this.canvas);
         }
         draw({ ...this.state }, this.commands, this.ctx, this.rotate);
         //this.$update();
@@ -231,21 +223,9 @@ function cloneState(c) {
 function draw(state, commands, ctx, rotate) {
     const cmd = {
         'F': () => {
-            let bounding;
-            let ang = ((state.orientation % 360) / 180) * Math.PI;
+            const ang = ((state.orientation % 360) / 180) * Math.PI;
             state.x += Math.cos(ang) * state.stepSize;
             state.y += Math.sin(ang) * state.stepSize;
-            bounding = context.bounding;
-            if (state.x < bounding.x1) {
-                bounding.x1 = state.x;
-            } else if (state.x > bounding.x2) {
-                bounding.x2 = state.x;
-            }
-            if (state.y < bounding.y1) {
-                bounding.y1 = state.y;
-            } else if (state.y > bounding.y2) {
-                bounding.y2 = state.y;
-            }
             ctx.lineTo(state.x, state.y);
         },
         'S': () => { },
@@ -263,9 +243,7 @@ function draw(state, commands, ctx, rotate) {
         '(': () => { state.stepAngle *= 1 - state.angleGrowth },
         ')': () => { state.stepAngle *= 1 + state.angleGrowth }
     }
-    const context = {};
-    context.stack = [];
-    context.bounding = { x2: state.x, y2: state.y };
+    const context = { stack: [] };
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.strokeStyle = state.lineColor;
     ctx.lineWidth = state.lineWidth;
