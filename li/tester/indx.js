@@ -328,4 +328,7 @@ export const indx = {
 
     'li-credit-calc': { label: 'Кредитный калькулятор' },
     'credit-calc': [{ label: 'index', url: url + '/credit-calc' }],
+
+    'li-l-system': { label: 'L-System' },
+    'l-system': [{ label: 'index', url: url + '/l-system/index.html' }],
 }
