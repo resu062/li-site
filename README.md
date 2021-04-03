@@ -1,4 +1,4 @@
-# li-site
+# li-js
 
 What is here?
   - small modifications to lit element in file li.js
