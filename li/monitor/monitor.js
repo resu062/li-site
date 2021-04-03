@@ -16,6 +16,7 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
             _memoryMax: { type: Number, default: 0 },
             _memoryArr: { type: Array, default: [] },
             _frame: { type: Number, default: 0 },
+            hide: { type: Boolean, reflect: true }
         }
     }
 
@@ -59,6 +60,7 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
 
     render() {
         return html`
+            ${!this.hide ? html`
             <div class="monitor" style="width:${this.monitorWidth}px; transform :translate3d(${this.translateX}px, ${this.translateY}px, 0px); cursor: pointer;" 
                     @mousedown="${this._down}">
                 <div class="horizontal" style="justify-content: space-between; margin-bottom: 2px;">
@@ -73,7 +75,7 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
                     ${this._memoryArr.map(m => html`<div class="bar" style="height:${m * this.barHeight / this._memoryMax}px"></div>`)}
                 </div>
             </div>
-        `;
+        ` : html``}`
     }
 
     firstUpdated() {
@@ -88,7 +90,20 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
         this.tick();
     }
 
+    updated(changedProperties) {
+        let update = false;
+        changedProperties.forEach((oldValue, propName) => update = ['hide'].includes(propName));
+        if (update) {
+            this.second = this.fps = this.memory = this._memoryMax = 0;
+            this._fpsArr = [];
+            this._memoryArr = [];
+            this._clearSecond();
+            this.tick();
+        }
+    }
+
     tick() {
+        if (this.hide) return;
         requestAnimationFrame(() => this.tick());
         let time = performance.now();
         this._frame++;
