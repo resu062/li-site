@@ -330,6 +330,7 @@ async function makeData(el, { expert, group, sort, showFunction }) {
         let value = el[key], is, type;
         const _docs = undefined;
         if (el[key] && el[key]._docs) _docs = el[key]._docs;
+        if (props && props.get(key) && props.get(key).category) category = props.get(key).category;
         const item = { label: key, value, el: el[key], items: [], category, obj, _docs };
         if (value && Array.isArray(value)) {
             try {
