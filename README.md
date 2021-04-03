@@ -13,13 +13,13 @@ https://resu062.github.io/li-js/li/tester/
 
 Or open single page applications:
 
-L-System: https://resu062.github.io/li-js/li/l-system/
-
 TETRIS: https://resu062.github.io/li-js/li/tetris/
 
 Exchange Rates (Курсы валют): https://resu062.github.io/li-js/li/valuta/
 
 Credit Calculator (Кредитный калькулятор): https://resu062.github.io/li-js/li/credit-calc/
+
+L-System: https://resu062.github.io/li-js/li/l-system/
 
 Games of Life (canvas): https://resu062.github.io/li-js/li/life/
 
