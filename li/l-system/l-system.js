@@ -121,7 +121,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.ctx = this.canvas.getContext('2d');
 
         let _s = window.location?.href.split('?')[1];
-        let s = _s?.includes('p.size') && _s?.includes('p.angle') && _s?.split('&').length >= 5 ? _s : data[this.name] || 'tree';
+        let s = _s?.includes('p.size') && _s?.includes('p.angle') && _s?.split('&').length >= 5 ? _s : data[this.name] || data['tree'];
         this.fromUrl(s);
         this._lineColor = this.lineColor;
 
@@ -143,7 +143,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             }
             if (changedProperties.has('name')) {
                 this._isUpdated = true;
-                let s = data[this.name] || 'tree';
+                let s = data[this.name] || data['tree'];
                 this.fromUrl(s);
                 this._lineColor = this.lineColor;
                 this._updated();
