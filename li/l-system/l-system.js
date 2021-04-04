@@ -137,17 +137,13 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         if (this._isReady) {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
-                    'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
-                ].includes(propName));
+                'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
+            ].includes(propName));
             if (changedProperties.has('lineColor')) {
                 this._lineColor = this.lineColor;
             }
             if (changedProperties.has('name')) {
-                this._isUpdated = true;
-                let s = data[this.name] || data['tree'];
-                this.fromUrl(s);
-                this._lineColor = this.lineColor;
-                this._updated();
+                this._setData();
             } else if (changedProperties.has('animation')) {
                 this.loop();
             } else if (update && !this._isUpdated) {
@@ -155,6 +151,14 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                 this._updated();
             }
         }
+    }
+
+    _setData(name) {
+        this._isUpdated = true;
+        let s = data[name] || data[this.name] || data['tree'];
+        this.fromUrl(s);
+        this._lineColor = this.lineColor;
+        this._updated();
     }
 
     _updated() {
@@ -199,12 +203,14 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                  <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
                  <div slot="app-top" class="header"><a target="_blank" href="https://ru.wikipedia.org/wiki/L-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">L-System</a></div>
                  <div slot="app-top-right">
-                    <li-button name="play-arrow" @click="${()=>{this.animation=!this.animation;this.$update()}}"></li-button>
-                     <li-button name="chevron-left" @click="${()=>{this.rotate--;this.loop()}}"></li-button>
-                     <li-button name="chevron-right" @click="${()=>{this.rotate++;this.loop()}}"></li-button>
+                     <li-button name="play-arrow" @click="${() => { this.animation = !this.animation; this.$update() }}"></li-button>
+                     <li-button name="chevron-left" @click="${() => { this.rotate--; this.loop() }}"></li-button>
+                     <li-button name="chevron-right" @click="${() => { this.rotate++; this.loop() }}"></li-button>
                  </div>
-                <div slot="app-left" style="padding-left:4px;">
-
+                <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column;">
+                    ${Object.keys(data).map(name => html`
+                        <li-button width="100%" .label="${name}" @click="${() => this._setData(name)}"></li-button>
+                    `)}
                 </div>
                 <div slot="app-main">
                 <canvas ref="canvas" slot="main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
