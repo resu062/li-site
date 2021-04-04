@@ -3,80 +3,39 @@ import { LiElement } from '../../li.js';
 import '../layout-app/layout-app.js';
 import '../property-grid/property-grid.js';
 import '../monitor/monitor.js';
+import { data } from './data.js';
 
 let url = import.meta.url;
 
 customElements.define('li-l-system', class LiLSystem extends LiElement {
     static get properties() {
         return {
+            name: { type: String, default: 'l-system', category: 'actions', save: true },
             animation: { type: Boolean, category: 'actions' },
+            inverse: { type: Boolean, category: 'actions' },
             showMonitor: { type: Boolean, category: 'actions' },
             x: { type: Number, default: 0, category: 'offset' },
             y: { type: Number, default: 0, category: 'offset' },
             orientation: { type: Number, default: 0, category: 'offset' },
+            levels: { type: Number, default: 0, category: 'params' },
+            rules: { type: Object, category: 'params' },
+            symbols: { type: Object, default: { 'F': 'F', '+': '+', '-': '-', '[': '[', ']': ']', '|': '|', '!': '!', '<': '<', '>': '>', '(': '(', ')': ')' }, category: 'params' },
             sizeValue: { type: Number, default: 0, category: 'variables' },
             sizeGrowth: { type: Number, default: 0, category: 'variables' },
             angleValue: { type: Number, default: 0, category: 'variables' },
             angleGrowth: { type: Number, default: 0, category: 'variables' },
             lineWidth: { type: Number, default: 0.218, category: 'variables' },
-            lineColor: { type: String, default: 'black', category: 'variables' },
-            levels: { type: Number, default: 0, category: 'params' },
-            rules: { type: Object, category: 'params' },
-            symbols: { type: Object, default: { 'F': 'F', '+': '+', '-': '-', '[': '[', ']': ']', '|': '|', '!': '!', '<': '<', '>': '>', '(': '(', ')': ')' }, category: 'params' },
+            lineColor: { type: String, default: 'black', category: 'variables', list: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray', 'white', 'black' ] },
+            // sensSizeValue: { type: Number, default: 0, category: 'sensitivities' },
+            // sensSizeGrowth: { type: Number, default: 0, category: 'sensitivities' },
+            // sensAngleValue: { type: Number, default: 0, category: 'sensitivities' },
+            // sensAngleGrowth: { type: Number, default: 0, category: 'sensitivities' }
         }
     }
 
     constructor() {
         super();
-        this.x = 0;
-        this.y = 0;
-
-        // this.orientation = -90;
-        // this.sizeValue = 7.01;
-        // this.sizeGrowth = 0.01;
-        // this.angleValue = -1856.68;
-        // this.angleGrowth = 0.05;
-        // this.levels = 31;
-        // this.rules = 'L : SYS, S : F|+[F<-Y)[-S]]Y-!Y, Y : [|>F-F)++(Y]';
-
-        this.orientation = -90;
-        this.sizeValue = 14;
-        this.sizeGrowth = 0.0001;
-        this.angleValue = -3669.39;
-        this.angleGrowth = -0.05531299999999828;
-        this.levels = 30;
-        this.rules = 'L: S, S: F+>[F-Y[S]]F)G, Y: --[|F-F-FY], G: FGY[+F]+Y';
-
-        // this.orientation = -90;
-        // this.sizeValue = 9;
-        // this.sizeGrowth = 0.0001;
-        // this.angleValue = 25;
-        // this.angleGrowth = -0.05531299999999828;
-        // this.levels = 6;
-        // this.rules = 'L: X, X : F-[[X]+X]+F[+FX]-X, F: FF';
-        // this.y = 400;
-        // this.lineWidth = 1;
-
-        // this.orientation = 240;
-        // this.sizeValue = 2;
-        // this.angleValue = 60;
-        // this.levels = 10;
-        // this.rules = 'L: A, A: B-A-B, B: A+B+A';
-        // this.symbols = { ...{ 'A': 'F', 'B': 'F' }, ...this.symbols };
-        // this.x = 500;
-        // this.y = 500;
-        // this.lineWidth = 1;
-
-        // this.orientation = 240;
-        // this.sizeValue = 4;
-        // this.angleValue = 120;
-        // this.levels = 9;
-        // this.rules = 'L: F, F: F-G+F+G-F, G: GG';
-        // this.symbols = { ...{ 'G': 'F' }, ...this.symbols };
-        // this.x = 600;
-        // this.y = 500;
-        // this.lineWidth = 1;
-
+        this.constructor._classProperties.get('name').list = Object.keys(data) || [];
     }
 
     init() {
@@ -85,7 +44,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.seed = this.textRules[0][0];
         this.ruleMap = {};
         this.textRules.forEach(r => this.ruleMap[r[0]] = r[1]);
-        this._commands = this.expandChunk(this.levels, this.seed, '', 0, 0, 400000);
+        this._commands = this.makeCommands(this.levels, this.seed, '', 0, 0, 400000);
         this.commands = []
         this._commands.split('').forEach(c => {
             c = this.symbols[c];
@@ -93,7 +52,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         })
     }
 
-    expandChunk(levelNum, levelExpr, acc, start, processed, count) {
+    makeCommands(levelNum, levelExpr, acc, start, processed, count) {
         var end, i, reachesEndOfLevel, remaining, symbol;
         while (processed < count) {
             if (levelNum === 0) return levelExpr;
@@ -119,10 +78,53 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         return levelExpr;
     }
 
+    fromUrl(url) {
+        if (!url) return;
+        const convertor = {
+            'name': v => { this.name = decodeURIComponent(v || 'l-system') },
+            'i': v => { this.levels = parseInt(v) },
+            'r': v => { this.rules = decodeURIComponent(v.replaceAll('%0A', ', ')) },
+            'p.size': v => { this.sizeValue = parseFloat(v[0] ? v[0] : 0); this.sizeGrowth = parseFloat(v[1] ? v[1] : 0.01) },
+            'p.angle': v => { this.angleValue = parseFloat(v[0] ? v[0] : 0); this.angleGrowth = parseFloat(v[1] ? v[1] : 0.05) },
+            's.size': v => { this.sensSizeValue = parseFloat(v[0] ? v[0] : 0); this.sensSizeGrowth = parseFloat(v[1] ? v[1] : 0.01) },
+            's.angle': v => { this.sensAngleValue = parseFloat(v[0] ? v[0] : 0); this.sensAngleGrowth = parseFloat(v[1] ? v[1] : 0.05) },
+            'offsets': v => { this.x = parseFloat(v[0] ? v[0] : 0); this.y = parseFloat(v[1] ? v[1] : 0); this.orientation = parseFloat(v[2] ? v[2] : 0); },
+            'w': v => { this.lineWidth = parseFloat(v || 0.218) },
+            'c': v => { this.lineColor = v },
+            's': v => {
+                const s = decodeURIComponent(v).split(',');
+                const o = {};
+                s.forEach(i => {
+                    i = i.split(':');
+                    o[i[0]] = i[1];
+                })
+                this.symbols = { ...o, ...this.symbols }
+            },
+        }
+        this.lineWidth = 0.218;
+        this.x = this.y = 0;
+        this.orientation = -90;
+        this.sizeValue = this.angleValue = this.sensSizeValue = this.sensAngleValue = 0;
+        const d = url.split('&');
+        d.map(p => {
+            let v = p.split('=')
+            if (['p.size', 'p.angle', 's.size', 's.angle', 'offsets'].includes(v[0]))
+                v[1] = v[1].split(',');
+            if (convertor[v[0]])
+                convertor[v[0]](v[1]);
+        })
+    }
+
     firstUpdated() {
         super.firstUpdated();
         this.canvas = this.$refs.canvas;
         this.ctx = this.canvas.getContext('2d');
+
+        let _s = window.location?.href.split('?')[1];
+        let s = _s?.includes('p.size') && _s?.includes('p.angle') && _s?.split('&').length >= 5 ? _s : data[this.name];
+        this.fromUrl(s);
+        this._lineColor = this.lineColor;
+
         this._updated();
         setTimeout(() => {
             this.loop();
@@ -134,21 +136,32 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         if (this._isReady) {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
-                'animation', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
+                'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
             ].includes(propName));
-            if (this._isReady && changedProperties.has('animation')) {
-                this.loop();
-            } else if (this._isReady && update) {
+            if (changedProperties.has('lineColor')) {
+                this._lineColor = this.lineColor;
+            }
+            if (changedProperties.has('name')) {
+                this._isUpdated = true;
+                let s = data[this.name];
+                this.fromUrl(s);
+                this._lineColor = this.lineColor;
                 this._updated();
+            } else if (changedProperties.has('animation')) {
                 this.loop();
+            } else if (update && !this._isUpdated) {
+                this._isUpdated = true;
+                this._updated();
             }
         }
     }
 
     _updated() {
+        this.canvas.style.background = this.inverse ? 'black' : 'white';
+        this.lineColor = this.inverse ? 'white' : this._lineColor === 'white' ? 'black' : this._lineColor;
         this.rotate = 0;
-        this._x = 989;
-        this._y = 439.5;
+        this._x = innerWidth / 2;
+        this._y = innerHeight / 2;
         this.state = {
             levels: this.levels,
             orientation: this.orientation,
@@ -161,6 +174,10 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             x: this._x + Number(this.x),
             y: this._y + Number(this.y)
         }
+        this.init();
+        this.$update();
+        this.loop();
+        this._isUpdated = false;
     }
 
     static get styles() {
@@ -196,25 +213,13 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
     }
 
     loop() {
-        if (this.animation)
-            this.rotate = this.rotate += 1;
-        else
-            this.init();
         draw({ ...this.state }, this.commands, this.ctx, this.rotate);
-        if (this.animation)
+        if (this.animation) {
+            this.rotate = this.rotate += 1;
             requestAnimationFrame(this.loop.bind(this));
+        }
     }
 });
-
-function cloneState(c) {
-    return {
-        orientation: c.orientation,
-        stepAngle: c.stepAngle,
-        stepSize: c.stepSize,
-        x: c.x,
-        y: c.y
-    }
-}
 
 function draw(state, commands, ctx, rotate) {
     const cmd = {
@@ -227,7 +232,7 @@ function draw(state, commands, ctx, rotate) {
         'S': () => { },
         '+': () => { state.orientation += (state.stepAngle + rotate) },
         '-': () => { state.orientation -= (state.stepAngle - rotate) },
-        '[': () => { context.stack.push(cloneState(state)) },
+        '[': () => { context.stack.push({ orientation: state.orientation, stepAngle: state.stepAngle, stepSize: state.stepSize, x: state.x, y: state.y }) },
         ']': () => {
             context.state = state = { ...state, ...context.stack.pop() };
             ctx.moveTo(state.x, state.y);
