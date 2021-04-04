@@ -3,6 +3,7 @@ import { LiElement } from '../../li.js';
 import '../layout-app/layout-app.js';
 import '../property-grid/property-grid.js';
 import '../monitor/monitor.js';
+import '../button/button.js';
 import { data } from './data.js';
 
 let url = import.meta.url;
@@ -25,7 +26,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             angleValue: { type: Number, default: 0, category: 'variables' },
             angleGrowth: { type: Number, default: 0, category: 'variables' },
             lineWidth: { type: Number, default: 0.218, category: 'variables' },
-            lineColor: { type: String, default: 'black', category: 'variables', list: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'dark', 'gray', 'darkgray', 'lightgray', 'white', 'black' ] },
+            lineColor: { type: String, default: 'black', category: 'variables', list: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'darkgray', 'gray', 'darkgray', 'lightgray', 'white', 'black'] },
             // sensSizeValue: { type: Number, default: 0, category: 'sensitivities' },
             // sensSizeGrowth: { type: Number, default: 0, category: 'sensitivities' },
             // sensAngleValue: { type: Number, default: 0, category: 'sensitivities' },
@@ -121,7 +122,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.ctx = this.canvas.getContext('2d');
 
         let _s = window.location?.href.split('?')[1];
-        let s = _s?.includes('p.size') && _s?.includes('p.angle') && _s?.split('&').length >= 5 ? _s : data[this.name] || data['tree'];
+        let s = _s?.includes('p.size') && _s?.includes('p.angle') && _s?.split('&').length >= 5 ? _s : data[_s] ? data[_s] : data[this.name] || data['tree'];
         this.fromUrl(s);
         this._lineColor = this.lineColor;
 
@@ -136,8 +137,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         if (this._isReady) {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
-                'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
-            ].includes(propName));
+                    'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
+                ].includes(propName));
             if (changedProperties.has('lineColor')) {
                 this._lineColor = this.lineColor;
             }
@@ -197,6 +198,11 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             <li-layout-app sides="300,300,1,1" fill="#9f731350">
                  <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
                  <div slot="app-top" class="header"><a target="_blank" href="https://ru.wikipedia.org/wiki/L-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">L-System</a></div>
+                 <div slot="app-top-right">
+                    <li-button name="play-arrow" @click="${()=>{this.animation=!this.animation;this.$update()}}"></li-button>
+                     <li-button name="chevron-left" @click="${()=>{this.rotate--;this.loop()}}"></li-button>
+                     <li-button name="chevron-right" @click="${()=>{this.rotate++;this.loop()}}"></li-button>
+                 </div>
                 <div slot="app-left" style="padding-left:4px;">
 
                 </div>
