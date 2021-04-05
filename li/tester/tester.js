@@ -33,18 +33,18 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 <div slot="app-top">
                     <div>${this.localName}</div>
                 </div>
-                <div slot="app-main">
+                <div slot="app-main" ref="main">
                     <slot @slotchange=${this.slotchange} id="slot"></slot>
                     <slot name="app-test"></slot>
                 </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     ${Object.keys(indx).map(key => html`
                         ${key.startsWith('li-') ?
-                            html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" .label2="${key}" label="${indx[key].label}" width="auto" @click="${this._tap}"></li-button>` :
-                            html`<div style="display: flex;font-size:10px;flex-wrap:wrap">${indx[key].map(i =>
-                                html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
-                            )}</div>`}`
-                    )}
+                html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" .label2="${key}" label="${indx[key].label}" width="auto" @click="${this._tap}"></li-button>` :
+                html`<div style="display: flex;font-size:10px;flex-wrap:wrap">${indx[key].map(i =>
+                    html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
+                )}</div>`}`
+        )}
                 </div>
                 <div slot="app-right" style="margin-right:4px;margin-top:4px;height: 99%;border:1px solid lightgray;">
                     <li-property-grid id="li-layout-app-tester" .io=${this.component} label="${this.localName}"></li-property-grid>
@@ -56,12 +56,14 @@ customElements.define('li-tester', class LiTester extends LiElement {
     slotchange(updateComponent = false) {
         if (!(updateComponent === true && this.component))
             this.component = this.shadowRoot.querySelectorAll('slot')[0].assignedElements()[0];
-        if (this.component && this._partid) this.component._setPartid(this._partid);
+        if (this.component?._setPartid && this._partid) this.component._setPartid(this._partid);
     }
 
     async _tap(e) {
-        if (this.component) this.removeChild(this.component);
-        this.$id.slot.name = "?";
+        if (this.component)
+            this.removeChild(this.component);
+        if (!this._wasRemoved) this.$refs.main.removeChild(this.$id.slot);
+        this._wasRemoved = true
         let el = e.target.label2 || e.target.label;
         let props = { ...indx[el].props, _partid: this.partid };
         if (props.iframe && props.iframe !== 'noiframe') {

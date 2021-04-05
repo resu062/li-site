@@ -323,12 +323,12 @@ export const indx = {
     'li-tetris': { label: 'TETRIS', props: { iframe: '../tetris/index.html' } },
     'tetris': [{ label: 'index', url: url + '/tetris' }],
 
-    'li-valuta': { label: 'Курсы валют' },
+    'li-valuta': { label: 'Курсы валют', props: { iframe: '../valuta/index.html' } },
     'credit-valuta': [{ label: 'index', url: url + '/valuta' }],
 
-    'li-credit-calc': { label: 'Кредитный калькулятор' },
+    'li-credit-calc': { label: 'Кредитный калькулятор', props: { iframe: '../credit-calc/index.html' } },
     'credit-calc': [{ label: 'index', url: url + '/credit-calc' }],
 
-    'li-l-system': { label: 'L-System' },
+    'li-l-system': { label: 'L-System', props: { iframe: '../l-system/index.html' } },
     'l-system': [{ label: 'index', url: url + '/l-system/index.html' }],
 }
