@@ -39,7 +39,31 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.constructor._classProperties.get('name').list = Object.keys(data) || [];
     }
 
-    init() {
+    getCommands(name = this.name, refreshData = false) {
+        if (this._isGetCommands) return;
+        this._isGetCommands = true;
+
+        if (refreshData) {
+            let s = data[name] || data['tree'];
+            this.rotate = 0;
+            let _s = window.location?.href.split('?')[1];
+            if (_s && !this._isReady) {
+                if (data[_s]) {                                                                                 // pollenanate  || tree || re-coil || ...
+                    s = data[_s];
+                } else if (_s?.includes('p.size') && _s?.includes('p.angle') && _s?.split('&').length >= 4) {   // ...i=30...&r=...&p.size=0,0...&p.angle=0,0...
+                    s = _s;
+                } else if (_s.split('=').length === 2) {                                                        // spirograph=210
+                    let arr = _s.split('=');
+                    let val = arr[0].replace(/\s/g, '');
+                    if (data[val]) {
+                        this.rotate = Number(arr[1]) || 0;
+                        s = data[val];
+                    }
+                }
+            }
+            this.fromUrl(s);
+        }
+
         this.textRules = [];
         this.rules.replace(/\s|\n/g, '').split(",").forEach((r) => { if (r.includes(':')) this.textRules.push(r.split(':')) });
         this.seed = this.textRules[0][0];
@@ -51,6 +75,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             c = this.symbols[c];
             if (c && Object.keys(this.symbols).includes(c)) this.commands.push(c);
         })
+        this.loop();
     }
 
     makeCommands(levelNum, levelExpr, acc, start, processed, count) {
@@ -120,16 +145,11 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         super.firstUpdated();
         this.canvas = this.$refs.canvas;
         this.ctx = this.canvas.getContext('2d');
-
-        let _s = window.location?.href.split('?')[1];
-        let s = _s?.includes('p.size') && _s?.includes('p.angle') && _s?.split('&').length >= 5 ? _s : data[_s] ? data[_s] : data[this.name] || data['tree'];
-        this.fromUrl(s);
-        this._lineColor = this.lineColor;
-
-        this._updated();
+        this.getCommands(this.name, true);
         setTimeout(() => {
-            this.loop();
             this._isReady = true;
+            this.loop();
+            this.$update();
         }, 500);
     }
 
@@ -142,47 +162,18 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             if (changedProperties.has('lineColor')) {
                 this._lineColor = this.lineColor;
             }
+            if (changedProperties.has('inverse')) {
+                this.canvas.style.background = this.inverse ? 'black' : 'white';
+                this.lineColor = this.inverse ? 'white' : this._lineColor === 'white' ? 'black' : this._lineColor;
+            }
             if (changedProperties.has('name')) {
-                this._setData();
+                this.getCommands(this.name, true);
             } else if (changedProperties.has('animation')) {
                 this.loop();
-            } else if (update && !this._isUpdated) {
-                this._isUpdated = true;
-                this._updated();
+            } else if (update) {
+                this.loop();
             }
         }
-    }
-
-    _setData(name) {
-        this._isUpdated = true;
-        let s = data[name] || data[this.name] || data['tree'];
-        this.fromUrl(s);
-        this._lineColor = this.lineColor;
-        this._updated();
-    }
-
-    _updated() {
-        this.canvas.style.background = this.inverse ? 'black' : 'white';
-        this.lineColor = this.inverse ? 'white' : this._lineColor === 'white' ? 'black' : this._lineColor;
-        this.rotate = 0;
-        this._x = innerWidth / 2;
-        this._y = innerHeight / 2;
-        this.state = {
-            levels: this.levels,
-            orientation: this.orientation,
-            stepSize: this.sizeValue,
-            stepAngle: this.angleValue,
-            sizeGrowth: this.sizeGrowth,
-            angleGrowth: this.angleGrowth,
-            lineWidth: this.lineWidth,
-            lineColor: this.lineColor,
-            x: this._x + Number(this.x),
-            y: this._y + Number(this.y)
-        }
-        this.init();
-        this.$update();
-        this.loop();
-        this._isUpdated = false;
     }
 
     static get styles() {
@@ -200,16 +191,18 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
     render() {
         return html`
             <li-layout-app sides="300,300,1,1" fill="#9f731350">
+                  
                  <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
                  <div slot="app-top" class="header"><a target="_blank" href="https://ru.wikipedia.org/wiki/L-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">L-System</a></div>
                  <div slot="app-top-right">
                      <li-button name="play-arrow" @click="${() => { this.animation = !this.animation; this.$update() }}"></li-button>
                      <li-button name="chevron-left" @click="${() => { this.rotate--; this.loop() }}"></li-button>
                      <li-button name="chevron-right" @click="${() => { this.rotate++; this.loop() }}"></li-button>
+                     <li-button name="refresh" @click="${() => this.getCommands()}"></li-button>
                  </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column;">
                     ${Object.keys(data).map(name => html`
-                        <li-button width="100%" .label="${name}" @click="${() => this._setData(name)}"></li-button>
+                        <li-button width="100%" .label="${name}" @click="${() => this.getCommands(name, true)}"></li-button>
                     `)}
                 </div>
                 <div slot="app-main">
@@ -224,8 +217,25 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         `
     }
 
+    state() {
+        return {
+            levels: this.levels,
+            orientation: this.orientation,
+            stepSize: this.sizeValue,
+            stepAngle: this.angleValue,
+            sizeGrowth: this.sizeGrowth,
+            angleGrowth: this.angleGrowth,
+            lineWidth: this.lineWidth,
+            lineColor: this.lineColor,
+            x: innerWidth / 2 + Number(this.x),
+            y: innerHeight / 2 + Number(this.y)
+        }
+    }
+
     loop() {
-        draw({ ...this.state }, this.commands, this.ctx, this.rotate);
+        if (!this._isReady) return;
+        draw(this.state(), this.commands, this.ctx, this.rotate);
+        this._isGetCommands = false;
         if (this.animation) {
             this.rotate = this.rotate += 1;
             requestAnimationFrame(this.loop.bind(this));
