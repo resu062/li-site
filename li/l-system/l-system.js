@@ -104,13 +104,9 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                         <li-button width="100%" .label="${name}" @click="${() => this.getCommands(name, true)}"></li-button>
                     `)}
                 </div>
-                <div slot="app-main">
-                <canvas ref="canvas" slot="main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
+                <canvas ref="canvas" slot="app-main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
                         @touchstart="${() => { this.animation = true; this.$update() }}" @touchend="${() => { this.animation = false; this.$update() }}"></canvas>
-                </div>
-                <div slot="app-right" style="padding-right:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
-                    <li-property-grid label="l-system" .io="${this}"></li-property-grid>
-                </div>
+                <li-property-grid slot="app-right" label="l-system" .io="${this}"></li-property-grid>
             </li-layout-app>
             <li-monitor .hide="${!this.showMonitor}"></li-monitor>
         `

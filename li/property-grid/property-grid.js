@@ -44,6 +44,8 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 display: flex;
                 flex-direction: column;
                 height: 100%;
+                outline: 1px solid lightgray;
+                margin-right: 4px;
             }
             .hheader {
                 position: sticky;
@@ -92,7 +94,6 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 cursor: col-resize;
                 z-index: 99;
                 height: 100%;
-                /* border:1px solid red; */
             }
             .splitter:active {
                 background: darkgray;

@@ -40,15 +40,13 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     ${Object.keys(indx).map(key => html`
                         ${key.startsWith('li-') ?
-                html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" .label2="${key}" label="${indx[key].label}" width="auto" @click="${this._tap}"></li-button>` :
-                html`<div style="display: flex;font-size:10px;flex-wrap:wrap">${indx[key].map(i =>
-                    html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
-                )}</div>`}`
-        )}
+                        html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" .label2="${key}" label="${indx[key].label}" width="auto" @click="${this._tap}"></li-button>` :
+                        html`<div style="display: flex;font-size:10px;flex-wrap:wrap">${indx[key].map(i =>
+                            html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
+                        )}</div>`}`
+                )}
                 </div>
-                <div slot="app-right" style="margin-right:4px;margin-top:4px;height: 99%;border:1px solid lightgray;">
-                    <li-property-grid id="li-layout-app-tester" .io=${this.component} label="${this.localName}"></li-property-grid>
-                </div>
+                <li-property-grid slot="app-right" id="li-layout-app-tester" .io=${this.component} label="${this.localName}"></li-property-grid>
             </li-layout-app>
         `;
     }
