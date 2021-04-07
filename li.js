@@ -76,7 +76,7 @@ export class LiElement extends LitElement {
                 this.__globals.push(k);
             }
             if (!prop || prop.default === undefined) continue;
-            this[k] = prop.default;
+            this[k] = this.$args && this.$args[k] || prop.default;
         }
 
         const name = this.localName.replace('li-', '');
@@ -150,6 +150,8 @@ export class LiElement extends LitElement {
 
     firstUpdated() {
         super.firstUpdated();
+        this.$args = this.$args || this.args;
+        if (this.$args) Object.keys(this.$args).forEach(k => this[k] = this.$args[k]);
         this.$id = {};
         this.renderRoot.querySelectorAll('[id]').forEach(node => this.$id[node.id] = node);
         this.$refs = {};

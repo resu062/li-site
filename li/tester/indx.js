@@ -21,8 +21,13 @@ export const indx = {
     'li-dropdown': { label: 'li-dropdown', props: { iframe: '../dropdown/index.html' } },
     dropdown: [{ label: 'index', url: url + '/dropdown' }, { label: 'index-2', url: url + '/dropdown/index-2.html' }],
 
-    'li-table': {
-        label: 'li-table (tabulator)', props: {
+    'li-cell': { label: 'li-cell', props: { type: 'text', value: "I'm li-cell", left: [{ name: 'button', args: { name: 'android', border: 'none', fill: 'green', size: 42 } }],
+        right: [{ name: 'button', args: { name: 'add', size: 32, fill: 'blue' } }, { name: 'button', args: { name: 'close', size: 32, fill: 'red' } }]
+    } },
+    cell: [{ label: 'index', url: url + '/cell' }],
+
+    'li-tabulator': {
+        label: 'li-tabulator', props: {
             options: {
                 maxHeight: "99%",
                 minHeight: 400,
@@ -51,7 +56,7 @@ export const indx = {
             }
         }
     },
-    table: [{ label: 'index', url: url + '/table' }],
+    tabulator: [{ label: 'index', url: url + '/tabulator' }],
 
     'li-tabs': {
         label: 'li-tabs',
