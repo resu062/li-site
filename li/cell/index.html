@@ -10,83 +10,113 @@
         display: flex;
     }
 
-    li-cell {
-        flex: 1;
+    .top {
+        border-top: 1px lightgray solid;
     }
 
-    .orange { background: orange; }
+    .right {
+        border-right: 1px lightgray solid;
+    }
+
+    .bottom {
+        border-bottom: 1px lightgray solid;
+    }
+
+    .left {
+        border-left: 1px lightgray solid;
+    }
+
+    .light {
+        background: lightgray;
+    }
 </style>
 
 <div style="width:600px;">
 
     <div class="row">
-        <li-cell type="date" value="2021-04-06" br="top left right bottom"></li-cell>
-        <li-cell type="date" value="2021-04-06" br="top right bottom"></li-cell>
+        <li-cell type="div" class="top left right bottom" value='li-checkbox'></li-cell>
+        <li-cell type="li-checkbox" class="top right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="time" value="12:12:00" br="left right bottom"></li-cell>
-        <li-cell type="time" value="12:12:00"></li-cell>
+        <li-cell type="div" value="cleave-date" class="left right bottom"></li-cell>
+        <li-cell cleave="date" value="2021-04-06" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="number" value=12345678.90 br="left right bottom"></li-cell>
-        <li-cell type="number" value=12345678.90></li-cell>
+        <li-cell type="div" value="time" class="left right bottom"></li-cell>
+        <li-cell type="time" value="12:12:00" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="text" value="I'm text" br="left right bottom"></li-cell>
-        <li-cell type="text" value="I'm text"></li-cell>
+        <li-cell type="div" value="cleave-numeral" class="left right bottom"></li-cell>
+        <li-cell cleave="numeral" value=1234567890.1234 class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="button" value="I'm button" br="left right bottom"></li-cell>
-        <li-cell type="button" value="I'm button"></li-cell>
+        <li-cell type="div" value="input-number" class="left right bottom"></li-cell>
+        <li-cell type="number" value=1234567890.1234 class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="checkbox" value="true" br="left right bottom"></li-cell>
-        <li-cell type="checkbox" value="true"></li-cell>
+        <li-cell id="id1" type="div" value="text" class="left right bottom"></li-cell>
+        <li-cell id="id2" type="text" value="I'm text" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="color" value="#ff0000" br="left right bottom"></li-cell>
-        <li-cell type="color" value="#ff0000"></li-cell>
+        <li-cell type="div" value="button" class="left right bottom"></li-cell>
+        <li-cell type="button" value="I'm button" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="email" value="mai@mail.com" br="left right bottom"></li-cell>
-        <li-cell type="email" value="mai@mail.com"></li-cell>
+        <li-cell type="div" value="checkbox" class="left right bottom"></li-cell>
+        <li-cell type="checkbox" value="true" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="month" value="2021-05" br="left right bottom"></li-cell>
-        <li-cell type="month" value="2021-05"></li-cell>
+        <li-cell type="div" value="color" class="left right bottom"></li-cell>
+        <li-cell type="color" value="#ff0000" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="radio" value="" br="left right bottom"></li-cell>
-        <li-cell type="radio" value=""></li-cell>
+        <li-cell type="div" value="email" class="left right bottom"></li-cell>
+        <li-cell type="email" value="mai@mail.com" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell class="orange" type="range" min=0 max=10 step=1 value=5 br="left right bottom"></li-cell>
-        <li-cell type="range" min=0 max=10 step=1 value=5></li-cell>
+        <li-cell type="div" value="month" class="left right bottom"></li-cell>
+        <li-cell type="month" value="2021-05" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="search" value="any text" br="left right bottom"></li-cell>
-        <li-cell type="search" value="any text"></li-cell>
+        <li-cell type="div" value="radio" class="left right bottom"></li-cell>
+        <li-cell type="radio" value="" class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="tel" value="+7(910) 901-00-01" br="left right bottom"></li-cell>
-        <li-cell type="tel" value="+7(910) 901-00-01"></li-cell>
+        <li-cell type="div" value="range" class="left right bottom"></li-cell>
+        <li-cell type="range" min=0 max=10 step=1 value=5 class="right bottom"></li-cell>
     </div>
 
     <div class="row">
-        <li-cell type="textarea" value="ferewr wer ewr ewr ewr ewrew rewr wer ewr ewr " br="left right bottom"></li-cell>
-        <li-cell type="textarea" value="ferewr wer ewr ewr ewr ewrew rewr wer ewr ewr "></li-cell>
+        <li-cell type="div" value="search" class="left right bottom"></li-cell>
+        <li-cell type="search" value="any text" class="right bottom"></li-cell>
+    </div>
+
+    <div class="row">
+        <li-cell type="div" value="tel" class="left right bottom"></li-cell>
+        <li-cell type="tel" value="+7(910) 901-00-01" class="right bottom"></li-cell>
+    </div>
+
+    <div class="row">
+        <li-cell id="id3" type="div" value="text-area" class="left right bottom"></li-cell>
+        <li-cell id="id4" type="textarea" value="ferewr wer ewr ewr ewr ewrew rewr wer ewr ewr " class="right bottom"></li-cell>
     </div>
 
 </div>
+
+<script>
+    id1.right = [{ name: 'button', args: { name: 'android', border: 'none', fill: 'green' } }]
+    id2.left = [{ name: 'button', args: { name: 'chevron-right', border: 'none' } }, { name: 'check' }]
+    id2.right = [{ name: 'button', args: { name: 'add', size: 18 } }, { name: 'button', args: { name: 'close', size: 18 } }]
+</script>

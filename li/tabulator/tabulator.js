@@ -4,7 +4,7 @@ import './src/tabulator.js';
 import { tabulatorStyles } from './src/styles.js';
 
 
-customElements.define('li-table', class LiTable extends LiElement {
+customElements.define('li-tabulator', class LiTabulator extends LiElement {
     
     static get properties() {
         return {
