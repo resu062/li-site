@@ -8,7 +8,6 @@ customElements.define('li-cell', class LiCell extends LiElement {
     static get properties() {
         return {
             type: { type: String, default: 'text' },
-            cleave: { type: String, default: '' },
             value: { type: String, default: '' },
             left: { type: Array },
             right: { type: Array },
@@ -21,13 +20,13 @@ customElements.define('li-cell', class LiCell extends LiElement {
 
         this.inputType = ['text','date', 'datetime', 'time', 'month', 'number', 'checkbox', 'radio', 'color', 'range', 'search', 'tel', 'url'].includes(this.type) ? this.type : 'text';
 
-        if (this.cleave === 'numeral') {
+        if (this.type === 'cleave-numeral') {
             this.inputType = 'text';
             this._ca = new Cleave(this.$id.input, {
                 numeral: true,
                 delimiter: ' ',
             });
-        } else if (this.cleave === 'date') {
+        } else if (this.type === 'cleave-date') {
             this.inputType = 'date';
             this._dt = new Cleave(this.$id.input, {
                 date: true,
@@ -77,7 +76,7 @@ customElements.define('li-cell', class LiCell extends LiElement {
             input[type="number"] {
                 text-align: right;
             }
-            input[cleave="numeral"] {
+            input[_type="cleave-numeral"] {
                 text-align: right;
             }
         `;
@@ -102,7 +101,7 @@ customElements.define('li-cell', class LiCell extends LiElement {
         if (this.type === 'li-checkbox')
             return html`<li-checkbox></li-checkbox>`;
         else
-            return html`<input id="input" cleave="${this.cleave}" type="${this.inputType}" value="${this.value}" @keydown="${e => this._change(e)}" ?disabled="${this.readOnly}"/>
+            return html`<input id="input" _type="${this.type}" type="${this.inputType}" value="${this.value}" @keydown="${e => this._change(e)}" ?disabled="${this.readOnly}"/>
                 ${this.type === 'textarea' ? html`<li-button name="aspect-ratio" @click="${this._openTextarea}" size="18"></li-button>` : html``}
             `;
     }
