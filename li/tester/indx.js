@@ -336,4 +336,7 @@ export const indx = {
 
     'li-l-system': { label: 'L-System', props: { iframe: '../l-system/index.html' } },
     'l-system': [{ label: 'index', url: url + '/l-system/index.html' }],
+
+    'li-dbmon': { label: 'DBMON li-benchmark', props: { iframe: '../dbmon/index.html' } },
+    'dbmon': [{ label: 'index', url: url + '/dbmon/index.html' }],
 }
