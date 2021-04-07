@@ -25,6 +25,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             lineWidth: { type: Number, default: 0.218, category: 'variables' },
             lineColor: { type: String, default: 'black', category: 'variables', list: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'darkgray', 'gray', 'darkgray', 'lightgray', 'white', 'black'] },
             rotate: { type: Number, default: 0, category: 'variables' },
+            depth: { type: Number, default: 0, category: 'variables' },
+            speed: { type: Number, default: 1, category: 'variables' },
             x: { type: Number, default: 0, category: 'offset' },
             y: { type: Number, default: 0, category: 'offset' },
             orientation: { type: Number, default: 0, category: 'offset' },
@@ -56,7 +58,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         if (this._isReady) {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
-                'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y'
+                'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 
+                'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed'
             ].includes(propName));
             if (changedProperties.has('lineColor')) {
                 this._lineColor = this.lineColor;
@@ -225,7 +228,12 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             lineWidth: Number(this.lineWidth),
             lineColor: this.lineColor,
             x: innerWidth / 2 + Number(this.x),
-            y: innerHeight / 2 + Number(this.y)
+            y: innerHeight / 2 + Number(this.y),
+            sensSizeValue:  Math.pow(10, (this.sensSizeValue || 7.7) - 10) * this.depth,
+            sensSizeGrowth: Math.pow(10, (this.sensSizeGrowth || 7.53) - 10) * this.depth,
+            sensAngleValue: Math.pow(10, (this.sensAngleValue || 7.6) - 10) * this.depth,
+            sensAngleGrowth: Math.pow(10, (this.sensAngleGrowth || 4) - 10) * this.depth,
+            animation: this.animation
         }
     }
 
@@ -234,7 +242,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         draw(this.state(), this.commands, this.ctx, this.rotate);
         this._isGetCommands = false;
         if (this.animation) {
-            this.rotate = Number(this.rotate) + 1 * this._sign;
+            this.rotate = Number(this.rotate) + this.speed * this._sign;
             requestAnimationFrame(this.loop.bind(this));
         } else {
             this.$update();
@@ -251,8 +259,8 @@ function draw(state, commands, ctx, rotate) {
             ctx.lineTo(state.x, state.y);
         },
         'S': () => { },
-        '+': () => { state.orientation += (state.stepAngle + Number(rotate)) },
-        '-': () => { state.orientation -= (state.stepAngle - Number(rotate)) },
+        '+': () => { state.orientation += (state.stepAngle + rotate + state.sensAngleValue) },
+        '-': () => { state.orientation -= (state.stepAngle - rotate - state.sensAngleValue) },
         '[': () => { context.stack.push({ orientation: state.orientation, stepAngle: state.stepAngle, stepSize: state.stepSize, x: state.x, y: state.y }) },
         ']': () => {
             context.state = state = { ...state, ...context.stack.pop() };
@@ -260,10 +268,10 @@ function draw(state, commands, ctx, rotate) {
         },
         '|': () => { state.orientation += 180 },
         '!': () => { state.stepAngle *= -1 },
-        '<': () => { state.stepSize *= 1 + state.sizeGrowth },
-        '>': () => { state.stepSize *= 1 - state.sizeGrowth },
-        '(': () => { state.stepAngle *= 1 - state.angleGrowth },
-        ')': () => { state.stepAngle *= 1 + state.angleGrowth }
+        '<': () => { state.stepSize *= 1 + state.sizeGrowth + state.sensSizeGrowth },
+        '>': () => { state.stepSize *= 1 - state.sizeGrowth - state.sensSizeGrowth },
+        '(': () => { state.stepAngle *= 1 - state.angleGrowth - state.sensAngleGrowth },
+        ')': () => { state.stepAngle *= 1 + state.angleGrowth + state.sensAngleGrowth }
     }
     const context = { stack: [] };
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
