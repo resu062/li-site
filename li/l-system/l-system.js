@@ -20,6 +20,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             angleValue: { type: Number, default: 0, category: 'params' },
             rules: { type: Object, category: 'params' },
             symbols: { type: Object, default: { 'F': 'F', '+': '+', '-': '-', '[': '[', ']': ']', '|': '|', '!': '!', '<': '<', '>': '>', '(': '(', ')': ')' }, category: 'params' },
+            extSymbols: { type: String, default: '', category: 'params' },
             rotate: { type: Number, default: 0, category: 'params' },
             sizeGrowth: { type: Number, default: 0, category: 'variables' },
             angleGrowth: { type: Number, default: 0, category: 'variables' },
@@ -60,18 +61,28 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
                 'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth',
-                'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed', 'colorStep'
+                'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed', 'colorStep', 'extSymbols'
             ].includes(propName));
-            if (changedProperties.has('lineColor')) {
-                this._lineColor = this.lineColor;
+            if (changedProperties.has('extSymbols')) {
+                if (this.extSymbols) {
+                    const o = {};
+                    this.extSymbols.split(',').forEach(i => {
+                        i = i.split(':');
+                        o[i[0]] = i[1];
+                    })
+                    this.symbols = { ...o, ...this.symbols };
+                    if (!this.animation) this.loop();
+                }
             }
             if (changedProperties.has('inverse')) {
                 this.canvas.style.background = this.inverse ? 'black' : 'white';
-                this.lineColor = this.inverse ? 'white' : this._lineColor === 'white' ? 'black' : this._lineColor;
+                this.lineColor = this.inverse ? 'white' : 'black';
             }
             if (changedProperties.has('name') || changedProperties.has('levels') || changedProperties.has('rules')) {
                 this.getCommands(this.name, changedProperties.has('name'));
-            } else if (update) {
+            } else if (changedProperties.has('animation')) {
+                this.loop();
+            } else if (update && !this.animation) {
                 this.loop();
             }
 
@@ -118,6 +129,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
     }
 
     getCommands(name = this.name, refreshData = false) {
+        // this._isReady = false;
         if (this._isGetCommands) return;
         this._isGetCommands = true;
 
@@ -154,7 +166,9 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             if (c && Object.keys(this.symbols).includes(c)) this.commands.push(c);
         })
         this._lenght = this.commands.length;
+        // this._isReady = true;
         this.loop();
+        this.$update();
     }
 
     makeCommands(levelNum, levelExpr, acc, start, processed, count) {
@@ -195,17 +209,26 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             's.angle': v => { this.sensAngleValue = parseFloat(v[0] ? v[0] : 0); this.sensAngleGrowth = parseFloat(v[1] ? v[1] : 0.05) },
             'offsets': v => { this.x = parseFloat(v[0] ? v[0] : 0); this.y = parseFloat(v[1] ? v[1] : 0); this.orientation = parseFloat(v[2] ? v[2] : 0); },
             'w': v => { this.lineWidth = parseFloat(v || 0.218) },
-            'c': v => { this.lineColor = parseFloat(v) },
+            'c': v => { this.lineColor = v || 'black' },
             'cstep': v => { this.colorStep = parseFloat(v) },
             'depth': v => { this.depth = parseFloat(v) },
             'speed': v => { this.speed = parseFloat(v) },
-            's': v => { this.symbols = { ...this.symbols, ...JSON.parse(decodeURIComponent(v)) } },
+            's': v => {
+                const s = decodeURIComponent(v);
+                this.extSymbols = s;
+                const o = {};
+                s.split(',').forEach(i => {
+                    i = i.split(':');
+                    o[i[0]] = i[1];
+                })
+                this.symbols = { ...o, ...this.symbols };
+            },
             'rotate': v => { this.rotate = parseFloat(v) },
             'animation': v => { this.animation = v === 'true' ? true : false },
-            'inverse': v => { 
-                this.inverse = v === 'true' ? true : false 
+            'inverse': v => {
+                this.inverse = v === 'true' ? true : false
                 this.canvas.style.background = this.inverse ? 'black' : 'white';
-                this.lineColor = this.inverse ? 'white' : this._lineColor === 'white' ? 'black' : this._lineColor;
+                this.lineColor = this.inverse ? 'white' : 'black';
             },
             'sign': v => { this._sign = parseFloat(v) },
         }
@@ -213,6 +236,11 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.x = this.y = 0;
         this.orientation = -90;
         this.sizeValue = this.angleValue = this.sensSizeValue = this.sensAngleValue = 0;
+        this.lineColor = 'black';
+        this.colorStep = this.depth = 0;
+        this.speed = 1;
+        this.extSymbols = '';
+        this.animation = this.inverse = false;
         const d = url.split('&');
         d.map(p => {
             let v = p.split('=')
@@ -238,18 +266,19 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             `&cstep=${this.colorStep}` +
             `&depth=${this.depth}` +
             `&speed=${this.speed}` +
-            `&s=${encodeURIComponent(JSON.stringify(this.symbols))}` +
             `&rotate=${this.rotate}` +
             `&animation=${this.animation}` +
             `&inverse=${this.inverse}` +
             `&sign=${this._sign}`;
+        if (this.extSymbols)
+            url += `&s=${encodeURIComponent(this.extSymbols)}`;
         url = this.$url.replace('l-system.js', url);
         await navigator.clipboard.writeText(url);
         window.open(url, '_blank').focus();
         return url;
     }
 
-    state() {
+    get state() {
         return {
             levels: Number(this.levels),
             orientation: Number(this.orientation),
@@ -272,10 +301,10 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
 
     loop() {
         if (!this._isReady) return;
-        draw(this.state(), this.commands, this.ctx, this.rotate);
+        draw(this.state, this.commands, this.ctx, this.rotate);
         this._isGetCommands = false;
         if (this.animation) {
-            this.rotate = Number(this.rotate) + this.speed * this._sign;
+            this.rotate += this.speed * this._sign;
             requestAnimationFrame(this.loop.bind(this));
         } else {
             this.$update();
