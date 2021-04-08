@@ -59,7 +59,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         if (this._isReady) {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
-                'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 
+                'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth',
                 'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed', 'colorStep'
             ].includes(propName));
             if (changedProperties.has('lineColor')) {
@@ -101,7 +101,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                     <li-button name="play-arrow" @click="${() => { this._sign = 1; this.animation = !this.animation; this.$update() }}"></li-button>
                     <li-button name="chevron-left" @click="${() => { this.rotate -= Number(this.speed); this.loop() }}"></li-button>
                     <li-button name="chevron-right" @click="${() => { this.rotate += Number(this.speed); this.loop() }}"></li-button>
-                    <li-button name="refresh" @click="${() => this.getCommands(this.name, true)}"></li-button>
+                    <li-button name="refresh" @click="${() => this.getCommands(this.name, true)}" title="refresh params"></li-button>
+                    <li-button name="launch" @click="${this.toUrl}" title="open in new window"></li-button>
                  </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column;">
                     ${Object.keys(data).map(name => html`
@@ -194,19 +195,19 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             's.angle': v => { this.sensAngleValue = parseFloat(v[0] ? v[0] : 0); this.sensAngleGrowth = parseFloat(v[1] ? v[1] : 0.05) },
             'offsets': v => { this.x = parseFloat(v[0] ? v[0] : 0); this.y = parseFloat(v[1] ? v[1] : 0); this.orientation = parseFloat(v[2] ? v[2] : 0); },
             'w': v => { this.lineWidth = parseFloat(v || 0.218) },
-            'c': v => { this.lineColor = v },
-            'cstep': v => { this.colorStep = v },
-            'depth': v => { this.depth = v },
-            'speed': v => { this.speed = v },
-            's': v => {
-                const s = decodeURIComponent(v).split(',');
-                const o = {};
-                s.forEach(i => {
-                    i = i.split(':');
-                    o[i[0]] = i[1];
-                })
-                this.symbols = { ...o, ...this.symbols }
+            'c': v => { this.lineColor = parseFloat(v) },
+            'cstep': v => { this.colorStep = parseFloat(v) },
+            'depth': v => { this.depth = parseFloat(v) },
+            'speed': v => { this.speed = parseFloat(v) },
+            's': v => { this.symbols = { ...this.symbols, ...JSON.parse(decodeURIComponent(v)) } },
+            'rotate': v => { this.rotate = parseFloat(v) },
+            'animation': v => { this.animation = v === 'true' ? true : false },
+            'inverse': v => { 
+                this.inverse = v === 'true' ? true : false 
+                this.canvas.style.background = this.inverse ? 'black' : 'white';
+                this.lineColor = this.inverse ? 'white' : this._lineColor === 'white' ? 'black' : this._lineColor;
             },
+            'sign': v => { this._sign = parseFloat(v) },
         }
         this.lineWidth = 0.218;
         this.x = this.y = 0;
@@ -222,6 +223,32 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         })
     }
 
+    async toUrl() {
+        let url =
+            `#?name=${encodeURIComponent(this.name)}` +
+            `&i=${this.levels}` +
+            `&r=${encodeURIComponent(this.rules)}` +
+            `&p.size=${this.sizeValue},${this.sizeGrowth}` +
+            `&p.angle=${this.angleValue},${this.angleGrowth}` +
+            `&s.size=${this.sensSizeValue},${this.sensSizeGrowth}` +
+            `&s.angle=${this.sensAngleValue},${this.sensAngleGrowth}` +
+            `&offsets=${this.x},${this.y},${this.orientation}` +
+            `&w=${this.lineWidth}` +
+            `&c=${this.lineColor}` +
+            `&cstep=${this.colorStep}` +
+            `&depth=${this.depth}` +
+            `&speed=${this.speed}` +
+            `&s=${encodeURIComponent(JSON.stringify(this.symbols))}` +
+            `&rotate=${this.rotate}` +
+            `&animation=${this.animation}` +
+            `&inverse=${this.inverse}` +
+            `&sign=${this._sign}`;
+        url = this.$url.replace('l-system.js', url);
+        await navigator.clipboard.writeText(url);
+        window.open(url, '_blank').focus();
+        return url;
+    }
+
     state() {
         return {
             levels: Number(this.levels),
@@ -234,7 +261,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             lineColor: this.lineColor,
             x: innerWidth / 2 + Number(this.x),
             y: innerHeight / 2 + Number(this.y),
-            sensSizeValue:  Math.pow(10, (this.sensSizeValue || 7.7) - 10) * this.depth,
+            sensSizeValue: Math.pow(10, (this.sensSizeValue || 7.7) - 10) * this.depth,
             sensSizeGrowth: Math.pow(10, (this.sensSizeGrowth || 7.53) - 10) * this.depth,
             sensAngleValue: Math.pow(10, (this.sensAngleValue || 7.6) - 10) * this.depth,
             sensAngleGrowth: Math.pow(10, (this.sensAngleGrowth || 4) - 10) * this.depth,
