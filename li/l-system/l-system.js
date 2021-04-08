@@ -24,6 +24,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             angleGrowth: { type: Number, default: 0, category: 'variables' },
             lineWidth: { type: Number, default: 0.218, category: 'variables' },
             lineColor: { type: String, default: 'black', category: 'variables', list: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'darkgray', 'gray', 'darkgray', 'lightgray', 'white', 'black'] },
+            colorStep: { type: Number, default: 0, category: 'variables' },
             rotate: { type: Number, default: 0, category: 'variables' },
             depth: { type: Number, default: 0, category: 'variables' },
             speed: { type: Number, default: 1, category: 'variables' },
@@ -59,7 +60,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
                 'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth', 
-                'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed'
+                'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed', 'colorStep'
             ].includes(propName));
             if (changedProperties.has('lineColor')) {
                 this._lineColor = this.lineColor;
@@ -81,7 +82,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         return css`
             .header {
                 font-size: xx-large;
-                font-weight: 700;
+                font-weight: 600;
             }
             canvas {
                 cursor: pointer;
@@ -91,15 +92,15 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
 
     render() {
         return html`
-            <li-layout-app sides="300,300,1,1" fill="#9f731350">
-                  
+            <li-layout-app sides="300,300,1,1" fill="#9f731350">    
                  <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
                  <div slot="app-top" class="header"><a target="_blank" href="https://ru.wikipedia.org/wiki/L-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">L-System</a></div>
+                 <div slot="app-top">[${this._lenght}]</div>
                  <div slot="app-top-right">
                     <li-button name="play-arrow" rotate=180 @click="${() => { this._sign = -1; this.animation = !this.animation; this.$update() }}"></li-button>
                     <li-button name="play-arrow" @click="${() => { this._sign = 1; this.animation = !this.animation; this.$update() }}"></li-button>
-                    <li-button name="chevron-left" @click="${() => { this.rotate--; this.loop() }}"></li-button>
-                    <li-button name="chevron-right" @click="${() => { this.rotate++; this.loop() }}"></li-button>
+                    <li-button name="chevron-left" @click="${() => { this.rotate -= Number(this.speed); this.loop() }}"></li-button>
+                    <li-button name="chevron-right" @click="${() => { this.rotate += Number(this.speed); this.loop() }}"></li-button>
                     <li-button name="refresh" @click="${() => this.getCommands(this.name, true)}"></li-button>
                  </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column;">
@@ -151,6 +152,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             c = this.symbols[c];
             if (c && Object.keys(this.symbols).includes(c)) this.commands.push(c);
         })
+        this._lenght = this.commands.length;
         this.loop();
     }
 
@@ -193,6 +195,9 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             'offsets': v => { this.x = parseFloat(v[0] ? v[0] : 0); this.y = parseFloat(v[1] ? v[1] : 0); this.orientation = parseFloat(v[2] ? v[2] : 0); },
             'w': v => { this.lineWidth = parseFloat(v || 0.218) },
             'c': v => { this.lineColor = v },
+            'cstep': v => { this.colorStep = v },
+            'depth': v => { this.depth = v },
+            'speed': v => { this.speed = v },
             's': v => {
                 const s = decodeURIComponent(v).split(',');
                 const o = {};
@@ -233,7 +238,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             sensSizeGrowth: Math.pow(10, (this.sensSizeGrowth || 7.53) - 10) * this.depth,
             sensAngleValue: Math.pow(10, (this.sensAngleValue || 7.6) - 10) * this.depth,
             sensAngleGrowth: Math.pow(10, (this.sensAngleGrowth || 4) - 10) * this.depth,
-            animation: this.animation
+            animation: this.animation,
+            colorStep: this.colorStep
         }
     }
 
@@ -275,7 +281,7 @@ function draw(state, commands, ctx, rotate) {
     }
     const context = { stack: [] };
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.strokeStyle = state.lineColor;
+    ctx.strokeStyle = state.colorStep ? `hsla(${rotate * state.colorStep},50%, 50%, .8)` : state.lineColor;
     ctx.lineWidth = state.lineWidth;
     ctx.beginPath();
     ctx.moveTo(state.x, state.y);
