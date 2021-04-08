@@ -50,10 +50,6 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.canvas = this.$refs.canvas;
         this.ctx = this.canvas.getContext('2d');
         this.getCommands(this.name, true);
-        setTimeout(() => {
-            this._isReady = true;
-            this.loop();
-        }, 500);
     }
 
     updated(changedProperties) {
@@ -80,7 +76,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             }
             if (changedProperties.has('name') || changedProperties.has('levels') || changedProperties.has('rules')) {
                 this.getCommands(this.name, changedProperties.has('name'));
-            } else if (changedProperties.has('animation')) {
+            } else if (changedProperties.has('animation') && this.animation) {
                 this.loop();
             } else if (update && !this.animation) {
                 this.loop();
@@ -129,7 +125,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
     }
 
     getCommands(name = this.name, refreshData = false) {
-        // this._isReady = false;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this._isReady = false;
         if (this._isGetCommands) return;
         this._isGetCommands = true;
 
@@ -166,8 +163,10 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             if (c && Object.keys(this.symbols).includes(c)) this.commands.push(c);
         })
         this._lenght = this.commands.length;
-        // this._isReady = true;
-        this.loop();
+        setTimeout(() => {
+            this._isReady = true;
+            this.loop();
+        }, 500);
         this.$update();
     }
 
@@ -240,7 +239,10 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.colorStep = this.depth = 0;
         this.speed = 1;
         this.extSymbols = '';
-        this.animation = this.inverse = false;
+        this.inverse = false;
+        this.canvas.style.background = 'white';
+        this.lineColor = 'black';
+        //this.animation = false;
         const d = url.split('&');
         d.map(p => {
             let v = p.split('=')
