@@ -253,7 +253,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         })
     }
 
-    async toUrl() {
+    toUrl() {
         let url =
             `#?name=${encodeURIComponent(this.name)}` +
             `&i=${this.levels}` +
@@ -275,7 +275,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         if (this.extSymbols)
             url += `&s=${encodeURIComponent(this.extSymbols)}`;
         url = this.$url.replace('l-system.js', url);
-        await navigator.clipboard.writeText(url);
+        navigator.clipboard.writeText(url);
         window.open(url, '_blank').focus();
         return url;
     }
