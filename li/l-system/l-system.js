@@ -94,13 +94,19 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             canvas {
                 cursor: pointer;
             }
+            img {
+                max-width: 64px;
+                max-height: 64px;
+                padding: 4px;
+                cursor: pointer;
+            }
         `;
     }
 
     render() {
         return html`
             <li-layout-app sides="300,300,1,1" fill="#9f731350">    
-                 <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" style="max-width:64px;max-height:64px;padding:4px">
+                 <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" @click="${this._refreshPage}" title="reload page">
                  <div slot="app-top" class="header"><a target="_blank" href="https://ru.wikipedia.org/wiki/L-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">L-System</a></div>
                  <div slot="app-top">[${this._lenght}]</div>
                  <div slot="app-top-right">
@@ -278,6 +284,11 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         navigator.clipboard.writeText(url);
         window.open(url, '_blank').focus();
         return url;
+    }
+
+    _refreshPage() {
+        let url = this.$url.replace('l-system.js', '');
+        window.location.href = url;
     }
 
     get state() {
