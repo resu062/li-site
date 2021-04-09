@@ -99,9 +99,5 @@ export const data = {
     'octosquid' : 'i=31&r=L%20%3A%20SYS%0AS%20%3A%20F%7C%2B%5BF-%3EY)%5B-S%5D%5DY-!Y%0AY%20%3A%20%5B%7C%3EF-F)%2B%2B(Y%5D&p.size=15.2,0.01&p.angle=-169.08,0.05&s.size=8.8,7.3&s.angle=7.6,4&offsets=0,0,-90&name=octosquid',
     'tornado' : 'i=20&r=L%20%3A%20SSSL%0AS%20%3A%20F(%5BF-Y%5B(F%3EFFFFFS%5D%5D%0AY%20%3A%20%5B%7C%3CF-F%2B(Y%5D&p.size=5.79,0.01&p.angle=-117,0.05&s.size=8.4,6.8&s.angle=7.6,4&offsets=0,0,-90&name=tornado',
     'politic' : 'i=25&r=L%20%3A%20SSFL%0AS%20%3A%20F%5BF-Y%5B(-FS%5D%5D%0AY%20%3A%20%5B!F%3E-F%2B)Y%5D&p.size=4,0.01&p.angle=-13.6,0.05&s.size=8.5,7.3&s.angle=7.6,4&offsets=0,0,-90&name=politic',
-    'test-1' : 'i=11&p.size=18.67&p.angle=-3787.3&r=L%20%3A%20SYS%0AS%20%3A%20F-%5BF-Y%5BS%5D%5D%0AY%20%3A%20%5B%7CFF%5B-((%3E%3E%3E%3E%3E%3ES%5D%2BY%5D&name=test-1',
-    'test-2' : 'i=40&p.size=24.44&p.angle=-2361.3&r=C%20%3A%20%5BB%5DC%0AB%20%3A%20!AFB)!A-%0AA%20%3A%20-AF%2B@name=test-2',
-    'test-3' : 'i=41&p.size=9.28&p.angle=-2756.2&r=L%20%3A%20SYL%0AS%20%3A%20F-%5BF-Y%5BS%2B%2BFFF%5B%2BF%2BF%5D%5D%0AY%20%3A%20F%5B%7CF!F%2BY%5D-F&name=test-3',
-    'test-4' : 'i=10&p.size=9.72&p.angle=-1194.3&r=A%20%3A%20FFFS%5B%2BA%5D%5B-A%5DFA%0AS%20%3A%20%3ES))&name=test-4',
 }
 
