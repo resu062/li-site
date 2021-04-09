@@ -49,6 +49,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this._sign = 1;
         this.canvas = this.$refs.canvas;
         this.ctx = this.canvas.getContext('2d');
+        this._location = window.location.href;
         this.getCommands(this.name, true);
     }
 
@@ -74,8 +75,11 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                 this.canvas.style.background = this.inverse ? 'black' : 'white';
                 this.lineColor = this.inverse ? 'white' : 'black';
             }
-            if (changedProperties.has('name') || changedProperties.has('levels') || changedProperties.has('rules')) {
-                this.getCommands(this.name, changedProperties.has('name'));
+            if (changedProperties.has('name')) {
+                this._refreshPage();
+                this.getCommands(this.name, true);
+            } else if (changedProperties.has('levels') || changedProperties.has('rules')) {
+                this.getCommands();
             } else if (changedProperties.has('animation') && this.animation) {
                 this.loop(true);
             } else if (update && !this.animation) {
@@ -106,7 +110,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
     render() {
         return html`
             <li-layout-app sides="300,300,1,1" fill="#9f731350">    
-                 <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" @click="${this._refreshPage}" title="reload page">
+                 <img slot="app-top-left" src="${url.replace('l-system.js', 'li.png')}" @click="${() => this._refreshPage(true)}" title="reload page">
                  <div slot="app-top" class="header"><a target="_blank" href="https://ru.wikipedia.org/wiki/L-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">L-System</a></div>
                  <div slot="app-top">[${this._lenght}]</div>
                  <div slot="app-top-right">
@@ -119,7 +123,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                  </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column;">
                     ${Object.keys(data).map(name => html`
-                        <li-button back="${this.name===name?'#e0e0e0':''}" width="100%" .label="${name}" @click="${() => this.getCommands(name, true)}"></li-button>
+                        <li-button back="${this.name === name ? '#e0e0e0' : ''}" width="100%" .label="${name}" @click="${() => this.name = name}"></li-button>
                     `)}
                 </div>
                 <canvas ref="canvas" slot="app-main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
@@ -139,7 +143,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         if (refreshData) {
             let s = data[name] || data['tree'];
             this.rotate = 0;
-            let _s = window.location?.href.split('?')[1];
+            let _s = this._location.split('?')[1];
             if (_s && !this._isReady) {
                 if (data[_s]) {                                                                                 // pollenanate  || tree || re-coil || ...
                     s = data[_s];
@@ -286,9 +290,13 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         return url;
     }
 
-    _refreshPage() {
-        let url = this.$url.replace('l-system.js', '');
-        window.location.href = url;
+    _refreshPage(sure = false) {
+        if (!this._isReady) return;
+        const url = this.$url.replace('l-system.js', 'index.html');
+        if (sure)
+            window.location.href = url;
+        else
+            this._location = url;
     }
 
     get state() {
