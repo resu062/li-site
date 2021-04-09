@@ -77,7 +77,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             if (changedProperties.has('name') || changedProperties.has('levels') || changedProperties.has('rules')) {
                 this.getCommands(this.name, changedProperties.has('name'));
             } else if (changedProperties.has('animation') && this.animation) {
-                this.loop();
+                this.loop(true);
             } else if (update && !this.animation) {
                 this.loop();
             }
@@ -171,8 +171,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this._lenght = this.commands.length;
         setTimeout(() => {
             this._isReady = true;
-            this.loop();
-        }, 500);
+            this.loop(true);
+        }, 100);
         this.$update();
     }
 
@@ -312,8 +312,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         }
     }
 
-    loop() {
-        if (!this._isReady) return;
+    loop(sure = false) {
+        if (!this._isReady || (!sure && this.animation)) return;
         draw(this.state, this.commands, this.ctx, this.rotate);
         this._isGetCommands = false;
         if (this.animation) {
