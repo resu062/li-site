@@ -50,6 +50,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.canvas = this.$refs.canvas;
         this.ctx = this.canvas.getContext('2d');
         this._location = window.location.href;
+        this._symbolsDefault = this.symbols;
         this.getCommands(this.name, true);
     }
 
@@ -58,30 +59,32 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             let update = false;
             changedProperties.forEach((oldValue, propName) => update = [
                 'name', 'animation', 'inverse', 'orientation', 'sizeValue', 'sizeGrowth', 'angleValue', 'angleGrowth', 'lineWidth',
-                'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed', 'colorStep', 'extSymbols'
+                'lineColor', 'levels', 'rules', 'symbols', 'x', 'y', 'depth', 'speed', 'colorStep', 'extSymbols', 'rotate'
             ].includes(propName));
-            if (changedProperties.has('extSymbols')) {
-                if (this.extSymbols) {
-                    const o = {};
-                    this.extSymbols.split(',').forEach(i => {
-                        i = i.split(':');
-                        o[i[0]] = i[1];
-                    })
-                    this.symbols = { ...o, ...this.symbols };
-                    if (!this.animation) this.loop();
-                }
-            }
             if (changedProperties.has('inverse')) {
                 this.canvas.style.background = this.inverse ? 'black' : 'white';
                 this.lineColor = this.inverse ? 'white' : 'black';
             }
+            if (changedProperties.has('extSymbols')) {
+                const o = {};
+                if (this.extSymbols) {
+                    this.extSymbols.split(',').forEach(i => {
+                        i = i.split(':');
+                        o[i[0]] = i[1];
+                    })
+                }
+                this.symbols = { ...o, ...this._symbolsDefault };
+            }
             if (changedProperties.has('name')) {
                 this._refreshPage();
                 this.getCommands(this.name, true);
-            } else if (changedProperties.has('levels') || changedProperties.has('rules')) {
+            } else if (changedProperties.has('levels') || changedProperties.has('rules') || changedProperties.has('extSymbols')) {
                 this.getCommands();
             } else if (changedProperties.has('animation') && this.animation) {
                 this.loop(true);
+            } else if (changedProperties.has('rotate') && !this.animation) {
+                this.rotate = Number(this.rotate);
+                this.loop();
             } else if (update && !this.animation) {
                 this.loop();
             }
@@ -116,8 +119,8 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                  <div slot="app-top-right">
                     <li-button name="play-arrow" rotate=180 @click="${() => { this._sign = -1; this.animation = !this.animation; this.$update() }}"></li-button>
                     <li-button name="play-arrow" @click="${() => { this._sign = 1; this.animation = !this.animation; this.$update() }}"></li-button>
-                    <li-button name="chevron-left" @click="${() => { this.rotate -= Number(this.speed); this.loop() }}"></li-button>
-                    <li-button name="chevron-right" @click="${() => { this.rotate += Number(this.speed); this.loop() }}"></li-button>
+                    <li-button name="chevron-left" @click="${() => { this.rotate -= Number(this.speed)  }}"></li-button>
+                    <li-button name="chevron-right" @click="${() => { this.rotate += Number(this.speed) }}"></li-button>
                     <li-button name="refresh" @click="${() => this.getCommands(this.name, true)}" title="refresh params"></li-button>
                     <li-button name="launch" @click="${this.toUrl}" title="open in new window"></li-button>
                  </div>
@@ -230,7 +233,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                     i = i.split(':');
                     o[i[0]] = i[1];
                 })
-                this.symbols = { ...o, ...this.symbols };
+                this.symbols = { ...o, ...this._symbolsDefault };
             },
             'rotate': v => { this.rotate = parseFloat(v) },
             'animation': v => { this.animation = v === 'true' ? true : false },
@@ -253,6 +256,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.canvas.style.background = 'white';
         this.lineColor = 'black';
         this.animation = false;
+        this.symbols = { ...[], ...this._symbolsDefault };
         const d = url.split('&');
         d.map(p => {
             let v = p.split('=')
