@@ -248,7 +248,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
         this.inverse = false;
         this.canvas.style.background = 'white';
         this.lineColor = 'black';
-        //this.animation = false;
+        this.animation = false;
         const d = url.split('&');
         d.map(p => {
             let v = p.split('=')
