@@ -119,7 +119,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                  </div>
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column;">
                     ${Object.keys(data).map(name => html`
-                        <li-button width="100%" .label="${name}" @click="${() => this.getCommands(name, true)}"></li-button>
+                        <li-button back="${this.name===name?'#e0e0e0':''}" width="100%" .label="${name}" @click="${() => this.getCommands(name, true)}"></li-button>
                     `)}
                 </div>
                 <canvas ref="canvas" slot="app-main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
