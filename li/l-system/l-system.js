@@ -15,6 +15,9 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             animation: { type: Boolean, category: 'actions' },
             inverse: { type: Boolean, category: 'actions' },
             showMonitor: { type: Boolean, category: 'actions' },
+            x: { type: Number, default: 0, category: 'offset' },
+            y: { type: Number, default: 0, category: 'offset' },
+            orientation: { type: Number, default: 0, category: 'offset' },
             levels: { type: Number, default: 0, category: 'params' },
             sizeValue: { type: Number, default: 0, category: 'params' },
             angleValue: { type: Number, default: 0, category: 'params' },
@@ -22,20 +25,18 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             symbols: { type: Object, default: { 'F': 'F', '+': '+', '-': '-', '[': '[', ']': ']', '|': '|', '!': '!', '<': '<', '>': '>', '(': '(', ')': ')' }, category: 'params' },
             extSymbols: { type: String, default: '', category: 'params' },
             rotate: { type: Number, default: 0, category: 'params' },
-            sizeGrowth: { type: Number, default: 0, category: 'variables' },
-            angleGrowth: { type: Number, default: 0, category: 'variables' },
             lineWidth: { type: Number, default: 0.218, category: 'variables' },
             lineColor: { type: String, default: 'black', category: 'variables', list: ['red', 'blue', 'green', 'orange', 'lightblue', 'lightgreen', 'lightyellow', 'yellow', 'darkgray', 'gray', 'darkgray', 'lightgray', 'white', 'black'] },
             colorStep: { type: Number, default: 0, category: 'variables' },
             depth: { type: Number, default: 0, category: 'variables' },
+            sizeGrowth: { type: Number, default: 0, category: 'variables' },
+            angleGrowth: { type: Number, default: 0, category: 'variables' },
             speed: { type: Number, default: 1, category: 'variables' },
-            x: { type: Number, default: 0, category: 'offset' },
-            y: { type: Number, default: 0, category: 'offset' },
-            orientation: { type: Number, default: 0, category: 'offset' },
-            // sensSizeValue: { type: Number, default: 0, category: 'sensitivities' },
-            // sensSizeGrowth: { type: Number, default: 0, category: 'sensitivities' },
-            // sensAngleValue: { type: Number, default: 0, category: 'sensitivities' },
-            // sensAngleGrowth: { type: Number, default: 0, category: 'sensitivities' }
+            // sensSizeValue: { type: Number, default: 0, category: 'animation' },
+            // sensSizeGrowth: { type: Number, default: 0, category: 'animation' },
+            // sensAngleValue: { type: Number, default: 0, category: 'animation' },
+            // sensAngleGrowth: { type: Number, default: 0, category: 'animation' }
+            _category: { type: Array, default: ['actions', 'offset', 'params', 'variables']}
         }
     }
 
@@ -131,7 +132,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                 </div>
                 <canvas ref="canvas" slot="app-main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
                         @touchstart="${() => { this.animation = true; this.$update() }}" @touchend="${() => { this.animation = false; this.$update() }}"></canvas>
-                <li-property-grid slot="app-right" label="l-system" .io="${this}"></li-property-grid>
+                <li-property-grid slot="app-right" .label="${this.name}" .io="${this}" ._category="${this._category}" ._noButtons="${true}"></li-property-grid>
             </li-layout-app>
             <li-monitor .hide="${!this.showMonitor}"></li-monitor>
         `
