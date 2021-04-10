@@ -17,7 +17,9 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             iconSize: { type: String, default: '28', local: true },
             sort: { type: String, default: 'none', local: true },
             labelColumn: { type: Number, default: 150, local: true, save: true },
-            focused: { type: Object, default: undefined, local: true }
+            focused: { type: Object, default: undefined, local: true },
+            _category: { type: Array },
+            _noButtons: { type: Boolean, default: false }
         }
     }
 
@@ -35,7 +37,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         if (changedProperties.has('io') && this.io) this.getData();
     }
 
-    get args() { return { expert: this.expertMode, group: this.group, sort: this.sort, showFunction: this.showFunction } };
+    get args() { return { expert: this.expertMode, group: this.group, sort: this.sort, showFunction: this.showFunction, _category: this._category } }
 
     static get styles() {
         return css`
@@ -54,6 +56,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 background-color: gray;
                 z-index: 1;
                 overflow: hidden;
+                min-height: 28px;
             }
             .label {
                 display: flex;
@@ -113,12 +116,14 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             <div class="hheader">
                 <div class="label">${this.item?.label || this.label || 'PropertyGrid'}</div>
                 <div class="buttons" >
-                    <li-button class="btn" ?toggled="${this.isShowFocused}" toggledClass="ontoggled" name="radio-button-checked" title="view focused" @click="${this._showFocused}"></li-button>
-                    <li-button class="btn" name="refresh" title="refresh" @click="${(e) => this._expert(e)}"></li-button>
-                    <li-button class="btn" name="${this.sort === 'none' ? 'hamburger' : 'sort'}" rotate="${this.sort === 'descending' ? 0 : 180}" title="sort" @click="${this._sort}"></li-button>
-                    <li-button class="btn" ?toggled="${this.group}" toggledClass="ontoggled" name="list" title="group" @click="${this._group}"></li-button>
-                    <li-button class="btn" ?toggled="${this.showFunction}" toggledClass="ontoggled" name="functions" title="showFunction" @click="${this._fn}"></li-button>
-                    <li-button class="btn" ?toggled="${this.expertMode}" toggledClass="ontoggled" name="settings" title="expertMode" @click="${(e) => this._expert(e, true)}"></li-button>
+                    ${this._noButtons ? html`` : html`
+                        <li-button class="btn" ?toggled="${this.isShowFocused}" toggledClass="ontoggled" name="radio-button-checked" title="view focused" @click="${this._showFocused}"></li-button>
+                        <li-button class="btn" name="refresh" title="refresh" @click="${(e) => this._expert(e)}"></li-button>
+                        <li-button class="btn" name="${this.sort === 'none' ? 'hamburger' : 'sort'}" rotate="${this.sort === 'descending' ? 0 : 180}" title="sort" @click="${this._sort}"></li-button>
+                        <li-button class="btn" ?toggled="${this.group}" toggledClass="ontoggled" name="list" title="group" @click="${this._group}"></li-button>
+                        <li-button class="btn" ?toggled="${this.showFunction}" toggledClass="ontoggled" name="functions" title="showFunction" @click="${this._fn}"></li-button>
+                        <li-button class="btn" ?toggled="${this.expertMode}" toggledClass="ontoggled" name="settings" title="expertMode" @click="${(e) => this._expert(e, true)}"></li-button>
+                    `}
                 </div>
             </div>
             <div ref="cnt" class="container" @mouseup="${() => this._splitter = false}" @mousemove="${this._move}" style="user-select:${this._splitter ? 'none' : 'unset'}" @scroll="${this._scroll}">
@@ -276,7 +281,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
                                     @click="${(e) => this._expanded(e, i)}" size="${this.iconSize - 2}"></li-button>`
                 : html` <div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`}
                             <div class="label" style="max-width:${this.labelColumn}px;min-width:${this.labelColumn}px;height:${this.iconSize}px;" @dblclick="${(e) => this._dblclick(e, i)}">${i.label || i.name}</div>
-                            <input class="input" type="${i.type || 'text'}" ?checked="${i.value}" value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;height:${this.iconSize}px;align-items: center;" @change="${(e) => this._change(e, i)}">
+                            <input class="input" type="${i.type || 'text'}" .checked="${i.value}" .value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;height:${this.iconSize}px;align-items: center;" @change="${(e) => this._change(e, i)}">
                             ${i.list && !i.readOnly
                 ? html` <li-button back="transparent" name="chevron-right" border="0" rotate="90" @click="${(e) => this._openDropdown(e, i)}"></li-button>` : html``}
                     </div>
@@ -290,7 +295,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     async _expanded(e, i) {
         i.expanded = e.target.toggled;
         if (i.expanded)
-            i.data = await makeData(i.el, this.args);
+            i.data = await makeData(i.obj[i.label], this.args, true);
         else
             i.data = [];
         this.$update();
@@ -314,7 +319,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     }
 })
 
-async function makeData(el, { expert, group, sort, showFunction }) {
+async function makeData(el, { expert, group, sort, showFunction, _category }, sure = false) {
     const editors = {
         'boolean': 'checkbox',
         'number': 'number',
@@ -327,11 +332,13 @@ async function makeData(el, { expert, group, sort, showFunction }) {
     const props = el?.constructor?._classProperties;
 
     function fn(key, category = 'no category', props, list) {
+        if (props && props.get(key) && props.get(key).category) category = props.get(key).category;
+        const _ok = !_category || (_category && _category.includes(category)) || (_category && sure);
+        if (!_ok) return;
         //if (!group) category = '...';
         let value = el[key], is, type;
         const _docs = undefined;
         if (el[key] && el[key]._docs) _docs = el[key]._docs;
-        if (props && props.get(key) && props.get(key).category) category = props.get(key).category;
         const item = { label: key, value, el: el[key], items: [], category, obj, _docs };
         if (value && Array.isArray(value)) {
             try {
