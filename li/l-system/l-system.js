@@ -36,7 +36,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
             // sensSizeGrowth: { type: Number, default: 0, category: 'animation' },
             // sensAngleValue: { type: Number, default: 0, category: 'animation' },
             // sensAngleGrowth: { type: Number, default: 0, category: 'animation' }
-            _category: { type: Array, default: ['actions', 'offset', 'params', 'variables']}
+            categories: { type: Array, default: ['actions', 'offset', 'params', 'variables'] }
         }
     }
 
@@ -120,7 +120,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                  <div slot="app-top-right">
                     <li-button name="play-arrow" rotate=180 @click="${() => { this._sign = -1; this.animation = !this.animation; this.$update() }}"></li-button>
                     <li-button name="play-arrow" @click="${() => { this._sign = 1; this.animation = !this.animation; this.$update() }}"></li-button>
-                    <li-button name="chevron-left" @click="${() => { this.rotate -= Number(this.speed)  }}"></li-button>
+                    <li-button name="chevron-left" @click="${() => { this.rotate -= Number(this.speed) }}"></li-button>
                     <li-button name="chevron-right" @click="${() => { this.rotate += Number(this.speed) }}"></li-button>
                     <li-button name="refresh" @click="${() => this.getCommands(this.name, true)}" title="refresh params"></li-button>
                     <li-button name="launch" @click="${this.toUrl}" title="open in new window"></li-button>
@@ -132,7 +132,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
                 </div>
                 <canvas ref="canvas" slot="app-main" width="${innerWidth}" height="${innerHeight}" @mousedown="${() => this.animation = true}" @mouseup="${() => this.animation = false}"
                         @touchstart="${() => { this.animation = true; this.$update() }}" @touchend="${() => { this.animation = false; this.$update() }}"></canvas>
-                <li-property-grid slot="app-right" .label="${this.name}" .io="${this}" ._category="${this._category}" ._noButtons="${true}"></li-property-grid>
+                <li-property-grid slot="app-right" .label="${this.name}" .io="${this}" .categories="${this.categories}" .showButtons="${false}"></li-property-grid>
             </li-layout-app>
             <li-monitor .hide="${!this.showMonitor}"></li-monitor>
         `

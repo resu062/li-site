@@ -18,8 +18,8 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             sort: { type: String, default: 'none', local: true },
             labelColumn: { type: Number, default: 150, local: true, save: true },
             focused: { type: Object, default: undefined, local: true },
-            _category: { type: Array },
-            _noButtons: { type: Boolean, default: false }
+            categories: { type: Array },
+            showButtons: { type: Boolean, default: true }
         }
     }
 
@@ -37,7 +37,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         if (changedProperties.has('io') && this.io) this.getData();
     }
 
-    get args() { return { expert: this.expertMode, group: this.group, sort: this.sort, showFunction: this.showFunction, _category: this._category } }
+    get args() { return { expert: this.expertMode, group: this.group, sort: this.sort, showFunction: this.showFunction, categories: this.categories } }
 
     static get styles() {
         return css`
@@ -116,7 +116,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
             <div class="hheader">
                 <div class="label">${this.item?.label || this.label || 'PropertyGrid'}</div>
                 <div class="buttons" >
-                    ${this._noButtons ? html`` : html`
+                    ${!this.showButtons ? html`` : html`
                         <li-button class="btn" ?toggled="${this.isShowFocused}" toggledClass="ontoggled" name="radio-button-checked" title="view focused" @click="${this._showFocused}"></li-button>
                         <li-button class="btn" name="refresh" title="refresh" @click="${(e) => this._expert(e)}"></li-button>
                         <li-button class="btn" name="${this.sort === 'none' ? 'hamburger' : 'sort'}" rotate="${this.sort === 'descending' ? 0 : 180}" title="sort" @click="${this._sort}"></li-button>
@@ -319,7 +319,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     }
 })
 
-async function makeData(el, { expert, group, sort, showFunction, _category }, sure = false) {
+async function makeData(el, { expert, group, sort, showFunction, categories }, sure = false) {
     const editors = {
         'boolean': 'checkbox',
         'number': 'number',
@@ -333,7 +333,7 @@ async function makeData(el, { expert, group, sort, showFunction, _category }, su
 
     function fn(key, category = 'no category', props, list) {
         if (props && props.get(key) && props.get(key).category) category = props.get(key).category;
-        const _ok = !_category || (_category && _category.includes(category)) || (_category && sure);
+        const _ok = !categories || (categories && categories.includes(category)) || (categories && sure);
         if (!_ok) return;
         //if (!group) category = '...';
         let value = el[key], is, type;
