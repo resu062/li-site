@@ -5,7 +5,8 @@ import '../button/button.js'
 customElements.define('li-color-picker', class LiColorPicker extends LiElement {
     static get properties() {
         return {
-            value: { type: String },
+            value: { type: String, default: '404040' },
+            oldValue: { type: String },
             valueHSL: { type: String },
             valueRGB: { type: String }
         }
@@ -13,46 +14,19 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
 
     firstUpdated() {
         super.firstUpdated();
-
         this.pickers = {
             hue: { palette: this.$id.slider, handler: this.$id.sliderHandler },
             color: { palette: this.$id.picker, handler: this.$id.pickerHandler }
         };
-
         this.hsbInputs = selectInputs(this.renderRoot, "hsb");
         this.rgbInputs = selectInputs(this.renderRoot, "rgb");
         this.hexInput = this.renderRoot.querySelector("#hex input");
-
         buildHueSlider(this.pickers.hue.palette, this.renderRoot.querySelector("defs"));
-
         this.state = {
             hsb: extractValues(this.hsbInputs),
             rgb: extractValues(this.rgbInputs),
             hex: this.hexInput.value
         };
-
-        const onDrag = callback => {
-            const listen = action =>
-                Object.keys(events).forEach(event =>
-                    this[`${action}EventListener`](`mouse${event}`, events[event]));
-            const end = () => listen("remove");
-            const events = {
-                move: callback,
-                up: end
-            };
-            listen("add");
-        };
-
-        this.renderRoot.addEventListener("mousedown", e => {
-            const callback = (() => {
-                if (e.target == this.pickers.hue.palette) return this.pickHue;
-                if (e.target == this.pickers.color.palette) return this.pickColor;
-            })();
-            if (!callback) return;
-            callback.call(this, e);
-            onDrag(callback);
-        });
-
         [this.hsbInputs, this.rgbInputs].forEach(color =>
             Object.keys(color).forEach((key, i, arr) => {
                 const el = color[key];
@@ -66,13 +40,163 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
                     el.value = val;
                 });
             }));
+        this.hexInput.value = this.oldValue = this.value;
+        this.updateState(toHSB(this.value));
+    }
 
-        this.hexInput.addEventListener("input", () => {
-            const val = this.hexInput.value;
-            if (val.length < 6) return;
-            this.updateState(toHSB(val));
-            this.hexInput.value = val;
-        });
+    static get styles() {
+        return css`
+            .main {
+                display: block;
+                border: 1px solid lightgray;
+                width: 200px;
+                padding: 8px
+            }
+            .pickerGradient {
+                pointer-events: none;
+            }
+            section, label {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 14px;
+            }
+            section {
+                justify-content: space-between;
+                /* width: 200px; */
+                margin-top: 4px;
+            }
+            label, input {
+                border: 1px solid #ddd;
+            }
+            label * {
+                font: 10px -apple-system, BlinkMacSystemFont, helvetica, sans-serif;
+            }
+            span {
+                width: 18px;
+                padding: 2px 0;
+                text-align: center;
+                border-right: 1px solid lightgray;
+            }
+            input {
+                margin: 0;
+                outline: none; 
+                border: none;
+                min-width: 32px;
+                /* padding: 2px 0 2px 4px; */
+            }
+            [type=number] {
+                width: 40px;
+            }
+        `;
+    }
+
+    render() {
+        return html`
+            <div class="main" @mousemove="${(e) => { if (this._mouseDown === 'picker') this.pickColor(e); if (this._mouseDown === 'slider') this.pickHue(e); }}"
+                    @mouseup="${() => this._mouseDown = ''}">
+                <svg width="200" height="170">
+                    <defs>
+                        <linearGradient id="pickerHue">
+                        <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+                        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="pickerBrightness" x2="0" y2="1">
+                        <stop offset="0" stop-color="#000" stop-opacity="0"/>
+                        <stop offset="1" stop-color="#000" stop-opacity="1"/>
+                        </linearGradient>
+                    </defs>
+
+                    <rect id="picker" width="200" height="150" fill="#FF0000" rx="3" ry="3" 
+                            @mousedown="${(e) => { this._mouseDown = 'picker'; this.pickColor(e) }}"/>
+                    <rect class="pickerGradient" width="200" height="150" fill="url(#pickerHue)" rx="2" ry="2"/>
+                    <rect class="pickerGradient" width="200" height="150" fill="url(#pickerBrightness)" rx="2" ry="2"/>
+                    <circle id="pickerHandler" r="6" fill="none" stroke="#fff" stroke-width="2"/>
+
+                    <rect id="slider" width="200" height="10" y="160" rx="5" ry="5" 
+                            @mousedown="${(e) => { this._mouseDown = 'slider'; this.pickHue(e) }}"/>
+                    <circle id="sliderHandler" r="6" cx="5" cy="165" fill="none" stroke="#fff" stroke-width="2"/>
+                </svg>
+
+                <section id="hsb">
+                    <label>
+                        <span title="Hue">H</span>
+                        <input type="number" min="0" max="360" class="h" @input="${this._setHSB}">
+                    </label>
+                    <label>
+                        <span title="Saturation">S</span>
+                        <input type="number" min="0" max="100" class="s" @input="${this._setHSB}">
+                    </label>
+                    <label>
+                        <span title="Brightness">B</span>
+                        <input type="number" min="0" max="100" class="b" @input="${this._setHSB}">
+                    </label>
+                </section>
+                <section id="rgb">
+                    <label>
+                        <span title="Red">R</span>
+                        <input type="number" min="0" max="255" class="r" @input="${this._setRGB}">
+                    </label>
+                    <label>
+                        <span title="Green">G</span>
+                        <input type="number" min="0" max="255" class="g" @input="${this._setRGB}">
+                    </label>
+                    <label>
+                        <span title="Blue">B</span>
+                        <input type="number" min="0" max="255" class="b" @input="${this._setRGB}">
+                    </label>
+                </section>
+                <section id="hsla">
+                    <label>
+                        <span title="Alfa" style="background:${this.hsb_to_hsl(this.state?.hsb?.h, this.state?.hsb?.s / 100, this.state?.hsb?.b / 100)}">A</span>
+                        <input id="alfa" value="100" type="number" min="0" max="100" class="h" @input="${()=>this.requestUpdate()}">
+                    </label>
+                    <label>
+                        <div style="width:128px;">${this.hsb_to_hsl(this.state?.hsb?.h, this.state?.hsb?.s / 100, this.state?.hsb?.b / 100)}</div>
+                    </label>
+                </section> 
+                <section id="hex">
+                    <label>
+                        <span title="Hexadecimal">#</span>
+                        <input style="width:79px"  @input="${this._setHEX}">
+                        <div style="background:${'#' + this.oldValue}; width: 40px;height: 14px;margin:1px"></div>
+                        <div style="background:${'#' + this.value}; width: 40px;height: 14px;margin:1px"></div>
+                        <li-button name="check" size="12"></li-button>
+                    </label>
+                </section>
+            </div>
+
+        `;
+    }
+
+    hsb_to_hsl(h, s, v) {
+        // both hsv and hsl values are in [0, 1]
+        var l = (2 - s) * v / 2;
+
+        if (l != 0) {
+            if (l == 1) {
+                s = 0
+            } else if (l < 0.5) {
+                s = s * v / (l * 2)
+            } else {
+                s = s * v / (2 - l * 2)
+            }
+        }
+
+        return `hsla(${h}, ${parseInt(s * 100)}%, ${parseInt(l * 100)}%, ${parseInt(this.$id?.alfa?.value)}%)`
+    }
+
+    _setHSB(e) {
+
+    }
+
+    _setRGB(e) {
+
+    }
+
+    _setHEX(e) {
+        if (e.target.value.length !== 6) return;
+        this.updateState(toHSB(e.target.value));
     }
 
     updateState(obj = {}) {
@@ -81,6 +205,8 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
         addProp(this.state, "hex", toHex(this.state.rgb));
         fireEvent(this);
         this.updateUI();
+        this.value = this.state.hex;
+        this.requestUpdate();
     }
 
     updateUI({ hsb, rgb, hex } = this.state) {
@@ -99,120 +225,17 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
     pickColor(e) {
         const { x, y, width, height } = getPickCoordinates(this.pickers.color.palette, e);
         this.updateState({
-            s: calcS(x, width),
-            b: calcB(y, height)
+            s: x > width ? 100 : x < 0 ? 0 : x / width * 100,
+            b: y > height ? 0 : y < 0 ? 100 : (1 - y / height) * 100
         });
         e.preventDefault();
     }
 
     pickHue(e) {
         const { x, width } = getPickCoordinates(this.pickers.hue.palette, e);
-        this.updateState({ h: calcH(x, width) });
+        this.updateState({ h: x > width ? 360 : x < 0 ? 0 : x / width * 360 });
         e.preventDefault();
     }
-
-    static get styles() {
-        return css`
-            :host {
-                display: block;
-                border: 1px solid lightgray;
-                width: 200px;
-                padding: 4px
-            }
-            .pickerGradient {
-                pointer-events: none;
-            }
-            section, label {
-                display: flex;
-            }
-            section {
-                justify-content: space-between;
-                /* width: 200px; */
-                margin-top: 4px;
-            }
-            label, input {
-                border: 1px solid #ddd;
-            }
-            label * {
-                font: 12px -apple-system, BlinkMacSystemFont, helvetica, sans-serif;
-            }
-            span {
-                width: 18px;
-                padding: 2px 0;
-                text-align: center;
-            }
-            input {
-                margin: 0;
-                border-width: 0 0 0 1px;
-                min-width: 32px;
-                padding: 2px 0 2px 4px;
-            }
-            [type=number] {
-                width: 40px;
-            }
-        `;
-    }
-
-    render() {
-        return html`
-            <svg width="200" height="170">
-                <defs>
-                    <linearGradient id="pickerHue">
-                    <stop offset="0" stop-color="#fff" stop-opacity="1"/>
-                    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
-                    </linearGradient>
-                    <linearGradient id="pickerBrightness" x2="0" y2="1">
-                    <stop offset="0" stop-color="#000" stop-opacity="0"/>
-                    <stop offset="1" stop-color="#000" stop-opacity="1"/>
-                    </linearGradient>
-                </defs>
-
-                <rect id="picker" width="200" height="150" fill="#FF0000" rx="3" ry="3"/>
-                <rect class="pickerGradient" width="200" height="150" fill="url(#pickerHue)" rx="2" ry="2"/>
-                <rect class="pickerGradient" width="200" height="150" fill="url(#pickerBrightness)" rx="2" ry="2"/>
-                <circle id="pickerHandler" r="3" fill="none" stroke="#fff" stroke-width="2"/>
-
-                <rect id="slider" width="200" height="10" y="160" rx="5" ry="5"/>
-                <circle id="sliderHandler" r="3" cx="5" cy="165" fill="none" stroke="#fff" stroke-width="2"/>
-            </svg>
-
-            <section id="hsb">
-                <label>
-                    <span title="Hue">H</span>
-                    <input type="number" min="0" max="360" value="0" class="h">
-                </label>
-                <label>
-                    <span title="Saturation">S</span>
-                    <input type="number" min="0" max="100" value="0" class="s">
-                </label>
-                <label>
-                    <span title="Brightness">B</span>
-                    <input type="number" min="0" max="100" value="100" class="b">
-                </label>
-            </section>
-            <section id="rgb">
-                <label>
-                    <span title="Red">R</span>
-                    <input type="number" min="0" max="255" value="255" class="r">
-                </label>
-                <label>
-                    <span title="Green">G</span>
-                    <input type="number" min="0" max="255" value="255" class="g">
-                </label>
-                <label>
-                    <span title="Blue">B</span>
-                    <input type="number" min="0" max="255" value="255" class="b">
-                </label>
-            </section>
-            <section id="hex">
-                <label>
-                    <span title="Hexadecimal">#</span>
-                    <input value="FFFFFF">
-                </label>
-            </section>
-        `;
-    }
-
 });
 
 const isEmpty = arr => !arr.length;
@@ -290,7 +313,6 @@ const toRGB = hsb => {
 };
 
 const toHSB = color => {
-    // RGB
     if (isObject(color)) {
         const keys = Object.keys(color);
         if (isEmpty(keys)) return {};
@@ -315,8 +337,6 @@ const toHSB = color => {
         };
         return Object.keys(hsb).reduce((obj, key) => addProp(obj, key, Math.round(hsb[key])), {});
     }
-
-    // HEX
     const convert = hex => hex.match(/[\d\w]{2}/g).map(val => parseInt(val, 16));
     const [r, g, b] = convert(color);
     return toHSB({ r, g, b });
@@ -350,22 +370,4 @@ const getPickCoordinates = (el, event) => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     return { width, height, x, y };
-};
-
-const calcH = (x, width) => {
-    if (x > width) return 360;
-    if (x < 0) return 0;
-    return x / width * 360;
-};
-
-const calcS = (x, width) => {
-    if (x > width) return 100;
-    if (x < 0) return 0;
-    return x / width * 100;
-};
-
-const calcB = (y, height) => {
-    if (y > height) return 0;
-    if (y < 0) return 100;
-    return (1 - (y / height)) * 100;
 };
