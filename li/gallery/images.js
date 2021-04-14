@@ -1,5 +1,5 @@
 export default [
-  '_DSC1857.jpg',
+  '001.jpg',
   '_DSC1881.jpg',
   '_DSC1883.jpg',
   '_DSC1914.jpg',
