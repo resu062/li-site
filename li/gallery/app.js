@@ -19,7 +19,7 @@ const images = sources.map((source, index) => {
 
   image.addEventListener("load", () => fade(image));
   image.addEventListener("click", () => animate(index));
-  toggle(image).src = `images/${source}`;
+  toggle(image).src = `./images/${source}`;
 
   list.append(item);
   return image;
