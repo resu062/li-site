@@ -1,14 +1,16 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
-import '../button/button.js'
+import '../button/button.js';
+import '../../lib/maska/maska.js';
 
 customElements.define('li-color-picker', class LiColorPicker extends LiElement {
     static get properties() {
         return {
-            value: { type: String, default: '404040' },
             oldValue: { type: String },
+            value: { type: String, default: 'F00000' },
+            valueRGB: { type: String },
+            valueHSB: { type: String },
             valueHSL: { type: String },
-            valueRGB: { type: String }
         }
     }
 
@@ -42,6 +44,8 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
             }));
         this.hexInput.value = this.oldValue = this.value;
         this.updateState(toHSB(this.value));
+
+        this.maska = Maska.create(this.$id.txt, { mask: 'HHHHHH', tokens: { 'H': { pattern: /[0-9a-fA-F]/, uppercase: true } } });
     }
 
     static get styles() {
@@ -146,7 +150,7 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
                         <input type="number" min="0" max="255" class="b" @input="${this._setRGB}">
                     </label>
                 </section>
-                <section id="hsla">
+                <!-- <section id="hsla">
                     <label>
                         <span title="Alfa" style="background:${this.hsb_to_hsl(this.state?.hsb?.h, this.state?.hsb?.s / 100, this.state?.hsb?.b / 100)}">A</span>
                         <input id="alfa" value="100" type="number" min="0" max="100" class="h" @input="${()=>this.requestUpdate()}">
@@ -154,11 +158,11 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
                     <label>
                         <div style="width:128px;">${this.hsb_to_hsl(this.state?.hsb?.h, this.state?.hsb?.s / 100, this.state?.hsb?.b / 100)}</div>
                     </label>
-                </section> 
+                </section>  -->
                 <section id="hex">
                     <label>
                         <span title="Hexadecimal">#</span>
-                        <input style="width:79px"  @input="${this._setHEX}">
+                        <input style="width:79px"  @input="${this._setHEX}" id="txt">
                         <div style="background:${'#' + this.oldValue}; width: 40px;height: 14px;margin:1px"></div>
                         <div style="background:${'#' + this.value}; width: 40px;height: 14px;margin:1px"></div>
                         <li-button name="check" size="12"></li-button>
@@ -183,7 +187,7 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
             }
         }
 
-        return `hsla(${h}, ${parseInt(s * 100)}%, ${parseInt(l * 100)}%, ${parseInt(this.$id?.alfa?.value)}%)`
+        return `hsl(${h}, ${parseInt(s * 100)}%, ${parseInt(l * 100)}%)`
     }
 
     _setHSB(e) {
@@ -206,7 +210,10 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
         fireEvent(this);
         this.updateUI();
         this.value = this.state.hex;
-        this.requestUpdate();
+        this.valueHSL = this.hsb_to_hsl(this.state.hsb.h, this.state.hsb.s / 100, this.state.hsb.b / 100);
+        this.valueHSB = `hsb(${this.state.hsb.h}, ${this.state.hsb.s}, ${this.state.hsb.b})`;
+        this.valueRGB = `rgb(${this.state.rgb.r}, ${this.state.rgb.g}, ${this.state.rgb.b})`;
+        this.$update();
     }
 
     updateUI({ hsb, rgb, hex } = this.state) {

@@ -15,6 +15,12 @@ export const indx = {
     'li-button': { label: 'li-button', props: { name: 'android', fill: 'green', width: 'auto', label: 'Test button', size: 64 } },
     button: [{ label: 'index', url: url + '/button' }, { label: 'index-2', url: url + '/button/index-2.html' }],
 
+    'li-color-input': { label: 'li-color-input' },
+    'color-input': [{ label: 'index', url: url + '/color-input' }],
+
+    'li-color-picker': { label: 'li-color-picker' },
+    'color-picker': [{ label: 'index', url: url + '/color-picker' }],
+
     'li-accordion': { label: 'li-accordion', props: { iframe: '../accordion/index.html' } },
     accordion: [{ label: 'index', url: url + '/accordion' }, { label: 'index-2', url: url + '/accordion/index-2.html' }],
 
@@ -339,4 +345,7 @@ export const indx = {
 
     'li-dbmon': { label: 'DBMON li-benchmark', props: { iframe: '../dbmon/index.html' } },
     'dbmon': [{ label: 'index', url: url + '/dbmon/index.html' }],
+
+    'li-gallery': { label: 'image gallery', props: { iframe: '../gallery/index.html' } },
+    'gallery': [{ label: 'index', url: url + '/gallery/index.html' }],
 }
