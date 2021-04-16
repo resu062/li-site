@@ -68,11 +68,11 @@ customElements.define('li-monitor', class LiMonitor extends LiElement {
                     <div>${this.fps} fps</div>
                 </div>
                 <div class="horizontal bars" style="height:${this.barHeight}px">
-                    ${this._fpsArr.map(f => html`<div class="bar" style="height:${f * this.barHeight / this._fpsMax}px"></div>`)}
+                    ${this._fpsArr.map(f => html`<div class="bar" style="max-height: ${this.barHeight}; height:${f * this.barHeight / this._fpsMax}px"></div>`)}
                 </div>
                 <div class="horizontal" style="justify-content: flex-end; margin: 2px 0;">${this.memory}</div>
                 <div class="horizontal bars" style="height:${this.barHeight}px">
-                    ${this._memoryArr.map(m => html`<div class="bar" style="height:${m * this.barHeight / this._memoryMax}px"></div>`)}
+                    ${this._memoryArr.map(m => html`<div class="bar" style="max-height: ${this.barHeight}; height:${m * this.barHeight / this._memoryMax}px"></div>`)}
                 </div>
             </div>
         ` : html``}`
