@@ -40,7 +40,8 @@ customElements.define('li-tester', class LiTester extends LiElement {
                 <div slot="app-left" style="padding-left:4px;display:flex;flex-direction:column; align-items: left; justify-content: center">
                     ${Object.keys(indx).map(key => html`
                         ${key.startsWith('li-') ?
-                        html`<li-button style=" border-radius:4px;" .indx="${indx[key]}" .label2="${key}" label="${indx[key].label}" width="auto" @click="${this._tap}"></li-button>` :
+                        html`<li-button style="border-radius:4px" .indx="${indx[key]}" .label2="${key}" label="${indx[key].label}" width="auto" @click="${(e)=>this._tap(e, key)}"
+                            back="${this._focused===key?'#d0d0d0':''}"></li-button>` :
                         html`<div style="display: flex;font-size:10px;flex-wrap:wrap">${indx[key].map(i =>
                             html`<li-button height="12" border="none" padding="2px" .indx="${i}" label="${i.label}" width="auto" @click="${this._openUrl}"></li-button>`
                         )}</div>`}`
@@ -57,12 +58,13 @@ customElements.define('li-tester', class LiTester extends LiElement {
         if (this.component?._setPartid && this._partid) this.component._setPartid(this._partid);
     }
 
-    async _tap(e) {
+    async _tap(e, key) {
         if (this.component)
             this.removeChild(this.component);
         if (!this._wasRemoved) this.$refs.main.removeChild(this.$id.slot);
         this._wasRemoved = true
         let el = e.target.label2 || e.target.label;
+        this._focused = key;
         let props = { ...indx[el].props, _partid: this.partid };
         if (props.iframe && props.iframe !== 'noiframe') {
             this.component = document.createElement("iframe");
