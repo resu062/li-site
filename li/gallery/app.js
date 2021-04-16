@@ -26,7 +26,7 @@ const images = sources.map((source, index) => {
 });
 
 const timing = {
-  duration: 1500,
+  duration: 1000,
   easing: ".23, 1, .32, 1"
 };
 
