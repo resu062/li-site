@@ -101,8 +101,6 @@ customElements.define('li-accordion-item', class LiAccordionItem extends LiEleme
     static get styles() {
         return css`
             :host {
-                display: flex;
-                flex-direction: column;
                 overflow: hidden;
                 outline-color: gray;
             }
@@ -123,9 +121,9 @@ customElements.define('li-accordion-item', class LiAccordionItem extends LiEleme
                 <div style="text-align:center; flex: 1">${this.label}</div>
                 <li-button .iconSize="${this.iconSize * .7}" .name="${'chevron-right'}" style="opacity: .5;margin-right: 4px;" .toggled="${this.expanded}" toggledClass="right90" radius="50%" @click="${this.focus}"></li-button>
             </div>
-            <div style="display:flex;flex-direction:column;overflow: hidden;flex:1;">
-                <slot ?hidden="${!this.expanded}"></slot>
-            </div>
+            ${!this.expanded ? html`` : html`
+                <slot></slot>`
+            }
         `
     }
 })
