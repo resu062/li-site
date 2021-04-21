@@ -163,7 +163,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         const obj = {};
         this.ioLength = 0;
         this._io.items.map(i => {
-            let cat = i.category || 'no category';
+            let cat = i.category || 'props';
             obj[cat] = obj[cat] || [];
             obj[cat].push(i);
             ++this.ioLength;
@@ -199,7 +199,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         if (!this._splitter) return;
         requestAnimationFrame(() => {
             let w = this.labelColumn + e.movementX;
-            w = w <= 0 ? 0 : w;
+            w = w <= 60 ? 60 : w;
             this.labelColumn = w;
         });
     }
@@ -222,7 +222,8 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
             iconSize: { type: String, default: '28', local: true },
             labelColumn: { type: Number, default: 150, local: true },
             focused: { type: Object, default: undefined, local: true },
-            args: { type: Object }
+            args: { type: Object },
+            level: { type: Object, default: 0 }
         }
     }
 
@@ -233,12 +234,12 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     static get styles() {
         return css`
             .complex {
-                background-color: hsla(90, 50%, 50%, .075);
-                box-shadow: inset 0 -2px 0 0 gray;
+                margin-left: 6px;
+                border-left: 1px dotted lightgray;
                 overflow: hidden;
             }
             .row:hover {
-                background-color: lightyellow;
+                background-color: #e9e9e9;
                 /* box-shadow: inset 0 -2px 0 0 black; */
                 cursor: pointer;
             }
@@ -280,14 +281,14 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
                 ? html` <li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" .toggled="${i.expanded}"
                                     @click="${(e) => this._expanded(e, i)}" size="${this.iconSize - 2}"></li-button>`
                 : html` <div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`}
-                            <div class="label" style="max-width:${this.labelColumn}px;min-width:${this.labelColumn}px;height:${this.iconSize}px;" @dblclick="${(e) => this._dblclick(e, i)}">${i.label || i.name}</div>
+                            <div class="label" style="max-width:${this.labelColumn - this.level * 7}px;min-width:${this.labelColumn - this.level * 7}px;height:${this.iconSize}px;" @dblclick="${(e) => this._dblclick(e, i)}">${i.label || i.name}</div>
                             <input class="input" type="${i.type || 'text'}" .checked="${i.value}" .value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;height:${this.iconSize}px;align-items: center;" @change="${(e) => this._change(e, i)}">
                             ${i.list && !i.readOnly
                 ? html` <li-button back="transparent" name="chevron-right" border="0" rotate="90" @click="${(e) => this._openDropdown(e, i)}"></li-button>` : html``}
                     </div>
                 </div>
                 <div class="complex">
-                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" .args="${this.args}"></li-property-tree>` : html``}
+                    ${(i.el || i.items.length) && i.expanded ? html`<li-property-tree .item="${i.data}" .args="${this.args}" .level="${this.level + 1}"></li-property-tree>` : html``}
                 </div>
             `)}
         `
@@ -295,7 +296,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
     async _expanded(e, i) {
         i.expanded = e.target.toggled;
         if (i.expanded)
-            i.data = await makeData(i.obj[i.label], this.args, true);
+            i.data = await makeData(i.el, this.args, true);
         else
             i.data = [];
         this.$update();
@@ -304,9 +305,9 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
         this.focused = i;
     }
     _change(e, i) {
-        if (i && i.label in i.obj) {
-            if (e.target.type === 'checkbox') i.obj[i.label] = e.target.checked;
-            else i.obj[i.label] = e.target.value;
+        if (i && i.key in i.obj) {
+            if (e.target.type === 'checkbox') i.obj[i.key] = e.target.checked;
+            else i.obj[i.key] = e.target.value;
         }
     }
     _dblclick(e, item) {
@@ -327,47 +328,47 @@ async function makeData(el, { expert, group, sort, showFunction, categories }, s
     }
     let obj = el;
     const exts = /^(_|\$)/;
-    const label = el?.constructor?.name || el?.localName || '';
-    const data = { label, items: [] };
+    const _label = el?.constructor?.name || el?.localName || '';
+    const data = { _label, items: [] };
     const props = el?.constructor?._classProperties;
 
-    function fn(key, category = 'no category', props, list) {
+    function fn(key, category = 'props', props, list) {
         if (props && props.get(key) && props.get(key).category) category = props.get(key).category;
         const _ok = !categories || (categories && categories.includes(category)) || (categories && sure);
         if (!_ok) return;
-        //if (!group) category = '...';
-        let value = el[key], is, type;
-        const _docs = undefined;
-        if (el[key] && el[key]._docs) _docs = el[key]._docs;
-        const item = { label: key, value, el: el[key], items: [], category, obj, _docs };
-        if (value && Array.isArray(value)) {
-            try {
+        try {
+            let value = el[key], is, type;
+            const label = props && props.get(key) && props.get(key).label || key;
+            const _docs = undefined;
+            if (el[key] && el[key]._docs) _docs = el[key]._docs;
+            const item = { label, key, value, el: el[key], items: [], category, obj, _docs };
+            if (value && Array.isArray(value)) {
                 Object.defineProperty(item, 'value', { get() { try { return 'Array [' + (this?.obj && this.obj[this.label] ? this.obj[this.label].length : '') + ']'; } catch (err) { } } });
-            } catch (err) { }
-            is = 'array';
-            type = 'text';
-        } else if (value !== null && typeof value === 'object') {
-            Object.defineProperty(item, 'value', { get() { return '[Object]'; } });
-            is = 'object';
-            type = 'text';
-        } else {
-            type = props && props.get(key) && props.get(key).type ? props.get(key).type.name.toLowerCase() : undefined;
-            if (!type)
-                type = typeof el[key];
-            if (editors[type])
-                type = editors[type];
-            item.type = type || 'text';
-            try {
-                Object.defineProperty(item, 'value', {
-                    get() { try { return this.obj[this.label] } catch (err) { return value } },
-                    set(v) { this.obj[this.label] = v; }
-                });
-            } catch (err) { }
-        }
-        if (props && props.get(key) && props.get(key).list) item.list = props.get(key).list;
-        if (list) item.list = [...(item.list || []), ...list];
-        item.is = is;
-        data.items.push(item);
+                is = 'array';
+                type = 'text';
+            } else if (value !== null && typeof value === 'object') {
+                Object.defineProperty(item, 'value', { get() { return '[Object]'; } });
+                is = 'object';
+                type = 'text';
+            } else {
+                type = props && props.get(key) && props.get(key).type ? props.get(key).type.name.toLowerCase() : undefined;
+                if (!type)
+                    type = typeof el[key];
+                if (editors[type])
+                    type = editors[type];
+                item.type = type || 'text';
+                try {
+                    Object.defineProperty(item, 'value', {
+                        get() { try { return this.obj[this.label] } catch (err) { return value } },
+                        set(v) { this.obj[this.label] = v; }
+                    });
+                } catch (err) { }
+            }
+            if (props && props.get(key) && props.get(key).list) item.list = props.get(key).list;
+            if (list) item.list = [...(item.list || []), ...list];
+            item.is = is;
+            data.items.push(item);
+        } catch (err) { }
     }
 
     if (props) {
