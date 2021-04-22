@@ -140,7 +140,6 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
         return this._l ? html`
             <div style="${this.styleLP}">
                 <slot name="app-left" style="width:${this._widthL - 4}px;display:inline-block"></slot>
-                ${this.leftSplitter}
             </div>
         ` : "";
     }
@@ -151,7 +150,6 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
     get rightPanel() {
         return this._r ? html`
             <div style="${this.styleRP}">
-                ${this.rightSplitter}
                 <slot name="app-right" style="width:${this._widthR - 4}px;display:inline-block"></slot>
             </div>
         ` : "";
@@ -200,11 +198,13 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
             html`
                 <div style="display: flex; height: 100%;">
                     ${this.leftPanel}
+                    ${this.leftSplitter}
                     <div style="display: flex; flex-direction: column;overflow:hidden; flex:1;">
                         ${this.topPanel}
                         ${this.mainPanel}
                         ${this.bottomPanel}
                     </div>
+                    ${this.rightSplitter}
                     ${this.rightPanel}
                 </div>
             ` :
@@ -213,7 +213,9 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
                     ${this.topPanel}
                     <div style="display: flex; flex: 1;overflow: hidden;">
                         ${this.leftPanel}
+                        ${this.leftSplitter}
                         ${this.mainPanel}
+                        ${this.rightSplitter}
                         ${this.rightPanel}
                     </div>
                     ${this.bottomPanel}
