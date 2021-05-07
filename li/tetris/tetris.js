@@ -112,7 +112,7 @@ customElements.define('li-tetris', class LiTetris extends LiElement {
                 display: flex;
                 justify-content: space-between;
                 align-items: stretch;
-                background: url('./_back.jpg');
+                background: url('./back.jpg');
                 background-size: cover;
             }
             /* :host::before {
