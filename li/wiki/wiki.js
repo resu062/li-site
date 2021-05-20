@@ -9,12 +9,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 type: Array,
                 default: [
                     { label: '000', order: 0 },
-                    { label: '001', order: 1 },
-                    { label: '002', order: 2 },
-                    { label: '003', order: 3 },
-                    { label: '004', order: 4 },
+                    { label: '001', order: 0 },
+                    { label: '002', order: 0 },
+                    { label: '003', order: 0 },
+                    { label: '004', order: 0 },
                 ]
-            }
+            },
+            focused: { type: Object, local: true },
+            order: { type: Number, default: 0, local: true }
         }
     }
 
@@ -48,7 +50,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
     render() {
         return html`
-            <li-layout-app outside>
+            <li-layout-app>
                 <div slot="app-top" class="header">
                     li-wiki
                 </div>
@@ -61,8 +63,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 <div slot="app-main" class="main">
                     <div class="main-panel main-left">
                         ${(this.data || []).map(i => html`
-                            <li-wiki-box label="${i.label}" order="${i.order}"></li-wiki-box>
-                        `)}
+                            ${this.focused?.item.label === i.label ? html`` : html`
+                            <li-wiki-box .item="${i}" style="order:${i.order}"></li-wiki-box>
+                        `}`)}
                     </div>
                     <div class="main-panel">
 
@@ -77,8 +80,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     static get properties() {
         return {
-            label: { type: String, default: '' },
-            order: { type: Number, default: 0 }
+            item: { type: Object },
+            focused: { type: Object, local: true },
+            order: { type: Number, default: 0, local: true }
         }
     }
 
@@ -96,6 +100,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                     cursor: move;
                     margin: 2px;
                     height: 20px;
+                    overflow: hidden;
                 }
                 .box.over {
                     border: 3px dotted #666;
@@ -108,21 +113,23 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
 
     render() {
         return html`
-            <div draggable="true" class="box" 
+            <div draggable="true" class="box"
                     @dragstart="${this.handleDragStart}" 
                     @dragend="${this.handleDragEnd}" 
                     @dragover="${this.handleDragOver}">
-                ${this.label}
+                ${this.item.label + ' - ' + this.item.order}
             </div>
         `;
     }
 
     handleDragStart(e) {
         e.target.style.opacity = '0.4';
+        this.focused = this;
     }
     handleDragEnd(e) {
         e.target.style.opacity = '1';
-        this.order = 99;
+        this.focused = null;
+        this.item.order = ++this.order;
     }
     handleDragOver(e) {
         e.preventDefault();

@@ -113,6 +113,7 @@ export class LiElement extends LitElement {
             });
 
         }
+        this._partid = this._partid || this.partid;
     }
     disconnectedCallback() {
         if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
@@ -121,7 +122,7 @@ export class LiElement extends LitElement {
         super.disconnectedCallback();
     }
     _initBus() {
-        if (!this.$$ && (this.$props.get('_partid') || this.__saves || !this.$root)) {
+        if (!this.$$ && (this.$props.get('_partid') || this.__saves || !this.$root || this.__locals || this.__globals)) {
             if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
             this._partid = this._partid || this.id || this.$ulid || this.localName;
             if (!LI._$$[this._partid]) {
