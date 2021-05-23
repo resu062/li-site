@@ -15,9 +15,22 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     { label: '004', order: 0 },
                 ]
             },
-            focused: { type: Object, local: true },
-            order: { type: Number, default: 0, local: true }
+            focused: { type: Object, local: true }
         }
+    }
+
+    get _data() {
+        if (!this.data) return [];
+        let data = this.data.sort((a, b) => {
+            if (a.order > b.order) return 1;
+            if (a.order < b.order) return -1;
+            return 0;
+        }).map((i, idx) => {
+            i.order = idx;
+            return i;
+        })
+        this.data = data;
+        return this.data
     }
 
     static get styles() {
@@ -42,6 +55,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 flex-direction: column;
                 padding: 4px;
             }
+            .res {
+                padding: 4px;
+            }
             [draggable] {
                 user-select: none;
             }
@@ -62,13 +78,16 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 </div>
                 <div slot="app-main" class="main">
                     <div class="main-panel main-left">
-                        ${(this.data || []).map(i => html`
-                            ${this.focused?.item.label === i.label ? html`` : html`
-                            <li-wiki-box .item="${i}" style="order:${i.order}"></li-wiki-box>
-                        `}`)}
+                        Editors:
+                        ${(this._data || []).map(i => html`
+                            <li-wiki-box .item="${i}" style="order:${i.order}" ?hidden=${this.focused?.item.label === i.label}></li-wiki-box>
+                        `)}
                     </div>
                     <div class="main-panel">
-
+                        Result:
+                        ${(this._data || []).map(i => html`
+                            <div class="res" .item="${i}" style="order:${i.order}">${i.label}</div>
+                        `)}
                     </div>
                 </div>
             </li-layout-app>
@@ -82,56 +101,71 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         return {
             item: { type: Object },
             focused: { type: Object, local: true },
-            order: { type: Number, default: 0, local: true }
+            shadow: { type: Number, default: 0 },
+            lastOver: { type: Object, local: true },
         }
     }
 
     static get styles() {
         return css`
-                :host {
-                    /* order: {{order}}; */
-                    width: 100%;
-                }
-                .box {
-                    border: 1px solid #666;
-                    background-color: #ddd;
-                    border-radius: .5em;
-                    padding: 10px;
-                    cursor: move;
-                    margin: 2px;
-                    height: 20px;
-                    overflow: hidden;
-                }
-                .box.over {
-                    border: 3px dotted #666;
-                }
-                [draggable] {
-                    user-select: none;
-                }
+            :host {
+                width: 100%;
+            }
+            .box {
+                border: 1px solid #666;
+                background-color: #ddd;
+                padding: 10px;
+                cursor: move;
+                margin: 2px;
+                height: 20px;
+                overflow: hidden;
+            }
+            [draggable] {
+                user-select: none;
+            }
+            .top {
+                box-shadow: inset 0 3px 0 0 blue;
+            }
+            .bottom {
+                box-shadow: inset 0 -3px 0 0 blue;
+            }
         `;
     }
 
     render() {
         return html`
-            <div draggable="true" class="box"
+            <div draggable="true" class="box ${this.shadow < 0 ? 'top' : this.shadow > 0 ? 'bottom' : 'no'}"
                     @dragstart="${this.handleDragStart}" 
                     @dragend="${this.handleDragEnd}" 
-                    @dragover="${this.handleDragOver}">
-                ${this.item.label + ' - ' + this.item.order}
+                    @dragover="${this.handleDragOver}"
+                    @dragleave="${this.handleDragLeave}">
+                ${this.item.label}
             </div>
         `;
     }
 
     handleDragStart(e) {
-        e.target.style.opacity = '0.4';
         this.focused = this;
     }
     handleDragEnd(e) {
-        e.target.style.opacity = '1';
+        if (this.$$.lastOver) {
+            this.item.order = this.$$.lastOver.item.order + this.$$.lastOver.shadow / 2;
+            this.$$.lastOver.shadow = 0;
+        }
         this.focused = null;
-        this.item.order = ++this.order;
     }
     handleDragOver(e) {
         e.preventDefault();
+        LI.throttle('dragover', () => {
+            this.shadow = 0;
+            let h = e.target.clientHeight;
+            if (e.offsetY < h / 2) this.shadow = -1;
+            else if (e.offsetY > h / 2) this.shadow = 1;
+            this.lastOver = this;
+        }, 100, true)
+    }
+    handleDragLeave(e) {
+        this.shadow = 0;
+        this.lastOver = null;
     }
 });
