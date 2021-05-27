@@ -396,7 +396,7 @@ async function makeData(el, { expert, group, sort, showFunction, categories }, s
         let names = Object.getOwnPropertyNames(obj);
         for (let key of names) {
             if (!expert && exts.test(key)) continue;
-            if (/^(__|props|properties|\$props)/.test(key)) continue;
+            if (/^(__|props|properties|\$properties)/.test(key)) continue;
             const d = Object.getOwnPropertyDescriptor(obj, key);
             if (!d || (typeof d.value === 'function' && !showFunction)) continue;
             fn(key, obj.constructor.name);
