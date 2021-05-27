@@ -15,17 +15,29 @@
         </div>
         <li-icon></li-icon>
         <li-icon fill="orange" rotate=90></li-icon>
-        <li-icon fill="green" blink=2 name="android"></li-icon>
+        <li-icon id="android" fill="green" blink=2 name="android" size="64"></li-icon>
         <li-icon fill="lightblue" scale="-1,1" speed=1></li-icon>
         <li-icon icon='{"name":"refresh", "fill":"red", "speed":1, "blink":1}'></li-icon>
-        <!-- <p style="display:flex;align-items: center;"> -->
+        <p style="display:flex;align-items: center;">
             <li-icon name="close" fill="orange" rotate=90></li-icon>
             <li-icon name="close" fill="orange" rotate=90></li-icon>
             <li-icon name="close" fill="orange" rotate=90></li-icon>
             <span>trertertretrete</span>
             <li-icon name="close" fill="orange" rotate=90></li-icon>
             <li-icon name="close" fill="orange" rotate=90></li-icon>
-        <!-- </p> -->
+        </p>
+        <br><br>
+        <li-icon id="icon"></li-icon>
     </body>
+
+    <script type="module">
+
+        icon.$props = { name: 'settings', fill: 'gray', size: 64, speed: -1 };
+        setTimeout(() => {
+            icon.$props = { name: 'refresh', fill: 'blue', speed: 1 };
+            android.$props = { name: 'warning', fill: 'red', blink: .25 };
+        }, 5000);
+
+    </script>
 
 </html>

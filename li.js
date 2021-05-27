@@ -60,9 +60,9 @@ export class LiElement extends LitElement {
     constructor() {
         super();
 
-        this.$props = this.constructor._classProperties;
-        for (const k of this.$props.keys()) {
-            const prop = this.$props.get(k)
+        this.$properties = this.constructor._classProperties;
+        for (const k of this.$properties.keys()) {
+            const prop = this.$properties.get(k)
             if (prop?.save) {
                 this.__saves = this.__saves || [];
                 this.__saves.push(k);
@@ -75,8 +75,7 @@ export class LiElement extends LitElement {
                 this.__globals = this.__globals || [];
                 this.__globals.push(k);
             }
-            if (!prop || prop.default === undefined) continue;
-            this[k] = this.$args && this.$args[k] || prop.default;
+            if (prop?.default !== undefined) this[k] = prop.default;
         }
 
         const name = this.localName.replace('li-', '');
@@ -114,15 +113,18 @@ export class LiElement extends LitElement {
 
         }
         this._partid = this._partid || this.partid;
+
+        this.$listen('$props', this.fnProps);
     }
     disconnectedCallback() {
         if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
         if (this.$$ && this.__locals) this.$$.unlisten(this.fnLocals);
         if (LI.$$ && this.__globals) LI.$$.unlisten(this.fnGlobals);
+        if (this.$$) this.$unlisten(this.fnProps);
         super.disconnectedCallback();
     }
     _initBus() {
-        if (!this.$$ && (this.$props.get('_partid') || this.__saves || !this.$root || this.__locals || this.__globals)) {
+        if (!this.$$ && (this.$properties.get('_partid') || this.__saves || !this.$root || this.__locals || this.__globals)) {
             if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
             this._partid = this._partid || this.id || this.$ulid || this.localName;
             if (!LI._$$[this._partid]) {
@@ -137,6 +139,7 @@ export class LiElement extends LitElement {
     fnLocals = (e) => { if (this.__locals) this.__locals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnGlobals = (e) => { if (this.__globals) this.__globals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnListen = (e, property, fn) => { if (e.has(property)) fn() }
+    fnProps = (e) => { if (this.$props) Object.keys(this.$props).forEach(k => this[k] = this.$props[k]) }
 
     _setPartid(_partid) {
         if (this._partid !== _partid) {
@@ -148,11 +151,13 @@ export class LiElement extends LitElement {
     get $$() { return this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$'] ? LI._$$[this.partid]['_$$'] : undefined }
     get $root() { return this.getRootNode().host; }
     get _saveFileName() { return ((this.id || this.partid || this.localName.replace('li-', '')) + '.saves') }
+    get $props() { return this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$'] ? LI._$$[this.partid]['_$$']['$props'] : undefined }
+    set $props(v) { if (this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$']) LI._$$[this.partid]['_$$']['$props'] = v }
 
     firstUpdated() {
         super.firstUpdated();
-        this.$args = this.$args || this.args;
-        if (this.$args) Object.keys(this.$args).forEach(k => this[k] = this.$args[k]);
+        if (this.args)
+            Object.keys(this.args).forEach(k => this[k] = this.args[k]);
         this.$id = {};
         this.renderRoot.querySelectorAll('[id]').forEach(node => this.$id[node.id] = node);
         this.$refs = {};
@@ -197,6 +202,7 @@ export class LiElement extends LitElement {
             this._initBus();
             this.$$.update.listen(this.fnUpdate);
         }
+        this.__locals = this.__locals || [];
         if (this.$$[property] === undefined) this.$$[property] = this[property] || '';
         if (!this.__locals.includes(property)) this.__locals.push(property);
         this._fnListeners = this._fnListeners || new WeakMap();
