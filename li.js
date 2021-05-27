@@ -114,13 +114,14 @@ export class LiElement extends LitElement {
         }
         this._partid = this._partid || this.partid;
 
-        this.$listen('$props', this.fnProps);
+        //this._icaro.listen(this.fnProps);
+        this._icaro.$props.listen(this.fnProps);
     }
     disconnectedCallback() {
         if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
         if (this.$$ && this.__locals) this.$$.unlisten(this.fnLocals);
         if (LI.$$ && this.__globals) LI.$$.unlisten(this.fnGlobals);
-        if (this.$$) this.$unlisten(this.fnProps);
+        this._icaro.$props.unlisten(this.fnProps);
         super.disconnectedCallback();
     }
     _initBus() {
@@ -134,6 +135,8 @@ export class LiElement extends LitElement {
             }
             //this.$$.update.listen(this.fnUpdate);
         }
+        this._icaro = icaro({});
+        this._icaro.$props = icaro({});
     }
     fnUpdate = (e) => { this.requestUpdate() }
     fnLocals = (e) => { if (this.__locals) this.__locals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
@@ -151,8 +154,8 @@ export class LiElement extends LitElement {
     get $$() { return this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$'] ? LI._$$[this.partid]['_$$'] : undefined }
     get $root() { return this.getRootNode().host; }
     get _saveFileName() { return ((this.id || this.partid || this.localName.replace('li-', '')) + '.saves') }
-    get $props() { return this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$'] ? LI._$$[this.partid]['_$$']['$props'] : undefined }
-    set $props(v) { if (this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$']) LI._$$[this.partid]['_$$']['$props'] = v }
+    get $props() { return this._icaro?.$props || undefined }
+    set $props(v) { if (this._icaro && v)  Object.keys(v).forEach(k => this.$props[k] = v[k]) }
 
     firstUpdated() {
         super.firstUpdated();
@@ -172,6 +175,8 @@ export class LiElement extends LitElement {
             this._initBus();
             this.$$.update.listen(this.fnUpdate);
         }
+        if (this.args && changedProps.has('args'))
+            Object.keys(this.args).forEach(k => this[k] = this.args[k]);
         for (const prop of changedProps.keys()) {
             if (this.__enableSave && this.__saves && this.__saves.includes(prop)) {
                 let v = JSON.parse(localStorage.getItem(this._saveFileName));
