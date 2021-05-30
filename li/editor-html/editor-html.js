@@ -7,8 +7,16 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
     static get properties() {
         return {
             src: { type: String, default: '' },
-            editable: { type: Boolean, default: true }
+            editable: { type: Boolean, default: true },
+            item: { type: Object }
         }
+    }
+
+    get value() {
+        return this.editor?.content?.innerHTML || '';
+    }
+    set value(v) {
+        this.editor.content.innerHTML = v;
     }
 
     static get styles() {
@@ -57,16 +65,16 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
         `
     }
 
-    updated() {
-        this.firstUpdated();
-    }
-
     firstUpdated() {
         super.firstUpdated();
+        this._update();
+    }
+
+    _update() {
         if (!this.editor)
             this.editor = pell.init({
                 element: this.$refs.editor,
-                //onChange: html => this.value = html,
+                onChange: () => { if (this.item) this.item.value = this.value; this.$update() },
                 actions: [
                     'bold',
                     'italic',
@@ -194,7 +202,7 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                 ],
             });
         this.editor.content.contentEditable = this.editable;
-        this.editor.content.innerHTML = this.src ? this.src : '';
+        this.editor.content.innerHTML = this.item?.value || this.src || '';
     }
 
     _open() {

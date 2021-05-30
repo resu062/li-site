@@ -50,6 +50,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 margin: 4px;
                 flex: 1;
                 border: 1px solid lightgray;
+                overflow: auto;
             }
             .main-left {
                 display: flex;
@@ -90,7 +91,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="main-panel">
                         Result:
                         ${(this._data || []).map(i => html`
-                            <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.label}"></div>
+                            <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.value || ''}"></div>
                         `)}
                     </div>
                 </div>
@@ -113,14 +114,23 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             :host {
                 width: 100%;
             }
+            .header {
+                display: flex;
+                align-items: center;
+                border: 1px solid gray;
+                background-color: lightgray;
+                padding: 0 4px;
+                margin: 2px;
+                height: 32px;
+                overflow: hidden;
+                cursor: move;
+            }
             .box {
                 border: 1px solid #666;
                 background-color: #ddd;
-                padding: 10px;
-                cursor: move;
                 margin: 2px;
-                height: 20px;
-                overflow: hidden;
+                height: 200px;
+                overflow: auto;
             }
             [draggable] {
                 user-select: none;
@@ -130,12 +140,15 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
 
     render() {
         return html`
-            <div draggable="true" class="box"
+            <div draggable="true" class="header"
                     @dragstart="${this.handleDragStart}" 
                     @dragend="${this.handleDragEnd}" 
                     @dragover="${this.handleDragOver}"
                     @dragleave="${this.handleDragLeave}">
-                ${this.item.label}
+                ${this.item?.label}
+            </div>
+            <div class="box" @dragover="${this.handleDragOver}" @dragleave="${this.handleDragLeave}">
+                <li-editor-html .item=${this.item}></li-editor-html>
             </div>
         `;
     }
@@ -150,9 +163,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         e.preventDefault();
         LI.throttle('dragover', () => {
             this.shadow = 0;
-            let h = e.target.clientHeight;
-            if (e.offsetY < h / 2) this.shadow = -1;
-            else if (e.offsetY > h / 2) this.shadow = 1;
+            if (e.target.className === 'header') this.shadow = -1;
+            else this.shadow = 1;
             this.focused.item.order = this.item.order + this.shadow / 2;
             this.$update()
         }, 100, true)
@@ -171,10 +183,9 @@ customElements.define('li-wiki-box-shadow', class LiWikiBoxShadow extends LiElem
             .box {
                 border: 1px solid red;
                 background-color: tomato;
-                padding: 10px;
                 cursor: move;
                 margin: 2px;
-                height: 20px;
+                height: 32px;
                 opacity: .5;
             }
         `;
