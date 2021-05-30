@@ -1,6 +1,7 @@
 import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../layout-app/layout-app.js';
+import '../editor-html/editor-html.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -80,20 +81,22 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="main-panel main-left">
                         Editors:
                         ${(this._data || []).map(i => html`
-                            <li-wiki-box .item="${i}" style="order:${i.order}" ?hidden=${this.focused?.item.label === i.label}></li-wiki-box>
-                        `)}
+                            ${this.focused?.item.label === i.label ? html`
+                                <li-wiki-box-shadow style="order:${i.order * 10}"></li-wiki-box-shadow>
+                            ` : html`
+                                <li-wiki-box .item="${i}" style="order:${i.order * 10}"></li-wiki-box>
+                            `}`)}
                     </div>
                     <div class="main-panel">
                         Result:
                         ${(this._data || []).map(i => html`
-                            <div class="res" .item="${i}" style="order:${i.order}">${i.label}</div>
+                            <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.label}"></div>
                         `)}
                     </div>
                 </div>
             </li-layout-app>
         `;
     }
-
 });
 
 customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
@@ -101,8 +104,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         return {
             item: { type: Object },
             focused: { type: Object, local: true },
-            shadow: { type: Number, default: 0 },
-            lastOver: { type: Object, local: true },
+            shadow: { type: Number, default: 0 }
         }
     }
 
@@ -123,18 +125,12 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             [draggable] {
                 user-select: none;
             }
-            .top {
-                box-shadow: inset 0 3px 0 0 blue;
-            }
-            .bottom {
-                box-shadow: inset 0 -3px 0 0 blue;
-            }
         `;
     }
 
     render() {
         return html`
-            <div draggable="true" class="box ${this.shadow < 0 ? 'top' : this.shadow > 0 ? 'bottom' : 'no'}"
+            <div draggable="true" class="box"
                     @dragstart="${this.handleDragStart}" 
                     @dragend="${this.handleDragEnd}" 
                     @dragover="${this.handleDragOver}"
@@ -148,10 +144,6 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         this.focused = this;
     }
     handleDragEnd(e) {
-        if (this.$$.lastOver) {
-            this.item.order = this.$$.lastOver.item.order + this.$$.lastOver.shadow / 2;
-            this.$$.lastOver.shadow = 0;
-        }
         this.focused = null;
     }
     handleDragOver(e) {
@@ -161,11 +153,36 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             let h = e.target.clientHeight;
             if (e.offsetY < h / 2) this.shadow = -1;
             else if (e.offsetY > h / 2) this.shadow = 1;
-            this.lastOver = this;
+            this.focused.item.order = this.item.order + this.shadow / 2;
+            this.$update()
         }, 100, true)
     }
     handleDragLeave(e) {
         this.shadow = 0;
-        this.lastOver = null;
+    }
+});
+
+customElements.define('li-wiki-box-shadow', class LiWikiBoxShadow extends LiElement {
+    static get styles() {
+        return css`
+            :host {
+                width: 100%;
+            }
+            .box {
+                border: 1px solid red;
+                background-color: tomato;
+                padding: 10px;
+                cursor: move;
+                margin: 2px;
+                height: 20px;
+                opacity: .5;
+            }
+        `;
+    }
+
+    render() {
+        return html`
+            <div class="box"></div>
+        `;
     }
 });
