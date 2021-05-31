@@ -19,7 +19,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             focused: { type: Object, local: true },
             _indx: { type: Number, default: -1 },
             _move: { type: Boolean },
-            _widthL: { type: Number, default: 800, save: true }
+            _widthL: { type: Number, default: 800 }
         }
     }
 
