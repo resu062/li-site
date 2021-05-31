@@ -193,7 +193,11 @@ customElements.define('li-wiki-box-shadow', class LiWikiBoxShadow extends LiElem
 
     render() {
         return html`
-            <div class="box"></div>
+            <div class="box" @dragover="${this.handleDragOver}"></div>
         `;
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
     }
 });
