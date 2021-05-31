@@ -16,7 +16,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     { label: '004', order: 0 },
                 ]
             },
-            focused: { type: Object, local: true }
+            focused: { type: Object, local: true },
+            _indx: { type: Number, default: -1 },
+            _move: { type: Boolean },
+            _widthL: { type: Number, default: 800, save: true }
         }
     }
 
@@ -48,7 +51,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             }
             .main-panel {
                 margin: 4px;
-                flex: 1;
                 border: 1px solid lightgray;
                 overflow: auto;
             }
@@ -63,11 +65,22 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             [draggable] {
                 user-select: none;
             }
+            .splitter {
+                max-width: 4px;
+                min-width: 4px;
+                cursor: col-resize;
+                z-index: 9;
+            }
+            .temp {
+                position: fixed;
+                top: 0; left: 0; bottom: 0; right: 0;
+            }
         `;
     }
 
     render() {
         return html`
+            <div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indx}"></div>
             <li-layout-app>
                 <div slot="app-top" class="header">
                     li-wiki
@@ -79,7 +92,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     right-panel
                 </div>
                 <div slot="app-main" class="main">
-                    <div class="main-panel main-left">
+                    <div class="main-panel main-left" style="width:${this._widthL}px">
                         Editors:
                         ${(this._data || []).map(i => html`
                             ${this.focused?.item.label === i.label ? html`
@@ -88,7 +101,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <li-wiki-box .item="${i}" style="order:${i.order * 10}"></li-wiki-box>
                             `}`)}
                     </div>
-                    <div class="main-panel">
+                    <div class="splitter" @mousedown="${this._movePanel}"></div>
+                    <div class="main-panel" style="flex: 1;">
                         Result:
                         ${(this._data || []).map(i => html`
                             <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.value || ''}"></div>
@@ -97,6 +111,23 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 </div>
             </li-layout-app>
         `;
+    }
+
+    _movePanel(val = true) {
+        this._move = val;
+        this._indx = 999;
+    }
+    _mousemove(e) {
+        if (!this._move) return;
+        e.preventDefault();
+        this._widthL = this._widthL + e.movementX;
+        console.log(this._widthL, e.movementX);
+    }
+    _up(e) {
+        e.preventDefault();
+        this._indx = -1;
+        this._move = '';
+        window.dispatchEvent(new Event('resize'));
     }
 });
 
