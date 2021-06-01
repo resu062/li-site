@@ -14,13 +14,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     { label: '002', order: 0, h: 200 },
                     { label: '003', order: 0, h: 200 },
                     { label: '004', order: 0, h: 200 },
-                ]
+                ],
+                //save: true
             },
-            focused: { type: Object, local: true },
-            _indx: { type: Number, default: -1, local: true },
-            _move: { type: Boolean },
-            _widthL: { type: Number, default: 800, save: true },
-            _itemH: { type: Object, local: true },
+            _item: { type: Object, local: true },
+            _indexFullArea: { type: Number, default: -1, local: true },
+            _action: { type: String, local: true },
+            _box: { type: Object, local: true },
+            _widthL: { type: Number, default: 800, save: true }
         }
     }
 
@@ -76,7 +77,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             .splitter:hover, .splitter-move {
                 background-color: lightgray;
             }
-            .temp {
+            .full-area {
                 position: fixed;
                 top: 0; left: 0; bottom: 0; right: 0;
             }
@@ -85,7 +86,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
     render() {
         return html`
-            <div class="temp" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indx}"></div>
+            <div class="full-area" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indexFullArea}"></div>
             <li-layout-app>
                 <div slot="app-top" class="header">
                     li-wiki
@@ -101,15 +102,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         <div class="main-panel main-left" style="width:${this._widthL}px" @dragover="${(e) => e.preventDefault()}">
                             Editors:
                             ${(this._data || []).map(i => html`
-                                ${this.focused?.item.label === i.label ? html`
+                                ${this._item === i && this._action === 'box-move'? html`
                                     <li-wiki-box-shadow style="order:${i.order * 10}"></li-wiki-box-shadow>
                                 ` : html`
                                     <li-wiki-box .item="${i}" style="order:${i.order * 10}"></li-wiki-box>
                                 `}`)}
                         </div>
                     `} 
-                    <div class="splitter ${this._move ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
-                    <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._move}">
+                    <div class="splitter ${this._action === 'splitter-move' ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
+                    <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
                         Result:
                         ${(this._data || []).map(i => html`
                             <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.value || ''}"></div>
@@ -129,25 +130,25 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
 
     _moveSplitter() {
-        this._move = true;
-        this._indx = 999;
+        this._action = 'splitter-move';
+        this._indexFullArea = 999;
     }
     _mousemove(e) {
-        if (this._move) {
+        if (this._action === 'splitter-move') {
             e.preventDefault();
             this._widthL = this._widthL + e.movementX;
             this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
-        } else if (this._itemH) {
-            this._itemH.h = this._itemH.h + e.movementY;
-            this._itemH.h = this._itemH.h > 0 ? this._itemH.h : 0;
+        } else if (this._action === 'set-box-height') {
+            this._item.h = this._item.h + e.movementY;
+            this._item.h = this._item.h > 0 ? this._item.h : 0;
             this.$update();
         }
     }
     _up(e) {
         e.preventDefault();
-        this._indx = -1;
-        this._move = '';
-        this._itemH = undefined;
+        this._indexFullArea = -1;
+        this._action = '';
+        this._item = undefined;
         //window.dispatchEvent(new Event('resize'));
     }
 });
@@ -156,10 +157,11 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     static get properties() {
         return {
             item: { type: Object },
-            focused: { type: Object, local: true },
             shadow: { type: Number, default: 0 },
-            _indx: { type: Number, default: -1, local: true },
-            _itemH: { type: Object, local: true }
+            _item: { type: Object, local: true },
+            _indexFullArea: { type: Number, default: -1, local: true },
+            _action: { type: String, local: true },
+            _box: { type: Object, local: true }
         }
     }
 
@@ -204,18 +206,18 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     render() {
         return html`
             <div draggable="true" class="header"
-                    @dragstart="${() => this.focused = this}" 
-                    @dragend="${() => this.focused = null}" 
+                    @dragstart="${() => { this._item = this.item; this._action = 'box-move'; }}" 
+                    @dragend="${() => this._item = undefined}" 
                     @dragover="${this._dragover}"
                     @dragleave="${this._dragleave}">
                 ${this.item?.label}
             </div>
             ${this.item.h <= 0 ? html`` : html`
-                <div class="box" @dragover="${this._dragover}" @dragleave="${() => this.shadow = 0}" style="height:${this.item.h}px">
+                <div class="box" @dragover="${this._dragover}" @dragleave="${() => this.shadowOffset = 0}" style="height:${this.item.h}px">
                     <li-editor-html .item=${this.item}></li-editor-html>
                 </div>
             `}
-            <div class="bottomSplitter ${this._itemH === this.item ? 'bottomSplitter-move' : ''}" 
+            <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" 
                     @mousedown="${this._mousedown}"
                     @dragover="${this._dragover}">
             </div>
@@ -223,17 +225,18 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     }
 
     _mousedown(e) {
-        this._itemH = this.item;
-        this._indx = 999;
+        this._item = this.item;
+        this._action = 'set-box-height';
+        this._indexFullArea = 999;
     }
     _dragover(e) {
-        if (!this.focused) return;
+        if (this._action !== 'box-move') return;
         e.preventDefault();
         LI.throttle('dragover', () => {
-            this.shadow = 0;
-            if (e.target.className === 'header') this.shadow = -1;
-            else this.shadow = 1;
-            this.focused.item.order = this.item.order + this.shadow / 2;
+            this.shadowOffset = 0;
+            if (e.target.className === 'header') this.shadowOffset = -1;
+            else this.shadowOffset = 1;
+            this._item.order = this.item.order + this.shadowOffset / 2;
             this.$update()
         }, 100, true)
     }
