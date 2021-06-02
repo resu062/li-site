@@ -23,6 +23,7 @@ customElements.define('li-icon', class LiIcon extends LiElement {
             blval: { type: String, default: '1;0;0;1' },
             path: { type: String, default: '' },
             icon: { type: Object, default: undefined },
+            args: { type: Object }
         }
     }
 

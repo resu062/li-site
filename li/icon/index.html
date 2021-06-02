@@ -32,10 +32,10 @@
 
     <script type="module">
 
-        icon.$props = { name: 'settings', fill: 'gray', size: 64, speed: -1 };
+        icon.args = { name: 'settings', fill: 'gray', size: 64, speed: -1 };
         setTimeout(() => {
-            icon.$props = { name: 'refresh', fill: 'blue', speed: 1 };
-            android.$props = { name: 'warning', fill: 'red', blink: .25 };
+            icon.args = { name: 'refresh', fill: 'blue', speed: 1 };
+            android.args = { name: 'warning', fill: 'red', blink: .25 };
         }, 5000);
 
     </script>
