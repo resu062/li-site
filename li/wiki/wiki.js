@@ -2,6 +2,7 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../layout-app/layout-app.js';
 import '../editor-html/editor-html.js';
+import '../button/button.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -20,8 +21,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _item: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
-            _box: { type: Object, local: true },
-            _widthL: { type: Number, default: 800, save: true }
+            _widthL: { type: Number, default: 800, save: true },
+            _expandItem: { type: Object, local: true }
         }
     }
 
@@ -100,18 +101,21 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 <div slot="app-main" class="main" id="main">
                     ${this._widthL <= 0 ? html`` : html`
                         <div class="main-panel main-left" style="width:${this._widthL}px" @dragover="${(e) => e.preventDefault()}">
-                            Editors:
-                            ${(this._data || []).map(i => html`
-                                ${this._item === i && this._action === 'box-move'? html`
-                                    <li-wiki-box-shadow style="order:${i.order * 10}"></li-wiki-box-shadow>
-                                ` : html`
-                                    <li-wiki-box .item="${i}" style="order:${i.order * 10}"></li-wiki-box>
-                                `}`)}
+                            ${this._expandItem ? html`
+                                <li-wiki-box .item="${this._expandItem}" style="height: calc(100% - 40px);"></li-wiki-box>
+                            ` : html`
+                                ${(this._data || []).map(i => html`
+                                    ${this._item === i && this._action === 'box-move' ? html`
+                                        <li-wiki-box-shadow style="order:${i.order * 10}"></li-wiki-box-shadow>
+                                    ` : html`
+                                        <li-wiki-box .item="${i}" style="order:${i.order * 10}"></li-wiki-box>
+                                    `}
+                                `)}                        
+                            `}
                         </div>
-                    `} 
+                    `}
                     <div class="splitter ${this._action === 'splitter-move' ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
-                        Result:
                         ${(this._data || []).map(i => html`
                             <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.value || ''}"></div>
                         `)}
@@ -124,8 +128,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     firstUpdated() {
         super.firstUpdated();
         setTimeout(() => {
-            this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
-        this.$update();
+            if (!this._widthL && this._widthL !== 0) this._widthL = 800;
+            else this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
+            this.$update();
         }, 100);
     }
 
@@ -161,7 +166,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             _item: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
-            _box: { type: Object, local: true }
+            _expandItem: { type: Object, local: true }
         }
     }
 
@@ -179,7 +184,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                 margin: 2px;
                 height: 32px;
                 overflow: hidden;
-                cursor: move;
+                white-space: nowrap;
             }
             .box {
                 border: 1px solid #666;
@@ -187,7 +192,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                 margin: 2px;
                 overflow: auto;
             }
-            [draggable] {
+            [draggable=true] {
+                cursor: move;
                 user-select: none;
             }
             .bottomSplitter {
@@ -205,25 +211,42 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
 
     render() {
         return html`
-            <div draggable="true" class="header"
+            <div draggable="${!this._expandItem}" class="header"
                     @dragstart="${() => { this._item = this.item; this._action = 'box-move'; }}" 
                     @dragend="${() => this._item = undefined}" 
                     @dragover="${this._dragover}"
                     @dragleave="${this._dragleave}">
                 ${this.item?.label}
+                <div style="flex:1"></div>
+                <li-button name="fullscreen-exit" title="collapse" @click="${this._collapseBox}"></li-button>
+                <li-button name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}"></li-button>
+                <li-button name="close" title="close" @click="${this._closeBox}"></li-button>
             </div>
-            ${this.item.h <= 0 ? html`` : html`
-                <div class="box" @dragover="${this._dragover}" @dragleave="${() => this.shadowOffset = 0}" style="height:${this.item.h}px">
+            ${!this._expandItem && this.item?.h <= 0 ? html`` : html`
+                <div class="box" @dragover="${this._dragover}" @dragleave="${() => this.shadowOffset = 0}"
+                        style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
                     <li-editor-html .item=${this.item}></li-editor-html>
                 </div>
             `}
-            <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" 
+            <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandItem}"
                     @mousedown="${this._mousedown}"
                     @dragover="${this._dragover}">
             </div>
         `;
     }
-
+    _collapseBox() {
+        if (this.item.h > 0) {
+            this._h = this.item.h;
+            this.item.h = 0;
+        } else {
+            this.item.h = this._h || 200;
+            this._h = 0;
+        }
+        this.requestUpdate();
+    }
+    _closeBox() {
+        console.log('close-box ... ' + this.item?.label);
+    }
     _mousedown(e) {
         this._item = this.item;
         this._action = 'set-box-height';
@@ -237,7 +260,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             if (e.target.className === 'header') this.shadowOffset = -1;
             else this.shadowOffset = 1;
             this._item.order = this.item.order + this.shadowOffset / 2;
-            this.$update()
+            this.$update();
         }, 100, true)
     }
 });
