@@ -10,19 +10,22 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             data: {
                 type: Array,
                 default: [
-                    { label: '000', order: 0, h: 200 },
-                    { label: '001', order: 0, h: 200 },
-                    { label: '002', order: 0, h: 200 },
-                    { label: '003', order: 0, h: 200 },
-                    { label: '004', order: 0, h: 200 },
+                    { label: '000', order: 0, h: 200, type: 'html-editor' },
+                    { label: '001', order: 0, h: 200, type: 'html-editor' },
+                    { label: '002', order: 0, h: 200, type: 'html-editor' },
+                    { label: '003', order: 0, h: 200, type: 'html-editor' },
+                    { label: '004', order: 0, h: 200, type: 'html-editor' },
                 ],
+                local: true,
                 //save: true
             },
             _item: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
             _widthL: { type: Number, default: 800, save: true },
-            _expandItem: { type: Object, local: true }
+            _expandItem: { type: Object, local: true },
+            _lPanel: { type: String, default: 'home' },
+            _rPanel: { type: String, default: '' },
         }
     }
 
@@ -52,6 +55,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             }
             .panel-in {
                 display: flex;
+                flex-direction: column;
                 border-top: 1px solid lightgray;
                 padding: 4px;
                 flex: 1;
@@ -102,22 +106,38 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 </div>
                 <div slot="app-left" class="panel">
                     <div>
-                        <li-button name="tree-structure" title="home"></li-button>
-                        <li-button name="playlist-add" title="editors"></li-button>
-                        <li-button name="settings" title="settings"></li-button>
+                        <li-button name="tree-structure" title="home" @click="${() => this._lPanel = 'home'}"></li-button>
+                        <li-button name="playlist-add" title="editors" @click="${() => this._lPanel = 'editors'}"></li-button>
+                        <li-button name="settings" title="settings" @click="${() => this._lPanel = 'settings'}"></li-button>
                     </div>
                     <div class="panel-in">
-                        left-panel
+                        ${this._lPanel === 'editors' ? html`
+                            editors
+                            <li-button width="100%" @click="${this._addBox}">html</li-button>
+                            <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
+                            <li-button width="100%" @click="${this._addBox}">ace-editor</li-button>
+                            <li-button width="100%" @click="${this._addBox}">md-editor</li-button>
+                        ` : this._lPanel === 'settings' ? html`
+                            settings
+                        ` : html `
+                            home
+                        `}
                     </div>
                 </div>
                 <div slot="app-right" class="panel">
                     <div>
-                        <li-button name="" title=""></li-button>
-                        <li-button name="" title=""></li-button>
-                        <li-button name="" title=""></li-button>
+                        <li-button name="" title="001" @click="${() => this._rPanel = '001'}">1</li-button>
+                        <li-button name="" title="002" @click="${() => this._rPanel = '002'}">2</li-button>
+                        <li-button name="" title="003" @click="${() => this._rPanel = '003'}">3</li-button>
                     </div>
                     <div class="panel-in">
-                        right-panel
+                    ${this._rPanel === '002' ? html`
+                            right-panel-002
+                        ` : this._rPanel === '003' ? html`
+                            right-panel-003
+                        ` : html `
+                            right-panel-001
+                        `}
                     </div>
                 </div>
                 <div slot="app-main" class="main" id="main">
@@ -146,7 +166,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             </li-layout-app>
         `;
     }
-
+    _addBox(e) {
+        console.log(e.target.innerText);
+        this.data.push({ label: '000', order: 99999, h: 200, type: e.target.innerText });
+        this.$update();
+    }
     firstUpdated() {
         super.firstUpdated();
         setTimeout(() => {
@@ -188,7 +212,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             _item: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
-            _expandItem: { type: Object, local: true }
+            _expandItem: { type: Object, local: true },
+            data: { type: Array, local: true },
         }
     }
 
@@ -267,7 +292,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         this.requestUpdate();
     }
     _closeBox() {
-        console.log('close-box ... ' + this.item?.label);
+        this.data.splice(this.data.indexOf(this.item), 1);
+        this.$update();
     }
     _mousedown(e) {
         this._item = this.item;
