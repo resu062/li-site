@@ -46,7 +46,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 font-weight: 700;
             }
             .panel {
-                padding:4px;
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            .panel-in {
+                display: flex;
+                border-top: 1px solid lightgray;
+                padding: 4px;
+                flex: 1;
             }
             .main {
                 display: flex;
@@ -93,10 +101,24 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     li-wiki
                 </div>
                 <div slot="app-left" class="panel">
-                    left-panel
+                    <div>
+                        <li-button name="tree-structure" title="home"></li-button>
+                        <li-button name="playlist-add" title="editors"></li-button>
+                        <li-button name="settings" title="settings"></li-button>
+                    </div>
+                    <div class="panel-in">
+                        left-panel
+                    </div>
                 </div>
                 <div slot="app-right" class="panel">
-                    right-panel
+                    <div>
+                        <li-button name="" title=""></li-button>
+                        <li-button name="" title=""></li-button>
+                        <li-button name="" title=""></li-button>
+                    </div>
+                    <div class="panel-in">
+                        right-panel
+                    </div>
                 </div>
                 <div slot="app-main" class="main" id="main">
                     ${this._widthL <= 0 ? html`` : html`
