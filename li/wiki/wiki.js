@@ -119,7 +119,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <li-button width="100%" @click="${this._addBox}">md-editor</li-button>
                         ` : this._lPanel === 'settings' ? html`
                             settings
-                        ` : html `
+                        ` : html`
                             home
                         `}
                     </div>
@@ -135,7 +135,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             right-panel-002
                         ` : this._rPanel === '003' ? html`
                             right-panel-003
-                        ` : html `
+                        ` : html`
                             right-panel-001
                         `}
                     </div>
@@ -292,8 +292,10 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         this.requestUpdate();
     }
     _closeBox() {
-        this.data.splice(this.data.indexOf(this.item), 1);
-        this.$update();
+        if (window.confirm(`Do you really want delete box-${this.item.label} ?`)) {
+            this.data.splice(this.data.indexOf(this.item), 1);
+            this.$update();
+        }
     }
     _mousedown(e) {
         this._item = this.item;
