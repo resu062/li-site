@@ -1,0 +1,161 @@
+<link rel="stylesheet" href="assets/css/bootstrap.css" />
+
+<link rel="stylesheet" href="dist/css/polipop.core.min.css" />
+<link rel="stylesheet" href="dist/css/polipop.compact.min.css" />
+
+<style>
+  html {
+    padding: 100px;
+  }
+  .mb-3 {
+    width: 500px;
+  }
+</style>
+
+
+<div style="display: flex;justify-content: space-around;">
+  <div style="display: flex;flex-direction: column;width:500px;">
+    <button type="submit" class="btn btn-info btn-sm" id="info">Show info message</button>
+    <br>
+    <button type="submit" class="btn btn-success btn-sm" id="success">Show success message</button>
+    <br>
+    <button type="submit" class="btn btn-warning btn-sm" id="warning">Show warning message</button>
+    <br>
+    <button type="submit" class="btn btn-danger btn-sm" id="error">Show error message</button>
+    <br>
+    <button type="submit" class="btn btn-outline-dark btn-sm" id="message">Show default message</button>
+  </div>
+  <div>
+    <div class="mb-3">
+      <label for="layout">Layout</label>
+      <select class="custom-select custom-select-md" id="layout">
+        <option value="popups">Popups</option>
+        <option value="panel">Panel</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="position">Position</label>
+      <select class="custom-select custom-select-md" id="position">
+        <option value="top-left">Top left</option>
+        <option value="center">Top center</option>
+        <option value="top-right" selected>Top right</option>
+        <option value="bottom-left">Bottom left</option>
+        <option value="bottom-right">Bottom right</option>
+        <option value="inline">Inline</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="layout">Theme</label>
+      <select class="custom-select custom-select-md" id="theme">
+        <option value="compact">Compact</option>
+        <option value="minimal">Minimal</option>
+        <option value="default">Default</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="insert">Insert</label>
+      <select class="custom-select custom-select-md" id="insert">
+        <option value="before" selected>Before</option>
+        <option value="after">After</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="effect">Effect</label>
+      <select class="custom-select custom-select-md" id="effect">
+        <option value="fade" selected>Fade</option>
+        <option value="slide">Slide</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="sticky">
+        <label class="custom-control-label" for="sticky">Sticky</label>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="progressbar" checked>
+        <label class="custom-control-label" for="progressbar">Progress bar</label>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="pool">Pool</label>
+      <input type="range" class="custom-range" id="pool" min="0" max="5" step="1" value="0">
+      <small id="poolhelp" class="form-text text-muted text-right">
+        Queue excess notifications: <span><b>off</b></span>
+      </small>
+    </div>
+
+    <div class="mb-3">
+      <label for="life">Life time</label>
+      <input type="range" class="custom-range" id="life" min="100" max="4000" step="100" value="2000">
+      <small id="lifehelp" class="form-text text-muted text-right">
+        <span><b>2.0</b></span> seconds
+      </small>
+    </div>
+
+    <div class="mb-3">
+      <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="pauseonhover" checked>
+        <label class="custom-control-label" for="pauseonhover">Pause on hover</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="dist/polipop.min.js"></script> <!-- virtual file stored in memory and served by webpack-dev-server -->
+<script src="assets/js/app.js"></script>
+
+<script type="module">
+  const options = {
+    layout: 'popups',
+    position: 'top-right',
+    theme: 'compact',
+    icons: true,
+    insert: 'before',
+    pool: 0,
+    sticky: false,
+    pauseOnHover: true,
+    life: 5000,
+    progressbar: true,
+    effect: 'slide',
+    easing: 'ease-in-out',
+  };
+
+  const selector = 'mypolipop';
+  let pp = new Polipop(selector, options);
+
+  pp.add({
+    type: 'info',
+    title: 'Info',
+    content: 'This is an info message.',
+  });
+  pp.add({
+    type: 'success',
+    title: 'Success',
+    content: 'This is a success message.',
+  });
+  pp.add({
+    type: 'warning',
+    title: 'Warning',
+    content: 'This is a warning message.',
+  });
+  pp.add({
+    type: 'error',
+    title: 'Error',
+    content: 'This is an error message.',
+  });
+  pp.add({
+    type: 'default',
+    title: 'Message',
+    content: 'This is a default message.',
+  });
+
+</script>
