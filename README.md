@@ -4,7 +4,6 @@ What is here?
   - small modifications to lit element in file li.js
   - components and apps created using li.js(lit element) in a folder li
   - useful components in a folder lib
-  - test examples from different sources of using lit element (and not only) in a folder test
 
 
 You can view created components and various applications in li-tester component here: 
@@ -24,3 +23,5 @@ L-System: https://resu062.github.io/li-js/li/l-system/
 Games of Life (canvas): https://resu062.github.io/li-js/li/life/
 
 Games of Life (svg): https://resu062.github.io/li-js/li/life/
+
+Wiki (prototype): https://resu062.github.io/li-js/li/wiki/
