@@ -10,11 +10,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             data: {
                 type: Array,
                 default: [
-                    { label: '000', order: 0, h: 200, type: 'html-editor' },
-                    { label: '001', order: 0, h: 200, type: 'html-editor' },
-                    { label: '002', order: 0, h: 200, type: 'html-editor' },
-                    { label: '003', order: 0, h: 200, type: 'html-editor' },
-                    { label: '004', order: 0, h: 200, type: 'html-editor' },
+                    { label: '000', order: 0, h: 200, type: 'html-editor', value: '000' + ' - ' + LI.ulid() },
+                    { label: '001', order: 0, h: 200, type: 'html-editor', value: '001' + ' - ' + LI.ulid()  },
+                    { label: '002', order: 0, h: 200, type: 'html-editor', value: '002' + ' - ' + LI.ulid()  },
+                    { label: '003', order: 0, h: 200, type: 'html-editor', value: '003' + ' - ' + LI.ulid()  },
+                    { label: '004', order: 0, h: 200, type: 'html-editor', value: '004' + ' - ' + LI.ulid()  },
                 ],
                 local: true,
                 //save: true
@@ -102,7 +102,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             <div class="full-area" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indexFullArea}"></div>
             <li-layout-app>
                 <div slot="app-top" class="header">
-                    li-wiki
+                    li-wiki (prototype)
                 </div>
                 <div slot="app-left" class="panel">
                     <div>
@@ -168,7 +168,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         console.log(e.target.innerText);
-        this.data.push({ label: '000', order: 99999, h: 200, type: e.target.innerText });
+        this.data.push({ label:  e.target.innerText, order: 99999, h: 200, type: e.target.innerText, value:  e.target.innerText + ' - ' + LI.ulid() });
         this.$update();
     }
     firstUpdated() {
@@ -265,30 +265,36 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                     @dragleave="${this._dragleave}">
                 ${this.item?.label}
                 <div style="flex:1"></div>
+                <li-button name="expand-more" title="down" @click="${() => { this.item.order += 1.5; this.$update() }}"></li-button>
+                <li-button name="expand-less" title="up" @click="${() => { this.item.order -= 1.5; this.$update() }}"></li-button>
                 <li-button name="fullscreen-exit" title="collapse" @click="${this._collapseBox}"></li-button>
                 <li-button name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}"></li-button>
                 <li-button name="close" title="close" @click="${this._closeBox}"></li-button>
             </div>
-            ${!this._expandItem && this.item?.h <= 0 ? html`` : html`
-                <div class="box" @dragover="${this._dragover}" @dragleave="${() => this.shadowOffset = 0}"
-                        style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
-                    <li-editor-html .item=${this.item}></li-editor-html>
-                </div>
-            `}
+            <div class="box" @dragover="${this._dragover}" @dragleave="${() => this.shadowOffset = 0}" ?hidden="${!this._expandItem && this.item?.h <= 0}"
+                    style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
+                <li-editor-html ref="ed" .item=${this.item}></li-editor-html>
+            </div>
             <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandItem}"
                     @mousedown="${this._mousedown}"
                     @dragover="${this._dragover}">
             </div>
         `;
     }
+    updated(sets) {
+        if (sets.has('item')) {
+            this.$refs.ed.value = this.item.value;
+        }
+    }
     _collapseBox() {
-        if (this.item.h > 0) {
+        if (this.item.h > 0 || this._expandItem) {
             this._h = this.item.h;
             this.item.h = 0;
         } else {
             this.item.h = this._h || 200;
             this._h = 0;
         }
+        this._expandItem = undefined;
         this.requestUpdate();
     }
     _closeBox() {

@@ -276,7 +276,7 @@ export const indx = {
     'li-app': { label: 'li-app' },
     app: [{ label: 'index', url: url + '/app' }],
 
-    'li-wiki': { label: 'li-wiki' },
+    'li-wiki': { label: 'li-wiki (prototype)' },
     wiki: [{ label: 'index', url: url + '/wiki' }],
 
     'li-chart': {
