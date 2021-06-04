@@ -202,11 +202,11 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                 ],
             });
         this.editor.content.contentEditable = this.editable;
-        this.editor.content.innerHTML = this.item?.value || this.src || '';
+        this.value = this.item?.value || this.src || '';
     }
 
     _open() {
         let newWin = window.open("about:blank", "HTML");
-        newWin.document.write(this.editor.content.innerHTML);
+        newWin.document.write(this.value);
     }
 })
