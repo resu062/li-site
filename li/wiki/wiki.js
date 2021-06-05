@@ -13,9 +13,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             data: {
                 type: Array,
                 default: [
-                    { label: 'html-editor', order: 0, h: 120, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">i`m html-editor</div>' },
-                    { label: 'simple-mde', order: 0, h: 120, type: 'simple-mde', value: '## i`m simple-mde (markdown editor)' },
-                    { label: 'showdown', order: 0, h: 120, type: 'showdown', value: '## i`m showdown (markdown editor)' },
+                    { label: 'html-editor', order: 0, h: 120, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">HTML editor</div>' },
+                    { label: 'simple-mde', order: 0, h: 120, type: 'simple-mde', value: '## SimpleMDE (markdown editor)' },
+                    { label: 'showdown', order: 0, h: 120, type: 'showdown', value: '## Showdown (markdown editor)' },
                 ],
                 local: true,
                 //save: true
@@ -174,7 +174,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         console.log(e.target.innerText);
-        this.data.push({ label: e.target.innerText, order: 99999, h: 120, type: e.target.innerText, value: '' });
+        this.data.push({ label: e.target.innerText, order: 99999, h: 120, type: e.target.innerText, value: ' ' });
         this.$update();
     }
     firstUpdated() {
@@ -279,7 +279,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     render() {
         return html`
             <div draggable="${!this._expandItem}" class="header"
-                    @dragstart="${() => { this._item = this.item; this._action = 'box-move'; }}" 
+                    @dragstart="${this._dragStart}" 
                     @dragend="${() => this._item = undefined}" 
                     @dragover="${this._dragover}"
                     @dragleave="${this._dragleave}">
@@ -327,6 +327,10 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         this._item = this.item;
         this._action = 'set-box-height';
         this._indexFullArea = 999;
+    }
+    _dragStart() {
+        this._item = this.item;
+        this._action = 'box-move';
     }
     _dragover(e) {
         if (this._action !== 'box-move') return;
