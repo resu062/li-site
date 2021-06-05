@@ -17,11 +17,6 @@ customElements.define('li-editor-showdown', class LiEditorShowdown extends LiEle
         this.editor.setValue(v || '');
     }
 
-    static get styles() {
-        return css`
-
-        `;
-    }
     render() {
         return html`
             <li-editor-ace ref="editor"></li-editor-ace>
