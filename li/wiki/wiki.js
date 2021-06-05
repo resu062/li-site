@@ -2,6 +2,9 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../layout-app/layout-app.js';
 import '../editor-html/editor-html.js';
+import '../editor-simplemde/editor-simplemde.js';
+import '../editor-showdown/editor-showdown.js';
+import '../viewer-md/viewer-md.js';
 import '../button/button.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
@@ -11,10 +14,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 type: Array,
                 default: [
                     { label: '000', order: 0, h: 200, type: 'html-editor', value: '000' + ' - ' + LI.ulid() },
-                    { label: '001', order: 0, h: 200, type: 'html-editor', value: '001' + ' - ' + LI.ulid()  },
-                    { label: '002', order: 0, h: 200, type: 'html-editor', value: '002' + ' - ' + LI.ulid()  },
-                    { label: '003', order: 0, h: 200, type: 'html-editor', value: '003' + ' - ' + LI.ulid()  },
-                    { label: '004', order: 0, h: 200, type: 'html-editor', value: '004' + ' - ' + LI.ulid()  },
+                    { label: '001', order: 0, h: 200, type: 'simple-mde', value: '001' + ' - ' + LI.ulid() },
+                    { label: '002', order: 0, h: 200, type: 'showdown', value: '002' + ' - ' + LI.ulid() },
                 ],
                 local: true,
                 //save: true
@@ -113,10 +114,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="panel-in">
                         ${this._lPanel === 'editors' ? html`
                             editors
-                            <li-button width="100%" @click="${this._addBox}">html</li-button>
+                            <!-- <li-button width="100%" @click="${this._addBox}">html</li-button> -->
                             <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
-                            <li-button width="100%" @click="${this._addBox}">ace-editor</li-button>
-                            <li-button width="100%" @click="${this._addBox}">md-editor</li-button>
+                            <!-- <li-button width="100%" @click="${this._addBox}">ace-editor</li-button> -->
+                            <li-button width="100%" @click="${this._addBox}">simple-mde</li-button>
+                            <li-button width="100%" @click="${this._addBox}">showdown</li-button>
                         ` : this._lPanel === 'settings' ? html`
                             settings
                         ` : html`
@@ -159,7 +161,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="splitter ${this._action === 'splitter-move' ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
                         ${(this._data || []).map(i => html`
-                            <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.value || ''}"></div>
+                            ${i.type === 'showdown' ? html`
+                                <li-viewer-md src="${i.value}" style="order:${i.order * 10}; margin-top: -12px"></li-viewer-md>
+                            ` : html`
+                                <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.htmlValue || i.value || ''}"></div>
+                            `}
                         `)}
                     </div>
                 </div>
@@ -168,7 +174,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         console.log(e.target.innerText);
-        this.data.push({ label:  e.target.innerText, order: 99999, h: 200, type: e.target.innerText, value:  e.target.innerText + ' - ' + LI.ulid() });
+        this.data.push({ label: e.target.innerText, order: 99999, h: 200, type: e.target.innerText, value: e.target.innerText + ' - ' + LI.ulid() });
         this.$update();
     }
     firstUpdated() {
@@ -256,6 +262,20 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         `;
     }
 
+    get _editor() {
+        if (!this.item) return html``;
+        switch (this.item.type) {
+            case 'html-editor':
+                return html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`;
+            case 'simple-mde':
+                return html`<li-editor-simplemde ref="ed" .item=${this.item}></li-editor-simplemde>`;
+            case 'showdown':
+                return html`<li-editor-showdown ref="ed" .item=${this.item}></li-editor-showdown>`;
+            default:
+                return html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`;
+        }
+    }
+
     render() {
         return html`
             <div draggable="${!this._expandItem}" class="header"
@@ -273,7 +293,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             </div>
             <div class="box" @dragover="${this._dragover}" @dragleave="${() => this.shadowOffset = 0}" ?hidden="${!this._expandItem && this.item?.h <= 0}"
                     style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
-                <li-editor-html ref="ed" .item=${this.item}></li-editor-html>
+                ${this._editor}
             </div>
             <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandItem}"
                     @mousedown="${this._mousedown}"
