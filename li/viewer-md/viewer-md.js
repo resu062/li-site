@@ -72,8 +72,11 @@ customElements.define('li-viewer-md', class LiViewerMD extends LiElement {
     }
     get src() { return this._src; }
 
-    firstUpdated() {
-        super.firstUpdated();
+    constructor() {
+        super();
+    // }
+    // firstUpdated() {
+    //     super.firstUpdated();
         mdShowdown = new showdown.Converter({
             ...this.optionsDefault, ...this.options,
             extensions: ['youtube', () => {
