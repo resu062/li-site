@@ -13,9 +13,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             data: {
                 type: Array,
                 default: [
-                    { label: '000', order: 0, h: 200, type: 'html-editor', value: '000' + ' - ' + LI.ulid() },
-                    { label: '001', order: 0, h: 200, type: 'simple-mde', value: '001' + ' - ' + LI.ulid() },
-                    { label: '002', order: 0, h: 200, type: 'showdown', value: '002' + ' - ' + LI.ulid() },
+                    { label: 'html-editor', order: 0, h: 120, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">i`m html-editor</div>' },
+                    { label: 'simple-mde', order: 0, h: 120, type: 'simple-mde', value: '## i`m simple-mde (markdown editor)' },
+                    { label: 'showdown', order: 0, h: 120, type: 'showdown', value: '## i`m showdown (markdown editor)' },
                 ],
                 local: true,
                 //save: true
@@ -162,7 +162,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
                         ${(this._data || []).map(i => html`
                             ${i.type === 'showdown' ? html`
-                                <li-viewer-md src="${i.value}" style="order:${i.order * 10}; margin-top: -12px"></li-viewer-md>
+                                <li-viewer-md src="${i.value || ''}" style="order:${i.order * 10}; margin-top: -12px"></li-viewer-md>
                             ` : html`
                                 <div class="res" .item="${i}" style="order:${i.order * 10}" .innerHTML="${i.htmlValue || i.value || ''}"></div>
                             `}
@@ -174,7 +174,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         console.log(e.target.innerText);
-        this.data.push({ label: e.target.innerText, order: 99999, h: 200, type: e.target.innerText, value: e.target.innerText + ' - ' + LI.ulid() });
+        this.data.push({ label: e.target.innerText, order: 99999, h: 120, type: e.target.innerText, value: '' });
         this.$update();
     }
     firstUpdated() {
