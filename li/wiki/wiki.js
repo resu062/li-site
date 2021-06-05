@@ -151,7 +151,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 ${(this._data || []).map(i => html`
                                     ${this._item === i && this._action === 'box-move' ? html`
                                         <li-wiki-box-shadow style="order:${i.order * 10}"></li-wiki-box-shadow>
-                                    ` : html`
+                                    ` : this._item === i && this._action === 'box-hide' ? html`` : html`
                                         <li-wiki-box .item="${i}" style="order:${i.order * 10}"></li-wiki-box>
                                     `}
                                 `)}                        
@@ -174,7 +174,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         console.log(e.target.innerText);
-        this.data.push({ label: e.target.innerText, order: 99999, h: 120, type: e.target.innerText, value: ' ' });
+        this.data.push({ label: e.target.innerText, order: 99999, h: 120, type: e.target.innerText, value: '' });
         this.$update();
     }
     firstUpdated() {
@@ -285,8 +285,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                     @dragleave="${this._dragleave}">
                 ${this.item?.label}
                 <div style="flex:1"></div>
-                <li-button name="expand-more" title="down" @click="${() => { this.item.order += 1.5; this.$update() }}"></li-button>
-                <li-button name="expand-less" title="up" @click="${() => { this.item.order -= 1.5; this.$update() }}"></li-button>
+                <li-button name="expand-more" title="down" @click="${() => { this._moveBox(1.5) }}"></li-button>
+                <li-button name="expand-less" title="up" @click="${() => { this._moveBox(-1.5) }}"></li-button>
                 <li-button name="fullscreen-exit" title="collapse" @click="${this._collapseBox}"></li-button>
                 <li-button name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}"></li-button>
                 <li-button name="close" title="close" @click="${this._closeBox}"></li-button>
@@ -301,17 +301,25 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             </div>
         `;
     }
-    updated(sets) {
-        if (sets.has('item')) {
-            this.$refs.ed.value = this.item.value;
-        }
+
+    _moveBox(v) {
+        this._item = this.item;
+        this._action = 'box-hide';
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                this.item.order += v;
+                this._item = undefined;
+                this._action = '';
+                this.$update();
+            })
+        }, 0);
     }
     _collapseBox() {
         if (this.item.h > 0 || this._expandItem) {
             this._h = this.item.h;
             this.item.h = 0;
         } else {
-            this.item.h = this._h || 200;
+            this.item.h = this._h || 120;
             this._h = 0;
         }
         this._expandItem = undefined;
