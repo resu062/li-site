@@ -27,6 +27,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         return css`
             .header {
                 font-weight: 700;
+                display: flex;
             }
             .panel {
                 display: flex;
@@ -80,13 +81,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     render() {
         return html`
             <div class="full-area" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indexFullArea}"></div>
-            <li-layout-app>
+            <li-layout-app hide="r">
                 <div slot="app-top" class="header">
-                    li-wiki (prototype)
+                    <div style="flex:1"></div>li-wiki (prototype)<div style="flex:1"></div>
+                    <li-button id="s06" name="filter-1" @click="${this._settings}" style="margin-right:4px"></li-button>
+                    <li-button id="s01" name="filter-2" @click="${this._settings}" style="margin-right:8px"></li-button>
                 </div>
                 <div slot="app-left" class="panel">
                     <div>
-                        <li-button name="tree-structure" title="home" @click="${() => this._lPanel = 'home'}"></li-button>
+                        <li-button name="tree-structure" title="home" @click="${() => this._lPanel = 'articles'}"></li-button>
                         <li-button name="playlist-add" title="editors" @click="${() => this._lPanel = 'editors'}"></li-button>
                         <li-button name="settings" title="settings" @click="${() => this._lPanel = 'settings'}"></li-button>
                     </div>
@@ -95,6 +98,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             editors
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            add eitor:
                             <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
                             <li-button width="100%" @click="${this._addBox}">simple-mde</li-button>
                             <li-button width="100%" @click="${this._addBox}">showdown</li-button>
@@ -117,25 +121,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="flex"><li-button id="s09" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 09. delete all hidden</div>
                             <div style="flex"><li-button id="s10" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 10. delete all</div>              
                         ` : html`
-                            home
+                            articles
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                        `}
-                    </div>
-                </div>
-                <div slot="app-right" class="panel">
-                    <div>
-                        <li-button name="" title="001" @click="${() => this._rPanel = '001'}">1</li-button>
-                        <li-button name="" title="002" @click="${() => this._rPanel = '002'}">2</li-button>
-                        <li-button name="" title="003" @click="${() => this._rPanel = '003'}">3</li-button>
-                    </div>
-                    <div class="panel-in">
-                    ${this._rPanel === '002' ? html`
-                            right-panel-002
-                        ` : this._rPanel === '003' ? html`
-                            right-panel-003
-                        ` : html`
-                            right-panel-001
+                            list of articles ...
                         `}
                     </div>
                 </div>
