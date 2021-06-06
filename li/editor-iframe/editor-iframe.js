@@ -2,7 +2,7 @@ import { html, css } from '../../lib/lit-element/lit-element.js';
 import { LiElement } from '../../li.js';
 import '../editor-ace/editor-ace.js'
 
-customElements.define('li-editor-showdown', class LiEditorShowdown extends LiElement {
+customElements.define('li-editor-iframe', class LiEditorIFrame extends LiElement {
     static get properties() {
         return {
             src: { type: String, default: '' },
@@ -33,8 +33,8 @@ customElements.define('li-editor-showdown', class LiEditorShowdown extends LiEle
     _update() {
         if (!this.$refs?.editor?.editor) return;
         this.editor = this.$refs.editor.editor;
-        this.editor.setTheme('ace/theme/solarized_light');
-        this.editor.getSession().setMode('ace/mode/markdown');
+        this.editor.setTheme('ace/theme/chrome');
+        this.editor.getSession().setMode('ace/mode/html');
         this.editor.setOptions({ fontSize: 16, maxLines: Infinity, minLines: 100, });
         this.value = this.item?.value || this.src || '';
         this.editor.getSession().on('change', () => {
