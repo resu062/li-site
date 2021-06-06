@@ -107,13 +107,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="flex"><li-button id="s01" name="check" @click="${this._settings}"></li-button> 01. hide/show editors</div>
                             <div style="flex"><li-button id="s02" name="check" @click="${this._settings}"></li-button> 02. hide all</div>
                             <div style="flex"><li-button id="s03" name="check" @click="${this._settings}"></li-button> 03. show all hidden</div>
+                            <div style="flex"><li-button id="s04" name="check" @click="${this._settings}"></li-button> 04. collapse all</div>
+                            <div style="flex"><li-button id="s05" name="check" @click="${this._settings}"></li-button> 05. expand all</div>
                             result:
-                            <div style="flex"><li-button id="s04" name="check" @click="${this._settings}"></li-button> 04. hide/show result</div>
-                            <div style="flex"><li-button id="s05" name="check" @click="${this._settings}"></li-button> 05. do not show all</div>
-                            <div style="flex"><li-button id="s06" name="check" @click="${this._settings}"></li-button> 06. show all</div>
+                            <div style="flex"><li-button id="s06" name="check" @click="${this._settings}"></li-button> 06. hide/show result</div>
+                            <div style="flex"><li-button id="s07" name="check" @click="${this._settings}"></li-button> 07. do not show all</div>
+                            <div style="flex"><li-button id="s08" name="check" @click="${this._settings}"></li-button> 08. show all</div>
                             data:
-                            <div style="flex"><li-button id="s07" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 07. delete all hidden</div>
-                            <div style="flex"><li-button id="s08" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 08. delete all</div>              
+                            <div style="flex"><li-button id="s09" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 09. delete all hidden</div>
+                            <div style="flex"><li-button id="s10" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 10. delete all</div>              
                         ` : html`
                             home
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -175,17 +177,19 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 s01: () => this._widthL = this._widthL > 0 ? 0 : w / 2,
                 s02: () => d.forEach(i => i.hidden = true),
                 s03: () => d.forEach(i => i.hidden = false),
-                s04: () => this._widthL = this._widthL >= w ? w / 2 : w,
-                s05: () => d.forEach(i => i.show = false),
-                s06: () => d.forEach(i => i.show = true),
-                s07: () => {
+                s04: () => d.forEach(i => i.collapsed = true),
+                s05: () => d.forEach(i => i.collapsed = false),
+                s06: () => this._widthL = this._widthL >= w ? w / 2 : w,
+                s07: () => d.forEach(i => i.show = false),
+                s08: () => d.forEach(i => i.show = true),
+                s09: () => {
                     let hidden = 0;
                     d.forEach(i => { if (i.hidden) ++hidden })
                     if (hidden && window.confirm(`Do you really want delete ${hidden} hidden box?`)) {
                         this.data = d.filter(i => !i.hidden);
                     }
                 },
-                s08: () => { if (window.confirm(`Do you really want delete all?`)) this.data = [] }
+                s10: () => { if (window.confirm(`Do you really want delete all?`)) this.data = [] }
             }
         if (s[id]) {
             s[id]();
@@ -314,7 +318,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                         title="show in result" back="transparent"></li-checkbox>
                     <li-button name="close" title="hide box" @click="${this._hideBox}"></li-button>
                 </div>
-                <div class="box" ?hidden="${!this._expandItem && this.item?.h <= 0}"
+                <div class="box" ?hidden="${!this._expandItem && (this.item?.h <= 0 || this.item.collapsed)}"
                         style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
                     ${this._editor}
                 </div>
@@ -342,13 +346,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         }, 0);
     }
     _collapseBox() {
-        if (this.item.h > 0 || this._expandItem) {
-            this._h = this.item.h;
-            this.item.h = 0;
-        } else {
-            this.item.h = this._h || 120;
-            this._h = 0;
-        }
+        this.item.collapsed = !this.item.collapsed;
         this._expandItem = undefined;
         this.requestUpdate();
     }
