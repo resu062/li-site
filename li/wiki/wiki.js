@@ -5,7 +5,50 @@ import '../editor-html/editor-html.js';
 import '../editor-simplemde/editor-simplemde.js';
 import '../editor-showdown/editor-showdown.js';
 import '../viewer-md/viewer-md.js';
+import '../editor-iframe/editor-iframe.js';
 import '../button/button.js';
+
+const chartjs = `
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<canvas id="myChart" width="400" height="140"></canvas>
+<script>
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+`
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -16,6 +59,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     { label: 'html-editor', h: 120, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">HTML editor</div>' },
                     { label: 'simple-mde', h: 120, type: 'simple-mde', value: '## SimpleMDE (markdown editor)' },
                     { label: 'showdown', h: 120, type: 'showdown', value: '## Showdown (markdown editor)' },
+                    { label: 'iframe', h: 48, type: 'iframe', value: `<div style="font-family: Arial;font-size: 24px;font-weight:700;color:blue">
+    Demo CahrtJS in iFrame:
+</div>`},
+                    { label: 'iframe', h: 320, type: 'iframe', value: chartjs },
                 ],
                 local: true,
                 //save: true
@@ -103,6 +150,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
                             <li-button width="100%" @click="${this._addBox}">simple-mde</li-button>
                             <li-button width="100%" @click="${this._addBox}">showdown</li-button>
+                            <li-button width="100%" @click="${this._addBox}">iframe</li-button>
                         ` : this._lPanel === 'settings' ? html`
                             settings
                         ` : html`
@@ -147,7 +195,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         ${(this.data || []).map(i => html`
                             ${i.type === 'showdown' ? html`
                                 <li-viewer-md src="${i.value || ''}"></li-viewer-md>
-                            ` : html`
+                            ` : i.type === 'iframe' ? html`<iframe .srcdoc="${i.htmlValue || i.value || ''}" style="width:100%;border: none; height: ${i.h + 'px' || 'auto'}"></iframe>` : html`
                                 <div class="res" .item="${i}" .innerHTML="${i.htmlValue || i.value || ''}"></div>
                             `}
                         `)}
@@ -254,6 +302,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                 return html`<li-editor-simplemde ref="ed" .item=${this.item}></li-editor-simplemde>`;
             case 'showdown':
                 return html`<li-editor-showdown ref="ed" .item=${this.item}></li-editor-showdown>`;
+            case 'iframe':
+                return html`<li-editor-iframe ref="ed" .item=${this.item}></li-editor-iframe>`;
             default:
                 return html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`;
         }
