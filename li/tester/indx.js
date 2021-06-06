@@ -273,12 +273,6 @@ export const indx = {
     },
     'property-grid': [{ label: 'index', url: url + '/property-grid' }],
 
-    'li-app': { label: 'li-app' },
-    app: [{ label: 'index', url: url + '/app' }],
-
-    'li-wiki': { label: 'li-wiki (prototype)' },
-    wiki: [{ label: 'index', url: url + '/wiki' }],
-
     'li-chart': {
         label: 'li-chart (chart.js)', props: {
             type: 'bar',
@@ -351,4 +345,10 @@ export const indx = {
 
     'li-gallery': { label: 'image gallery', props: { iframe: '../gallery/index.html' } },
     'gallery': [{ label: 'index', url: url + '/gallery/index.html' }],
+
+    'li-app': { label: 'li-app' },
+    app: [{ label: 'index', url: url + '/app' }],
+    
+    'li-wiki': { label: 'li-wiki (prototype)', props: { iframe: '../wiki/index.html' } },
+    dropdown: [{ label: 'index', url: url + '/wiki' }],
 }
