@@ -7,66 +7,12 @@ import '../editor-showdown/editor-showdown.js';
 import '../viewer-md/viewer-md.js';
 import '../editor-iframe/editor-iframe.js';
 import '../button/button.js';
-
-const chartjs = `
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<canvas id="myChart" width="400" height="140"></canvas>
-<script>
-var ctx = document.getElementById('myChart').getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
-});
-</script>
-`
+import '../checkbox/checkbox.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
         return {
-            data: {
-                type: Array,
-                default: [
-                    { label: 'html-editor', h: 120, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">HTML editor</div>' },
-                    { label: 'simple-mde', h: 120, type: 'simple-mde', value: '## SimpleMDE (markdown editor)' },
-                    { label: 'showdown', h: 120, type: 'showdown', value: '## Showdown (markdown editor)' },
-                    { label: 'iframe', h: 48, type: 'iframe', value: `<div style="font-family: Arial;font-size: 24px;font-weight:700;color:blue">
-    Demo CahrtJS in iFrame:
-</div>`},
-                    { label: 'iframe', h: 320, type: 'iframe', value: chartjs },
-                ],
-                local: true,
-                //save: true
-            },
+            data: { type: Array, local: true },
             _item: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
@@ -147,14 +93,31 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="panel-in">
                         ${this._lPanel === 'editors' ? html`
                             editors
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
                             <li-button width="100%" @click="${this._addBox}">simple-mde</li-button>
                             <li-button width="100%" @click="${this._addBox}">showdown</li-button>
                             <li-button width="100%" @click="${this._addBox}">iframe</li-button>
                         ` : this._lPanel === 'settings' ? html`
                             settings
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            editors:
+                            <div style="flex"><li-button id="s01" name="check" @click="${this._settings}"></li-button> 01. hide/show editors</div>
+                            <div style="flex"><li-button id="s02" name="check" @click="${this._settings}"></li-button> 02. hide all</div>
+                            <div style="flex"><li-button id="s03" name="check" @click="${this._settings}"></li-button> 03. show all hidden</div>
+                            result:
+                            <div style="flex"><li-button id="s04" name="check" @click="${this._settings}"></li-button> 04. hide/show result</div>
+                            <div style="flex"><li-button id="s05" name="check" @click="${this._settings}"></li-button> 05. do not show all</div>
+                            <div style="flex"><li-button id="s06" name="check" @click="${this._settings}"></li-button> 06. show all</div>
+                            data:
+                            <div style="flex"><li-button id="s07" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 07. delete all hidden</div>
+                            <div style="flex"><li-button id="s08" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 08. delete all</div>              
                         ` : html`
                             home
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                         `}
                     </div>
                 </div>
@@ -193,7 +156,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="splitter ${this._action === 'splitter-move' ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
                         ${(this.data || []).map(i => html`
-                            ${i.type === 'showdown' ? html`
+                            ${!i.show ? html`` : i.type === 'showdown' ? html`
                                 <li-viewer-md src="${i.value || ''}"></li-viewer-md>
                             ` : i.type === 'iframe' ? html`<iframe .srcdoc="${i.htmlValue || i.value || ''}" style="width:100%;border: none; height: ${i.h + 'px' || 'auto'}"></iframe>` : html`
                                 <div class="res" .item="${i}" .innerHTML="${i.htmlValue || i.value || ''}"></div>
@@ -204,9 +167,34 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             </li-layout-app>
         `;
     }
+    _settings(e) {
+        const id = e.target.id,
+            w = this.$id.main.offsetWidth,
+            d = this.data || [],
+            s = {
+                s01: () => this._widthL = this._widthL > 0 ? 0 : w / 2,
+                s02: () => d.forEach(i => i.hidden = true),
+                s03: () => d.forEach(i => i.hidden = false),
+                s04: () => this._widthL = this._widthL >= w ? w / 2 : w,
+                s05: () => d.forEach(i => i.show = false),
+                s06: () => d.forEach(i => i.show = true),
+                s07: () => {
+                    let hidden = 0;
+                    d.forEach(i => { if (i.hidden) ++hidden })
+                    if (hidden && window.confirm(`Do you really want delete ${hidden} hidden box?`)) {
+                        this.data = d.filter(i => !i.hidden);
+                    }
+                },
+                s08: () => { if (window.confirm(`Do you really want delete all?`)) this.data = [] }
+            }
+        if (s[id]) {
+            s[id]();
+            this.$update();
+        }
+    }
     _addBox(e) {
-        console.log(e.target.innerText);
-        this.data.push({ label: e.target.innerText, h: 120, type: e.target.innerText, value: '' });
+        const txt = e.target.innerText;
+        this.data.push({ label: txt, h: 120, type: txt, value: '' });
         this.$update();
     }
     firstUpdated() {
@@ -311,26 +299,30 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
 
     render() {
         return html`
-            <div draggable="${!this._expandItem}" class="header"
-                    @dragstart="${this._dragStart}" 
-                    @dragend="${() => this._item = undefined}" 
-                    @dragover="${this._dragover}">
-                ${this.item?.label}
-                <div style="flex:1"></div>
-                <li-button name="expand-more" title="down" @click="${() => { this._moveBox(1) }}"></li-button>
-                <li-button name="expand-less" title="up" @click="${() => { this._moveBox(-1) }}"></li-button>
-                <li-button name="fullscreen-exit" title="collapse" @click="${this._collapseBox}"></li-button>
-                <li-button name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}"></li-button>
-                <li-button name="close" title="close" @click="${this._removeBox}"></li-button>
-            </div>
-            <div class="box" ?hidden="${!this._expandItem && this.item?.h <= 0}"
-                    style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
-                ${this._editor}
-            </div>
-            <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandItem}"
-                    @mousedown="${this._mousedown}"
-                    @dragover="${this._dragover}">
-            </div>
+            ${this.item.hidden ? html`` : html`
+                <div draggable="${!this._expandItem}" class="header"
+                        @dragstart="${this._dragStart}" 
+                        @dragend="${() => this._item = undefined}" 
+                        @dragover="${this._dragover}">
+                    ${this.item?.label}
+                    <div style="flex:1"></div>
+                    <li-button name="expand-more" title="down" @click="${() => { this._moveBox(1) }}"></li-button>
+                    <li-button name="expand-less" title="up" @click="${() => { this._moveBox(-1) }}"></li-button>
+                    <li-button name="fullscreen-exit" title="collapse" @click="${this._collapseBox}"></li-button>
+                    <li-button name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}"></li-button>
+                    <li-checkbox @click="${(e) => this.item.show = e.target.toggled}" ?toggled="${this.item.show}" 
+                        title="show in result" back="transparent"></li-checkbox>
+                    <li-button name="close" title="hide box" @click="${this._hideBox}"></li-button>
+                </div>
+                <div class="box" ?hidden="${!this._expandItem && this.item?.h <= 0}"
+                        style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
+                    ${this._editor}
+                </div>
+                <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandItem}"
+                        @mousedown="${this._mousedown}"
+                        @dragover="${this._dragover}">
+                </div>
+            `}
         `;
     }
 
@@ -360,19 +352,11 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         this._expandItem = undefined;
         this.requestUpdate();
     }
-    _removeBox() {
-        if (window.confirm(`Do you really want delete box-${this.item.label} ?`)) {
-            this._item = this.item;
-            this._action = 'box-hide';
-            setTimeout(() => {
-                requestAnimationFrame(() => {
-                    this.data.splice(this.data.indexOf(this.item), 1);
-                    this._item = undefined;
-                    this._action = '';
-                    this.$update();
-                })
-            }, 0);
-        }
+    _hideBox() {
+        this.item.hidden = true;
+        this._expandItem = undefined;
+        this.$update();
+        return;
     }
     _mousedown(e) {
         this._item = this.item;

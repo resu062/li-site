@@ -4,6 +4,7 @@
     html * {
         font-family: Arial;
     }
+
     html,
     body {
         margin: 0;
@@ -12,6 +13,20 @@
     }
 </style>
 
-<body style="margin:0">
-    <li-wiki id="wiki"></li-wiki>
-</body>
+
+<li-wiki id="wiki"></li-wiki>
+
+<script type="module">
+    import data from './data.js';
+
+    wiki.data = [
+        { label: 'html-editor', show: true, h: 120, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">HTML editor</div>' },
+        { label: 'simple-mde', show: true, h: 120, type: 'simple-mde', value: '## SimpleMDE (markdown editor)' },
+        { label: 'showdown', show: true, h: 120, type: 'showdown', value: '## Showdown (markdown editor)' },
+        { label: 'iframe', show: true, h: 48, type: 'iframe', value: `<div style="font-family: Arial;font-size: 24px;font-weight:700;color:blue">
+    Demo CahrtJS in iFrame:
+</div>`},
+        { label: 'iframe', show: true, h: 320, type: 'iframe', value: data }
+    ]
+
+</script>
