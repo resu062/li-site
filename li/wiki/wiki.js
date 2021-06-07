@@ -86,6 +86,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 <div slot="app-top" class="header">
                     <div style="flex:1"></div>li-wiki (prototype)<div style="flex:1"></div>
                     <li-button id="s06" name="filter-1" @click="${this._settings}" style="margin-right:4px"></li-button>
+                    <li-button id="s00" name="view-agenda" rotate="90" @click="${this._settings}" style="margin-right:4px"></li-button>
                     <li-button id="s01" name="filter-2" @click="${this._settings}" style="margin-right:8px"></li-button>
                 </div>
                 <div slot="app-left" class="panel">
@@ -165,6 +166,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             w = this.$id.main.offsetWidth,
             d = this.data || [],
             s = {
+                s00: () => this._widthL = w / 2,
                 s01: () => this._widthL = this._widthL > 0 ? 0 : w / 2,
                 s02: () => d.forEach(i => i.hidden = true),
                 s03: () => d.forEach(i => i.hidden = false),
