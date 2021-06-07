@@ -166,13 +166,13 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             w = this.$id.main.offsetWidth,
             d = this.data || [],
             s = {
-                s00: () => this._widthL = w / 2,
-                s01: () => this._widthL = this._widthL > 0 ? 0 : w / 2,
+                s00: () => this._widthL = w / 2 - 20,
+                s01: () => this._widthL = this._widthL > 0 ? 0 : w / 2 - 20,
                 s02: () => d.forEach(i => i.hidden = true),
                 s03: () => d.forEach(i => i.hidden = false),
                 s04: () => d.forEach(i => i.collapsed = true),
                 s05: () => d.forEach(i => i.collapsed = false),
-                s06: () => this._widthL = this._widthL >= w ? w / 2 : w,
+                s06: () => this._widthL = this._widthL >= w ? w / 2 - 20 : w,
                 s07: () => d.forEach(i => i.show = false),
                 s08: () => d.forEach(i => i.show = true),
                 s09: () => {
