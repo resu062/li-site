@@ -182,7 +182,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         this.data = d.filter(i => !i.hidden);
                     }
                 },
-                s10: () => { if (window.confirm(`Do you really want delete all?`)) this.data = [] }
+                s10: () => { if (window.confirm(`Do you really want delete all?`)) this.data = []; this._expandItem = undefined }
             }
         if (s[id]) {
             s[id]();
