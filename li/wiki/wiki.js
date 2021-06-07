@@ -301,7 +301,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                         @dragstart="${this._dragStart}" 
                         @dragend="${() => this._item = undefined}" 
                         @dragover="${this._dragover}">
-                    ${this.idx + '. ' + this.item?.label}
+                    ${(this.idx || 0) + 1 + '. ' + this.item?.label}
                     <div style="flex:1"></div>
                     <li-button class="btn" name="expand-more" title="down" @click="${() => { this._moveBox(1) }}"></li-button>
                     <li-button class="btn" name="expand-less" title="up" @click="${() => { this._moveBox(-1) }}"></li-button>
