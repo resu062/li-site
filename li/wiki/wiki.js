@@ -108,18 +108,18 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             editors:
-                            <div style="flex"><li-button id="s01" name="check" @click="${this._settings}"></li-button> 01. hide/show editors</div>
-                            <div style="flex"><li-button id="s02" name="check" @click="${this._settings}"></li-button> 02. hide all</div>
-                            <div style="flex"><li-button id="s03" name="check" @click="${this._settings}"></li-button> 03. show all hidden</div>
-                            <div style="flex"><li-button id="s04" name="check" @click="${this._settings}"></li-button> 04. collapse all</div>
-                            <div style="flex"><li-button id="s05" name="check" @click="${this._settings}"></li-button> 05. expand all</div>
+                            <div style="flex"><li-button id="s01" @click="${this._settings}">01</li-button> hide/show editors</div>
+                            <div style="flex"><li-button id="s02" @click="${this._settings}">02</li-button> hide all</div>
+                            <div style="flex"><li-button id="s03" @click="${this._settings}">03</li-button> show all hidden</div>
+                            <div style="flex"><li-button id="s04" @click="${this._settings}">04</li-button> collapse all</div>
+                            <div style="flex"><li-button id="s05" @click="${this._settings}">05</li-button> expand all</div>
                             result:
-                            <div style="flex"><li-button id="s06" name="check" @click="${this._settings}"></li-button> 06. hide/show result</div>
-                            <div style="flex"><li-button id="s07" name="check" @click="${this._settings}"></li-button> 07. do not show all</div>
-                            <div style="flex"><li-button id="s08" name="check" @click="${this._settings}"></li-button> 08. show all</div>
+                            <div style="flex"><li-button id="s06" @click="${this._settings}">06</li-button> hide/show result</div>
+                            <div style="flex"><li-button id="s07" @click="${this._settings}">07</li-button> do not show all</div>
+                            <div style="flex"><li-button id="s08" @click="${this._settings}">08</li-button> show all</div>
                             data:
-                            <div style="flex"><li-button id="s09" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 09. delete all hidden</div>
-                            <div style="flex"><li-button id="s10" name="check" @click="${this._settings}" fill="tomato" borderColor="tomato"></li-button> 10. delete all</div>              
+                            <div style="flex"><li-button id="s09" @click="${this._settings}" fill="tomato" borderColor="tomato">09</li-button> delete all hidden</div>
+                            <div style="flex"><li-button id="s10" @click="${this._settings}" fill="tomato" borderColor="tomato">10</li-button> delete all</div>              
                         ` : html`
                             articles
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -187,7 +187,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         const txt = e.target.innerText;
-        this.data.push({ label: txt, h: 120, type: txt, value: '' });
+        this.data.push({ label: txt, show: true, h: 120, type: txt, value: '' });
         this.$update();
     }
     firstUpdated() {
@@ -271,23 +271,20 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             .bottomSplitter:hover, .bottomSplitter-move {
                 background-color: lightgray
             }
+            .btn {
+                opacity: .4;
+            }
         `;
     }
 
     get _editor() {
-        if (!this.item) return html``;
-        switch (this.item.type) {
-            case 'html-editor':
-                return html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`;
-            case 'simple-mde':
-                return html`<li-editor-simplemde ref="ed" .item=${this.item}></li-editor-simplemde>`;
-            case 'showdown':
-                return html`<li-editor-showdown ref="ed" .item=${this.item}></li-editor-showdown>`;
-            case 'iframe':
-                return html`<li-editor-iframe ref="ed" .item=${this.item}></li-editor-iframe>`;
-            default:
-                return html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`;
+        const editors = {
+            'html-editor': html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`,
+            'simple-mde': html`<li-editor-simplemde ref="ed" .item=${this.item}></li-editor-simplemde>`,
+            'showdown': html`<li-editor-showdown ref="ed" .item=${this.item}></li-editor-showdown>`,
+            'iframe': html`<li-editor-iframe ref="ed" .item=${this.item}></li-editor-iframe>`
         }
+        return editors[this.item?.type] || editors[this.item?.label] || editors['iframe'];
     }
 
     render() {
@@ -299,13 +296,13 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                         @dragover="${this._dragover}">
                     ${this.item?.label}
                     <div style="flex:1"></div>
-                    <li-button name="expand-more" title="down" @click="${() => { this._moveBox(1) }}"></li-button>
-                    <li-button name="expand-less" title="up" @click="${() => { this._moveBox(-1) }}"></li-button>
-                    <li-button name="fullscreen-exit" title="collapse" @click="${this._collapseBox}"></li-button>
-                    <li-button name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}"></li-button>
-                    <li-checkbox @click="${(e) => this.item.show = e.target.toggled}" ?toggled="${this.item.show}" 
+                    <li-button class="btn" name="expand-more" title="down" @click="${() => { this._moveBox(1) }}"></li-button>
+                    <li-button class="btn" name="expand-less" title="up" @click="${() => { this._moveBox(-1) }}"></li-button>
+                    <li-button class="btn" name="fullscreen-exit" title="collapse" @click="${this._collapseBox}"></li-button>
+                    <li-button class="btn" name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}"></li-button>
+                    <li-checkbox class="btn" @click="${(e) => this.item.show = e.target.toggled}" ?toggled="${this.item.show}" 
                         title="show in result" back="transparent"></li-checkbox>
-                    <li-button name="close" title="hide box" @click="${this._hideBox}"></li-button>
+                    <li-button class="btn" name="close" title="hide box" @click="${this._hideBox}"></li-button>
                 </div>
                 <div class="box" ?hidden="${!this._expandItem && (this.item?.h <= 0 || this.item.collapsed)}"
                         style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">

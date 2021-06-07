@@ -114,7 +114,7 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
         this.editor = ace.edit(ed, { autoScrollEditorIntoView: true });
         this.editor.setTheme('ace/theme/' + this.theme);
         this.editor.getSession().setMode('ace/mode/' + this.mode);
-        this.editor.setValue(this.src);
+        this.editor.setValue(this.src, -1);
         this.editor.renderer.attachToShadowRoot();
         this.editor.setOptions({ maxLines: 40, minLines: 40, fontSize: 20 });
         this.editor.session.selection.clearSelection();

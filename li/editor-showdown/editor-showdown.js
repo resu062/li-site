@@ -14,7 +14,7 @@ customElements.define('li-editor-showdown', class LiEditorShowdown extends LiEle
         return this.editor.getValue() || '';
     }
     set value(v) {
-        this.editor.setValue(v || '');
+        this.editor.setValue(v || '', -1);
     }
 
     render() {
