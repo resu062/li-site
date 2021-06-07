@@ -113,7 +113,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             editors:
                             <div style="flex"><li-button id="s01" @click="${this._settings}">01</li-button> hide/show editors</div>
                             <div style="flex"><li-button id="s02" @click="${this._settings}">02</li-button> hide all</div>
-                            <div style="flex"><li-button id="s03" @click="${this._settings}">03</li-button> show all hidden</div>
+                            <div style="flex"><li-button id="s03" @click="${this._settings}">03</li-button> show all</div>
                             <div style="flex"><li-button id="s04" @click="${this._settings}">04</li-button> collapse all</div>
                             <div style="flex"><li-button id="s05" @click="${this._settings}">05</li-button> expand all</div>
                             result:
@@ -137,11 +137,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             ${this._expandItem ? html`
                                 <li-wiki-box .item="${this._expandItem}" style="height: calc(100% - 40px);"></li-wiki-box>
                             ` : html`
-                                ${(this.data || []).map(i => html`
+                                ${(this.data || []).map((i, idx) => html`
                                     ${this._item === i && this._action === 'box-move' ? html`
-                                    <li-wiki-box-shadow style="order:${i.order * 10}"></li-wiki-box-shadow>
+                                    <li-wiki-box-shadow></li-wiki-box-shadow>
                                     ` : this._item === i && this._action === 'box-hide' ? html`` : html`
-                                        <li-wiki-box .item="${i}" style="order:${i.order * 10}"></li-wiki-box>
+                                        <li-wiki-box .item="${i}" .idx="${idx}"></li-wiki-box>
                                     `}
                                 `)}                        
                             `}
@@ -236,6 +236,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             _action: { type: String, local: true },
             _expandItem: { type: Object, local: true },
             data: { type: Array, local: true },
+            idx: { type: Number, default: 0 }
         }
     }
 
@@ -254,6 +255,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                 height: 32px;
                 overflow: hidden;
                 white-space: nowrap;
+                color: gray;
             }
             .box {
                 border: 1px solid #666;
@@ -299,7 +301,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                         @dragstart="${this._dragStart}" 
                         @dragend="${() => this._item = undefined}" 
                         @dragover="${this._dragover}">
-                    ${this.item?.label}
+                    ${this.idx + '. ' + this.item?.label}
                     <div style="flex:1"></div>
                     <li-button class="btn" name="expand-more" title="down" @click="${() => { this._moveBox(1) }}"></li-button>
                     <li-button class="btn" name="expand-less" title="up" @click="${() => { this._moveBox(-1) }}"></li-button>
