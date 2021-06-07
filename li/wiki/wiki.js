@@ -118,11 +118,12 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="flex"><li-button id="s05" @click="${this._settings}">05</li-button> expand all</div>
                             result:
                             <div style="flex"><li-button id="s06" @click="${this._settings}">06</li-button> hide/show result</div>
-                            <div style="flex"><li-button id="s07" @click="${this._settings}">07</li-button> do not show all</div>
-                            <div style="flex"><li-button id="s08" @click="${this._settings}">08</li-button> show all</div>
+                            <div style="flex"><li-button id="s07" @click="${this._settings}">07</li-button> invisible all</div>
+                            <div style="flex"><li-button id="s08" @click="${this._settings}">08</li-button> visible all</div>
                             data:
                             <div style="flex"><li-button id="s09" @click="${this._settings}" fill="tomato" borderColor="tomato">09</li-button> delete all hidden</div>
-                            <div style="flex"><li-button id="s10" @click="${this._settings}" fill="tomato" borderColor="tomato">10</li-button> delete all</div>              
+                            <div style="flex"><li-button id="s10" @click="${this._settings}" fill="tomato" borderColor="tomato">10</li-button> delete all invisible</div>
+                            <div style="flex"><li-button id="s11" @click="${this._settings}" fill="tomato" borderColor="tomato">11</li-button> delete all</div>              
                         ` : html`
                             articles
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -182,7 +183,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         this.data = d.filter(i => !i.hidden);
                     }
                 },
-                s10: () => { if (window.confirm(`Do you really want delete all?`)) this.data = []; this._expandItem = undefined }
+                s10: () => {
+                    let invisible = 0;
+                    d.forEach(i => { if (!i.show) ++invisible })
+                    if (invisible && window.confirm(`Do you really want delete ${invisible} invisible box?`)) {
+                        this.data = d.filter(i => i.show);
+                    }
+                },
+                s11: () => { if (window.confirm(`Do you really want delete all?`)) this.data = []; this._expandItem = undefined }
             }
         if (s[id]) {
             s[id]();
