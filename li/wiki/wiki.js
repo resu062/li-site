@@ -98,8 +98,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     </div>
                     <div class="panel-in">
                         ${this._lPanel === 'editors' ? html`
-                            editors
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <b>editors</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             add editor:
                             <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
@@ -108,8 +107,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <li-button width="100%" @click="${this._addBox}">showdown</li-button>
                             <li-button width="100%" @click="${this._addBox}">iframe</li-button>
                         ` : this._lPanel === 'actions' ? html`
-                            actions
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <b>actions</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             editors:
                             <div style="flex"><li-button id="s01" @click="${this._settings}">01</li-button> hide/show editors</div>
@@ -126,8 +124,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="flex"><li-button id="s10" @click="${this._settings}" fill="tomato" borderColor="tomato">10</li-button> delete all invisible</div>
                             <div style="flex"><li-button id="s11" @click="${this._settings}" fill="tomato" borderColor="tomato">11</li-button> delete all</div>              
                         ` : this._lPanel === 'settings' ? html`
-                            settings
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div>db name:</div>
                             <div>db ip:</div>
@@ -136,8 +133,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div>password:</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                         ` : html`
-                            articles
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <b>articles</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div>
                                 <li-button name="library-add" title="new file" size="20"></li-button>
