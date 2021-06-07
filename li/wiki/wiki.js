@@ -6,6 +6,7 @@ import '../editor-simplemde/editor-simplemde.js';
 import '../editor-showdown/editor-showdown.js';
 import '../viewer-md/viewer-md.js';
 import '../editor-iframe/editor-iframe.js';
+import '../editor-suneditor/editor-suneditor.js';
 import '../button/button.js';
 import '../checkbox/checkbox.js';
 
@@ -100,6 +101,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             add eitor:
                             <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
+                            <li-button width="100%" @click="${this._addBox}">suneditor</li-button>
                             <li-button width="100%" @click="${this._addBox}">simple-mde</li-button>
                             <li-button width="100%" @click="${this._addBox}">showdown</li-button>
                             <li-button width="100%" @click="${this._addBox}">iframe</li-button>
@@ -280,6 +282,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     get _editor() {
         const editors = {
             'html-editor': html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`,
+            'suneditor': html`<li-editor-suneditor ref="ed" .item=${this.item}></li-editor-suneditor>`,
             'simple-mde': html`<li-editor-simplemde ref="ed" .item=${this.item}></li-editor-simplemde>`,
             'showdown': html`<li-editor-showdown ref="ed" .item=${this.item}></li-editor-showdown>`,
             'iframe': html`<li-editor-iframe ref="ed" .item=${this.item}></li-editor-iframe>`
