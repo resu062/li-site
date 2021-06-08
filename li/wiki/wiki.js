@@ -9,6 +9,7 @@ import '../editor-iframe/editor-iframe.js';
 import '../editor-suneditor/editor-suneditor.js';
 import '../button/button.js';
 import '../checkbox/checkbox.js';
+import '../layout-tree/layout-tree.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -21,6 +22,18 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _expandItem: { type: Object, local: true },
             _lPanel: { type: String, default: 'home' },
             _rPanel: { type: String, default: '' },
+            selected: { type: Object, default: {}, local: true },
+            treeList: {
+                type: Object, default: {
+                    items: [
+                        {
+                            ulid: '01F7N9EXTGQBD6RPGQQ9W2PJWB', label: 'wiki', expanded: true, items: [
+                                { ulid: '01F7N9EXTG38E7MQCHZS2DR8EM', label: 'demo-article',  }
+                            ]
+                        }
+                    ]
+                }
+            }
         }
     }
 
@@ -142,7 +155,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <li-button name="unfold-less" title="collapse all" size="20"></li-button>
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            list of articles ...
+                            <li-layout-tree .item="${this.treeList}" allowCheck iconSize="20"></li-layout-tree>
                         `}
                     </div>
                 </div>
@@ -218,6 +231,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     firstUpdated() {
         super.firstUpdated();
+        this.selected = this.treeList.items[0].items[0];
         setTimeout(() => {
             if (!this._widthL && this._widthL !== 0) this._widthL = 800;
             else this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
