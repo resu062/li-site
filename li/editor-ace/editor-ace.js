@@ -9,7 +9,7 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
             src: { type: String, default: '' },
             mode: {
                 type: String,
-                default: 'javascript',
+                default: 'html',
                 list: [
                     'abap', 'abc', 'actionscript', 'ada', 'apache_conf', 'apex', 'applescript', 'aql', 'asciidoc', 'asl', 'assembly_x86',
                     'autohotkey', 'batchfile', 'bro', 'c9search', 'cirru', 'clojure', 'cobol', 'coffee', 'coldfusion',
@@ -30,7 +30,7 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
             }, 
             theme: {
                 type: String,
-                default: 'solarized_light',
+                default: 'chrome', // 'solarized_light',
                 list: ['ambiance', 'chaos', 'chrome', 'clouds', 'clouds_midnight', 'cobalt', 'crimson_editor', 'dawn', 'dracula',
                     'dreamweaver', 'eclipse', 'github', 'gob', 'gruvbox', 'idle_fingers', 'iplastic', 'katzenmilch', 'kr_theme', 'kuroir',
                     'merbivore', 'merbivore_soft', 'monokai', 'mono_industrial', 'pastel_on_dark', 'solarized_dark',
@@ -41,8 +41,8 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
             options: {
                 type: Object,
                 default: {
-                    mode: 'ace/mode/javascript',
-                    theme: 'ace/theme/solarized_light',
+                    mode: 'ace/mode/html',
+                    theme: 'ace/theme/chrome', // 'solarized_light',
                     highlightActiveLine: true,
                     highlightSelectedWord: true,
                     readOnly: false,
@@ -106,6 +106,13 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
     firstUpdated() {
         super.firstUpdated();
         this._update();
+    }
+
+    updated(changedProperties) {
+        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
+            this.editor.setValue(this.src, -1);
+            this.$update();
+        }
     }
 
     _update() {

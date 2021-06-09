@@ -129,6 +129,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         ` : this._lPanel === 'settings' ? html`
                             <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <div style="color:gray; opacity: 0.7">version: 0.1.1</div>
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div>db name:</div>
                             <div>db ip:</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -307,7 +309,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
 
     get _editor() {
         const editors = {
-            'html-editor': html`<li-editor-html ref="ed" .item=${this.item}></li-editor-html>`,
+            'html-editor': html`<li-editor-html ref="ed" .item=${this.item} .src="${this.item.value}"></li-editor-html>`,
             'suneditor': html`<li-editor-suneditor ref="ed" .item=${this.item}></li-editor-suneditor>`,
             'simple-mde': html`<li-editor-simplemde ref="ed" .item=${this.item}></li-editor-simplemde>`,
             'showdown': html`<li-editor-showdown ref="ed" .item=${this.item}></li-editor-showdown>`,
@@ -351,13 +353,13 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         if (v === -1 && indx === 0 || v === 1 && indx === this.data.length - 1) return;
         this.item.hidden = true;
         this._item = this.item;
-        requestAnimationFrame(() => {
+       requestAnimationFrame(() => {
             let itm = this.data.splice(this.data.indexOf(this.item), 1);
             this.data.splice(indx + v, 0, itm[0]);
             this._item.hidden = false;
             this._item = undefined;
             this.$update();
-        })
+       })
     }
     _collapseBox() {
         this.item.collapsed = !this.item.collapsed;

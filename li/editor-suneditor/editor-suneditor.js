@@ -29,7 +29,13 @@ customElements.define('li-editor-suneditor', class LiEditorSunEditor extends LiE
         setTimeout(() => {
             this._update();
         }, 100);
-        
+    }
+
+    updated(changedProperties) {
+        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
+            this.value = this.item?.value || this.src || '';
+            this.$update();
+        }
     }
 
     _update() {

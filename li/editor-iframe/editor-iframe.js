@@ -29,6 +29,13 @@ customElements.define('li-editor-iframe', class LiEditorIFrame extends LiElement
             this._update();
         }, 100);
     }
+    
+    updated(changedProperties) {
+        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
+            this.value = this.item?.value || this.src || '';
+            this.$update();
+        }
+    }
 
     _update() {
         if (!this.$refs?.editor?.editor) return;
