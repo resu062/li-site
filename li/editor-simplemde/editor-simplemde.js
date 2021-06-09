@@ -30,6 +30,13 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
         this._update();
     }
 
+    updated(changedProperties) {
+        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
+            this.value = this.item?.value || this.src || '';
+            this.$update();
+        }
+    }
+
     _update() {
         this.editor = new SimpleMDE({
             element: this.$refs.editor,

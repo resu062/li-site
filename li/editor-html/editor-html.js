@@ -70,6 +70,13 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
         this._update();
     }
 
+    updated(changedProperties) {
+        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
+            this.value = this.item?.value || this.src || '';
+            this.$update();
+        }
+    }
+
     _update() {
         if (!this.editor)
             this.editor = pell.init({
