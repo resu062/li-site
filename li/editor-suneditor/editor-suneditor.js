@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import 'https://cdn.jsdelivr.net/npm/suneditor@latest/dist/suneditor.min.js';
 
 customElements.define('li-editor-suneditor', class LiEditorSunEditor extends LiElement {

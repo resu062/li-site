@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import '../../lib/simplemde/simplemde.min.js'
 
 customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiElement {

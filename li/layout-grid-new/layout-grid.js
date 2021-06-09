@@ -1,5 +1,5 @@
-import { html, css, svg } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css, svg } from '../../li.js';
+
 import '../button/button.js';
 
 customElements.define('li-layout-grid', class LiLayoutGrid extends LiElement {

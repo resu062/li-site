@@ -1,5 +1,5 @@
-import { html } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html } from '../../li.js';
+
 import './src/apexcharts.js';
 
 customElements.define('li-chart-apex', class LiAceEditor extends LiElement {

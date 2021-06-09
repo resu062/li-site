@@ -1,6 +1,4 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
-import { styleMap } from '../../lib/lit-html/directives/style-map.js';
+import { LiElement, html, css, styleMap } from '../../li.js';
 
 customElements.define('li-dropdown', class LiDropdown extends LiElement {
     static get properties() {

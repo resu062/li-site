@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import '../layout-app/layout-app.js';
 import '../property-grid/property-grid.js';
 import '../monitor/monitor.js';
@@ -42,7 +42,7 @@ customElements.define('li-l-system', class LiLSystem extends LiElement {
 
     constructor() {
         super();
-        this.constructor._classProperties.get('name').list = Object.keys(data) || [];
+        this.constructor.elementProperties.get('name').list = Object.keys(data) || [];
     }
 
     firstUpdated() {

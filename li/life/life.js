@@ -1,5 +1,5 @@
-import { html, css, svg } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css, svg } from '../../li.js';
+
 
 let ROWS, COLS, FRACTION, BOARD = [], _BOARD = [], first = true;
 const isAlive = ((row, col) => { return BOARD && BOARD[row] && BOARD[row][col] && BOARD[row][col].alive || false });

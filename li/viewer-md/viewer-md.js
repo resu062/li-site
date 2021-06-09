@@ -1,6 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { unsafeHTML } from '../../lib/lit-html/directives/unsafe-html.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css, unsafeHTML } from '../../li.js';
+
 import './src/showdown.min.js';
 import './src/decodeHTML.min.js';
 import './src/highlight.min.js';

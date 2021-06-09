@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import './qr.js'; // https://www.webcomponents.org/element/webcomponent-qr-code
 
 customElements.define('li-qr-code', class LiQrCode extends LiElement {

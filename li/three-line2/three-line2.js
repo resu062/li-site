@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 
 import * as THREE from '../../lib/threejs/three.module.js';
 import { OrbitControls } from '../../lib/threejs/OrbitControls.js';
