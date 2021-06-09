@@ -1,5 +1,5 @@
-import { html, css, svg } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css, svg } from '../../li.js';
+
 import '../layout-grid/layout-grid.js'
 import '../button/button.js';
 import '../icon/icon.js';

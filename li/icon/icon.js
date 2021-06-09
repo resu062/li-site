@@ -1,5 +1,5 @@
-import { css, svg } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, css, svg } from '../../li.js';
+
 import './icons/icons.js';
 
 customElements.define('li-icon', class LiIcon extends LiElement {

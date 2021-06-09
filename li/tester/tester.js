@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import '../property-grid/property-grid.js';
 import '../layout-app/layout-app.js';
 import '../button/button.js';

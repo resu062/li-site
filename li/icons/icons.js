@@ -1,6 +1,6 @@
 
-import { html } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html } from '../../li.js';
+
 import '../icon/icons/icons.js';
 import '../icon/icon.js';
 

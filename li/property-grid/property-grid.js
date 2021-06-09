@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import '../button/button.js';
 import '../icon/icons/icons.js';
 
@@ -330,9 +330,10 @@ async function makeData(el, { expert, group, sort, showFunction, categories }, s
     const exts = /^(_|\$)/;
     const _label = el?.constructor?.name || el?.localName || '';
     const data = { _label, items: [] };
-    const props = el?.constructor?._classProperties;
+    const props = el?.constructor?.elementProperties;
 
     function fn(key, category = 'props', props, list) {
+        if (['Πi', 'Πk', 'Πo', 'Πl', 'Πh', 'Πg', 'L', 'Φt'].includes(key)) return;
         if (props && props.get(key) && props.get(key).category) category = props.get(key).category;
         const _ok = !categories || (categories && categories.includes(category)) || (categories && sure);
         if (!_ok) return;

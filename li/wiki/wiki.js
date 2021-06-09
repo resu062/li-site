@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import '../layout-app/layout-app.js';
 import '../editor-html/editor-html.js';
 import '../editor-simplemde/editor-simplemde.js';
@@ -23,17 +23,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _lPanel: { type: String, default: 'home' },
             _rPanel: { type: String, default: '' },
             selected: { type: Object, default: {}, local: true },
-            treeList: {
-                type: Object, default: {
-                    items: [
-                        {
-                            ulid: '01F7N9EXTGQBD6RPGQQ9W2PJWB', label: 'wiki', expanded: true, items: [
-                                { ulid: '01F7N9EXTG38E7MQCHZS2DR8EM', label: 'demo-article',  }
-                            ]
-                        }
-                    ]
-                }
-            }
+            treeList: { type: Object, default: { items: [{ ulid: '01F7N9EXTGQBD6RPGQQ9W2PJWB', label: 'wiki', expanded: true, items: [{ ulid: '01F7N9EXTG38E7MQCHZS2DR8EM', label: 'demo-article', }] }] } }
         }
     }
 

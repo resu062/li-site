@@ -1,5 +1,8 @@
-import { LitElement } from './lib/lit-element/lit-element.js'
-import { directive } from './lib/lit-html/lib/directive.js'
+import { LitElement } from 'https://unpkg.com/lit-element@3.0.0-rc.2/lit-element.js?module'
+export * from 'https://unpkg.com/lit-element@3.0.0-rc.2/lit-element.js?module'
+export { styleMap } from 'https://unpkg.com/lit-html@2.0.0-rc.2/directives/style-map.js?module';
+export { unsafeHTML } from 'https://unpkg.com/lit-html@2.0.0-rc.2/directives/unsafe-html.js?module';
+
 import { AWN } from './lib/awesome-notifications/modern.var.js'
 import { ulid, decodeTime } from './lib/ulid/ulid.js'
 import './lib/icaro/icaro.js'
@@ -60,7 +63,7 @@ export class LiElement extends LitElement {
     constructor() {
         super();
 
-        this.$properties = this.constructor._classProperties;
+        this.$properties = this.constructor.elementProperties;
         for (const k of this.$properties.keys()) {
             const prop = this.$properties.get(k)
             if (prop?.save) {
@@ -183,7 +186,7 @@ export class LiElement extends LitElement {
             }
 
             // notify : https://github.com/morbidick/lit-element-notify
-            const declaration = this.constructor._classProperties.get(prop);
+            const declaration = this.constructor.elementProperties.get(prop);
             if (declaration?.notify) {
                 const type = eventNameForProperty(prop, declaration);
                 const value = this[prop];

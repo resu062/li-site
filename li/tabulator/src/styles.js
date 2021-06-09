@@ -1,4 +1,4 @@
-import { css } from '../../../lib/lit-element/lit-element.js';
+import { css } from '../../../li.js';
 
 export const tabulatorStyles = css`
 /* Tabulator v4.6.0 (c) Oliver Folkerd */

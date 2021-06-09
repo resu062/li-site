@@ -13,8 +13,8 @@ this is a \:smile\: => :smile: emoji
 
 
 ```javascript
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import '../button/button.js';
 
 customElements.define('li-layout-panel', class LiLayoutPanel extends LiElement {

@@ -1,5 +1,5 @@
-import { html, css } from '../../lib/lit-element/lit-element.js';
-import { LiElement } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
+
 import '../editor-ace/editor-ace.js'
 
 customElements.define('li-editor-showdown', class LiEditorShowdown extends LiElement {
