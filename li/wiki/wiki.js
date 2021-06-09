@@ -84,8 +84,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
     render() {
         return html`
-            <div class="full-area" @mousemove="${this._mousemove}" @mouseup="${this._up}" @mouseout="${this._up}" style="z-index: ${this._indexFullArea}"></div>
-            <li-layout-app hide="r">
+            <div class="full-area" @mousemove="${this._mousemove}" @mouseup="${this._clearAction}" @mouseout="${this._clearAction}" style="z-index: ${this._indexFullArea}"></div>
+            <li-layout-app hide="r" @drop="${this._clearAction}">
                 <div slot="app-top" class="header">
                     <div style="flex:1"></div>li-wiki (prototype)<div style="flex:1"></div>
                     <li-button id="s06" name="filter-1" @click="${this._settings}" style="margin-right:4px"></li-button>
@@ -153,24 +153,19 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     ${this._widthL <= 0 ? html`` : html`
                         <div class="main-panel main-left" style="width:${this._widthL}px" @dragover="${(e) => e.preventDefault()}">
                             ${this._expandItem ? html`
-                                <li-wiki-box .item="${this._expandItem}" style="height: calc(100% - 40px);"></li-wiki-box>
-                            ` : html`
+                                <li-wiki-box .item="${this._expandItem}" style="height: calc(100% - 40px);"></li-wiki-box>` : html`
                                 ${(this.data || []).map((i, idx) => html`
                                     ${this._item === i && this._action === 'box-move' ? html`
-                                    <li-wiki-box-shadow></li-wiki-box-shadow>
-                                    ` : this._item === i && this._action === 'box-hide' ? html`` : html`
-                                        <li-wiki-box .item="${i}" .idx="${idx}"></li-wiki-box>
-                                    `}
-                                `)}                        
-                            `}
+                                    <li-wiki-box-shadow></li-wiki-box-shadow>` : html`
+                                    <li-wiki-box .item="${i}" .idx="${idx}"></li-wiki-box>`}`)}`}
                         </div>
                     `}
                     <div class="splitter ${this._action === 'splitter-move' ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
                         ${(this.data || []).map(i => html`
                             ${!i.show ? html`` : i.type === 'showdown' ? html`
-                                <li-viewer-md src="${i.value || ''}"></li-viewer-md>
-                            ` : i.type === 'iframe' ? html`<iframe .srcdoc="${i.htmlValue || i.value || ''}" style="width:100%;border: none; height: ${i.h + 'px' || 'auto'}"></iframe>` : html`
+                                <li-viewer-md src="${i.value || ''}"></li-viewer-md>` : i.type === 'iframe' ? html`
+                                <iframe .srcdoc="${i.htmlValue || i.value || ''}" style="width:100%;border: none; height: ${i.h + 'px' || 'auto'}"></iframe>` : html`
                                 <div class="res" .item="${i}" .innerHTML="${i.htmlValue || i.value || ''}"></div>
                             `}
                         `)}
@@ -244,11 +239,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.$update();
         }
     }
-    _up(e) {
+    _clearAction(e) {
         e.preventDefault();
         this._indexFullArea = -1;
         this._action = '';
-        this._item = undefined;
+        this._item = this._expandItem = undefined;
     }
 });
 
@@ -327,11 +322,12 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                 <div draggable="${!this._expandItem}" class="header"
                         @dragstart="${this._dragStart}" 
                         @dragend="${() => this._item = undefined}" 
-                        @dragover="${this._dragover}">
+                        @dragover="${this._dragover}"
+                        @drop="${() => this._item = undefined}">
                     ${(this.idx || 0) + 1 + '. ' + this.item?.label}
                     <div style="flex:1"></div>
-                    <li-button class="btn" name="expand-more" title="down" @click="${() => { this._moveBox(1) }}" size="20"></li-button>
-                    <li-button class="btn" name="expand-less" title="up" @click="${() => { this._moveBox(-1) }}" size="20"></li-button>
+                    <li-button class="btn" name="expand-more" title="down" @click="${() => { this._stepMoveBox(1) }}" size="20"></li-button>
+                    <li-button class="btn" name="expand-less" title="up" @click="${() => { this._stepMoveBox(-1) }}" size="20"></li-button>
                     <li-button class="btn" name="fullscreen-exit" title="collapse" @click="${this._collapseBox}" size="20"></li-button>
                     <li-button class="btn" name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}" size="20"></li-button>
                     <li-checkbox class="btn" @click="${(e) => this.item.show = e.target.toggled}" ?toggled="${this.item.show}" 
@@ -343,27 +339,25 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                     ${this._editor}
                 </div>
                 <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandItem}"
-                        @mousedown="${this._mousedown}"
+                        @mousedown="${this._setBoxHeight}"
                         @dragover="${this._dragover}">
                 </div>
             `}
         `;
     }
 
-    _moveBox(v) {
+    _stepMoveBox(v) {
         let indx = this.data.indexOf(this.item);
         if (v === -1 && indx === 0 || v === 1 && indx === this.data.length - 1) return;
+        this.item.hidden = true;
         this._item = this.item;
-        this._action = 'box-hide';
-        setTimeout(() => {
-            requestAnimationFrame(() => {
-                let itm = this.data.splice(this.data.indexOf(this.item), 1);
-                this.data.splice(indx + v, 0, itm[0]);
-                this._item = undefined;
-                this._action = '';
-                this.$update();
-            })
-        }, 0);
+        requestAnimationFrame(() => {
+            let itm = this.data.splice(this.data.indexOf(this.item), 1);
+            this.data.splice(indx + v, 0, itm[0]);
+            this._item.hidden = false;
+            this._item = undefined;
+            this.$update();
+        })
     }
     _collapseBox() {
         this.item.collapsed = !this.item.collapsed;
@@ -374,9 +368,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         this.item.hidden = true;
         this._expandItem = undefined;
         this.$update();
-        return;
     }
-    _mousedown(e) {
+    _setBoxHeight(e) {
         if (this.item.collapsed) {
             this.item.h = 0;
             this.item.collapsed = false;
@@ -392,14 +385,12 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     _dragover(e) {
         if (this._action !== 'box-move') return;
         e.preventDefault();
-        LI.throttle('dragover', () => {
-            if (e.target.className === 'header') this.shadowOffset = 0;
-            else this.shadowOffset = 1;
-            let itm = this.data.splice(this.data.indexOf(this._item), 1);
-            let indx = this.data.indexOf(this.item) + this.shadowOffset;
-            this.data.splice(indx, 0, itm[0]);
-            this.$update();
-        }, 100, true)
+        if (e.target.className === 'header') this.shadowOffset = 0;
+        else this.shadowOffset = 1;
+        let itm = this.data.splice(this.data.indexOf(this._item), 1);
+        let indx = this.data.indexOf(this.item) + this.shadowOffset;
+        this.data.splice(indx, 0, itm[0]);
+        this.$update();
     }
 });
 
@@ -414,7 +405,7 @@ customElements.define('li-wiki-box-shadow', class LiWikiBoxShadow extends LiElem
                 background-color: tomato;
                 cursor: move;
                 margin: 2px;
-                height: 32px;
+                height: 30px;
                 opacity: .5;
             }
         `;
