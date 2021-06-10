@@ -32,8 +32,8 @@ customElements.define('li-editor-suneditor', class LiEditorSunEditor extends LiE
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
-            this.value = this.item?.value || this.src || '';
+        if (changedProperties.has('src') && this.editor) {
+            this.value = this.src || this.item?.value || '';
             this.$update();
         }
     }
@@ -59,8 +59,8 @@ customElements.define('li-editor-suneditor', class LiEditorSunEditor extends LiE
                 ]
             ]
         });
-        this.value = this.item?.value || this.src || '';
-        this.editor.onChange = () => { 
+        this.value = this.src || this.item?.value || '';
+        this.editor.onChange = () => {
             if (this.item) {
                 this.item.value = this.value;
                 this.$update();

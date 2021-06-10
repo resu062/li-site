@@ -71,8 +71,8 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
-            this.value = this.item?.value || this.src || '';
+        if (changedProperties.has('src') && this.editor) {
+            this.value = this.src || this.item?.value || '';
             this.$update();
         }
     }
@@ -209,7 +209,7 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                 ],
             });
         this.editor.content.contentEditable = this.editable;
-        this.value = this.item?.value || this.src || '';
+        this.value = this.src || this.item?.value || '';
     }
 
     _open() {

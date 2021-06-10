@@ -27,7 +27,7 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
                     'stylus', 'svg', 'swift', 'swig', 'tcl', 'tex', 'text', 'textile', 'toml', 'tsx', 'turtle', 'twig', 'typescript',
                     'vala', 'vbscript', 'velocity', 'verilog', 'vhdl', 'visualforce', 'wollok', 'xml', 'xquery', 'yaml', 'zeek'
                 ]
-            }, 
+            },
             theme: {
                 type: String,
                 default: 'chrome', // 'solarized_light',
@@ -109,7 +109,7 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
+        if (changedProperties.has('src') && this.editor) {
             this.editor.setValue(this.src, -1);
             this.$update();
         }
