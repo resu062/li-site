@@ -2,13 +2,15 @@ import { LiElement, html, css } from '../../li.js';
 
 import './src/pell.js'
 import '../button/button.js';
+import '../editor-ace/editor-ace.js'
 
 customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
     static get properties() {
         return {
             src: { type: String },
             editable: { type: Boolean, default: true },
-            item: { type: Object }
+            item: { type: Object },
+            _showSource: { type: Boolean }
         }
     }
 
@@ -21,6 +23,9 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
 
     static get styles() {
         return css`
+            :host {
+               display: relative; 
+            }
             .pell {
                 border: 1px solid rgba(10, 10, 10, 0.1);
                 box-sizing: border-box;
@@ -61,13 +66,22 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
     }
     render() {
         return html`
-            <div ref="editor"></div>
+                <div ref="editor" ?hidden="${this._showSource}"></div>
+                <div ?hidden="${!this._showSource}">
+                    <li-button name="refresh" size="14"                       
+                        @click="${() => { this._showSource = false; this.editor.content.innerHTML = this.ace.getValue() } }"></li-button>
+                    <li-editor-ace ref="ace"></li-editor-ace>
+                </div>
+                
+
         `
     }
 
     firstUpdated() {
         super.firstUpdated();
-        this._update();
+        setTimeout(() => {
+            this._update();
+        }, 100);
     }
 
     updated(changedProperties) {
@@ -84,7 +98,12 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
     }
 
     _update() {
-        if (!this.editor)
+        if (!this.editor) {
+            this.ace = this.$refs.ace.editor;
+            this.ace.setTheme('ace/theme/chrome');
+            this.ace.getSession().setMode('ace/mode/html');
+            this.ace.setOptions({ fontSize: 16, maxLines: Infinity, minLines: 100, });
+
             this.editor = pell.init({
                 element: this.$refs.editor,
                 onChange: () => { if (this.item) this.item.value = this.value; this.$update() },
@@ -104,12 +123,11 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                         icon: '&#9734;',
                         title: 'foreColor',
                         result: async () => {
-                            //     let ctrl = await ODA.createComponent('/web/lib/colors/palette/palette.html');
-                            //     let val = await ODA.showDialog(ctrl, {
-                            //         title: 'Select Color',
-                            //         buttons: []
-                            //     });
-                            //     if (val) pell.exec('foreColor', val.value)
+                            try {
+                                const host = await LI.createComponent('dropdown');
+                                const res = await host.show(await LI.createComponent('color-picker'));
+                                if (res) pell.exec('foreColor', res.component.value);
+                            } catch (error) { }
                         }
                     },
                     {
@@ -117,13 +135,11 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                         icon: '&#9733',
                         title: 'backColor',
                         result: async () => {
-                            // let ctrl = await ODA.createComponent('/web/lib/colors/palette/palette.html');
-                            // let val = await ODA.showDialog(ctrl, {
-                            //     title: 'Select Color',
-                            //     buttons: []
-                            // });
-
-                            // if (val) pell.exec('backColor', val.value)
+                            try {
+                                const host = await LI.createComponent('dropdown');
+                                const res = await host.show(await LI.createComponent('color-picker'));
+                                if (res) pell.exec('backColor', res.component.value);
+                            } catch (error) { }
                         }
                     },
                     'olist',
@@ -193,27 +209,14 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                         name: 'viewSource',
                         icon: '&lt;/&gt;',
                         title: 'View source code',
-                        result: async () => {
-                            // let ctrl = await ODA.createComponent('/web/lib/ace-editor/ace-editor.html');
-                            // ctrl.style.height = (window.innerHeight - window.innerHeight * 0.18) + 'px';
-                            // ctrl.style.width = (window.innerWidth - window.innerWidth * 0.18) + 'px';
-                            // ctrl.value = this.editor.content.innerHTML;
-                            // ctrl.mode = 'html';
-                            // ctrl.wrap = true;
-                            // ctrl.addEventListener('keydown', (e) => {
-                            //     if (e.code === 'Enter') {
-                            //         e.stopPropagation();
-                            //     }
-                            // });
-                            // let val = await ODA.showDialog(ctrl, {
-                            //     title: 'Ace HTML editor',
-                            //     buttons: []
-                            // });
-                            // this.editor.content.innerHTML = val.value;
+                        result: () => {
+                            this._showSource = true;
+                            this.ace.setValue(this.editor.content.innerHTML);
                         }
                     },
                 ],
             });
+        }
         this.editor.content.contentEditable = this.editable;
         this.value = this.src || this.item?.value || '';
     }
