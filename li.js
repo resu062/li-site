@@ -138,7 +138,6 @@ export class LiElement extends LitElement {
     fnUpdate = (e) => { this.requestUpdate() }
     fnLocals = (e) => { if (this.__locals) this.__locals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnGlobals = (e) => { if (this.__globals) this.__globals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
-    fnListen = (e, property, fn) => { if (e.has(property)) fn() }
 
     _setPartid(_partid) {
         if (this._partid !== _partid) {
@@ -150,6 +149,7 @@ export class LiElement extends LitElement {
     get $$() { return this.partid && LI._$$[this.partid] && LI._$$[this.partid]['_$$'] ? LI._$$[this.partid]['_$$'] : undefined }
     get $root() { return this.getRootNode().host; }
     get _saveFileName() { return ((this.id || this.partid || this.localName.replace('li-', '')) + '.saves') }
+    $(v) { return this.$$[v].value }
 
     firstUpdated() {
         super.firstUpdated();
@@ -201,25 +201,24 @@ export class LiElement extends LitElement {
             this._initBus();
             this.$$.update.listen(this.fnUpdate);
         }
-        this.__locals = this.__locals || [];
-        if (this.$$[property] === undefined) this.$$[property] = this[property] || '';
-        if (!this.__locals.includes(property)) this.__locals.push(property);
-        this._fnListeners = this._fnListeners || new WeakMap();
-        this._fnListeners.set(fn, (e) => this.fnListen(e, property, fn));
-        this.$$.listen(this._fnListeners.get(fn))
+        if (this.$$[property] === undefined || !this.$$[property].listen)
+            this.$$[property] = icaro({ count: 0 });
+        this.$$[property].listen(fn);
     }
     $unlisten(property, fn) {
-        if (this._fnListeners.has(fn)) {
-            this.$$.unlisten(this._fnListeners.get(fn));
-            this._fnListeners.delete(fn);
-            this.__locals.splice(this.__locals.indexOf(property), 1);
+        if (this.$$[property])
+            this.$$[property].unlisten(fn);
+    }
+    $fire(property, value) {
+        if (this.$$ && property) {
+            this.$$[property].value = value;
+            ++this.$$[property].count;
         }
     }
-    $fire(property, value) { if (this.$$ && property) this.$$[property] = value }
 
     listen(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.addEventListener(i.trim(), callback, options)) }
     unlisten(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.removeEventListener(i.trim(), callback, options)) }
-    fire(event, detail = {}) { if (event) this.dispatchEvent(new CustomEvent(event, { detail })) }
+    fire(event, detail = {}) { if (event) this.dispatchEvent(new CustomEvent(event, { bubbles: true, composed: true, detail })) }
 }
 
 const __$$ = { _$$: {}, $$: {} };

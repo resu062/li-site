@@ -15,6 +15,8 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
     }
     set value(v) {
         this.editor.value(v);
+        if (this.item)
+            this.item.htmlValue = this.value;
     }
 
     render() {
@@ -33,6 +35,8 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
     updated(changedProperties) {
         if (changedProperties.has('src') && this.editor) {
             this.value = this.src || this.item?.value || '';
+            if (this.item)
+                this.item.htmlValue = this.value;
             this.$update();
         }
     }
