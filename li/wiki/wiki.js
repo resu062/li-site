@@ -311,7 +311,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         const editors = {
             'html-editor': html`<li-editor-html ref="ed" .item="${this.item}"></li-editor-html>`,
             'suneditor': html`<li-editor-suneditor ref="ed" .item="${this.item}"></li-editor-suneditor>`,
-            'simple-mde': html`<li-editor-simplemde ref="ed" .item="${this.item}"></li-editor-simplemde>`,
+            'simplemde': html`<li-editor-simplemde ref="ed" .item="${this.item}"></li-editor-simplemde>`,
             'showdown': html`<li-editor-showdown ref="ed" .item="${this.item}"></li-editor-showdown>`,
             'iframe': html`<li-editor-iframe ref="ed" .item="${this.item}"></li-editor-iframe>`
         }
@@ -348,28 +348,11 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         `;
     }
 
-    firstUpdated() {
-        super.firstUpdated();
-        this.$listen('stepMoveBox', (e) => {
-            if (this.$('stepMoveBox').includes(this.item.ulid)) {
-                requestAnimationFrame(() => {
-                    this.item.hidden = false
-                    this.requestUpdate();
-                })
-            }
-        });
-    }
-
     _stepMoveBox(v) {
         let indx = this.data.indexOf(this.item);
-        if (v === -1 && indx === 0 || v === 1 && indx === this.data.length - 1) return;
-        const hidden = [this.item.ulid, this.data[indx + v].ulid];
-        this.item.hidden = true
-        this.data[indx + v].hidden = true
         let itm = this.data.splice(this.data.indexOf(this.item), 1);
         this.data.splice(indx + v, 0, itm[0]);
         this.$update();
-        this.$fire('stepMoveBox', hidden);
     }
     _collapseBox() {
         this.item.collapsed = !this.item.collapsed;
@@ -397,10 +380,10 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     _dragover(e) {
         if (this._action !== 'box-move') return;
         e.preventDefault();
-        if (e.target.className === 'header') this.shadowOffset = 0;
-        else this.shadowOffset = 1;
+        let shadowOffset = 1;
+        if (e.target.className === 'header') shadowOffset = 0;
         let itm = this.data.splice(this.data.indexOf(this._item), 1);
-        let indx = this.data.indexOf(this.item) + this.shadowOffset;
+        let indx = this.data.indexOf(this.item) + shadowOffset;
         this.data.splice(indx, 0, itm[0]);
         this.$update();
     }

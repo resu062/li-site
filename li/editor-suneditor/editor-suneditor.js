@@ -5,7 +5,7 @@ import 'https://cdn.jsdelivr.net/npm/suneditor@latest/dist/suneditor.min.js';
 customElements.define('li-editor-suneditor', class LiEditorSunEditor extends LiElement {
     static get properties() {
         return {
-            src: { type: String, default: '' },
+            src: { type: String },
             item: { type: Object }
         }
     }
@@ -32,8 +32,14 @@ customElements.define('li-editor-suneditor', class LiEditorSunEditor extends LiE
     }
 
     updated(changedProperties) {
-        if (changedProperties.has('src') && this.editor) {
-            this.value = this.src || this.item?.value || '';
+        if (this.editor) {
+            if (changedProperties.has('src')) {
+                this.value = this.src;
+                if (this.item)
+                    this.item.value = this.value;
+            }
+            if (changedProperties.has('item'))
+                this.value = this.item?.value || '';
             this.$update();
         }
     }
