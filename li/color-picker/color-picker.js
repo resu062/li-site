@@ -54,7 +54,8 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
                 display: block;
                 border: 1px solid lightgray;
                 width: 200px;
-                padding: 8px
+                padding: 8px;
+                background-color: white;
             }
             .pickerGradient {
                 pointer-events: none;
@@ -165,7 +166,7 @@ customElements.define('li-color-picker', class LiColorPicker extends LiElement {
                         <input style="width:79px"  @input="${this._setHEX}" id="txt">
                         <div style="background:${'#' + this.oldValue}; width: 40px;height: 14px;margin:1px"></div>
                         <div style="background:${'#' + this.value}; width: 40px;height: 14px;margin:1px"></div>
-                        <li-button name="check" size="12"></li-button>
+                        <li-button name="check" size="12" @click="${() => this.fire('dropdownDataChange')}"></li-button>
                     </label>
                 </section>
             </div>

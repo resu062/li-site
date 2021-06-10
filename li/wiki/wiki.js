@@ -106,7 +106,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             add editor:
                             <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
                             <li-button width="100%" @click="${this._addBox}">suneditor</li-button>
-                            <li-button width="100%" @click="${this._addBox}">simple-mde</li-button>
+                            <li-button width="100%" @click="${this._addBox}">simplemde</li-button>
                             <li-button width="100%" @click="${this._addBox}">showdown</li-button>
                             <li-button width="100%" @click="${this._addBox}">iframe</li-button>
                         ` : this._lPanel === 'actions' ? html`
