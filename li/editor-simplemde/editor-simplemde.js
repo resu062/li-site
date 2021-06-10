@@ -5,7 +5,7 @@ import '../../lib/simplemde/simplemde.min.js'
 customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiElement {
     static get properties() {
         return {
-            src: { type: String, default: '' },
+            src: { type: String },
             item: { type: Object }
         }
     }
@@ -33,10 +33,19 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
     }
 
     updated(changedProperties) {
-        if (changedProperties.has('src') && this.editor) {
-            this.value = this.src || this.item?.value || '';
-            if (this.item)
-                this.item.htmlValue = this.value;
+        if (this.editor) {
+            if (changedProperties.has('src')) {
+                this.value = this.src;
+                if (this.item) {
+                    this.item.value = this.editor.value();
+                    this.item.htmlValue = this.value;
+                }
+            }
+            if (changedProperties.has('item')) {
+                this.value = this.item?.value || '';
+                if (this.item)
+                    this.item.htmlValue = this.value;
+            }
             this.$update();
         }
     }
