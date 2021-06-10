@@ -213,7 +213,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         const txt = e.target.innerText;
-        this.data.push({ label: txt, show: true, h: 120, type: txt, value: '' });
+        this.data.push({ label: txt, show: true, h: 120, type: txt, value: '', ulid: LI.ulid() });
         this.$update();
     }
     firstUpdated() {
@@ -348,18 +348,28 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         `;
     }
 
+    firstUpdated() {
+        super.firstUpdated();
+        this.$listen('stepMoveBox', (e) => {
+            if (this.$('stepMoveBox').includes(this.item.ulid)) {
+                requestAnimationFrame(() => {
+                    this.item.hidden = false
+                    this.requestUpdate();
+                })
+            }
+        });
+    }
+
     _stepMoveBox(v) {
         let indx = this.data.indexOf(this.item);
         if (v === -1 && indx === 0 || v === 1 && indx === this.data.length - 1) return;
-        this.item.hidden = true;
-        this._item = this.item;
-       requestAnimationFrame(() => {
-            let itm = this.data.splice(this.data.indexOf(this.item), 1);
-            this.data.splice(indx + v, 0, itm[0]);
-            this._item.hidden = false;
-            this._item = undefined;
-            this.$update();
-       })
+        const hidden = [this.item.ulid, this.data[indx + v].ulid];
+        this.item.hidden = true
+        this.data[indx + v].hidden = true
+        let itm = this.data.splice(this.data.indexOf(this.item), 1);
+        this.data.splice(indx + v, 0, itm[0]);
+        this.$update();
+        this.$fire('stepMoveBox', hidden);
     }
     _collapseBox() {
         this.item.collapsed = !this.item.collapsed;
