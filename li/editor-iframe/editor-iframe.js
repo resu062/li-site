@@ -29,10 +29,10 @@ customElements.define('li-editor-iframe', class LiEditorIFrame extends LiElement
             this._update();
         }, 100);
     }
-    
+
     updated(changedProperties) {
-        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
-            this.value = this.item?.value || this.src || '';
+        if (changedProperties.has('src') && this.editor) {
+            this.value = this.src || this.item?.value || '';
             this.$update();
         }
     }
@@ -43,7 +43,7 @@ customElements.define('li-editor-iframe', class LiEditorIFrame extends LiElement
         this.editor.setTheme('ace/theme/chrome');
         this.editor.getSession().setMode('ace/mode/html');
         this.editor.setOptions({ fontSize: 16, maxLines: Infinity, minLines: 100, });
-        this.value = this.item?.value || this.src || '';
+        this.value = this.src || this.item?.value || '';
         this.editor.getSession().on('change', () => {
             if (this.item) {
                 this.item.value = this.value;

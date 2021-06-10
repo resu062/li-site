@@ -31,8 +31,8 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has('src') || changedProperties.has('item')) && this.editor) {
-            this.value = this.item?.value || this.src || '';
+        if (changedProperties.has('src') && this.editor) {
+            this.value = this.src || this.item?.value || '';
             this.$update();
         }
     }
@@ -55,13 +55,13 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
             tabSize: 4,
             toolbarTips: true,
         });
-        this.value = this.item?.value || this.src || '';
+        this.value = this.src || this.item?.value || '';
         if (this.item)
             this.item.htmlValue = this.value;
         this.editor.codemirror.on('change', () => {
             if (this.item) {
                 this.item.htmlValue = this.value;
-                this.item.value = this.editor.value(); 
+                this.item.value = this.editor.value();
                 this.$update();
             }
         });

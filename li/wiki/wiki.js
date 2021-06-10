@@ -309,11 +309,11 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
 
     get _editor() {
         const editors = {
-            'html-editor': html`<li-editor-html ref="ed" .item=${this.item} .src="${this.item.value}"></li-editor-html>`,
-            'suneditor': html`<li-editor-suneditor ref="ed" .item=${this.item}></li-editor-suneditor>`,
-            'simple-mde': html`<li-editor-simplemde ref="ed" .item=${this.item}></li-editor-simplemde>`,
-            'showdown': html`<li-editor-showdown ref="ed" .item=${this.item}></li-editor-showdown>`,
-            'iframe': html`<li-editor-iframe ref="ed" .item=${this.item}></li-editor-iframe>`
+            'html-editor': html`<li-editor-html ref="ed" .item="${this.item}"></li-editor-html>`,
+            'suneditor': html`<li-editor-suneditor ref="ed" .item="${this.item}"></li-editor-suneditor>`,
+            'simple-mde': html`<li-editor-simplemde ref="ed" .item="${this.item}"></li-editor-simplemde>`,
+            'showdown': html`<li-editor-showdown ref="ed" .item="${this.item}"></li-editor-showdown>`,
+            'iframe': html`<li-editor-iframe ref="ed" .item="${this.item}"></li-editor-iframe>`
         }
         return editors[this.item?.type] || editors[this.item?.label] || editors['iframe'];
     }
