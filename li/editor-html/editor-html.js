@@ -69,7 +69,7 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                 <div ref="editor" ?hidden="${this._showSource}"></div>
                 <div ?hidden="${!this._showSource}">
                     <li-button name="refresh" size="14"                       
-                        @click="${() => { this._showSource = false; this.editor.content.innerHTML = this.ace.getValue() } }"></li-button>
+                        @click="${() => { this._showSource = false; this.editor.content.innerHTML = this.ace.getValue() }}"></li-button>
                     <li-editor-ace ref="ace"></li-editor-ace>
                 </div>
                 
@@ -103,6 +103,11 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
             this.ace.setTheme('ace/theme/chrome');
             this.ace.getSession().setMode('ace/mode/html');
             this.ace.setOptions({ fontSize: 16, maxLines: Infinity, minLines: 100, });
+            this.ace.getSession().on('change', () => {
+                this.value = this.ace.getValue() || '';
+                if (this.item) this.item.value = this.value;
+                this.$update();
+            });
 
             this.editor = pell.init({
                 element: this.$refs.editor,
