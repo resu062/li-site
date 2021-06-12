@@ -199,7 +199,7 @@ export class LiElement extends LitElement {
         }
     }
 
-    fnListen = (e) => console.log('...fire ', this.localName, e?.type, e?.detail.value || e?.detail);
+    fnListen = (e) => console.log('...fire ', this.localName, e?.type, e?.detail);
     listen(event, callback, options) { if (event) event.split(',').forEach(i => this.addEventListener(i.trim(), callback || this.fnListen, options)) }
     unlisten(event, callback, options) { if (event) event.split(',').forEach(i => this.removeEventListener(i.trim(), callback || this.fnListen, options)) }
     fire(event, detail = {}) { if (event) this.dispatchEvent(new CustomEvent(event, { bubbles: true, composed: true, detail })) }
