@@ -85,6 +85,8 @@ export class LiElement extends LitElement {
 
         }
         this._partid = this._partid || this.partid;
+        this.$$.__update = 0;
+        this.$$.__changed = 0;
     }
     disconnectedCallback() {
         if (this.$$?.update) this.$$.update.unlisten(this.fnUpdate);
@@ -104,7 +106,17 @@ export class LiElement extends LitElement {
         }
     }
 
-    fnUpdate = (e) => { this.requestUpdate() }
+    fnUpdate = (e) => {
+        ++this.$$.__update;
+        this.requestUpdate();
+        if (LI._$update) {
+            LI.debounce('_$update', () => {
+                console.log('_$update', 'requestUpdate', this.$$.__update, 'changed', this.$$.__changed);
+                this.$$.__update = 0;
+                this.$$.__changed = 0;
+            }, 100);
+        }
+    }
     fnLocals = (e) => { if (this.__locals) this.__locals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
     fnGlobals = (e) => { if (this.__globals) this.__globals.forEach(i => { if (e.has(i)) this[i] = e.get(i) }) }
 
@@ -152,13 +164,17 @@ export class LiElement extends LitElement {
                     this.$$[prop] = this[prop];
                 if (this.$$ && this.__globals && this.__globals.includes(prop))
                     LI.$$[prop] = this[prop];
+                if (LI._changed)
+                    console.log('_changed', this.localName, prop, { old: changedProps.get(prop) }, { new: this[prop] });
+                if (LI._$update)
+                    ++this.$$.__changed;
             }
             if (this.__notifications && this.__notifications.has(prop)) {
                 const event = this.__notifications.get(prop);
                 this.fire(event, { value: this[prop] });
-                if (LI._notify) console.log('_notify ', this.localName, event, { old: changedProps.get(prop) }, { new: this[prop] });
+                if (LI._notify)
+                    console.log('_notify ', this.localName, event, { old: changedProps.get(prop) }, { new: this[prop] });
             }
-            if (LI._changed) console.log('_changed', this.localName, prop, { old: changedProps.get(prop) }, { new: this[prop] });
         }
     }
 
@@ -203,6 +219,7 @@ class CLI {
         this._notify = false;
         this._changed = false;
         this._icaro = false;
+        this._$update = flase;
     }
     get _$$() { return __$$._$$; }
     get $$() { return __$$.$$; }
