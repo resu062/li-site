@@ -27,7 +27,7 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
         super.firstUpdated();
         this.$listen('dblClick', () => {
             if (!this.$$.dblClick) return;
-            this.focused = this.$$.dblClick;
+            this.focused = this.$$.dblClick.value;
             this.isShowFocused = true;
             this.getData();
         })
