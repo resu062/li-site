@@ -219,7 +219,7 @@ class CLI {
         this._notify = false;
         this._changed = false;
         this._icaro = false;
-        this._$update = flase;
+        this._$update = false;
     }
     get _$$() { return __$$._$$; }
     get $$() { return __$$.$$; }
