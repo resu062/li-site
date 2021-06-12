@@ -49,7 +49,7 @@ customElements.define('li-db-panel', class LiDbPanel extends LiElement {
                 { icon: 'refresh', label: '2 x date.toISOString', action: 'toISOString', hideIcons: '23' },
             ]
         }, {});
-        LI.action(val.detail.action);
+        //LI.action(val.detail.action);
         return val;
     }
 });

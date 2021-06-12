@@ -3,62 +3,26 @@ export * from 'https://unpkg.com/lit-element@3.0.0-rc.2/lit-element.js?module'
 export { styleMap } from 'https://unpkg.com/lit-html@2.0.0-rc.2/directives/style-map.js?module';
 export { unsafeHTML } from 'https://unpkg.com/lit-html@2.0.0-rc.2/directives/unsafe-html.js?module';
 
-import { AWN } from './lib/awesome-notifications/modern.var.js'
 import { ulid, decodeTime } from './lib/ulid/ulid.js'
 import './lib/icaro/icaro.js'
-import './lib/pouchdb/pouchdb-7.2.1.js'
 
 const urlLI = import.meta.url
 
 window.globalThis = window.globalThis || window
 
-const camelToKebab = camel => camel.replace(/([a-z](?=[A-Z]))|([A-Z](?=[A-Z][a-z]))/g, '$1$2-').toLowerCase()
-
-Object.defineProperty(Array.prototype, 'has', { enumerable: false, value: Array.prototype.includes })
-Object.defineProperty(Array.prototype, 'clear', { enumerable: false, value: function() { this.splice(0) } })
-Object.defineProperty(Array.prototype, 'first', { enumerable: false, get() { return this[0] } })
-Object.defineProperty(Array.prototype, 'last', { enumerable: false, get() { return this[this.length - 1] } })
-Object.defineProperty(Array.prototype, 'add', { enumerable: false, value: function(...item) { for (let i of item) { if (this.includes(i)) continue; this.push(i) } } })
-Object.defineProperty(Array.prototype, 'remove', { enumerable: false, value: function(...items) { for (const item of items) { const idx = this.indexOf(item); if (idx < 0) continue; this.splice(idx, 1) } } })
-
-window.LIRect = window.LIRect || class LIRect {
-    constructor(element) {
-        if (element && element.host)
-            element = element.host;
-        const pos = element ? element.getBoundingClientRect() : LI.mousePos;
-        if (pos) {
-            this.ok = true
-            this.x = pos.x;
-            this.y = pos.y;
-            this.top = pos.top;
-            this.bottom = pos.bottom;
-            this.left = pos.left;
-            this.right = pos.right;
-            this.width = pos.width;
-            this.height = pos.height;
-        } else
-            this.ok = false;
-    }
-}
-if (!window.DOMRect) {
-    window.DOMRect = function(x, y, width, height) {
-        this.x = x;
-        this.y = y;
-        this.top = y;
-        this.bottom = y + height;
-        this.left = x;
-        this.right = x + width;
-        this.width = width;
-        this.height = height;
-    }
-}
 document.addEventListener('mousedown', (e) => LI.mousePos = new DOMRect(e.pageX, e.pageY));
-
-const eventNameForProperty = function(name, { notify, attribute } = {}) {
-    if (notify && typeof notify === 'string') return notify;
-    else if (attribute && typeof attribute === 'string') return `${attribute}-changed`;
-    else return `${name.toLowerCase()}-changed`;
+if (!window.LIRect) {
+    window.LIRect = function(element) {
+        if (element && element.host) element = element.host;
+        const pos = element ? element.getBoundingClientRect() : LI.mousePos;
+        return pos ? {
+            ok: true, x: pos.x, y: pos.y,
+            top: pos.top, bottom: pos.bottom, left: pos.left, right: pos.right,
+            width: pos.width, height: pos.height
+        } : { ok: false };
+    }
 }
+
 export class LiElement extends LitElement {
     constructor() {
         super();
@@ -77,6 +41,11 @@ export class LiElement extends LitElement {
             if (prop?.global) {
                 this.__globals = this.__globals || [];
                 this.__globals.push(k);
+            }
+            if (prop?.notify) {
+                this.__notifications = this.__notifications || new Map();
+                let name = typeof prop.notify !== 'string' ? `${k}-changed` : prop.notify;
+                this.__notifications.set(k, name);
             }
             if (prop?.default !== undefined) this[k] = prop.default;
         }
@@ -184,14 +153,12 @@ export class LiElement extends LitElement {
                 if (this.$$ && this.__globals && this.__globals.includes(prop))
                     LI.$$[prop] = this[prop];
             }
-
-            // notify : https://github.com/morbidick/lit-element-notify
-            const declaration = this.constructor.elementProperties.get(prop);
-            if (declaration?.notify) {
-                const type = eventNameForProperty(prop, declaration);
-                const value = this[prop];
-                this.dispatchEvent(new CustomEvent(type, { detail: { value }, bubbles: false, composed: true }))
+            if (this.__notifications && this.__notifications.has(prop)) {
+                const event = this.__notifications.get(prop);
+                this.fire(event, { value: this[prop] });
+                if (LI._notify) console.log('_notify ', this.localName, event, { old: changedProps.get(prop) }, { new: this[prop] });
             }
+            if (LI._changed) console.log('_changed', this.localName, prop, { old: changedProps.get(prop) }, { new: this[prop] });
         }
     }
 
@@ -216,8 +183,9 @@ export class LiElement extends LitElement {
         }
     }
 
-    listen(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.addEventListener(i.trim(), callback, options)) }
-    unlisten(event, callback, options) { if (event && callback) event.split(',').forEach(i => this.removeEventListener(i.trim(), callback, options)) }
+    fnListen = (e) => console.log('...fire ', this.localName, e?.type, e?.detail.value || e?.detail);
+    listen(event, callback, options) { if (event) event.split(',').forEach(i => this.addEventListener(i.trim(), callback || this.fnListen, options)) }
+    unlisten(event, callback, options) { if (event) event.split(',').forEach(i => this.removeEventListener(i.trim(), callback || this.fnListen, options)) }
     fire(event, detail = {}) { if (event) this.dispatchEvent(new CustomEvent(event, { bubbles: true, composed: true, detail })) }
 }
 
@@ -231,28 +199,10 @@ class CLI {
     constructor() {
         this.ulid = ulid;
         this.icaro = icaro;
-        this.PouchDB = PouchDB;
-        this.awnOptions = {
-            position: 'bottom-right',
-            durations: {
-                success: 2000,
-                tip: 2000,
-                warning: 2000,
-                alert: 2000,
-                info: 2000
-            },
-            icons: {
-                prefix: "<li-icon name='",
-                success: "check-circle' fill='#40871d' size=32",
-                tip: "star-border' fill='grey' size=32",
-                info: "info' fill='#1c76a6' size=32",
-                warning: "error' fill='#c26700' size=32",
-                alert: "warning' fill='#a92019' size=32",
-                suffix: "></li-icon>",
-            }
-        }
-        this.notifier = new AWN(this.awnOptions);
         this.$url = urlLI;
+        this._notify = false;
+        this._changed = false;
+        this._icaro = false;
     }
     get _$$() { return __$$._$$; }
     get $$() { return __$$.$$; }
@@ -317,60 +267,6 @@ class CLI {
     }
     ulidToDateTime(ulid) {
         return new Date(decodeTime(ulid));
-    }
-
-    action(act) {
-        const dates = this.dates();
-        const ulid = this.ulid();
-        const creator = 'User-0001';
-        if (typeof act === 'string') {
-            switch (act) {
-                case 'addItem':
-                    let id = ulid + ':$';
-                    let db = new PouchDB('http://admin:54321@127.0.0.1:5984/lidb');
-                    db.put({
-                        _id: id,
-                        ulid,
-                        utcDate: dates.utc,
-                        locDate: dates.local,
-                        creator,
-                        type: '#',
-                        name: '',
-                        label: ''
-                    }).then(function(response) {
-                        console.log('ok');
-                    }).catch(function(err) {
-                        console.log(err);
-                    });
-
-                    PouchDB.sync('lidb', 'http://admin:54321@127.0.0.1:5984/lidb');
-
-                    var changes = db.changes({
-                        since: 'now',
-                        live: true,
-                        include_docs: true
-                    }).on('change', function(change) {
-                        console.log(change)
-                    }).on('complete', function(info) {
-                        console.log(info)
-                    }).on('error', function(err) {
-                        console.log(err);
-                    });
-
-                    break;
-                case 'ulid':
-                    for (let index = 0; index < 10; index++) {
-                        console.log(this.ulid());
-                    }
-                    break;
-                case 'toISOString':
-                    console.log(dates.utc);
-                    console.log(dates.local);
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }
 globalThis.LI = new CLI();

@@ -90,10 +90,12 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                 this.value = this.src;
                 if (this.item)
                     this.item.value = this.value;
+                this.$update();
             }
-            if (changedProperties.has('item'))
+            if (changedProperties.has('item')) {
                 this.value = this.item?.value || '';
-            this.$update();
+                this.$update();
+            }
         }
     }
 
