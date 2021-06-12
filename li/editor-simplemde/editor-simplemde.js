@@ -40,13 +40,14 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
                     this.item.value = this.editor.value();
                     this.item.htmlValue = this.value;
                 }
+                this.$update();
             }
             if (changedProperties.has('item')) {
                 this.value = this.item?.value || '';
                 if (this.item)
                     this.item.htmlValue = this.value;
+                this.$update();
             }
-            this.$update();
         }
     }
 

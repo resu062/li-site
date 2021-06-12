@@ -21,7 +21,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _widthL: { type: Number, default: 800, save: true },
             _expandItem: { type: Object, local: true },
             _lPanel: { type: String, default: 'home' },
-            _rPanel: { type: String, default: '' },
             selected: { type: Object, default: {}, local: true },
             treeList: { type: Object, default: { items: [{ ulid: '01F7N9EXTGQBD6RPGQQ9W2PJWB', label: 'wiki', expanded: true, items: [{ ulid: '01F7N9EXTG38E7MQCHZS2DR8EM', label: 'demo-article', }] }] } }
         }
@@ -204,7 +203,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         this.data = d.filter(i => i.show);
                     }
                 },
-                s11: () => { if (window.confirm(`Do you really want delete all?`)) this.data = []; this._expandItem = undefined }
+                s11: () => { if (window.confirm(`Do you really want delete all?`)) this.data.splice(0); this._expandItem = undefined }
             }
         if (s[id]) {
             s[id]();
@@ -213,7 +212,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _addBox(e) {
         const txt = e.target.innerText;
-        this.data.push({ label: txt, show: true, h: 120, type: txt, value: '', ulid: LI.ulid() });
+        this.data.splice(this.data.length, 0, { label: txt, show: true, h: 120, type: txt, value: '', ulid: LI.ulid() });
         this.$update();
     }
     firstUpdated() {

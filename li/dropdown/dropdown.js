@@ -74,7 +74,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
         }
     }
     _setSize(repeat = false) {
-        const rect = new LIRect(this.parent);
+        const rect = LIRect(this.parent);
         if (!this.component || !rect.ok) return;
         requestAnimationFrame(() => {
             let size = {},

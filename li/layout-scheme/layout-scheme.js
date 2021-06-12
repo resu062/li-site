@@ -33,20 +33,22 @@ class BlockItem {
             return `translate3d(${x}px, ${y}px, 0px)`;
         }
         let val = '';
-        if (this.$$?._gridMain) {
-            let sl = this.$$._gridMain.scrollLeft || 0,
-                st = this.$$._gridMain.scrollTop || 0,
-                ow = this.$$._gridMain.offsetWidth || 0,
-                oh = this.$$._gridMain.offsetHeight || 0;
-            const translate = {
-                left: () => { val = `translate3d(${sl + 2}px, ${st + oh / 2}px, 0px)` },
-                top: () => { val = `translate3d(${sl + ow / 2}px, ${st + 2}px, 0px)` },
-                right: () => { val = `translate3d(${sl + ow - 42}px, ${st + oh / 2}px, 0px)` },
-                bottom: () => { val = `translate3d(${sl + ow / 2}px, ${st + oh - 42}px, 0px)` }
+        try {
+            if (this.$$?._gridMain) {
+                let sl = this.$$._gridMain.scrollLeft || 0,
+                    st = this.$$._gridMain.scrollTop || 0,
+                    ow = this.$$._gridMain.offsetWidth || 0,
+                    oh = this.$$._gridMain.offsetHeight || 0;
+                const translate = {
+                    left: () => { val = `translate3d(${sl + 2}px, ${st + oh / 2}px, 0px)` },
+                    top: () => { val = `translate3d(${sl + ow / 2}px, ${st + 2}px, 0px)` },
+                    right: () => { val = `translate3d(${sl + ow - 42}px, ${st + oh / 2}px, 0px)` },
+                    bottom: () => { val = `translate3d(${sl + ow / 2}px, ${st + oh - 42}px, 0px)` }
+                }
+                if (this.$item.type && translate[this.$item.type])
+                    translate[this.$item.type]();
             }
-            if (this.$item.type && translate[this.$item.type])
-                translate[this.$item.type]();
-        }
+        } catch (error) { }
         return val;
     }
     select(e) {
@@ -64,7 +66,6 @@ class BlockItem {
         con.id = LI.ulid();
         this.model[position].splice(this.model[position].length, 0, con);
         this.setConnectors();
-        //LI.notifier.success('Add default connector: <br>' + this.label)
     }
     addConnector(position, index) {
         if (!this.$$.editMode) return;
@@ -72,12 +73,10 @@ class BlockItem {
         con.id = LI.ulid();
         this.model[position].splice(this.model[position].length, 0, con);
         this.setConnectors();
-        //LI.notifier.success('Add connector: <br>' + this.label)
     }
     deleteConnector(position, index) {
         if (!this.$$.editMode) return;
         this.model[position].splice(index, 1);
-        //LI.notifier.info('Delete connector: <br>' + this.label)
     }
     setConnectors(action = '') {
         this.$owner.items.forEach(i => {
@@ -99,12 +98,10 @@ class BlockItem {
         this.deleteAllLinks();
         clearSelectedBlocks(this);
         this.$owner.items.splice(this.$owner.items.indexOf(this), 1);
-        //LI.notifier.warning('Delete block')
         this.setConnectors();
     }
     deleteAllLinks() {
         this.setConnectors('deleteAllLinks');
-        //LI.notifier.warning('Delete all links: <br>' + this.label)
     }
     getBlock(id) {
         for (const i of this.$owner.items)
@@ -127,7 +124,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
     static get properties() {
         return {
             _width: { type: Number, default: 10000, local: true }, _height: { type: Number, default: 10000, local: true },
-            editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, default: {}, local: true },
+            editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, local: true },
             item: { type: Object, default: {} },
             block: { type: Object, default: {} },
             shift: { type: Number, default: 10 },
@@ -214,104 +211,106 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
     get links() {
         if (!this.block || !this.block.items || !this.$$ || !this.$refs?.main) return [];
         const links = [];
-        let _color = 0;
-        this.block.items.map(b => {
-            ['top', 'bottom', 'left', 'right'].forEach(p => {
-                if (!b._bl || !b.model || !b.model[p]) return;
-                for (let c = 0; c < b.model[p].length; c++) {
-                    const i = b.model[p][c];
-                    if (i.link && i.link.id && i.link.position && (i.link.idc || i.link.idc === 0)) {
-                        let s = b._bl._getConnector(p, i.id);
-                        if (!s) return;
-                        s = s.getBoundingClientRect();
-                        const block = b.getBlock(i.link.id)
-                        if (!block || !block._bl) return;
-                        let l = block._bl._getConnector(i.link.position, i.link.idc);
-                        if (!l) return;
-                        const shift = this.shift || 10,
-                            odx = (l.item.index || c + 1) * shift;
-                        //odx = (l.item.index || 0 + 1) * shift;
-                        if (!l) return;
-                        l = l.getBoundingClientRect();
-                        const st = this.$$._gridMain.scrollTop || 0,
-                            sl = this.$$._gridMain.scrollLeft || 0;
-                        const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$._gridMain.offsetLeft + sl,
-                            y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$._gridMain.offsetTop + st,
-                            x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$._gridMain.offsetLeft + sl,
-                            y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$._gridMain.offsetTop + st,
-                            int = p,
-                            out = i.link.position,
-                            path = i.link.position + '-' + p,
-                            idx = (c + 1) * shift + shift / 2;
-                        let x11 = (out === 'left' ? x1 - (shift + odx) : out === 'right' ? x1 + (shift + odx) : x1),
-                            y11 = (out === 'top' ? y1 - (shift + odx) : out === 'bottom' ? y1 + (shift + odx) : y1),
-                            x21 = (int === 'left' ? x2 - (shift + idx) : int === 'right' ? x2 + (shift + idx) : x2),
-                            y21 = (int === 'top' ? y2 - (shift + idx) : int === 'bottom' ? y2 + (shift + idx) : y2),
-                            x = '', y = '', _x = '', _y = '';
-                        let _links = {
-                            'left-left': () => { x = x11 > x21 ? x21 : x11; y = x11 > x21 ? y1 : y21 },
-                            'left-right': () => {
-                                if (x11 > x21) x21 = x11;
-                                else { x21 = _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; }
-                            },
-                            'left-top': () => {
-                                if (x21 < x11) { x = x11; y = y21; if (y11 > y21) { x = x11; y = y21; } }
-                                else { _x = x2; x = x11; y = y21; if (y11 > y21) y = _y = y21; }
-                            },
-                            'left-bottom': () => {
-                                if (x11 > x21) {
-                                    if (y11 > y21) { x = x11; y = y21 } if (y11 < y21) { x = x11; y = y21; }
-                                }
-                                else { x = x11; y = y21 }
-                            },
-                            'right-right': () => { x = x11 < x21 ? x21 : x11; y = x11 < x21 ? y1 : y21 },
-                            'right-left': () => {
-                                if (x11 < x21) x21 = x11;
-                                else { x21 = _x = x2 - (shift + idx); x = x11; y = _y = y21 + (y11 - y21) / 2; }
-                            },
-                            'right-top': () => {
-                                if (x21 > x11) { x = x11; y = y21; if (y11 > y21) { x = x11; y = y21; } }
-                                else { x = x11; y = y21; if (y11 > y21) y = y21; }
-                            },
-                            'right-bottom': () => {
-                                if (x11 < x21) { x = x11; y = y21; if (y11 < y21) { x = x11; y = y21; } }
-                                else { x = x11; y = y21 }
-                            },
-                            'top-top': () => { y = y11 < y21 ? y11 : y21; x = y11 < y21 ? x2 : x11 },
-                            'top-left': () => {
-                                if (x11 < x21) { if (y11 > y21) { y11 = y21 } else { y = y11; _y = y21; x = _x = x11 + (x21 - x11) / 2 } }
-                                else { if (y11 > y21) { _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; } else { y = y11; x = x21; } }
-                            },
-                            'top-right': () => {
-                                if (x11 > x21) { if (y11 > y21) { y11 = y21 } else { y = y11; _y = y21; x = _x = x11 + (x21 - x11) / 2 } }
-                                else { if (y11 > y21) { _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; } else { y = y11; x = x21; } }
-                            },
-                            'top-bottom': () => {
-                                if (y11 > y21) y21 = y11;
-                                else { y21 = _y = y2 + (shift + idx); y = y11; x = _x = x21 + (x11 - x21 + idx) / 2 - odx; }
-                            },
-                            'bottom-bottom': () => { y = y11 < y21 ? y21 : y11; x = y11 < y21 ? x1 : x21 },
-                            'bottom-left': () => {
-                                if (x11 < x21) { if (y11 < y21) { y11 = y21 } else { y = y11; x = x21 } }
-                                else { if (y11 < y21) { x = x21; y = y11; } else { y = y11; x = x21; } }
-                            },
-                            'bottom-right': () => {
-                                if (x11 > x21) { if (y11 < y21) { y11 = y21 } else { y = y11; x = x21 } }
-                                else { if (y11 < y21) { x = x21; y = y11 } else { y = y11; x = x21; } }
-                            },
-                            'bottom-top': () => {
-                                if (y11 < y21) y21 = y11;
-                                else { y21 = _y = y2 - (shift + idx); y = y11; x = _x = x21 + (x11 - x21 + idx) / 2 - odx; }
-                            },
+        try {
+            let _color = 0;
+            this.block.items.map(b => {
+                ['top', 'bottom', 'left', 'right'].forEach(p => {
+                    if (!b._bl || !b.model || !b.model[p]) return;
+                    for (let c = 0; c < b.model[p].length; c++) {
+                        const i = b.model[p][c];
+                        if (i.link && i.link.id && i.link.position && (i.link.idc || i.link.idc === 0)) {
+                            let s = b._bl._getConnector(p, i.id);
+                            if (!s) return;
+                            s = s.getBoundingClientRect();
+                            const block = b.getBlock(i.link.id)
+                            if (!block || !block._bl) return;
+                            let l = block._bl._getConnector(i.link.position, i.link.idc);
+                            if (!l) return;
+                            const shift = this.shift || 10,
+                                odx = (l.item.index || c + 1) * shift;
+                            //odx = (l.item.index || 0 + 1) * shift;
+                            if (!l) return;
+                            l = l.getBoundingClientRect();
+                            const st = this.$$._gridMain.scrollTop || 0,
+                                sl = this.$$._gridMain.scrollLeft || 0;
+                            const x1 = (l.x + l.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$._gridMain.offsetLeft + sl,
+                                y1 = (l.y + l.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$._gridMain.offsetTop + st,
+                                x2 = (s.x + s.width / 2) * (this.$$.zoom || 1) - this.offsetLeft - this.$$._gridMain.offsetLeft + sl,
+                                y2 = (s.y + s.height / 2) * (this.$$.zoom || 1) - this.offsetTop - this.$$._gridMain.offsetTop + st,
+                                int = p,
+                                out = i.link.position,
+                                path = i.link.position + '-' + p,
+                                idx = (c + 1) * shift + shift / 2;
+                            let x11 = (out === 'left' ? x1 - (shift + odx) : out === 'right' ? x1 + (shift + odx) : x1),
+                                y11 = (out === 'top' ? y1 - (shift + odx) : out === 'bottom' ? y1 + (shift + odx) : y1),
+                                x21 = (int === 'left' ? x2 - (shift + idx) : int === 'right' ? x2 + (shift + idx) : x2),
+                                y21 = (int === 'top' ? y2 - (shift + idx) : int === 'bottom' ? y2 + (shift + idx) : y2),
+                                x = '', y = '', _x = '', _y = '';
+                            let _links = {
+                                'left-left': () => { x = x11 > x21 ? x21 : x11; y = x11 > x21 ? y1 : y21 },
+                                'left-right': () => {
+                                    if (x11 > x21) x21 = x11;
+                                    else { x21 = _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; }
+                                },
+                                'left-top': () => {
+                                    if (x21 < x11) { x = x11; y = y21; if (y11 > y21) { x = x11; y = y21; } }
+                                    else { _x = x2; x = x11; y = y21; if (y11 > y21) y = _y = y21; }
+                                },
+                                'left-bottom': () => {
+                                    if (x11 > x21) {
+                                        if (y11 > y21) { x = x11; y = y21 } if (y11 < y21) { x = x11; y = y21; }
+                                    }
+                                    else { x = x11; y = y21 }
+                                },
+                                'right-right': () => { x = x11 < x21 ? x21 : x11; y = x11 < x21 ? y1 : y21 },
+                                'right-left': () => {
+                                    if (x11 < x21) x21 = x11;
+                                    else { x21 = _x = x2 - (shift + idx); x = x11; y = _y = y21 + (y11 - y21) / 2; }
+                                },
+                                'right-top': () => {
+                                    if (x21 > x11) { x = x11; y = y21; if (y11 > y21) { x = x11; y = y21; } }
+                                    else { x = x11; y = y21; if (y11 > y21) y = y21; }
+                                },
+                                'right-bottom': () => {
+                                    if (x11 < x21) { x = x11; y = y21; if (y11 < y21) { x = x11; y = y21; } }
+                                    else { x = x11; y = y21 }
+                                },
+                                'top-top': () => { y = y11 < y21 ? y11 : y21; x = y11 < y21 ? x2 : x11 },
+                                'top-left': () => {
+                                    if (x11 < x21) { if (y11 > y21) { y11 = y21 } else { y = y11; _y = y21; x = _x = x11 + (x21 - x11) / 2 } }
+                                    else { if (y11 > y21) { _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; } else { y = y11; x = x21; } }
+                                },
+                                'top-right': () => {
+                                    if (x11 > x21) { if (y11 > y21) { y11 = y21 } else { y = y11; _y = y21; x = _x = x11 + (x21 - x11) / 2 } }
+                                    else { if (y11 > y21) { _x = x21; x = x11; y = _y = y21 + (y11 - y21) / 2; } else { y = y11; x = x21; } }
+                                },
+                                'top-bottom': () => {
+                                    if (y11 > y21) y21 = y11;
+                                    else { y21 = _y = y2 + (shift + idx); y = y11; x = _x = x21 + (x11 - x21 + idx) / 2 - odx; }
+                                },
+                                'bottom-bottom': () => { y = y11 < y21 ? y21 : y11; x = y11 < y21 ? x1 : x21 },
+                                'bottom-left': () => {
+                                    if (x11 < x21) { if (y11 < y21) { y11 = y21 } else { y = y11; x = x21 } }
+                                    else { if (y11 < y21) { x = x21; y = y11; } else { y = y11; x = x21; } }
+                                },
+                                'bottom-right': () => {
+                                    if (x11 > x21) { if (y11 < y21) { y11 = y21 } else { y = y11; x = x21 } }
+                                    else { if (y11 < y21) { x = x21; y = y11 } else { y = y11; x = x21; } }
+                                },
+                                'bottom-top': () => {
+                                    if (y11 < y21) y21 = y11;
+                                    else { y21 = _y = y2 - (shift + idx); y = y11; x = _x = x21 + (x11 - x21 + idx) / 2 - odx; }
+                                },
+                            }
+                            if (_links[path]) _links[path]();
+                            let color = this.linkColor || i.link.color || `hsla(${_color}, 90%, 40%, 1)`;
+                            links.push({ x1, y1, x2, y2, int, out, path, x11, y11, x21, y21, x, y, _x, _y, color, selected: false })
+                            _color = i.link.color ? _color : _color + 47;
                         }
-                        if (_links[path]) _links[path]();
-                        let color = this.linkColor || i.link.color || `hsla(${_color}, 90%, 40%, 1)`;
-                        links.push({ x1, y1, x2, y2, int, out, path, x11, y11, x21, y21, x, y, _x, _y, color, selected: false })
-                        _color = i.link.color ? _color : _color + 47;
                     }
-                }
+                })
             })
-        })
+        } catch (error) { }
         return links;
     }
     _shift(l) {
@@ -354,7 +353,7 @@ customElements.define('li-layout-scheme', class LiLayoutScheme extends LiElement
 customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extends LiElement {
     static get properties() {
         return {
-            editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, default: {}, local: true },
+            editMode: { type: Boolean, default: true, local: true }, _gridMain: { type: Object, local: true },
             bl: { type: Object, default: {} },
             defaultSize: { type: Number, default: 24 },
         }
@@ -535,7 +534,7 @@ customElements.define('li-layout-scheme-block', class LiLayoutSchemeBlock extend
 customElements.define('li-layout-scheme-connector', class LiLayoutSchemeConnector extends LiElement {
     static get properties() {
         return {
-            editMode: { type: Boolean, default: true }, _gridMain: { type: Object, default: {}, local: true },
+            editMode: { type: Boolean, default: true }, _gridMain: { type: Object, local: true },
             item: { type: Object, default: {} },
             bl: { type: Object, default: {} },
             defaultSize: { type: Number, default: 18 },
