@@ -67,8 +67,6 @@ customElements.define('li-checkbox', class LiCheckbox extends LiElement {
             this.toggled = !this.toggled;
         }
         if (this.item) this.item.checked = this.toggled;
-        this.requestUpdate();
-        //this.$update();
-        this.fire('checkedChange', { v: this.toggled, item: this.item });
+        this.$update();
     }
 });

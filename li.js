@@ -285,6 +285,25 @@ class CLI {
     ulidToDateTime(ulid) {
         return new Date(decodeTime(ulid));
     }
+
+    setArrRecursive(item, prop, val) {
+        if (!item || !prop) return;
+        const arr = item?.items?.length ? item.items : item?.length ? item : [];
+        arr.forEach(i => {
+            this.setArrRecursive(i, prop, val);
+        })
+        item[prop] = val;
+    }
+    findArrRoot(root, item) {
+        if (!root || !item) return;
+        const arr = root?.items?.length ? root.items : root?.length ? root : [];
+        arr.forEach(i => {
+            //console.log(i.ulid, item.ulid, i.ulid === item.ulid)
+            if (i.ulid === item.ulid) return arr;
+            this.findArrRoot(i, item);
+        })
+        return;
+    }
 }
 globalThis.LI = new CLI();
 
