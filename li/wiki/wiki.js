@@ -14,7 +14,7 @@ import '../layout-tree/layout-tree.js';
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
         return {
-            data: { type: Array, local: true },
+            _data: { type: Array, local: true },
             _item: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
@@ -24,6 +24,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             selected: { type: Object, default: {}, local: true },
             treeList: { type: Object, default: { items: [{ ulid: '01F7N9EXTGQBD6RPGQQ9W2PJWB', label: 'wiki', expanded: true, items: [{ ulid: '01F7N9EXTG38E7MQCHZS2DR8EM', label: 'demo-article', }] }] } }
         }
+    }
+
+    get data() {
+        if (this._data && this.selected) {
+            this._data[this.selected.ulid] = this._data[this.selected.ulid] || [];
+            return this._data[this.selected.ulid];
+        }
+        return [];
     }
 
     static get styles() {
@@ -139,14 +147,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         ` : html`
                             <b>articles</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div>
-                                <li-button name="library-add" title="new file" size="20"></li-button>
-                                <li-button name="folder-open" title="new folder" size="20"></li-button>
-                                <li-button name="refresh" title="refresh" size="20"></li-button>
-                                <li-button name="unfold-less" title="collapse all" size="20"></li-button>
+                            <div style="display:flex">
+                                <li-button name="library-add" title="new article" size="20" @click="${this._articleActions}"></li-button>
+                                <li-button name="unfold-less" title="collapse" size="20" @click="${this._articleActions}"></li-button>
+                                <li-button name="unfold-more" title="expand" size="20" @click="${this._articleActions}"></li-button>
+                                <div style="flex:1"></div>
+                                <li-button name="delete" title="delete" size="20" @click="${this._articleActions}"></li-button>
+                                <li-button name="refresh" title="refresh" size="20" @click="${this._articleActions}" disabled></li-button>
+                                <li-button name="save" title="save" size="20" @click="${this._articleActions}"></li-button>
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <li-layout-tree .item="${this.treeList}" allowCheck iconSize="20"></li-layout-tree>
+                            <li-layout-tree .item="${this.treeList}" allowCheck iconSize="20" style="color: gray;" @checkedChange="${this._checkedChange}"></li-layout-tree>
                         `}
                     </div>
                 </div>
@@ -179,7 +190,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         const id = e.target.id,
             w = this.$id.main.offsetWidth,
             d = this.data || [],
-            s = {
+            fn = {
                 s00: () => this._widthL = w / 2 - 20,
                 s01: () => this._widthL = this._widthL > 0 ? 0 : w / 2 - 20,
                 s02: () => d.forEach(i => i.hidden = true),
@@ -205,8 +216,53 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 },
                 s11: () => { if (window.confirm(`Do you really want delete all?`)) this.data.splice(0); this._expandItem = undefined }
             }
-        if (s[id]) {
-            s[id]();
+        if (fn[id]) {
+            fn[id]();
+            this.$update();
+        }
+    }
+    _checkedChange(e) {
+        if (e.detail?.item) this.selected = e.detail.item;
+        this._iterate(this.selected, 'checked', e.detail.v);
+        this.$update();
+    }
+    _iterate(item, prop, val) {
+        if (item?.items?.length) {
+            item.items.forEach(i => {
+                this._iterate(i, prop, val);
+            })
+        }
+        item[prop] = val;
+    }
+    _articleActions(e) {
+        const title = e.target.title,
+            tl = this.treeList || [],
+            fn = {
+                'new article': () => {
+                    if (!this.selected) this.selected = this.treeList.items[0];
+                    this.selected.items = this.selected.items || [];
+                    const item = { ulid: LI.ulid(), label: 'new-article', checked: false, expanded: false };
+                    this.selected.items.splice(this.selected.items.length, 0, item);
+                    this.selected.expanded = true;
+                },
+                'collapse': () => {
+                    this._iterate(this.selected, 'expanded', false);
+                },
+                'expand': () => {
+                    this._iterate(this.selected, 'expanded', true);
+                },
+                'delete': () => {
+                    console.log(title)
+                },
+                'refresh': () => {
+                    console.log(title)
+                },
+                'save': () => {
+                    console.log(title)
+                },
+            }
+        if (fn[title]) {
+            fn[title]();
             this.$update();
         }
     }
@@ -257,9 +313,17 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
             _expandItem: { type: Object, local: true },
-            data: { type: Array, local: true },
+            _data: { type: Array, local: true },
             idx: { type: Number, default: 0 }
         }
+    }
+
+    get data() {
+        if (this._data && this.selected) {
+            this._data[this.selected.ulid] = this._data[this.selected.ulid] || [];
+            return this._data[this.selected.ulid];
+        }
+        return [];
     }
 
     static get styles() {

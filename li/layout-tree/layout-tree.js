@@ -58,7 +58,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                                 @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
                 : html`<div style="min-width:${this.iconSize + 2}px;width:${this.iconSize + 2}px;min-height:${this.iconSize + 2}px;height:${this.iconSize + 2}px"></div>`
             }
-                        ${this.allowCheck ? html`<li-checkbox .size="${this.iconSize}"></li-checkbox>` : html``}
+                        ${this.allowCheck ? html`<li-checkbox .size="${this.iconSize}" .item="${i}"></li-checkbox>` : html``}
                         <div style="padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};">${i.label || i.name}</div>
                         <div style="flex:1"></div>
                     </div>

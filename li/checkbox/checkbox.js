@@ -5,6 +5,7 @@ import '../icon/icon.js'
 customElements.define('li-checkbox', class LiCheckbox extends LiElement {
     static get properties() {
         return {
+            item: { type: Object },
             fill: { type: String, default: 'gray' },
             back: { type: String, default: '#fdfdfd' },
             size: { type: Number, default: 24 },
@@ -42,7 +43,7 @@ customElements.define('li-checkbox', class LiCheckbox extends LiElement {
         `;
     }
     get icon() {
-        return this.indeterminate ? 'check-box-indeterminate' : this.toggled ? 'check-box' : 'check-box-outline-blank';
+        return this.indeterminate ? 'check-box-indeterminate' : (this.item ? this.item.checked : this.toggled) ? 'check-box' : 'check-box-outline-blank';
     }
     render() {
         return html`
@@ -65,6 +66,9 @@ customElements.define('li-checkbox', class LiCheckbox extends LiElement {
             this.useIndeterminate = false;
             this.toggled = !this.toggled;
         }
-        this.$update();
+        if (this.item) this.item.checked = this.toggled;
+        this.requestUpdate();
+        //this.$update();
+        this.fire('checkedChange', { v: this.toggled, item: this.item });
     }
 });
