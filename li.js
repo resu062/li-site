@@ -270,3 +270,10 @@ class CLI {
     }
 }
 globalThis.LI = new CLI();
+
+Object.defineProperty(Array.prototype, 'has', { enumerable: false, value: Array.prototype.includes })
+Object.defineProperty(Array.prototype, 'clear', { enumerable: false, value: function() { this.splice(0) } })
+Object.defineProperty(Array.prototype, 'first', { enumerable: false, get() { return this[0] } })
+Object.defineProperty(Array.prototype, 'last', { enumerable: false, get() { return this[this.length - 1] } })
+Object.defineProperty(Array.prototype, 'add', { enumerable: false, value: function(...item) { for (let i of item) { if (this.includes(i)) continue; this.push(i) } } })
+Object.defineProperty(Array.prototype, 'remove', { enumerable: false, value: function(...items) { for (const item of items) { const idx = this.indexOf(item); if (idx < 0) continue; this.splice(idx, 1) } } })
