@@ -17,6 +17,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             complexExt: { type: String, default: 'tree-line' },
             view: { type: String, default: '' },
             allowCheck: { type: Boolean, default: false },
+            noCheckChildren: { type: Boolean, default: false },
             selected: { type: Object, default: {}, local: true },
             fontSize: { type: String, default: 'medium' },
         }
@@ -58,7 +59,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                                 @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
                 : html`<div style="min-width:${this.iconSize + 2}px;width:${this.iconSize + 2}px;min-height:${this.iconSize + 2}px;height:${this.iconSize + 2}px"></div>`
             }
-                        ${this.allowCheck ? html`<li-checkbox .size="${this.iconSize}" .item="${i}"></li-checkbox>` : html``}
+                        ${this.allowCheck ? html`<li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}"></li-checkbox>` : html``}
                         <div style="padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};">${i.label || i.name}</div>
                         <div style="flex:1"></div>
                     </div>
@@ -69,6 +70,10 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             `)}
         `
     }
+    _checkChildren(e, i) {
+        if (!this.noCheckChildren) LI.setArrRecursive(i, 'checked', e.target.toggled);
+        this._focus(e, i);
+    }
     _click(e, i) {
         i.expanded = e.target.toggled;
         this.$update();
@@ -76,5 +81,6 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     _focus(e, i) {
         this.selected = i;
         this.$update();
+        this.fire('selected', i);
     }
 });

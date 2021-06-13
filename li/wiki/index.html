@@ -18,26 +18,53 @@
 <script type="module">
     import { data, data2, data3 } from './data.js';
     setTimeout(() => {
-        wiki._data = {
-            '01F7N9EXTG38E7MQCHZS2DR8EM': [
-                { ulid: '01F7N9T3XECY0T7R3BKJ2665GF', label: 'html-editor', show: true, h: 80, type: 'html-editor', value: '<div style="color:blue;font-size:26px;font-weight:600;">li-wiki (protype)</div>' },
-                { ulid: '01F7N9T3XECY0T7R3BKJ2F2ZG1', label: 'html-editor', show: true, h: 80, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">HTML editor</div>' },
-                { ulid: '01F7N9T3XFZPFJBS1QVABA3E7P', label: 'suneditor', show: true, h: 140, type: 'suneditor', value: '<div style="color:orange;font-size:26px;font-weight:600;">SunEditor (html editor)</div>' },
-                { ulid: '01F7N9T3XF3CSRYNF1ST91W6AB', label: 'simplemde', show: true, h: 120, type: 'simplemde', value: '## SimpleMDE (markdown editor)' },
-                { ulid: '01F7N9T3XF6NNP1NSXTF3RGTTT', label: 'showdown', show: true, h: 40, type: 'showdown', value: '## Showdown (markdown editor)' },
-                { ulid: '01F7N9T3XFSERC7RWR15FRE40X', label: 'html-editor', show: true, h: 100, type: 'html-editor', collapsed: true, value: '<div style="color:blue;font-size:26px;font-weight:600;">Demo - Tabulator (<a target="_blank" href="http://tabulator.info/">http://tabulator.info/</a>) in iFrame:</div>' },
-                { ulid: '01F7N9T3XFRY3E2GHWPW5FBD9R', label: 'iframe', show: true, h: 240, type: 'iframe', value: data3 },
-                { ulid: '01F7N9T3XGXGNYG7TTM7SPBBES', label: 'html-editor', show: true, h: 140, type: 'html-editor', value: data2 },
-                {
-                    ulid: '01F7N9T3XG2FB1QDTFM91J7KK9', label: 'iframe', show: true, h: 48, type: 'iframe', value: `<div style="font-family: Arial;font-size: 24px;font-weight:700;color:blue">
+        wiki.templates = [
+            {
+                ulid: '01F823Q8MYXE55W26M4E77XG9J',
+                label: 'wiki-templates',
+                templates: [],
+                items: [
+                    {
+                        ulid: '01F823SC9661J607Q2SV0P43G3',
+                        label: 'template ...',
+                        templates: [],
+                        items: []
+                    }
+                ]
+            }
+        ];
+        wiki.articles = [
+            {
+                ulid: '01F7N9EXTG38E7MQCHZS2DR8EM',
+                label: 'wiki',
+                templates: [
+                    { ulid: '01F7N9T3XECY0T7R3BKJ2665GF', label: 'html-editor', show: true, h: 640, type: 'html-editor', value: '<div style="color:blue;font-size:26px;font-weight:600;">WELCOME li-wiki (protype)</div>' }
+                ],
+                items: [
+                    {
+                        ulid: '01F7N9EXTGQBD6RPGQQ9W2PJWB',
+                        label: 'demo-article',
+                        templates: [
+                            { ulid: '01F7N9T3XECY0T7R3BKJ2665GF', label: 'html-editor', show: true, h: 80, type: 'html-editor', value: '<div style="color:blue;font-size:26px;font-weight:600;">li-wiki (protype)</div>' },
+                            { ulid: '01F7N9T3XECY0T7R3BKJ2F2ZG1', label: 'html-editor', show: true, h: 80, type: 'html-editor', value: '<div style="color:red;font-size:26px;font-weight:600;">HTML editor</div>' },
+                            { ulid: '01F7N9T3XFZPFJBS1QVABA3E7P', label: 'suneditor', show: true, h: 140, type: 'suneditor', value: '<div style="color:orange;font-size:26px;font-weight:600;">SunEditor (html editor)</div>' },
+                            { ulid: '01F7N9T3XF3CSRYNF1ST91W6AB', label: 'simplemde', show: true, h: 120, type: 'simplemde', value: '## SimpleMDE (markdown editor)' },
+                            { ulid: '01F7N9T3XF6NNP1NSXTF3RGTTT', label: 'showdown', show: true, h: 40, type: 'showdown', value: '## Showdown (markdown editor)' },
+                            { ulid: '01F7N9T3XFSERC7RWR15FRE40X', label: 'html-editor', show: true, h: 100, type: 'html-editor', collapsed: true, value: '<div style="color:blue;font-size:26px;font-weight:600;">Demo - Tabulator (<a target="_blank" href="http://tabulator.info/">http://tabulator.info/</a>) in iFrame:</div>' },
+                            { ulid: '01F7N9T3XFRY3E2GHWPW5FBD9R', label: 'iframe', show: true, h: 240, type: 'iframe', value: data3 },
+                            { ulid: '01F7N9T3XGXGNYG7TTM7SPBBES', label: 'html-editor', show: true, h: 140, type: 'html-editor', value: data2 },
+                            {
+                                ulid: '01F7N9T3XG2FB1QDTFM91J7KK9', label: 'iframe', show: true, h: 48, type: 'iframe', value: `<div style="font-family: Arial;font-size: 24px;font-weight:700;color:blue">
     Demo CahrtJS (<a target="_blank" href="https://www.chartjs.org/">https://www.chartjs.org/</a>) in iFrame:
 </div>`},
-                { ulid: '01F7N9T3XGZXEH2QXJW5J6DYDV', label: 'iframe', show: true, h: 640, type: 'iframe', value: data },
-            ], 
-            '01F7N9EXTGQBD6RPGQQ9W2PJWB' :[
-                { ulid: '01F7N9T3XECY0T7R3BKJ2665GF', label: 'html-editor', show: true, h: 640, type: 'html-editor', value: '<div style="color:blue;font-size:26px;font-weight:600;">WELCOME li-wiki (protype)</div>' },
-            ]
-        }
-    }, 100);
+                            { ulid: '01F7N9T3XGZXEH2QXJW5J6DYDV', label: 'iframe', show: true, h: 640, type: 'iframe', value: data },
+
+                        ],
+                        items: []
+                    }
+                ],
+            }
+        ];
+    }, 10);
 
 </script>
