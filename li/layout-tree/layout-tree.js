@@ -6,7 +6,7 @@ import '../checkbox/checkbox.js';
 customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     static get properties() {
         return {
-            ulid: { type: String, default: '' },
+            id: { type: String, default: '' },
             item: { type: Object, default: {} },
             iconSize: { type: Number, default: 28 },
             margin: { type: Number, default: 0 },
@@ -18,7 +18,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             view: { type: String, default: '' },
             allowCheck: { type: Boolean, default: false },
             noCheckChildren: { type: Boolean, default: false },
-            selected: { type: Object, default: {}, local: true },
+            selected: { type: Object, default: {} },
             fontSize: { type: String, default: 'medium' },
         }
     }
@@ -65,7 +65,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .ulid="${this.ulid}" .allowCheck ="${this.allowCheck}" .iconSize="${this.iconSize}"></li-layout-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .id="${this.id}" .allowCheck ="${this.allowCheck}" .iconSize="${this.iconSize}" .selected="${this.selected}"></li-layout-tree>` : ''}
                 </div>
             `)}
         `
@@ -76,11 +76,10 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     }
     _click(e, i) {
         i.expanded = e.target.toggled;
-        this.$update();
+
     }
     _focus(e, i) {
         this.selected = i;
-        this.$update();
         this.fire('selected', i);
     }
 });
