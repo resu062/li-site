@@ -54,18 +54,23 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             ${this.items.map(i => html`
                 <div class="row ${this.selected === i ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}" @click="${(e) => this._focus(e, i)}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
-                        ${i.items && i.items.length
-                ? html`<li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
-                                @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>`
-                : html`<div style="min-width:${this.iconSize + 2}px;width:${this.iconSize + 2}px;min-height:${this.iconSize + 2}px;height:${this.iconSize + 2}px"></div>`
-            }
-                        ${this.allowCheck ? html`<li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}"></li-checkbox>` : html``}
+                        ${i.items && i.items.length ? html`
+                            <li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
+                                    @click="${(e) => this._click(e, i)}" size="${this.iconSize}"></li-button>
+                        ` : html`
+                            <div style="min-width:${this.iconSize + 2}px;width:${this.iconSize + 2}px;min-height:${this.iconSize + 2}px;height:${this.iconSize + 2}px"></div>
+                        `}
+                        ${this.allowCheck ? html`
+                            <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}"></li-checkbox>
+                        ` : html``}
                         <div style="padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};">${i.label || i.name}</div>
                         <div style="flex:1"></div>
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
-                    ${i.items && i.items.length && i.expanded ? html`<li-layout-tree .item="${i.items}" .margin="${this.margin}" .id="${this.id}" .allowCheck ="${this.allowCheck}" .iconSize="${this.iconSize}" .selected="${this.selected}"></li-layout-tree>` : ''}
+                    ${i.items && i.items.length && i.expanded ? html`
+                        <li-layout-tree .item="${i.items}" .margin="${this.margin}" .id="${this.id}" .allowCheck ="${this.allowCheck}" .iconSize="${this.iconSize}" .selected="${this.selected}"></li-layout-tree>
+                    ` : html``}
                 </div>
             `)}
         `
