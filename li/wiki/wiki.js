@@ -15,7 +15,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
         return {
             articles: { type: Array, default: [], local: true },
-            selected: { type: Object, default: {} },
+            selected: { type: Object, default: {}, local: true },
             templates: { type: Array, default: [], local: true },
             selectedTemplate: { type: Object, default: {} },
             _item: { type: Object, local: true },
@@ -228,7 +228,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 'add new': () => {
                     if (!selected) selected = items.items[0];
                     selected.items = selected.items || [];
-                    const item = { ulid: LI.ulid(), label, checked: false, expanded: false };
+                    const item = { ulid: LI.ulid(), label, checked: false, expanded: false, items: [], templates: [] };
                     selected.items.splice(selected.items.length, 0, item);
                     selected.expanded = true;
                 },
@@ -305,6 +305,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     static get properties() {
         return {
             articles: { type: Array, local: true },
+            selected: { type: Object, default: {}, local: true },
             item: { type: Object },
             shadow: { type: Number, default: 0 },
             _item: { type: Object, local: true },
