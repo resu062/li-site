@@ -179,24 +179,32 @@ export class LiElement extends LitElement {
     }
 
     $update(property, value) { LI.$update.call(this, property, value) }
-    $listen(property, fn) {
+    _ev(event) { return event + '-' + this.id || '' }
+    $listen(event, fn) {
+        let ev = this._ev(event);
         if (!this.$$) {
             this._initBus();
             this.$$.update.listen(this.fnUpdate);
         }
-        if (this.$$[property] === undefined || !this.$$[property].listen)
-            this.$$[property] = icaro({ count: 0 });
-        this.$$[property].listen(fn);
+        if (this.$$[ev] === undefined || !this.$$[ev].listen)
+            this.$$[ev] = icaro({ count: 0 });
+        this.$$[ev].listen(fn);
+        this.listen(event); //, () => {});
     }
-    $unlisten(property, fn) {
-        if (this.$$[property])
-            this.$$[property].unlisten(fn);
+    $unlisten(event, fn) {
+        let ev = this._ev(event);
+        if (this.$$[ev])
+            this.$$[ev].unlisten(fn);
+        this.unlisten(event, fn);
     }
-    $fire(property, value) {
-        if (this.$$ && property) {
-            this.$$[property].value = value;
-            ++this.$$[property].count;
+    $fire(event, value) {
+        let ev = this._ev(event);
+        if (event && this.$$ && ev) {
+            this.$$[ev].value = undefined;
+            this.$$[ev].value = value;
+            ++this.$$[ev].count;
         }
+        this.fire(event, value);
     }
 
     fnListen = (e) => console.log('...fire ', this.localName, e?.type, e?.detail);
@@ -294,18 +302,18 @@ class CLI {
         })
         item[prop] = val;
     }
-    findArrRoot(items, item, root) {
+    findArrRoot(items, item, res = { root: undefined}) {
         if (!items || !item) return;
         const arr = items?.items?.length ? items.items : items?.length ? items : [];
-        if (root) return root;
+        if (res.root) return res.root;
         arr.forEach(i => {
             if (i.items?.indexOf(item) > -1) {
-                root = i;
+                res.root = i;
                 return;
             }
-            this.findArrRoot(i, item, root);
+            this.findArrRoot(i, item, res);
         });
-        return root;
+        return res.root;
     }
 }
 globalThis.LI = new CLI();

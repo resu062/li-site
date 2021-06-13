@@ -155,7 +155,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${(e) => {this.selected = e.detail;this.$update()}}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
-                            <!-- <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${(e) => {this.selectedTemplate = e.detail;this.$update()}}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree> -->
+                            <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${(e) => {this.selectedTemplate = e.detail;this.$update()}}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
                         `}
                     </div>
                 </div>
