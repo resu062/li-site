@@ -294,15 +294,18 @@ class CLI {
         })
         item[prop] = val;
     }
-    findArrRoot(root, item) {
-        if (!root || !item) return;
-        const arr = root?.items?.length ? root.items : root?.length ? root : [];
+    findArrRoot(items, item, root) {
+        if (!items || !item) return;
+        const arr = items?.items?.length ? items.items : items?.length ? items : [];
+        if (root) return root;
         arr.forEach(i => {
-            //console.log(i.ulid, item.ulid, i.ulid === item.ulid)
-            if (i.ulid === item.ulid) return arr;
-            this.findArrRoot(i, item);
-        })
-        return;
+            if (i.items?.indexOf(item) > -1) {
+                root = i;
+                return;
+            }
+            this.findArrRoot(i, item, root);
+        });
+        return root;
     }
 }
 globalThis.LI = new CLI();

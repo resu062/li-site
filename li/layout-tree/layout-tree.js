@@ -71,10 +71,8 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
         `
     }
     _checkChildren(e, i) {
-        this.selected = i;
-        if (this.noCheckChildren) return;
-        LI.setArrRecursive(i, 'checked', e.target.toggled);
-        this.$update();
+        if (!this.noCheckChildren) LI.setArrRecursive(i, 'checked', e.target.toggled);
+        this._focus(e, i);
     }
     _click(e, i) {
         i.expanded = e.target.toggled;
@@ -83,5 +81,6 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     _focus(e, i) {
         this.selected = i;
         this.$update();
+        this.fire('selected', i);
     }
 });

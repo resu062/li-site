@@ -15,13 +15,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
         return {
             articles: { type: Array, default: [], local: true },
-            selected: { type: Object, default: {}, local: true },
+            selected: { type: Object, default: {} },
+            templates: { type: Array, default: [], local: true },
+            selectedTemplate: { type: Object, default: {} },
             _item: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
             _widthL: { type: Number, default: 800, save: true },
             _expandItem: { type: Object, local: true },
-            _lPanel: { type: String, default: 'home' },
+            _lPanel: { type: String, default: 'articles' },
         }
     }
 
@@ -97,6 +99,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 <div slot="app-left" class="panel">
                     <div>
                         <li-button name="tree-structure" title="home" @click="${() => this._lPanel = 'articles'}"></li-button>
+                        <li-button name="bookmark-border" title="templates" @click="${() => this._lPanel = 'templates'}"></li-button>
                         <li-button name="playlist-add" title="editors" @click="${() => this._lPanel = 'editors'}"></li-button>
                         <li-button name="check" title="actions" @click="${() => this._lPanel = 'actions'}"></li-button>
                         <li-button name="settings" title="settings" @click="${() => this._lPanel = 'settings'}"></li-button>
@@ -140,19 +143,19 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div>password:</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                         ` : html`
-                            <b>articles</b>
+                            <b>${this._lPanel}</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="display:flex">
-                                <li-button name="library-add" title="new article" size="20" @click="${this._articleActions}"></li-button>
-                                <li-button name="unfold-less" title="collapse" size="20" @click="${this._articleActions}"></li-button>
-                                <li-button name="unfold-more" title="expand" size="20" @click="${this._articleActions}"></li-button>
+                                <li-button name="unfold-less" title="collapse" size="20" @click="${this._treeActions}"></li-button>
+                                <li-button name="unfold-more" title="expand" size="20" @click="${this._treeActions}"></li-button>
                                 <div style="flex:1"></div>
-                                <li-button name="delete" title="delete" size="20" @click="${this._articleActions}"></li-button>
-                                <li-button name="refresh" title="refresh" size="20" @click="${this._articleActions}" disabled></li-button>
-                                <li-button name="save" title="save" size="20" @click="${this._articleActions}"></li-button>
+                                <li-button name="delete" title="delete" size="20" @click="${this._treeActions}"></li-button>
+                                <li-button name="library-add" title="add new" size="20" @click="${this._treeActions}"></li-button>
+                                <li-button name="save" title="save" size="20" @click="${this._treeActions}"></li-button>
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <li-layout-tree .item="${this.articles}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
+                            <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${(e) => {this.selected = e.detail;this.$update()}}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
+                            <!-- <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${(e) => {this.selectedTemplate = e.detail;this.$update()}}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree> -->
                         `}
                     </div>
                 </div>
@@ -216,27 +219,32 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.$update();
         }
     }
-    _articleActions(e) {
+    _treeActions(e) {
+        const items = this._lPanel === 'articles' ? this.articles : this.templates,
+            selected = this._lPanel === 'articles' ? this.selected : this.selectedTemplate,
+            label = this._lPanel === 'articles' ? 'new-article' : 'new-template';
         const title = e.target.title,
-            tl = this.articles || [],
             fn = {
-                'new article': () => {
-                    if (!this.selected) this.selected = this.articles.items[0];
-                    this.selected.items = this.selected.items || [];
-                    const item = { ulid: LI.ulid(), label: 'new-article', checked: false, expanded: false };
-                    this.selected.items.splice(this.selected.items.length, 0, item);
-                    this.selected.expanded = true;
+                'add new': () => {
+                    if (!selected) selected = items.items[0];
+                    selected.items = selected.items || [];
+                    const item = { ulid: LI.ulid(), label, checked: false, expanded: false };
+                    selected.items.splice(selected.items.length, 0, item);
+                    selected.expanded = true;
                 },
                 'collapse': () => {
-                    LI.setArrRecursive(this.selected, 'expanded', false);
+                    LI.setArrRecursive(selected, 'expanded', false);
                 },
                 'expand': () => {
-                    LI.setArrRecursive(this.selected, 'expanded', true);
+                    LI.setArrRecursive(selected, 'expanded', true);
                 },
                 'delete': () => {
-                    this.selected?.items?.clear();
-                    const root = LI.findArrRoot(this.articles, this.selected);
-                    if (root) root.splice(indexOf(this.selected), 1);
+                    if (!selected?.checked || !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`)) return;
+                    selected?.items?.clear();
+                    const root = LI.findArrRoot(items, selected);
+                    if (root) {
+                        root.items.splice(root.items.indexOf(selected), 1);
+                    }
                     this.$update();
                 },
                 'refresh': () => {
@@ -251,6 +259,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.$update();
         }
     }
+
     _addBox(e) {
         const txt = e.target.innerText;
         this.article.splice(this.article.length, 0, { label: txt, show: true, h: 120, type: txt, value: '', ulid: LI.ulid() });
@@ -261,6 +270,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         setTimeout(() => {
             this.selected = this.articles[0];
             this.selected.expanded = true;
+            this.selectedTemplate = this.templates[0];
+            this.selectedTemplate.expanded = true;
             if (!this._widthL && this._widthL !== 0) this._widthL = 800;
             else this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
             this.$update();
