@@ -294,15 +294,27 @@ class CLI {
         return new Date(decodeTime(ulid));
     }
 
-    setArrRecursive(item, prop, val) {
+    arrSetItems(item, prop, val) {
         if (!item || !prop) return;
         const arr = item?.items?.length ? item.items : item?.length ? item : [];
         arr.forEach(i => {
-            this.setArrRecursive(i, prop, val);
+            this.arrSetItems(i, prop, val);
         })
         item[prop] = val;
     }
-    findArrRoot(items, item, res = { root: undefined}) {
+    arrFindItem(item, prop, val, res = { root: undefined}) {
+        if (!item || !prop) return;
+        const arr = item?.items?.length ? item.items : item?.length ? item : [];
+        arr.forEach(i => {
+            if (i[prop] == val) {
+                res.item = i;
+                return;
+            }
+            this.arrFindItem(i, prop, val, res);
+        })
+        return res.item;
+    }
+    arrFindRoot(items, item, res = { root: undefined}) {
         if (!items || !item) return;
         const arr = items?.items?.length ? items.items : items?.length ? items : [];
         if (res.root) return res.root;
@@ -311,7 +323,7 @@ class CLI {
                 res.root = i;
                 return;
             }
-            this.findArrRoot(i, item, res);
+            this.arrFindRoot(i, item, res);
         });
         return res.root;
     }

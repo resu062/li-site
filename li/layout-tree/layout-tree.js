@@ -61,7 +61,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     render() {
         return html`
             ${this.items.map(i => html`
-                <div class="row ${this.selected === i ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}" @click="${(e) => this._focus(e, i)}">
+                <div class="row ${this.selected === i ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length ? html`
                             <li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
@@ -73,7 +73,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                             <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}"></li-checkbox>
                         ` : html``}
                         <div ?contentEditable="${this._ed}" style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};"
-                                @dblclick="${() => this._ed = true}" @blur="${this._setLabel}">${i.label || i.name}</div>
+                                @dblclick="${() => this._ed = true}" @blur="${this._setLabel}"  @click="${(e) => this._focus(e, i)}">${i.label || i.name}</div>
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
@@ -92,15 +92,16 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
         }
     }
     _checkChildren(e, i) {
-        if (!this.noCheckChildren) LI.setArrRecursive(i, 'checked', e.target.toggled);
-        this._focus(e, i);
+        if (!this.noCheckChildren) LI.arrSetItems(i, 'checked', e.target.toggled);
+        this.$update();
     }
     _click(e, i) {
         i.expanded = e.target.toggled;
-
+        this.$update();
     }
     _focus(e, i) {
         this.selected = i;
         this.fire('selected', i);
+        this.$update();
     }
 });

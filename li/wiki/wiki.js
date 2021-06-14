@@ -194,8 +194,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     _selected(e) {
         this._item = this._expandItem = undefined;
-        if (this._lPanel === 'articles') this.selected = e.detail; 
-        else this.selectedTemplate = e.detail; 
+        if (this._lPanel === 'articles') this.selected = e.detail;
+        else this.selectedTemplate = e.detail;
         this.$update()
     }
     _settings(e) {
@@ -234,57 +234,37 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.$update();
         }
     }
-    _treeActions(e, title) {
+    _treeActions(e, title, confirm = true) {
         const items = this._lPanel === 'articles' ? this.articles : this.templates,
             selected = this._lPanel === 'articles' ? this.selected : this.selectedTemplate,
             label = this._lPanel === 'articles' ? 'new-article' : 'new-template';
         title = title || e.target.title;
         const fn = {
-                'add new': () => {
-                    if (!selected) selected = items.items[0];
-                    selected.items = selected.items || [];
-                    const item = { ulid: LI.ulid(), label, checked: false, expanded: false, items: [], templates: [] };
-                    selected.items.splice(selected.items.length, 0, item);
-                    selected.expanded = true;
-                },
-                'collapse': () => {
-                    LI.setArrRecursive(selected, 'expanded', false);
-                },
-                'expand': () => {
-                    LI.setArrRecursive(selected, 'expanded', true);
-                },
-                'delete': () => {
-                    if (!selected?.checked || !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`)) return;
-                    selected?.items?.clear();
-                    const root = LI.findArrRoot(items, selected);
-                    if (root) {
-                        root.items.splice(root.items.indexOf(selected), 1);
-                    }
-                    this.$update();
-                },
-                'refresh': () => {
-                    if (!window.confirm(`Do you really want delete all your data and restore demo-data?`)) return;
-                    this._hasSaveDB = false;
-                    if (this.dbWiki) {
-                        this.dbWiki.get('articles').then((res) => {
-                            this.dbArticles = res;
-                        }).then(() => {
-                            return this.dbWiki.get('templates');
-                        }).then((res) => {
-                            this.dbTemplates = res;
-                        }).then((res) => {
-                            this.dbArticles.value = [];
-                            this.dbTemplates.value = [];
-                            this.dbWiki.bulkDocs([this.dbArticles, this.dbTemplates]);
-                        }).then(() => {
-                            document.location.reload();
-                        }).catch(function(err) {
-                            console.log(err);
-                        })
-                    }
-                },
-                'save': () => {
-                    this.dbWiki = new PouchDB('wiki');
+            'add new': () => {
+                if (!selected) selected = items.items[0];
+                selected.items = selected.items || [];
+                const item = { ulid: LI.ulid(), label, checked: false, expanded: false, items: [], templates: [] };
+                selected.items.splice(selected.items.length, 0, item);
+                selected.expanded = true;
+            },
+            'collapse': () => {
+                LI.arrSetItems(selected, 'expanded', false);
+            },
+            'expand': () => {
+                LI.arrSetItems(selected, 'expanded', true);
+            },
+            'delete': () => {
+                const itemToDelete = LI.arrFindItem(items[0], 'checked', true);
+                if (!itemToDelete || (confirm && !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`))) return;
+                itemToDelete.items?.clear();
+                const root = LI.arrFindRoot(items, itemToDelete);
+                if (root) root.items.splice(root.items.indexOf(itemToDelete), 1);
+                this._treeActions(e, 'delete', false);
+            },
+            'refresh': () => {
+                if (!window.confirm(`Do you really want delete all your data and restore demo-data?`)) return;
+                this._hasSaveDB = false;
+                if (this.dbWiki) {
                     this.dbWiki.get('articles').then((res) => {
                         this.dbArticles = res;
                     }).then(() => {
@@ -292,15 +272,34 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     }).then((res) => {
                         this.dbTemplates = res;
                     }).then((res) => {
-                        this.dbArticles.value = this.articles;
-                        this.dbTemplates.value = this.templates;
+                        this.dbArticles.value = [];
+                        this.dbTemplates.value = [];
                         this.dbWiki.bulkDocs([this.dbArticles, this.dbTemplates]);
+                    }).then(() => {
+                        document.location.reload();
+                    }).catch(function(err) {
+                        console.log(err);
                     })
-                    this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
-                    this.dbWiki.sync(this.dbLocalHost);
-                    this._hasSaveDB = true;
-                },
-            }
+                }
+            },
+            'save': () => {
+                this.dbWiki = new PouchDB('wiki');
+                this.dbWiki.get('articles').then((res) => {
+                    this.dbArticles = res;
+                }).then(() => {
+                    return this.dbWiki.get('templates');
+                }).then((res) => {
+                    this.dbTemplates = res;
+                }).then((res) => {
+                    this.dbArticles.value = this.articles;
+                    this.dbTemplates.value = this.templates;
+                    this.dbWiki.bulkDocs([this.dbArticles, this.dbTemplates]);
+                })
+                this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
+                this.dbWiki.sync(this.dbLocalHost);
+                this._hasSaveDB = true;
+            },
+        }
         if (fn[title]) {
             fn[title]();
             this.$update();
