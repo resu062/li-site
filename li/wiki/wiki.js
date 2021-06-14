@@ -267,7 +267,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     if (!this.dbWiki) {
                         this.dbWiki = new PouchDB('wiki');
                         this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
-                        this.dbWiki.replicate.to(this.dbLocalHost);
+                        this.dbWiki.sync(this.dbLocalHost);
                         this.dbWiki.put({
                             _id: 'articles',
                             value: this.articles
@@ -301,7 +301,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             if (this._hasSaveDB) {
                 this.dbWiki = new PouchDB('wiki');
                 this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
-                this.dbWiki.replicate.to(this.dbLocalHost);
+                this.dbWiki.sync(this.dbLocalHost);
                 this.dbWiki.get('articles').then((res) => {
                     this.dbArticles = res;
                     this.articles = res.value;
