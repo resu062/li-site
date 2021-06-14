@@ -11,6 +11,8 @@ import '../button/button.js';
 import '../checkbox/checkbox.js';
 import '../layout-tree/layout-tree.js';
 
+import '../../lib/pouchdb/pouchdb.js'
+
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
         return {
@@ -24,6 +26,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _widthL: { type: Number, default: 800, save: true },
             _expandItem: { type: Object, local: true },
             _lPanel: { type: String, default: 'articles' },
+            _hasSaveDB: { type: Boolean, save: true }
         }
     }
 
@@ -97,12 +100,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <li-button id="s01" name="filter-2" @click="${this._settings}" style="margin-right:8px"></li-button>
                 </div>
                 <div slot="app-left" class="panel">
-                    <div>
+                    <div style="display: flex">
                         <li-button name="tree-structure" title="home" @click="${() => this._lPanel = 'articles'}"></li-button>
                         <li-button name="bookmark-border" title="templates" @click="${() => this._lPanel = 'templates'}"></li-button>
                         <li-button name="playlist-add" title="editors" @click="${() => this._lPanel = 'editors'}"></li-button>
                         <li-button name="check" title="actions" @click="${() => this._lPanel = 'actions'}"></li-button>
                         <li-button name="settings" title="settings" @click="${() => this._lPanel = 'settings'}"></li-button>
+                        <div style="flex:1"></div>
+                        <li-button name="save" title="save" @click="${this._treeActions}"></li-button>
                     </div>
                     <div class="panel-in">
                         ${this._lPanel === 'editors' ? html`
@@ -149,13 +154,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <li-button name="unfold-less" title="collapse" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="unfold-more" title="expand" size="20" @click="${this._treeActions}"></li-button>
                                 <div style="flex:1"></div>
+                                <li-button name="refresh" title="refresh" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="delete" title="delete" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="library-add" title="add new" size="20" @click="${this._treeActions}"></li-button>
-                                <li-button name="save" title="save" size="20" @click="${this._treeActions}"></li-button>
+                                <!-- <li-button name="save" title="save" size="20" @click="${this._treeActions}"></li-button> -->
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${(e) => {this.selected = e.detail;this.$update()}}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
-                            <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${(e) => {this.selectedTemplate = e.detail;this.$update()}}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
+                            <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${(e) => { this.selected = e.detail; this.$update() }}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
+                            <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${(e) => { this.selectedTemplate = e.detail; this.$update() }}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
                         `}
                     </div>
                 </div>
@@ -248,10 +254,34 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this.$update();
                 },
                 'refresh': () => {
-                    console.log(title)
+                    this._hasSaveDB = false;
+                    if (this.dbWiki) {
+                        this.dbWiki.destroy().then(function() {
+                            document.location.reload();
+                        }).catch(function(err) { 
+                            console.log(err);
+                        })
+                    }
                 },
                 'save': () => {
-                    console.log(title)
+                    if (!this.dbWiki) {
+                        this.dbWiki = new PouchDB('wiki');
+                        this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
+                        this.dbWiki.replicate.to(this.dbLocalHost);
+                        this.dbWiki.put({
+                            _id: 'articles',
+                            value: this.articles
+                        });
+                        this.dbWiki.put({
+                            _id: 'templates',
+                            value: this.templates
+                        });
+                    } else {
+                        this.dbArticles.value = this.articles;
+                        this.dbTemplates.value = this.templates;
+                        this.dbWiki.bulkDocs([this.dbArticles, this.dbTemplates]);
+                    }
+                    this._hasSaveDB = true;
                 },
             }
         if (fn[title]) {
@@ -268,13 +298,36 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     firstUpdated() {
         super.firstUpdated();
         setTimeout(() => {
-            this.selected = this.articles[0];
-            this.selected.expanded = true;
-            this.selectedTemplate = this.templates[0];
-            this.selectedTemplate.expanded = true;
-            if (!this._widthL && this._widthL !== 0) this._widthL = 800;
-            else this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
-            this.$update();
+            if (this._hasSaveDB) {
+                this.dbWiki = new PouchDB('wiki');
+                this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
+                this.dbWiki.replicate.to(this.dbLocalHost);
+                this.dbWiki.get('articles').then((res) => {
+                    this.dbArticles = res;
+                    this.articles = res.value;
+                }).then(() => {
+                    return this.dbWiki.get('templates');
+                }).then((res) => {
+                    this.dbTemplates = res;
+                    this.templates = res.value;
+                }).then(() => {
+                    this.selected = this.articles[0];
+                    this.selected.expanded = true;
+                    this.selectedTemplate = this.templates[0];
+                    this.selectedTemplate.expanded = true;
+                    if (!this._widthL && this._widthL !== 0) this._widthL = 800;
+                    else this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
+                    this.$update();
+                })
+            } else {
+                this.selected = this.articles[0];
+                this.selected.expanded = true;
+                this.selectedTemplate = this.templates[0];
+                this.selectedTemplate.expanded = true;
+                if (!this._widthL && this._widthL !== 0) this._widthL = 800;
+                else this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
+                this.$update();
+            }
         }, 100);
     }
 
