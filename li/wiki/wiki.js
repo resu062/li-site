@@ -160,8 +160,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <!-- <li-button name="save" title="save" size="20" @click="${this._treeActions}"></li-button> -->
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${(e) => { this.selected = e.detail; this.$update() }}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
-                            <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${(e) => { this.selectedTemplate = e.detail; this.$update() }}" allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
+                            <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${this._selected}"
+                                allowEdit allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
+                            <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${this._selected}"
+                                allowEdit allowCheck iconSize="20" style="color: gray;"></li-layout-tree>
                         `}
                     </div>
                 </div>
@@ -189,6 +191,12 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 </div>
             </li-layout-app>
         `;
+    }
+    _selected(e) {
+        this._item = this._expandItem = undefined;
+        if (this._lPanel === 'articles') this.selected = e.detail; 
+        else this.selectedTemplate = e.detail; 
+        this.$update()
     }
     _settings(e) {
         const id = e.target.id,
@@ -221,6 +229,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 s11: () => { if (window.confirm(`Do you really want delete all?`)) this.article.splice(0); this._expandItem = undefined }
             }
         if (fn[id]) {
+            this._item = this._expandItem = undefined;
             fn[id]();
             this.$update();
         }
@@ -299,6 +308,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
 
     _addBox(e) {
+        this._item = this._expandItem = undefined;
         const txt = e.target.innerText;
         this.article.splice(this.article.length, 0, { label: txt, show: true, h: 120, type: txt, value: '', ulid: LI.ulid() });
         this.$update();

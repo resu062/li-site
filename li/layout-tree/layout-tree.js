@@ -20,13 +20,19 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             noCheckChildren: { type: Boolean, default: false },
             selected: { type: Object, default: {} },
             fontSize: { type: String, default: 'medium' },
+            allowEdit: { type: Boolean, default: false }
         }
     }
 
     get items() {
         return this.item && this.item.map ? this.item : this.item && this.item.items && this.item.items.map ? this.item.items : [];
     }
-
+    get _ed() {
+        return this.allowEdit && this._allowEdit;
+    }
+    set _ed(v) {
+        this._allowEdit = v;
+    }
     static get styles() {
         return css`
             .complex {
@@ -46,6 +52,9 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                 background-color: lightyellow;
                 box-shadow: inset 0 -2px 0 0 blue;
             }
+            [contentEditable] {
+                outline: 0px solid transparent
+            }
         `;
     }
 
@@ -63,17 +72,24 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                         ${this.allowCheck ? html`
                             <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}"></li-checkbox>
                         ` : html``}
-                        <div style="padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};">${i.label || i.name}</div>
-                        <div style="flex:1"></div>
+                        <div ?contentEditable="${this._ed}" style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};"
+                                @dblclick="${() => this._ed = true}" @blur="${this._setLabel}">${i.label || i.name}</div>
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
                     ${i.items && i.items.length && i.expanded ? html`
-                        <li-layout-tree .item="${i.items}" .margin="${this.margin}" .id="${this.id}" .allowCheck ="${this.allowCheck}" .iconSize="${this.iconSize}" .selected="${this.selected}"></li-layout-tree>
+                        <li-layout-tree .item="${i.items}" .margin="${this.margin}" .id="${this.id}" ?allowEdit="${this.allowEdit}" ?allowCheck="${this.allowCheck}" .iconSize="${this.iconSize}" .selected="${this.selected}"></li-layout-tree>
                     ` : html``}
                 </div>
             `)}
         `
+    }
+    _setLabel(e) {
+        if (this._ed) {
+            this.selected.label = e.target.innerText;
+            this._ed = false;
+            this.$update();
+        }
     }
     _checkChildren(e, i) {
         if (!this.noCheckChildren) LI.setArrRecursive(i, 'checked', e.target.toggled);
