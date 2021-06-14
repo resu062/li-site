@@ -256,31 +256,38 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 'refresh': () => {
                     this._hasSaveDB = false;
                     if (this.dbWiki) {
-                        this.dbWiki.destroy().then(function() {
+                        this.dbWiki.get('articles').then((res) => {
+                            this.dbArticles = res;
+                        }).then(() => {
+                            return this.dbWiki.get('templates');
+                        }).then((res) => {
+                            this.dbTemplates = res;
+                        }).then((res) => {
+                            this.dbArticles.value = [];
+                            this.dbTemplates.value = [];
+                            this.dbWiki.bulkDocs([this.dbArticles, this.dbTemplates]);
+                        }).then(() => {
                             document.location.reload();
-                        }).catch(function(err) { 
+                        }).catch(function(err) {
                             console.log(err);
                         })
                     }
                 },
                 'save': () => {
-                    if (!this.dbWiki) {
-                        this.dbWiki = new PouchDB('wiki');
-                        this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
-                        this.dbWiki.sync(this.dbLocalHost);
-                        this.dbWiki.put({
-                            _id: 'articles',
-                            value: this.articles
-                        });
-                        this.dbWiki.put({
-                            _id: 'templates',
-                            value: this.templates
-                        });
-                    } else {
+                    this.dbWiki = new PouchDB('wiki');
+                    this.dbWiki.get('articles').then((res) => {
+                        this.dbArticles = res;
+                    }).then(() => {
+                        return this.dbWiki.get('templates');
+                    }).then((res) => {
+                        this.dbTemplates = res;
+                    }).then((res) => {
                         this.dbArticles.value = this.articles;
                         this.dbTemplates.value = this.templates;
                         this.dbWiki.bulkDocs([this.dbArticles, this.dbTemplates]);
-                    }
+                    })
+                    this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
+                    this.dbWiki.sync(this.dbLocalHost);
                     this._hasSaveDB = true;
                 },
             }
