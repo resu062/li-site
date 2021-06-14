@@ -139,7 +139,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         ` : this._lPanel === 'settings' ? html`
                             <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div style="color:gray; opacity: 0.7">version: 0.1.1</div>
+                            <div style="color:gray; opacity: 0.7">version: 0.2.1</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div>db name:</div>
                             <div>db ip:</div>
@@ -225,12 +225,12 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.$update();
         }
     }
-    _treeActions(e) {
+    _treeActions(e, title) {
         const items = this._lPanel === 'articles' ? this.articles : this.templates,
             selected = this._lPanel === 'articles' ? this.selected : this.selectedTemplate,
             label = this._lPanel === 'articles' ? 'new-article' : 'new-template';
-        const title = e.target.title,
-            fn = {
+        title = title || e.target.title;
+        const fn = {
                 'add new': () => {
                     if (!selected) selected = items.items[0];
                     selected.items = selected.items || [];
@@ -254,6 +254,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this.$update();
                 },
                 'refresh': () => {
+                    if (!window.confirm(`Do you really want delete all your data and restore demo-data?`)) return;
                     this._hasSaveDB = false;
                     if (this.dbWiki) {
                         this.dbWiki.get('articles').then((res) => {
