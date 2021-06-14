@@ -302,7 +302,7 @@ class CLI {
         })
         item[prop] = val;
     }
-    arrFindItem(item, prop, val, res = { root: undefined}) {
+    arrFindItem(item, prop, val, res = {}) {
         if (!item || !prop) return;
         const arr = item?.items?.length ? item.items : item?.length ? item : [];
         arr.forEach(i => {
@@ -314,7 +314,7 @@ class CLI {
         })
         return res.item;
     }
-    arrFindRoot(items, item, res = { root: undefined}) {
+    arrFindRoot(items, item, res = {}) {
         if (!items || !item) return;
         const arr = items?.items?.length ? items.items : items?.length ? items : [];
         if (res.root) return res.root;
