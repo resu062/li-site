@@ -45,7 +45,6 @@
                 li-button {
                     width: 240px; 
                     margin: 2px;
-                    border: 1px solid gray;
                 }
                 .clear {
                     width: 120px; 
@@ -67,7 +66,7 @@
                 <div class="box" dragable @mousemove="${this._move}" @mousedown="${() => this.move = true}" 
                         @mouseup="${() => this.move = false}" style="left:${this.left};top:${this.top}">
                     <div style="text-align:center">Move me...</div>
-                    <div>Align: (ToDo...)</div>
+                    <div>Align:</div>
                     <li-button @click="${this._run}" width="auto">top</li-button>
                     <li-button @click="${this._run}" width="auto">left</li-button>
                     <li-button @click="${this._run}" width="auto">right</li-button>
@@ -156,7 +155,7 @@
             try {
                 e.preventDefault();
                 //e.stopPropagation();
-                if (!this.useParentWidth) this.$id.content.style.width = '200px';
+                if (!this.parent) this.$id.content.style.width = '200px';
                 else this.$id.content.style.width = '';
                 const drop = this.$id.drop;
                 if (this.parent) drop.parent = e.target;

@@ -13,7 +13,8 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             intersect: { type: Boolean, default: false, reflect: true },
             minWidth: { type: Number, default: undefined, reflect: true },
             maxWidth: { type: Number, default: undefined, reflect: true },
-            maxHeight: { type: Number, default: undefined, reflect: true }
+            maxHeight: { type: Number, default: undefined, reflect: true },
+            align: { type: String, default: 'bottom' }
         }
     }
 
@@ -75,66 +76,132 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             }, 10);
         }
     }
-    _setSize(repeat = false) {
+    _setSize() {
         const rect = LIRect(this.parent);
         if (!this.component || !rect.ok) return;
-        requestAnimationFrame(() => {
-            let size = {},
-                containerSize = this.component.getBoundingClientRect();
-            const h = containerSize.height,
-                w = containerSize.width,
-                l = rect.left,
-                t = this.intersect ? rect.top : rect.bottom,
-                r = window.innerWidth - rect.left,
-                b = window.innerHeight - t;
+        this.contentRect = this.component.getBoundingClientRect()
+        let top = rect.top;
+        let left = rect.left
+        let height = this.contentRect?.height || 0;
+        let width = this.contentRect?.width || 0;
+        if (!height || !width) {
+            top += 'px';
+            left += 'px';
+            return { top, left };
+        }
 
-            if (this.useParent && this.parent) {
-                let s = this.parent.getBoundingClientRect();
-                //size.bottom = s.bottom;
-                let f = s.height * (this.hFactor || 1);
-                f = f > b ? b : f;
-                size.height = size.maxHeight = f;
-                size.left = s.left;
-                size.right = s.right;
-                size.top = s.top;
-                size.width = size.maxWidth = s.width;
-                Object.keys(size).forEach(k => size[k] += 'px');
-                this.size = { ...{}, ...size };
-                return;
-            }
+        let winWidth = window.innerWidth;
+        let winHeight = window.innerHeight;
+        let maxHeight = winHeight;
+        let maxWidth = winWidth;
+        let minHeight = this.minHeight || height;
+        let minWidth = this.minWidth || width;
+        let right = left + width;
+        let bottom = top + height;
 
-            size.minWidth = this.parent && this.parent.offsetWidth > this.minWidth ? this.parent.offsetWidth : this.minWidth || w;
-            if (this.useParentWidth && this.parent) size.width = size.maxWidth = this.parent.offsetWidth;
-            else if (this.maxWidth) size.maxWidth = this.maxWidth > size.minWidth ? this.maxWidth : size.minWidth;
-            if (this.maxHeight) size.maxHeight = this.maxHeight;
-            if (b > h) {
-                size.maxHeight = b;
-                size.top = t;
-            } else {
+        let parentWidth = rect.width;
+        if (rect.right > winWidth)
+            parentWidth += winWidth - rect.right;
+        if (rect.left < 0)
+            parentWidth += rect.left;
+
+        let size = {};
+        this._steps = this._steps || [];
+        switch (this.align) {
+            case 'left': {
+                right = this.intersect ? rect.right : rect.left;
+                left = right - width;
                 if (this.parent) {
-                    if (h >= t && b >= t) {
-                        size.top = t;
-                        size.bottom = 0;
-                    } else {
-                        size.top = (rect.top - h < 0 ? 0 : rect.top - h);
-                        size.maxHeight = rect.top - 4;
+                    if (left < 0) {
+                        this.align = this._steps.includes('right') ? 'bottom' : 'right';
+                        this._steps.push('right');
+                        this._setSize();
                     }
-                } else {
-                    size.bottom = 0;
                 }
-            }
-            if (r > w) {
-                size.left = l;
-            } else {
-                if (this.parent && this.useParentWidth) {
-                    size.left = l;
-                } else {
-                    size.right = 0;
+            } break;
+            case 'right': {
+                left = this.intersect ? rect.left : rect.right;
+                right = left + width;
+                if (this.parent) {
+                    if (right > winWidth) {
+                        this.align = this._steps.includes('left') ? 'bottom' : 'left';
+                        this._steps.push('right');
+                        this._setSize();
+                    }
                 }
+            } break;
+            case 'top': {
+                bottom = this.intersect ? rect.bottom : rect.top;
+                top = bottom - height;
+                if (this.parent) {
+                    if (this.useParentWidth) minWidth = maxWidth = parentWidth;
+                    else {
+                        if (width < parentWidth) minWidth = parentWidth;
+                        if (right > winWidth) size.right = 0;
+                    }
+                    left = left < 0 ? 0 : left;
+                    top = top < 0 ? 0 : top;
+                    if (bottom > winHeight) size.bottom = 0;;
+                    maxHeight = bottom - top;
+                    if (height / 2 > maxHeight && winHeight - rect.bottom > rect.top) {
+                        this.align = this._steps.includes('bottom') ? 'top' : 'bottom';
+                        if (this.align === 'bottom') {
+                            this._steps.push('top');      
+                            this._setSize();
+                        }
+                    }
+                }
+            } break;
+            case 'bottom':
+            default: {
+                top = this.intersect ? rect.top : rect.bottom;
+                bottom = top + height;
+                if (this.parent) {
+                    if (this.useParentWidth) minWidth = maxWidth = parentWidth;
+                    else {
+                        if (width < parentWidth) minWidth = parentWidth;
+                        if (right > winWidth) size.right = 0;
+                    }
+                    left = left < 0 ? 0 : left;
+                    top = top < 0 ? 0 : top;
+                    if (bottom > winHeight) size.bottom = 0;;
+                    maxHeight = winHeight - top;
+                    if (height / 2 > maxHeight &&  rect.top > winHeight - rect.bottom) {
+                        this.align = this._steps.includes('top') ? 'bottom' : 'top';
+                        if (this.align === 'top') {
+                            this._steps.push('bottom');      
+                            this._setSize();
+                        }
+                    }
+                }
+            } break;
+        }
+
+        if (!this.parent) {
+            top = top < 0 ? 0 : top;
+            left = left < 0 ? 0 : left;
+            if (bottom > winHeight) size.bottom = 0
+            if (right > winWidth) size.right = 0;
+        } else {
+            if (this.align === 'left' || this.align === 'right') {
+                if (this.useParentWidth) minWidth = maxWidth = parentWidth;
+                if ((height && top) > winHeight - top) {
+                    top = rect.bottom - height;
+                    top = top < 0 ? 0 : top;
+                    maxHeight = winHeight - top;
+                } else if (bottom >= winHeight) size.bottom = 0;
             }
-            Object.keys(size).forEach(k => size[k] += 'px');
-            this.size = { ...{}, ...size };
-        });
+        }
+        minWidth = minWidth > maxWidth ? maxWidth : minWidth;
+        minHeight = minHeight > maxHeight ? maxHeight : minHeight;
+
+        size = { ...size, ...{ maxWidth, minWidth, minHeight, maxHeight } };
+        if (!size.hasOwnProperty('bottom')) size.top = top;
+        if (!size.hasOwnProperty('right')) size.left = left;
+        Object.keys(size).forEach(k => size[k] += 'px');
+        this.size = { ...{}, ...size };
+        this._steps = [];
+        return size;
     }
     _keyup(e) {
         if (e.keyCode === 27) this.close();
