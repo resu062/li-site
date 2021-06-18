@@ -1,47 +1,56 @@
 <script type="module" src="../../li.js"></script>
 <script type="module" src="./dropdown.js"></script>
 <script type="module" src="../button/button.js"></script>
-<script type="module" src="../../test/buttons/li-but.js"></script>
-<link rel="stylesheet" type="text/css" href="../../test/buttons/li-but.css">
-</link>
 
-<button id="btn" style="width:300px">Show dropdown</button>
+<style>
+    html * {
+        font-family: Arial;
+        color: gray;
+    }
+
+    body {
+        overflow: hidden;
+        user-select: none;
+    }
+</style>
+
+<div>Press buttons or click right mouse button...</div>
+<button id="btn" style="width:300px">Show dropdown (useParentWidth)</button>
 <button id="btn2" style="position:absolute;bottom:8px;right:8px">Show dropdown</button>
 <br><br>
 <div>
     <li-dropdown id="drop">
-        <div id="content" style="border:1px solid red;text-align:center;background: lightyellow;display: inline-block;visibility: hidden;display: flex;flex-direction: column">
-            <div>1234567890</div>
-            <div>0987654321</div>
-            <div>1234567890</div>
-            <div>0987654321</div>
-            <div>1234567890</div>
-            <div>0987654321</div>
-            <div>1234567890</div>
-            <div>0987654321</div>
-
-            <section class="section-buttons">
-                <h2>Buttons icon</h2>
-                <lit-button class="primary icon" aria-label="search">
-                    <lit-icon icon="search" aria-hidden="true">OK</lit-icon>
-                </lit-button>
-                <lit-button class="primary icon" aria-label="menu">
-                    <lit-icon icon="menu" aria-hidden="true"></lit-icon>
-                </lit-button>
-                <lit-button class="primary icon">
-                    <lit-icon icon="crop" aria-label="crop"></lit-icon>
-                </lit-button>
+        <div id="content" style="border:1px solid blue;text-align:center;background: lightblue;display: inline-block;visibility: hidden;display: flex;flex-direction: column">
+            <div style="display: flex; flex-direction: column;margin: 10px; width:100%;justify-content: center;">
+                <div>1234567890</div>
+                <div>0987654321</div>
+                <div>1234567890</div>
+                <div>0987654321</div>
+                <div>1234567890</div>
+                <div>0987654321</div>
+                <div>1234567890</div>
+                <div>0987654321</div>
+            </div>
+            <section>
+                <h2>Icons block</h2>
+                <li-icon name="android" fill="red"></li-icon>
+                <li-icon name="android" fill="orange"></li-icon>
+                <li-icon name="android" fill="yellow"></li-icon>
+                <li-icon name="android" fill="green"></li-icon>
+                <li-icon name="android" fill="royalblue"></li-icon>
+                <li-icon name="android" fill="blue"></li-icon>
+                <li-icon name="android" fill="violet"></li-icon>
             </section>
-
-            <section class="section-buttons section-max-width" style="font-size: 62.5%;">
+            <section style="display: flex; flex-direction: column">
                 <h2>Buttons block</h2>
-                <lit-button class="primary block margin-bottom">Primary block</lit-button>
-                <lit-button class="secondary block margin-bottom">Secondary block</lit-button>
-                <lit-button class="success block">Success block</lit-button>
+                <li-button id="ok" width="auto" icon="check">001</li-button>
+                <li-button id="ok" width="auto" icon="check">002</li-button>
+                <li-button id="ok" width="auto" icon="check">003</li-button>
+                <li-button id="ok" width="auto" icon="check">004</li-button>
+                <li-button id="ok" width="auto" icon="check">005</li-button>
+                <li-button id="ok" width="auto" icon="check">006</li-button>
             </section>
-
-            <lit-button id="ok" class="primary block" style="padding: 10px">OK</lit-button>
-
+            <li-button width="auto" name="check" style="padding: 10px" onclick="drop.ok()">OK</li-button>
         </div>
     </li-dropdown>
 </div>
@@ -49,6 +58,7 @@
 <script type="module">
     btn.onclick = async e => {
         try {
+            content.style.width = '';
             drop.parent = btn;
             drop.useParentWidth = true;
             const res = await drop.show();
@@ -60,20 +70,10 @@
     }
     btn2.onclick = async e => {
         try {
+            content.style.width = '200px';
             drop.parent = btn2;
             drop.useParentWidth = false;
             const res = await drop.show();
-            console.log(res);
-        }
-        catch (e) {
-            //console.log(e);
-        }
-    }
-    ok.onclick = async e => {
-        try {
-            drop.parent = btn;
-            drop.useParentWidth = false;
-            const res = await drop.ok();
             console.log(res);
         }
         catch (e) {
@@ -84,6 +84,7 @@
         try {
             e.preventDefault();
             //e.stopPropagation();
+            content.style.width = '200px';
             drop.parent = null;
             const res = await drop.show();
             console.log(res);
