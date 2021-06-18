@@ -1,0 +1,187 @@
+<meta charset="UTF-8">
+
+<script type="module" src="../button/button.js"></script>
+<script type="module" src="../checkbox/checkbox.js"></script>
+<script type="module" src="./dropdown.js"></script>
+
+<style>
+    html * {
+        font-family: Arial;
+        color: gray;
+    }
+
+    body {
+        overflow: hidden;
+        user-select: none;
+    }
+</style>
+
+<li-dropdown-tester id="dropdown-tester"></li-dropdown-tester>
+
+<script type="module">
+    import { LiElement, html, css, styleMap } from '../../li.js';
+
+    customElements.define('li-dropdown-tester', class LiDropdownTester extends LiElement {
+        static get properties() {
+            return {
+                left: { type: Number, default: 10, save: true },
+                top: { type: Number, default: 50, save: true },
+                parent: { type: Boolean, save: true },
+                intersect: { type: Boolean, save: true },
+                useParentWidth: { type: Boolean, save: true },
+                move: { type: Boolean, default: false },
+            }
+        }
+
+        static get styles() {
+            return css`
+                :host{
+                    fisplay: flex;
+                    flex: 1;
+                }
+                li-checkbox {
+                    cursor: pointer;
+                }
+                li-button {
+                    width: 240px; 
+                    margin: 2px;
+                    border: 1px solid gray;
+                }
+                .clear {
+                    width: 120px; 
+                }
+                .box {
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid red;
+                    padding: 8px; 
+                    background: lightyellow;
+                    cursor: move; 
+                    position: absolute;
+                }
+        `;
+        }
+        render() {
+            return html`
+                <li-button class="clear" width="auto" @click="${this._clear}">Clear position</li-button>
+                <div class="box" dragable @mousemove="${this._move}" @mousedown="${() => this.move = true}" 
+                        @mouseup="${() => this.move = false}" style="left:${this.left};top:${this.top}">
+                    <div style="text-align:center">Move me...</div>
+                    <div>Align: (ToDo...)</div>
+                    <li-button @click="${this._run}" width="auto">top</li-button>
+                    <li-button @click="${this._run}" width="auto">left</li-button>
+                    <li-button @click="${this._run}" width="auto">right</li-button>
+                    <li-button @click="${this._run}" width="auto">bottom</li-button>
+                    <div style="display: flex; flex-direction: column; margin-top: 10px; align-items: center">
+                        <div style="display: flex; width: 160px;">Parent: <div style="flex:1"></div><li-checkbox 
+                                .toggled="${this.parent}" @change="${(e) => this.parent = e.detail}"></li-checkbox></div>
+                        <div style="display: flex; width: 160px;">Intersect: <div style="flex:1"></div><li-checkbox 
+                                .toggled="${this.intersect}" @change="${(e) => this.intersect = e.detail}"></li-checkbox></div>
+                        <div style="display: flex; width: 160px;">useParentWidth: <div style="flex:1"></div><li-checkbox 
+                                .toggled="${this.useParentWidth}" @change="${(e) => this.useParentWidth = e.detail}"></li-checkbox></div>
+                    </div>
+                </div>
+
+                <li-dropdown id="drop">
+                    <div id="content" style="border:1px solid blue;text-align:center;background: lightblue;display: inline-block;visibility: hidden;display: flex;flex-direction: column">
+                        <div style="display: flex; flex-direction: column; padding: 20px;">
+                            <div>1234567890</div>
+                            <div>0987654321</div>
+                            <div>1234567890</div>
+                            <div>0987654321</div>
+                            <div>1234567890</div>
+                            <div>0987654321</div>
+                            <div>1234567890</div>
+                            <div>0987654321</div>
+                        </div>
+                        <section>
+                            <h2>Icons block</h2>
+                            <li-icon name="android" fill="red"></li-icon>
+                            <li-icon name="android" fill="orange"></li-icon>
+                            <li-icon name="android" fill="yellow"></li-icon>
+                            <li-icon name="android" fill="green"></li-icon>
+                            <li-icon name="android" fill="royalblue"></li-icon>
+                            <li-icon name="android" fill="blue"></li-icon>
+                            <li-icon name="android" fill="violet"></li-icon>
+                        </section>
+                        <section style="display: flex; flex-direction: column">
+                            <h2>Buttons block</h2>
+                            <li-button id="ok" width="auto" icon="check">001</li-button>
+                            <li-button id="ok" width="auto" icon="check">002</li-button>
+                            <li-button id="ok" width="auto" icon="check">003</li-button>
+                            <li-button id="ok" width="auto" icon="check">004</li-button>
+                            <li-button id="ok" width="auto" icon="check">005</li-button>
+                            <li-button id="ok" width="auto" icon="check">006</li-button>
+                        </section>
+                        <li-button id="ok" width="auto" name="check" style="padding: 10px" @click="${this._ok}">OK</li-button>
+                    </div>
+                </li-dropdown>
+        `;
+        }
+
+        firstUpdated() {
+            super.firstUpdated();
+            LI.listen(document, 'mouseup', () => this.move = false);
+            LI.listen(document, 'contextmenu', async (e) => {
+                try {
+                    e.preventDefault();
+                    //e.stopPropagation();
+                    this.$id.content.style.width = '200px';
+                    const drop = this.$id.drop;
+                    drop.parent = null;
+                    const res = await drop.show();
+                    console.log(res);
+                }
+                catch (e) {
+                    //console.log(e);
+                }
+            });
+        }
+
+        _clear() {
+            this.left = 10;
+            this.top = 50;
+            this.$update();
+        }
+
+        _move(e) {
+            if (this.move) {
+                this.left += e.movementX;
+                this.top += e.movementY;
+                this.$update();
+            }
+        }
+
+        async _run(e) {
+            try {
+                e.preventDefault();
+                //e.stopPropagation();
+                if (!this.useParentWidth) this.$id.content.style.width = '200px';
+                else this.$id.content.style.width = '';
+                const drop = this.$id.drop;
+                if (this.parent) drop.parent = e.target;
+                else drop.parent = null;
+                drop.intersect = this.intersect;
+                drop.useParentWidth = this.useParentWidth;
+                drop.align = e.target.innerText;
+                const res = await drop.show();
+                console.log(res);
+            }
+            catch (e) {
+                //console.log(e);
+            }
+        }
+
+        async _ok(e) {
+            try {
+                e.preventDefault();
+                const res = await drop.ok();
+                console.log(res);
+            }
+            catch (e) {
+                //console.log(e);
+            }
+        }
+    })
+
+</script>
