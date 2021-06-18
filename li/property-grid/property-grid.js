@@ -314,7 +314,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
         this.$fire('dblClick', item);
     }
     async _openDropdown(e, i, idx) {
-        let val = await LI.show('dropdown', 'tester-cell', { type: i.type, value: i.value, props: { list: i.list } }, { parent: e.target, useParent: false });
+        let val = await LI.show('dropdown', 'tester-cell', { type: i.type, value: i.value, props: { list: i.list } }, { parent: e.target, useParent: true, align: 'left' });
         e.target.value = i.obj[i.label] = val.detail.value;
         this.$update();
     }
