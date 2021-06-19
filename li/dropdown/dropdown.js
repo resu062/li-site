@@ -1,20 +1,51 @@
 import { LiElement, html, css, styleMap } from '../../li.js';
 
 customElements.define('li-dropdown', class LiDropdown extends LiElement {
+    static get styles() {
+        return css`
+            div { 
+                position: fixed;
+                overflow-y: auto;
+                z-index: 99;
+            }
+            .block {
+                display: none;
+            }
+
+            .b-show {
+                display: block;
+                animation: showBlock .2s linear forwards;
+            }
+
+            @keyframes showBlock {
+                0% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+        `;
+    }
+    render() {
+        return html`
+            <div id="dropdown" class="${this.opened ? 'b-show' : 'block'}" style=${styleMap({ ...this.size })}>
+                <slot id="component" name="${this.opened ? '' : '?'}" @slotchange="${this._slotChange}"></slot>
+            </div>
+        `;
+    }
+
     static get properties() {
         return {
             component: { type: Object, default: undefined },
             opened: { type: Boolean, default: false },
             size: { type: Object, default: {} },
-            useParent: { type: Boolean, default: false, reflect: true },
-            hFactor: { type: Number, default: 1, reflect: true },
+            align: { type: String, default: 'bottom', list: ['bottom', 'top', 'left', 'right'] },
             useParentWidth: { type: Boolean, default: false, reflect: true },
-            useParentHeight: { type: Boolean, default: false, reflect: true },
             intersect: { type: Boolean, default: false, reflect: true },
             minWidth: { type: Number, default: undefined, reflect: true },
-            maxWidth: { type: Number, default: undefined, reflect: true },
-            maxHeight: { type: Number, default: undefined, reflect: true },
-            align: { type: String, default: 'bottom' }
+            minHeight: { type: Number, default: undefined, reflect: true },
+            addWidth: { type: Number, default: 0, reflect: true },
         }
     }
 
@@ -107,6 +138,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
 
         let size = {};
         this._steps = this._steps || [];
+        this.align = ['left', 'right', 'top', 'bottom'].includes(this.align) ? this.align : 'bottom';
         switch (this.align) {
             case 'left': {
                 right = this.intersect ? rect.right : rect.left;
@@ -114,8 +146,9 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
                 if (this.parent) {
                     if (left < 0) {
                         this.align = this._steps.includes('right') ? 'bottom' : 'right';
-                        this._steps.push('right');
+                        this._steps.push('left');
                         this._setSize();
+                        return;
                     }
                 }
             } break;
@@ -127,6 +160,7 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
                         this.align = this._steps.includes('left') ? 'bottom' : 'left';
                         this._steps.push('right');
                         this._setSize();
+                        return;
                     }
                 }
             } break;
@@ -134,43 +168,30 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
                 bottom = this.intersect ? rect.bottom : rect.top;
                 top = bottom - height;
                 if (this.parent) {
-                    if (this.useParentWidth) minWidth = maxWidth = parentWidth;
-                    else {
-                        if (width < parentWidth) minWidth = parentWidth;
-                        if (right > winWidth) size.right = 0;
-                    }
-                    left = left < 0 ? 0 : left;
                     top = top < 0 ? 0 : top;
-                    if (bottom > winHeight) size.bottom = 0;;
                     maxHeight = bottom - top;
-                    if (height / 2 > maxHeight && winHeight - rect.bottom > rect.top) {
+                    if (height > maxHeight && winHeight - rect.bottom > rect.top) {
                         this.align = this._steps.includes('bottom') ? 'top' : 'bottom';
                         if (this.align === 'bottom') {
-                            this._steps.push('top');      
+                            this._steps.push('top');
                             this._setSize();
+                            return;
                         }
                     }
                 }
             } break;
-            case 'bottom':
-            default: {
+            case 'bottom': {
                 top = this.intersect ? rect.top : rect.bottom;
                 bottom = top + height;
                 if (this.parent) {
-                    if (this.useParentWidth) minWidth = maxWidth = parentWidth;
-                    else {
-                        if (width < parentWidth) minWidth = parentWidth;
-                        if (right > winWidth) size.right = 0;
-                    }
-                    left = left < 0 ? 0 : left;
                     top = top < 0 ? 0 : top;
-                    if (bottom > winHeight) size.bottom = 0;;
                     maxHeight = winHeight - top;
-                    if (height / 2 > maxHeight &&  rect.top > winHeight - rect.bottom) {
+                    if (height > maxHeight &&  rect.top > winHeight - rect.bottom) {
                         this.align = this._steps.includes('top') ? 'bottom' : 'top';
                         if (this.align === 'top') {
-                            this._steps.push('bottom');      
+                            this._steps.push('bottom');
                             this._setSize();
+                            return;
                         }
                     }
                 }
@@ -184,12 +205,20 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
             if (right > winWidth) size.right = 0;
         } else {
             if (this.align === 'left' || this.align === 'right') {
-                if (this.useParentWidth) minWidth = maxWidth = parentWidth;
+                if (this.useParentWidth) minWidth = maxWidth = parentWidth + this.addWidth;
                 if ((height && top) > winHeight - top) {
                     top = rect.bottom - height;
                     top = top < 0 ? 0 : top;
                     maxHeight = winHeight - top;
                 } else if (bottom >= winHeight) size.bottom = 0;
+            } else if (this.align === 'top' || this.align === 'bottom') {
+                if (this.useParentWidth) minWidth = maxWidth = parentWidth + this.addWidth;
+                else {
+                    if (width < parentWidth) minWidth = parentWidth + this.addWidth;
+                    if (right > winWidth) size.right = 0;
+                }
+                left = left < 0 ? 0 : left;
+                if (bottom > winHeight) size.bottom = 0;;
             }
         }
         minWidth = minWidth > maxWidth ? maxWidth : minWidth;
@@ -199,43 +228,43 @@ customElements.define('li-dropdown', class LiDropdown extends LiElement {
         if (!size.hasOwnProperty('bottom')) size.top = top;
         if (!size.hasOwnProperty('right')) size.left = left;
         Object.keys(size).forEach(k => size[k] += 'px');
-        this.size = { ...{}, ...size };
         this._steps = [];
+        this.size = { ...{}, ...size };
         return size;
     }
     _keyup(e) {
         if (e.keyCode === 27) this.close();
         if (e.keyCode === 13) this.ok();
     }
+    // _close(e) {
+    //     let el = this;
+    //     while (el) {
+    //         if (e.target !== window && el.contains(e.target)) {
+    //             if (e.type === 'resize' && this._offsetHeight !== e.target.offsetHeight) {
+    //                 this._setSize();
+    //                 this._offsetHeight = e.target.offsetHeight;
+    //             }
+    //             return;
+    //         }
+    //         el = el.nextElementSibling;
+    //     }
+    //     this.close();
+    // }
     _close(e) {
-        let el = this;
-        while (el) {
-            if (e.target !== window && el.contains(e.target)) {
-                if (e.type === 'resize' && this._offsetHeight !== e.target.offsetHeight) {
-                    this._setSize();
-                    this._offsetHeight = e.target.offsetHeight;
+        if (e.target instanceof Node) {
+            let dd = this;
+            while (e?.target && dd) {
+                try {
+                    if (dd.contains?.(e.target))
+                        return;
+                    dd = dd.nextElementSibling;
                 }
-                return;
+                catch (ev) {
+                    console.error(ev)
+                    break;
+                }
             }
-            el = el.nextElementSibling;
         }
         this.close();
-    }
-
-    static get styles() {
-        return css`
-            div { 
-                position: fixed;
-                overflow-y: auto;
-                z-index: 99;
-            }
-        `;
-    }
-    render() {
-        return html`
-            <div id="dropdown" style=${styleMap({ ...this.size, visibility: this.opened ? 'visible' : 'hidden' })}>
-                <slot id="component" name=${this.opened ? '' : '?'} @slotchange="${this._slotChange}"></slot>
-            </div>
-        `;
     }
 });

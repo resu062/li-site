@@ -274,7 +274,7 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
 
     render() {
         return html`
-            ${this._items.map(i => html`
+            ${this._items.map((i, idx) => html`
                 <div class="row ${this.$$ && this.$$.selection && this.$$.selection.includes(i) ? 'selected' : ''} ${this.focused === i ? 'focused' : ''}" style="border-bottom: .5px solid lightgray" @click="${(e) => this._focus(e, i)}">
                     <div style="display:flex;align-items:center;${'border-bottom: 1px solid ' + this.colorBorder}">
                         ${i.items?.length || i.is
@@ -282,9 +282,9 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
                                     @click="${(e) => this._expanded(e, i)}" size="${this.iconSize - 2}"></li-button>`
                 : html` <div style="min-width:${this.iconSize}px;width:${this.iconSize}px;min-height:${this.iconSize}px;height:${this.iconSize}px"></div>`}
                             <div class="label" style="max-width:${this.labelColumn - this.level * 7}px;min-width:${this.labelColumn - this.level * 7}px;height:${this.iconSize}px;" @dblclick="${(e) => this._dblclick(e, i)}">${i.label || i.name}</div>
-                            <input class="input" type="${i.type || 'text'}" .checked="${i.value}" .value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;height:${this.iconSize}px;align-items: center;" @change="${(e) => this._change(e, i)}">
+                            <input ref="${'inp-' + idx}" class="input" type="${i.type || 'text'}" .checked="${i.value}" .value="${i.value}" style="display:flex;padding:0 2px;white-space: nowrap;height:${this.iconSize}px;align-items: center;" @change="${(e) => this._change(e, i)}">
                             ${i.list && !i.readOnly
-                ? html` <li-button back="transparent" name="chevron-right" border="0" rotate="90" @click="${(e) => this._openDropdown(e, i)}"></li-button>` : html``}
+                ? html` <li-button back="transparent" name="chevron-right" border="0" rotate="90" @click="${(e) => this._openDropdown(e, i, idx)}"></li-button>` : html``}
                     </div>
                 </div>
                 <div class="complex">
@@ -314,9 +314,11 @@ customElements.define('li-property-tree', class LiPropertyTree extends LiElement
         this.$fire('dblClick', item);
     }
     async _openDropdown(e, i, idx) {
-        let val = await LI.show('dropdown', 'tester-cell', { type: i.type, value: i.value, props: { list: i.list } }, { parent: e.target, useParent: true, align: 'left' });
-        e.target.value = i.obj[i.label] = val.detail.value;
-        this.$update();
+        try {
+            let val = await LI.show('dropdown', 'tester-cell', { type: i.type, value: i.value, props: { list: i.list } }, { parent: this.$refs['inp-' + idx], useParent: true, align: 'down', useParentWidth: true, addWidth: e.target.offsetWidth + 3 });
+            e.target.value = i.obj[i.label] = val.detail.value;
+            this.$update();
+        } catch (error) { }
     }
 })
 
