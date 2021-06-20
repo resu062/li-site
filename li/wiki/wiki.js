@@ -1,4 +1,5 @@
 import { LiElement, html, css } from '../../li.js';
+import '../../lid.js'
 
 import '../layout-app/layout-app.js';
 import '../editor-html/editor-html.js';
@@ -248,16 +249,16 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 selected.expanded = true;
             },
             'collapse': () => {
-                LI.arrSetItems(selected, 'expanded', false);
+                LID.arrSetItems(selected, 'expanded', false);
             },
             'expand': () => {
-                LI.arrSetItems(selected, 'expanded', true);
+                LID.arrSetItems(selected, 'expanded', true);
             },
             'delete': () => {
-                const itemToDelete = LI.arrFindItem(items[0], 'checked', true);
+                const itemToDelete = LID.arrFindItem(items[0], 'checked', true);
                 if (!itemToDelete || (confirm && !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`))) return;
                 itemToDelete.items?.clear();
-                const root = LI.arrFindRoot(items, itemToDelete);
+                const root = LID.arrFindRoot(items, itemToDelete);
                 if (root) root.items.splice(root.items.indexOf(itemToDelete), 1);
                 this._treeActions(e, 'delete', false);
             },
