@@ -1,9 +1,16 @@
 
 
 export class ITEM {
-    constructor(ulid, item) {
-        this._ulid = ulid || LI.ulid();
-        this._item = item;
+    label = '';
+    items = [];
+    templates = [];
+    checked = false;
+    expanded = false;
+    ulid = LI.ulid();
+    constructor(props) {
+        Object.keys(props || {}).forEach(k => {
+            this[k] = props[k];
+        })
     }
 }
 

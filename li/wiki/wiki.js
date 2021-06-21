@@ -13,6 +13,7 @@ import '../checkbox/checkbox.js';
 import '../layout-tree/layout-tree.js';
 
 import '../../lib/pouchdb/pouchdb.js'
+import { ITEM } from '../../lid.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -244,7 +245,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             'add new': () => {
                 if (!selected) selected = items.items[0];
                 selected.items = selected.items || [];
-                const item = { ulid: LI.ulid(), label, checked: false, expanded: false, items: [], templates: [] };
+                const item = new ITEM({ label });
                 selected.items.splice(selected.items.length, 0, item);
                 selected.expanded = true;
             },
