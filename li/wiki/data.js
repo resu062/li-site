@@ -1,4 +1,4 @@
-export const data = [
+export const data =  [
   {
     "ulid": "01F7N9EXTG38E7MQCHZS2DR8EM",
     "label": "wiki",
@@ -175,7 +175,7 @@ export const data = [
                     "show": true,
                     "h": 120,
                     "type": "showdown",
-                    "value": "## ...",
+                    "value": "## ...\n",
                     "ulid": "01F8KQXH6RNSXRHQ2V4HYKNTFR"
                   }
                 ]
@@ -203,6 +203,58 @@ export const data = [
             "ulid": "01F8KQZ0S02ZHGCZEXPR2R4108"
           }
         ]
+      },
+      {
+        "label": "HTML",
+        "items": [
+          {
+            "label": "How To ...",
+            "items": [
+              {
+                "label": "Create a Draggable HTML Element",
+                "items": [],
+                "templates": [
+                  {
+                    "label": "iframe",
+                    "show": true,
+                    "h": 905,
+                    "type": "iframe",
+                    "value": "<!DOCTYPE html>\r\n<html>\r\n<style>\r\n#mydiv {\r\n  position: absolute;\r\n  z-index: 9;\r\n  background-color: #f1f1f1;\r\n  text-align: center;\r\n  border: 1px solid #d3d3d3;\r\n}\r\n\r\n#mydivheader {\r\n  padding: 10px;\r\n  cursor: move;\r\n  z-index: 10;\r\n  background-color: #2196F3;\r\n  color: #fff;\r\n}\r\n</style>\r\n<body>\r\n\r\n<h1>Draggable DIV Element</h1>\r\n\r\n<p>Click and hold the mouse button down while moving the DIV element</p>\r\n\r\n<div id=\"mydiv\">\r\n  <div id=\"mydivheader\">Click here to move</div>\r\n  <p>Move</p>\r\n  <p>this</p>\r\n  <p>DIV</p>\r\n</div>\r\n\r\n<script>\r\n//Make the DIV element draggagle:\r\ndragElement(document.getElementById(\"mydiv\"));\r\n\r\nfunction dragElement(elmnt) {\r\n  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;\r\n  if (document.getElementById(elmnt.id + \"header\")) {\r\n    /* if present, the header is where you move the DIV from:*/\r\n    document.getElementById(elmnt.id + \"header\").onmousedown = dragMouseDown;\r\n  } else {\r\n    /* otherwise, move the DIV from anywhere inside the DIV:*/\r\n    elmnt.onmousedown = dragMouseDown;\r\n  }\r\n\r\n  function dragMouseDown(e) {\r\n    e = e || window.event;\r\n    e.preventDefault();\r\n    // get the mouse cursor position at startup:\r\n    pos3 = e.clientX;\r\n    pos4 = e.clientY;\r\n    document.onmouseup = closeDragElement;\r\n    // call a function whenever the cursor moves:\r\n    document.onmousemove = elementDrag;\r\n  }\r\n\r\n  function elementDrag(e) {\r\n    e = e || window.event;\r\n    e.preventDefault();\r\n    // calculate the new cursor position:\r\n    pos1 = pos3 - e.clientX;\r\n    pos2 = pos4 - e.clientY;\r\n    pos3 = e.clientX;\r\n    pos4 = e.clientY;\r\n    // set the element's new position:\r\n    elmnt.style.top = (elmnt.offsetTop - pos2) + \"px\";\r\n    elmnt.style.left = (elmnt.offsetLeft - pos1) + \"px\";\r\n  }\r\n\r\n  function closeDragElement() {\r\n    /* stop moving when mouse button is released:*/\r\n    document.onmouseup = null;\r\n    document.onmousemove = null;\r\n  }\r\n}\r\n</script>\r\n\r\n</body>\r\n</html>\r\n",
+                    "ulid": "01F8PWWM2FZGKSNY8RS6ZKK6PK"
+                  }
+                ],
+                "checked": false,
+                "expanded": true,
+                "ulid": "01F8PWVE5PHW2E9Z71C86TF3WT"
+              },
+              {
+                "label": "...",
+                "items": [],
+                "templates": [
+                  {
+                    "label": "showdown",
+                    "show": true,
+                    "h": 120,
+                    "type": "showdown",
+                    "value": "## ...\n",
+                    "ulid": "01F8PWXDFZ0DDR345VH6VH9HX7"
+                  }
+                ],
+                "checked": false,
+                "expanded": false,
+                "ulid": "01F8PWWA3QSJVBA769PKHQ2T4M"
+              }
+            ],
+            "templates": [],
+            "checked": false,
+            "expanded": true,
+            "ulid": "01F8PWV4TYNARKY368YQX8W93Z"
+          }
+        ],
+        "templates": [],
+        "checked": false,
+        "expanded": true,
+        "ulid": "01F8PWTSQYMKSM30YD5M5FW3H9"
       }
     ],
     "expanded": true
