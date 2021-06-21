@@ -70,10 +70,14 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                             <div style="min-width:${this.iconSize + 2}px;width:${this.iconSize + 2}px;min-height:${this.iconSize + 2}px;height:${this.iconSize + 2}px"></div>
                         `}
                         ${this.allowCheck ? html`
-                            <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}"></li-checkbox>
+                            <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}" @blur="${() => this._ed = false}"></li-checkbox>
                         ` : html``}
-                        <div ?contentEditable="${this._ed}" style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};"
-                                @dblclick="${() => this._ed = true}" @blur="${this._setLabel}"  @click="${(e) => this._focus(e, i)}">${i.label || i.name}</div>
+                        ${this._ed && this.selected === i ? html`
+                            <input value="${i.label}" @change="${this._setLabel}" style="color: gray; flex:1;padding:1px;width:${this.labelWidth}px;font-size:${this.fontSize};border: none;margin:1px;outline: none;"/>
+                        ` : html`
+                            <div style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};"
+                                @dblclick="${() => this._ed = true}" @click="${(e) => this._focus(e, i)}">${i.label}</div>
+                        `}
                     </div>
                 </div>
                 <div class="complex ${this.complex} ${this.complexExt}">
@@ -86,7 +90,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     }
     _setLabel(e) {
         if (this._ed) {
-            this.selected.label = e.target.innerText;
+            this.selected.label = e.target.value;
             this._ed = false;
             this.$update();
         }
