@@ -297,7 +297,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this.dbTemplates.value = this.templates;
                     this.dbWiki.bulkDocs([this.dbArticles, this.dbTemplates]);
                 })
-                this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
+                this.dbLocalHost = new PouchDB('http://admin:54321@127.0.0.1:5984/wiki');
                 this.dbWiki.sync(this.dbLocalHost);
                 this._hasSaveDB = true;
             },
@@ -319,7 +319,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         setTimeout(() => {
             if (this._hasSaveDB) {
                 this.dbWiki = new PouchDB('wiki');
-                this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
+                this.dbLocalHost = new PouchDB('http://admin:54321@127.0.0.1:5984/wiki');
                 this.dbWiki.sync(this.dbLocalHost);
                 this.dbWiki.get('articles').then((res) => {
                     this.dbArticles = res;
