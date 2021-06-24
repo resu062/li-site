@@ -2,6 +2,8 @@
 
 export class ITEM {
     _id;
+    parentID;
+    type;
     ulid = LI.ulid();
     label = '';
     items = [];
@@ -13,6 +15,7 @@ export class ITEM {
             this[k] = props[k];
         })
         this.dates = LI.dates(LI.ulidToDateTime(this.ulid));
+        if (this.type && !this._id) this._id = this.type + ':' + this.ulid;
     }
 }
 
