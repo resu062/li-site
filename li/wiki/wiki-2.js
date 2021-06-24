@@ -194,17 +194,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             </li-layout-app>
         `;
     }
-    async _changed(e) {
-        const prop =
-            e.detail.type === 'setlabel' ? 'label' :
-                e.detail.type === 'expanded' ? 'expanded' : '';
-        if (!prop) return;
-        const art = await this.dbWiki.get(e.detail.item._id);
-        art[prop] = e.detail.value;
-        art.date = new Date().toLocaleString()
-        await this.dbWiki.put(art);
-        this.$update();
-    }
     fnSelected(e) {
         this._item = this._expandItem = undefined;
         if (this._lPanel === 'articles') this.selected = e.detail;
@@ -255,7 +244,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         const fn = {
             'add new': async () => {
                 let item = new ITEM({ type: this._lPanel, label: this._label, parentId: this._selected._id })
-                await this.dbWiki.put(item);
                 this._selected.items.splice(this._selected.items.length, 0, item);
                 this._selected.expanded = true;
                 this.$update();
@@ -268,44 +256,22 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             },
             'delete': async () => {
                 const itemToDelete = LID.arrFindItem(this._items[0], 'checked', true);
-                if (!itemToDelete || (confirm && !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`))) {
-                    this.dbWiki.compact()
-                    return;
-                }
+                if (!itemToDelete || (confirm && !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`))) return;
                 let itemsToDelete = LID.arrAllChildren(itemToDelete);
-                itemsToDelete = itemsToDelete.map(i => {
-                    return i._id
-                })
-                //console.log(itemsToDelete)
-                if (itemsToDelete.length) {
-                    let arts = await this.dbWiki.allDocs({
-                        include_docs: true,
-                        startkey: 'articles',
-                        endkey: 'articles\ufff0'
-                    });
-                    let toDel = [];
-                    arts.rows.forEach(i => {
-                        if (itemsToDelete.includes(i.id)) {
-                            let doc = i.doc;
-                            doc._deleted = true;
-                            toDel.push(doc)
-                        }
-                    })
-                    //console.log(toDel)
-                    await this.dbWiki.bulkDocs(toDel)
-
-                }
-                itemToDelete.items?.clear();
-                const root = LID.arrFindRoot(this._items, itemToDelete);
-                if (root) {
-                    root.items.splice(root.items.indexOf(itemToDelete), 1);
-                    const art = await this.dbWiki.get(itemToDelete._id);
-                    if (art) await this.dbWiki.remove(art);
+                itemsToDelete.forEach(i => {
+                    if (i.checked) {
+                        i.deleted = true;
+                        i.checked = false;
+                    }
+                });
+                if (itemToDelete.checked) {
+                    itemToDelete.deleted = true;
+                    itemToDelete.checked = false;
                 }
                 this._treeActions(e, 'delete', false);
             },
             'refresh': () => {
-
+                LID.arrSetItems(this._items[0], 'deleted', false);
             },
             'save': () => {
 
@@ -359,6 +325,13 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         if (i) {
                             i.items = i.items || [];
                             i.items.push(f);
+                        } else {
+                            if (!flat['~~~']) {
+                                let item = new ITEM({ type: this._lPanel, label: '~~~', parentId: '$wiki:' + this._lPanel });
+                                flat['~~~'] = item;
+                                item.items.push(item);
+                            }
+                            flat['~~~'].items.push(f);
                         }
                     }
                 });
