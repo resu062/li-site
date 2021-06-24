@@ -72,10 +72,10 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                         ${this.allowCheck ? html`
                             <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}" @blur="${() => this._ed = false}"></li-checkbox>
                         ` : html``}
-                        ${this._ed && this.selected === i ? html`
+                        ${this._ed && this.selected === i && !i.deleted ? html`
                             <input value="${i.label}" @change="${(e) => this._setLabel(e, i)}" style="color: gray; flex:1;padding:1px;width:${this.labelWidth}px;font-size:${this.fontSize};border: none;margin:1px;outline: none;"/>
                         ` : html`
-                            <div style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize};"
+                            <div style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize}; text-decoration:${i.deleted ? 'line-through solid red !important' : ''}"
                                 @dblclick="${() => this._ed = true}" @click="${(e) => this._focus(e, i)}">${i.label}</div>
                         `}
                     </div>
@@ -93,18 +93,18 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             this.selected.label = e.target.value;
             this._ed = false;
             this.fire('setlabel', e.target.value);
-            this.fire('changed', { type: 'setlabel', value: e.target.value, item: i  });
+            //this.fire('changed', { type: 'setlabel', value: e.target.value, item: i  });
             this.$update();
         }
     }
     _checkChildren(e, i) {
         if (!this.noCheckChildren) LI.arrSetItems(i, 'checked', e.target.toggled);
-        this.fire('changed', { type: 'checked', value: e.target.toggled, item: i });
+        //this.fire('changed', { type: 'checked', value: e.target.toggled, item: i });
         this.$update();
     }
     _click(e, i) {
         i.expanded = e.target.toggled;
-        this.fire('changed', { type: 'expanded', value: e.target.toggled, item: i });
+        //this.fire('changed', { type: 'expanded', value: e.target.toggled, item: i });
         this.$update();
     }
     _focus(e, i) {
