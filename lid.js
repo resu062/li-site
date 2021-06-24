@@ -1,16 +1,18 @@
 
 
 export class ITEM {
+    _id;
+    ulid = LI.ulid();
     label = '';
     items = [];
     templates = [];
     checked = false;
     expanded = false;
-    ulid = LI.ulid();
     constructor(props) {
         Object.keys(props || {}).forEach(k => {
             this[k] = props[k];
         })
+        this.dates = LI.dates(LI.ulidToDateTime(this.ulid));
     }
 }
 
@@ -47,6 +49,15 @@ class CLID {
             this.arrFindRoot(i, item, res);
         });
         return res.root;
+    }
+    arrAllChildren(item, ch = []) {
+        if (!item) return [];
+        const arr = item?.items?.length ? item.items : item?.length ? item : [];
+        if (arr.length) ch.push(...arr);
+        arr.forEach(i => {
+            this.arrAllChildren(i, ch);
+        })
+        return ch;
     }
 }
 
