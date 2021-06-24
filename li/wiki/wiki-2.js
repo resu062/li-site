@@ -254,10 +254,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         title = title || e.target.title;
         const fn = {
             'add new': async () => {
-                const
-                    ulid = LI.ulid(),
-                    _id = this._lPanel + ':' + ulid;
-                let item = new ITEM({ _id, ulid, label: this._label, parentId: this._selected._id })
+                let item = new ITEM({ type: this._lPanel, label: this._label, parentId: this._selected._id })
                 await this.dbWiki.put(item);
                 this._selected.items.splice(this._selected.items.length, 0, item);
                 this._selected.expanded = true;
@@ -326,68 +323,55 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         this.article.splice(this.article.length, 0, { label: txt, show: true, h: 120, type: txt, value: '', ulid: LI.ulid() });
         this.$update();
     }
-    async firstUpdated() {
+    firstUpdated() {
         super.firstUpdated();
         setTimeout(async () => {
             this.dbWiki = new PouchDB('wiki');
+
             try {
                 this.rootArticle = await this.dbWiki.get('$wiki:articles');
-                this.rootATemplate = await this.dbWiki.get('$wiki:templates');
+                this.rootTemplate = await this.dbWiki.get('$wiki:templates');
             } catch (error) { }
+
             if (!this.rootArticle) await this.dbWiki.put(new ITEM({ _id: '$wiki:articles', label: 'wiki-articles' }));
             this.rootArticle = await this.dbWiki.get('$wiki:articles');
-            if (!this.rootATemplate) await this.dbWiki.put(new ITEM({ _id: '$wiki:templates', label: 'wiki-templates' }));
-            this.rootATemplate = await this.dbWiki.get('$wiki:templates');
+            if (!this.rootTemplate) await this.dbWiki.put(new ITEM({ _id: '$wiki:templates', label: 'wiki-templates' }));
+            this.rootTemplate = await this.dbWiki.get('$wiki:templates');
 
             this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
             this.dbWiki.sync(this.dbLocalHost, { live: true });
 
-            this._init();
-        }, 100);
-    }
+            this.articles = [this.rootArticle];
+            this.templates = [this.rootTemplate];
 
-    async _init() {
-        this.articles = [this.rootArticle];
-        this.selected = this.articles[0];
-        //this.selected.expanded = true;
-        this.templates = [this.rootATemplate];
-        this.selectedTemplate = this.templates[0];
-        //this.selectedTemplate.expanded = true;
-        let items = await this.dbWiki.allDocs({
-            include_docs: true,
-            startkey: 'articles',
-            endkey: 'articles\ufff0'
-        });
-        this._articles = {};
-        items.rows.forEach(i => {
-            this._articles[i.doc._id] = i.doc;
-        })
-        items = await this.dbWiki.allDocs({
-            include_docs: true,
-            startkey: 'templates',
-            endkey: 'templates\ufff0'
-        });
-        this._templates = {};
-        items.rows.forEach(i => {
-            this._templates[i.doc._id] = i.doc;
-        })
+            const createTree = async (type) => {
+                const
+                    items = await this.dbWiki.allDocs({ include_docs: true, startkey: type, endkey: type + '\ufff0' }),
+                    flat = {},
+                    tree = this[type],
+                    rootParent = '$wiki:' + type;
+                items.rows.forEach(i => flat[i.doc._id] = i.doc);
 
-        function createTree(data, list, rootParent, idField = '_id', parentField = 'parentId') {
-            Object.values(data).forEach(n => {
-                if (n[parentField] === rootParent) {
-                    list[0].items.push(n);
-                } else {
-                    const t = data[n[parentField]];
-                    if (t) {
-                        t.items = t.items || [];
-                        t.items.push(n);
+                Object.values(flat).forEach(f => {
+                    if (f['parentId'] === rootParent) tree[0].items.push(f);
+                    else {
+                        const i = flat[f['parentId']];
+                        if (i) {
+                            i.items = i.items || [];
+                            i.items.push(f);
+                        }
                     }
-                }
-            });
-        }
-        createTree(this._articles, this.articles, '$wiki:articles');
-        createTree(this._templates, this.templates, '$wiki:templates');
-        this.$update();
+                });
+                return flat;
+            }
+            this._articles = await createTree('articles');
+            this._templates = await createTree('templates');
+
+            this.selected = this.articles[0];
+            this.selectedTemplate = this.templates[0];
+
+            this.$update();
+        }, 100);
     }
 
     _moveSplitter() {
