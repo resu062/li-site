@@ -98,7 +98,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
         }
     }
     _checkChildren(e, i) {
-        if (!this.noCheckChildren) LI.arrSetItems(i, 'checked', e.target.toggled);
+        if (!this.noCheckChildren) LID.arrSetItems(i, 'checked', e.target.toggled);
         //this.fire('changed', { type: 'checked', value: e.target.toggled, item: i });
         this.$update();
     }
