@@ -194,10 +194,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             </li-layout-app>
         `;
     }
-    fnSelected(e) {
+    async fnSelected(e) {
         this._item = this._expandItem = undefined;
         if (this._lPanel === 'articles') this.selected = e.detail;
         else if (this._lPanel === 'templates') this.selectedTemplate = e.detail;
+        if (this._selected?.templatesId?.length) {
+            const temps = await this.dbWiki.allDocs({
+                keys: this.selected.templatesId,
+                include_docs: true
+            }) 
+            this._selected.templates = temps.rows.map(i => i.doc);
+        } 
         this.$update()
     }
     _settings(e) {
@@ -292,8 +299,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             i = this[type],
             f = this['_' + type],
             toDelete = [],
+            toDeleteEditors = [],
             toUpdate = [],
+            toUpdateEditors = [],
             toSave = [],
+            toSaveEditors = [],
             keys = Object.keys(f),
             expanded = [];
         keys.forEach(k => {
@@ -301,9 +311,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 if (f[k].loaded) toDelete.push(k);
                 f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
                 delete f[k];
+                toDeleteEditors.push(...f[k].templates?.map(i => i.box));
             } else if (f[k].changed) {
-                if (f[k].loaded) toUpdate.push(k);
-                else toSave.push(f[k].doc);
+                if (f[k].loaded) {
+                    toUpdate.push(k);
+                    toUpdateEditors.push(...f[k].templates?.map(i => i.box));
+                } else {
+                    toSaveEditors.push(...f[k].templates?.map(i => i.box));
+                    toSave.push(f[k].doc);
+                }
             }
         })
         if (toDelete.length) {
@@ -324,7 +340,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             })
             await this.dbWiki.bulkDocs(res);
         }
-        if (toSave.length) await this.dbWiki.bulkDocs(toSave);
+        if (toSave.length) {
+            await this.dbWiki.bulkDocs(toSave);
+            await this.dbWiki.bulkDocs(toSaveEditors);
+        }
 
         //if (i[0].expanded) expanded.push(i[0]._id);
         keys.map(k => { if (f[k]?.expanded) expanded.push(k) });
