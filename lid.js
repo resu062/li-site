@@ -16,7 +16,6 @@ export class ITEM {
         })
         this.dates = LI.dates(LI.ulidToDateTime(this.ulid));
         if (this.type && !this._id) this._id = this.type + ':' + this.ulid;
-        this.changed = false;
     }
     get label() {
         return this._label;
@@ -26,6 +25,8 @@ export class ITEM {
         this._label = v;
         this.changed = true;
     }
+    get _itemsId() { return this.items.map(i => i._id) || [] }
+    get _templatesId() { return this.templates.map(i => i._id) || [] }
     get doc() {
         const
             updates = this.updates || [],
@@ -42,7 +43,9 @@ export class ITEM {
             type: this.type,
             label: this.label,
             dates: this.dates,
-            itemsId, templatesId, updates
+            itemsId: this._itemsId,
+            templatesId: this._templatesId,
+            updates
         }
     }
 }

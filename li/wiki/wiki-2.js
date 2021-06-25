@@ -319,7 +319,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             const items = await this.dbWiki.allDocs({ keys: toUpdate, include_docs: true });
             const res = items.rows.map(i => {
                 let doc = i.doc;
-                doc.label = f[doc._id].label;
+                doc = {...doc, ...f[i.key].doc};
                 return doc;
             })
             await this.dbWiki.bulkDocs(res);
