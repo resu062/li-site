@@ -303,21 +303,31 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 delete f[k];
             } else if (f[k].changed) {
                 if (f[k].loaded) toUpdate.push(k);
-                else toSave.push(f[k].toSave);
+                else toSave.push(f[k].doc);
             }
         })
         if (toDelete.length) {
-            const items = await this.dbWiki.allDocs(toDelete);
-
+            const items = await this.dbWiki.allDocs({ keys: toDelete, include_docs: true });
+            const res = items.rows.map(i => {
+                let doc = i.doc;
+                doc._deleted = true;
+                return doc;
+            })
+            await this.dbWiki.bulkDocs(res);
         }
         if (toUpdate.length) {
-            //const items = await this.dbWiki.allDocs(toUpdate);
-
+            const items = await this.dbWiki.allDocs({ keys: toUpdate, include_docs: true });
+            const res = items.rows.map(i => {
+                let doc = i.doc;
+                doc.label = f[doc._id].label;
+                return doc;
+            })
+            await this.dbWiki.bulkDocs(res);
         }
         if (toSave.length) await this.dbWiki.bulkDocs(toSave);
 
-        if (i[0].expanded) expanded.push(i[0]._id);
-        keys.map(k => { if (f[k].expanded) expanded.push(k) });
+        //if (i[0].expanded) expanded.push(i[0]._id);
+        keys.map(k => { if (f[k]?.expanded) expanded.push(k) });
         let _ls = {};
         try { 
             _ls = await this.dbWiki.get('_local/store') 
@@ -345,12 +355,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this.rootTemplate = await this.dbWiki.get('$wiki:templates');
             } catch (error) { }
 
-            if (!this.rootArticle) await this.dbWiki.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles' })).toSave);
+            if (!this.rootArticle) await this.dbWiki.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles' })).doc);
             this.rootArticle = await this.dbWiki.get('$wiki:articles');
-            if (!this.rootTemplate) await this.dbWiki.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates' })).toSave);
+            this.rootArticle = new ITEM({ ...this.rootArticle, changed: false });
+            if (!this.rootTemplate) await this.dbWiki.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates' })).doc);
             this.rootTemplate = await this.dbWiki.get('$wiki:templates');
+            this.rootTemplate = new ITEM({ ...this.rootTemplate, changed: false });
 
-            this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
+            this.dbLocalHost = new PouchDB('http://admin:54321@127.0.0.1:5984/wiki');
             this.dbWiki.sync(this.dbLocalHost, { live: true });
 
             this.articles = [this.rootArticle];
@@ -364,7 +376,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     rootParent = '$wiki:' + type;
                 items.rows.forEach(i => {
                     flat[i.doc._id] = new ITEM({ ...i.doc, changed: false });
-                    console.log(flat[i.doc._id], flat[i.doc._id].items)
+                    //console.log(flat[i.doc._id], flat[i.doc._id].items)
                 });
 
                 Object.values(flat).forEach(f => {
@@ -384,7 +396,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 return flat;
             }
             this._articles = await createTree('articles');
+            this._articles['$wiki:articles'] = this.articles[0];
+            this._articles['$wiki:articles'].loaded = true;
             this._templates = await createTree('templates');
+            this._templates['$wiki:templates'] = this.templates[0];
+            this._templates['$wiki:templates'].loaded = true;
 
             try {
                 this._localStore = await this.dbWiki.get('_local/store');

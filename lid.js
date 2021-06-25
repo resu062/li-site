@@ -16,6 +16,7 @@ export class ITEM {
         })
         this.dates = LI.dates(LI.ulidToDateTime(this.ulid));
         if (this.type && !this._id) this._id = this.type + ':' + this.ulid;
+        this.changed = false;
     }
     get label() {
         return this._label;
@@ -25,11 +26,11 @@ export class ITEM {
         this._label = v;
         this.changed = true;
     }
-    get toSave() {
+    get doc() {
         const
             updates = this.updates || [],
-            items = this.items,//.map(i => i._id) || [],
-            templates = this.templates;//.map(i => i._id) || [];
+            itemsId = this.items.map(i => i._id) || [],
+            templatesId = this.templates.map(i => i._id) || [];
         updates.push({
             dates: LI.dates(new Date()),
             owner: this.owner || 'anonim'
@@ -41,7 +42,7 @@ export class ITEM {
             type: this.type,
             label: this.label,
             dates: this.dates,
-            items, templates, updates
+            itemsId, templatesId, updates
         }
     }
 }
