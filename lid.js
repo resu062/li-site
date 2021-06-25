@@ -4,7 +4,9 @@ export class ITEM {
     _id;
     ulid = LI.ulid();
     items = [];
+    itemsId = [];
     templates = [];
+    templatesId = [];
     constructor(props) {
         Object.keys(props || {}).forEach(k => {
             this[k] = props[k];
