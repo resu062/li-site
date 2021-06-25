@@ -319,7 +319,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             const items = await this.dbWiki.allDocs({ keys: toUpdate, include_docs: true });
             const res = items.rows.map(i => {
                 let doc = i.doc;
-                doc = {...doc, ...f[i.key].doc};
+                doc = { ...doc, ...f[i.key].doc };
                 return doc;
             })
             await this.dbWiki.bulkDocs(res);
@@ -329,8 +329,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         //if (i[0].expanded) expanded.push(i[0]._id);
         keys.map(k => { if (f[k]?.expanded) expanded.push(k) });
         let _ls = {};
-        try { 
-            _ls = await this.dbWiki.get('_local/store') 
+        try {
+            _ls = await this.dbWiki.get('_local/store')
         } catch (error) { }
         _ls._id = '_local/store';
         _ls['selected-' + type] = type === 'articles' ? this.selected?._id || '' : this.selectedTemplate?._id || '';
@@ -341,8 +341,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
     _addBox(e) {
         this._item = this._expandItem = undefined;
-        const txt = e.target.innerText;
-        this.article.splice(this.article.length, 0, { label: txt, show: true, h: 120, type: txt, value: '', ulid: LI.ulid() });
+        const label = e.target.innerText;
+        let item = new ITEM({ type: 'editors', label, show: true, h: 120, value: '', changed: true });
+        this.article.splice(this.article.length, 0, item);
         this.$update();
     }
     firstUpdated() {
