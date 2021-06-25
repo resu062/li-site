@@ -237,15 +237,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         }
     }
     get _items() { return this._lPanel === 'articles' ? this.articles : this.templates }
+    get _flat() { return this._lPanel === 'articles' ? this._articles : this._templates }
     get _selected() { return this._lPanel === 'articles' ? this.selected : this.selectedTemplate }
     get _label() { return this._lPanel === 'articles' ? 'new-article' : 'new-template' }
     _treeActions(e, title, confirm = true) {
         title = title || e.target.title;
         const fn = {
             'add new': async () => {
-                let item = new ITEM({ type: this._lPanel, label: this._label, parentId: this._selected._id })
+                let item = new ITEM({ type: this._lPanel, label: this._label, parent: this._selected, parentId: this._selected._id, changed: true })
                 this._selected.items.splice(this._selected.items.length, 0, item);
                 this._selected.expanded = true;
+                this._flat[item._id] = item;
                 this.$update();
             },
             'collapse': () => {
@@ -273,14 +275,58 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             'refresh': () => {
                 LID.arrSetItems(this._items[0], 'deleted', false);
             },
-            'save': () => {
-
+            'save': async () => {
+                await this._saveTreeAction('articles');
+                await this._saveTreeAction('templates');
             },
         }
         if (fn[title]) {
             fn[title]();
             this.$update();
         }
+    }
+
+    async _saveTreeAction(type) {
+        if (!type) return;
+        const
+            i = this[type],
+            f = this['_' + type],
+            toDelete = [],
+            toUpdate = [],
+            toSave = [],
+            keys = Object.keys(f),
+            expanded = [];
+        keys.forEach(k => {
+            if (f[k].deleted) {
+                if (f[k].loaded) toDelete.push(k);
+                f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
+                delete f[k];
+            } else if (f[k].changed) {
+                if (f[k].loaded) toUpdate.push(k);
+                else toSave.push(f[k].toSave);
+            }
+        })
+        if (toDelete.length) {
+            const items = await this.dbWiki.allDocs(toDelete);
+
+        }
+        if (toUpdate.length) {
+            //const items = await this.dbWiki.allDocs(toUpdate);
+
+        }
+        if (toSave.length) await this.dbWiki.bulkDocs(toSave);
+
+        if (i[0].expanded) expanded.push(i[0]._id);
+        keys.map(k => { if (f[k].expanded) expanded.push(k) });
+        let _ls = {};
+        try { 
+            _ls = await this.dbWiki.get('_local/store') 
+        } catch (error) { }
+        _ls._id = '_local/store';
+        _ls['selected-' + type] = type === 'articles' ? this.selected?._id || '' : this.selectedTemplate?._id || '';
+        _ls['expanded-' + type] = expanded;
+        await this.dbWiki.put(_ls);
+        this._localStore = await this.dbWiki.get('_local/store');
     }
 
     _addBox(e) {
@@ -299,9 +345,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this.rootTemplate = await this.dbWiki.get('$wiki:templates');
             } catch (error) { }
 
-            if (!this.rootArticle) await this.dbWiki.put(new ITEM({ _id: '$wiki:articles', label: 'wiki-articles' }));
+            if (!this.rootArticle) await this.dbWiki.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles' })).toSave);
             this.rootArticle = await this.dbWiki.get('$wiki:articles');
-            if (!this.rootTemplate) await this.dbWiki.put(new ITEM({ _id: '$wiki:templates', label: 'wiki-templates' }));
+            if (!this.rootTemplate) await this.dbWiki.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates' })).toSave);
             this.rootTemplate = await this.dbWiki.get('$wiki:templates');
 
             this.dbLocalHost = new PouchDB('http://admin:54321@10.10.10.13:5984/wiki');
@@ -316,22 +362,22 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     flat = {},
                     tree = this[type],
                     rootParent = '$wiki:' + type;
-                items.rows.forEach(i => flat[i.doc._id] = i.doc);
+                items.rows.forEach(i => {
+                    flat[i.doc._id] = new ITEM({ ...i.doc, changed: false });
+                    console.log(flat[i.doc._id], flat[i.doc._id].items)
+                });
 
                 Object.values(flat).forEach(f => {
-                    if (f['parentId'] === rootParent) tree[0].items.push(f);
-                    else {
+                    f.loaded = true;
+                    if (f['parentId'] === rootParent) {
+                        f.parent = tree[0];
+                        tree[0].items.push(f);
+                    } else {
                         const i = flat[f['parentId']];
                         if (i) {
                             i.items = i.items || [];
+                            f.parent = i;
                             i.items.push(f);
-                        } else {
-                            if (!flat['~~~']) {
-                                let item = new ITEM({ type: this._lPanel, label: '~~~', parentId: '$wiki:' + this._lPanel });
-                                flat['~~~'] = item;
-                                item.items.push(item);
-                            }
-                            flat['~~~'].items.push(f);
                         }
                     }
                 });
@@ -340,8 +386,21 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this._articles = await createTree('articles');
             this._templates = await createTree('templates');
 
-            this.selected = this.articles[0];
-            this.selectedTemplate = this.templates[0];
+            try {
+                this._localStore = await this.dbWiki.get('_local/store');
+            } catch (error) { }
+            this._localStore = this._localStore || {};
+
+            const setFromLocalStore = (type) => {
+                const
+                    items = type === 'articles' ? this.articles : this.templates,
+                    flat = type === 'articles' ? this._articles : this._templates;
+                this._localStore['expanded-' + type]?.forEach(k => flat[k] ? flat[k].expanded = true : '');
+                items[0].expanded = true;
+                return flat[this._localStore['selected-' + type]] || items[0];
+            }
+            this.selected = await setFromLocalStore('articles');
+            this.selectedTemplate = await setFromLocalStore('templates');
 
             this.$update();
         }, 100);
