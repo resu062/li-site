@@ -149,6 +149,12 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div>login:</div>
                             <div>password:</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <a id="aaa" href=""></a>
+                            <li-button id="Export db" @click="${this._settings}" width="auto">Export db</li-button>
+                            <div>Import db:</div>
+                            <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
+                            <!-- <li-button id="Import db" @click="${this._settings}" width="auto">Import db</li-button> -->
+                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                         ` : html`
                             <b>${this._lPanel}</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -233,11 +239,41 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     if (window.confirm(`Do you really want delete all?`)) {
                         (this.selectedEditors || []).forEach(i => i._deleted = true);
                     }
+                },
+                'Export db': () => {
+
+                    this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
+                        if (error) console.error(error);
+                        else {
+                            const a = this.shadowRoot.getElementById('aaa')
+                            const file = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
+                            a.href = URL.createObjectURL(file);
+                            window.open(a.href ,'_blank');
+                        };
+                    });
+                },
+                'Import db': ({target: {files: [file]}}) => {
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = ({ target: { result } }) => {
+                            result = JSON.parse(result);
+                            console.log(result)
+                            this.dbWiki.bulkDocs(
+                                result,
+                                { new_edits: false }, // not change revision
+                                (...args) => {
+                                    this.$update();
+                                    console.log('DONE', args)
+                                }
+                            );
+                        };
+                        reader.readAsText(file);
+                    }
                 }
             }
         if (fn[id]) {
             this._item = this._expandItem = undefined;
-            fn[id]();
+            fn[id](e);
             this.$update();
         }
     }
@@ -309,29 +345,38 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
                 delete f[k];
             } else {
-                toDelete.push(...f[k].templates?.filter(i => i.changed && i.loaded && i._deleted).map(i => i._id));
+                //toDelete.push(...f[k].templates?.filter(i => i.changed && i.loaded && i._deleted).map(i => i._id));
                 if (f[k].changed && f[k].loaded) toUpdate.push(k);
-                toUpdate.push(...f[k].templates?.filter(i => i.changed && i.loaded).map(i => i._id));
+                toUpdate.push(...f[k].templates?.filter(i => i.changed && i.loaded && !i._deleted).map(i => i._id));
                 if (f[k].changed && !f[k].loaded) toSave.push(f[k].doc);
                 toSave.push(...f[k].templates?.filter(i => i.changed && !i.loaded).map(i => i.doc));
             }
         })
+        if (this._editors && Object.keys(this._editors)?.length) {
+            const toDel = Object.keys(this._editors).filter(k => this._editors[k]._deleted).map(k => this._editors[k]._id);
+            toDelete.push(...toDel);
+        }
         if (toDelete.length) {
             const items = await this.dbWiki.allDocs({ keys: toDelete, include_docs: true });
             const res = items.rows.map(i => {
-                let doc = i.doc;
-                doc._deleted = true;
-                return doc;
+                if (i.doc) {
+                    let doc = i.doc;
+                    doc._deleted = true;
+                    return doc;
+                }
             })
             await this.dbWiki.bulkDocs(res);
         }
+        //console.log(toDelete, toUpdate, toSave)
         if (toUpdate.length) {
             const items = await this.dbWiki.allDocs({ keys: toUpdate, include_docs: true });
             const res = items.rows.map(i => {
-                let doc = i.doc;
-                if (doc._id.startsWith('editors')) doc = { ...doc, ...this._editors[doc._id].doc };
-                else doc = { ...doc, ...f[i.key].doc };
-                return doc;
+                if (i.doc) {
+                    let doc = i.doc;
+                    if (doc._id.startsWith('editors')) doc = { ...doc, ...this._editors[doc._id].doc };
+                    else doc = { ...doc, ...f[i.key].doc };
+                    return doc;
+                }
             })
             await this.dbWiki.bulkDocs(res);
         }
@@ -350,7 +395,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         await this.dbWiki.put(_ls);
         this._localStore = await this.dbWiki.get('_local/store');
 
-        Object.keys(this._articles).forEach(k => this._articles[k].setEditors = false);
+        Object.keys(this._articles).forEach(k => this._articles[k].changed = this._articles[k].setEditors = false);
         this._editors = {};
         this._setSelectedEditors();
     }
@@ -370,22 +415,21 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         super.firstUpdated();
         setTimeout(async () => {
             this.dbWiki = new PouchDB('wiki');
+            this.dbLocalHost = new PouchDB('http://admin:54321@127.0.0.1:5984/wiki');
+            this.dbWiki.sync(this.dbLocalHost, { live: true });
 
             try { this.rootArticle = await this.dbWiki.get('$wiki:articles') } catch (error) { }
             if (!this.rootArticle) {
                 await this.dbWiki.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles', type: 'articles' })).doc);
                 this.rootArticle = await this.dbWiki.get('$wiki:articles');
             }
-            this.rootArticle = new ITEM({ ...this.rootArticle, loaded: true, changed: false });
+            this.rootArticle = new ITEM({ ...this.rootArticle });
             try { this.rootTemplate = await this.dbWiki.get('$wiki:templates') } catch (error) { }
             if (!this.rootTemplate) {
                 await this.dbWiki.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates', type: 'templates' })).doc);
                 this.rootTemplate = await this.dbWiki.get('$wiki:templates');
             }
-            this.rootTemplate = new ITEM({ ...this.rootTemplate, loaded: true, changed: false });
-
-            this.dbLocalHost = new PouchDB('http://admin:54321@127.0.0.1:5984/wiki');
-            this.dbWiki.sync(this.dbLocalHost, { live: true });
+            this.rootTemplate = new ITEM({ ...this.rootTemplate });
 
             this.articles = [this.rootArticle];
             this.templates = [this.rootTemplate];
@@ -398,10 +442,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this._articles['$wiki:articles'] = this.articles[0];
             this._templates = await this._createTree('templates');
             this._templates['$wiki:templates'] = this.templates[0];
-            this.articles[0].expanded = true;
 
-            this.selected = this.selected || this.articles[0];
+            this.articles[0].expanded = true;
+            this.selected = this._articles[this._localStore['selected-articles']] || this.articles[0];
+            this.selectedTemplate = this._templates[this._localStore['selected-templates']] || this.articles[0];
+
             await this._setSelectedEditors();
+
+            Object.keys(this._articles).forEach(k => {
+                this._articles[k].changed = false;
+                this._articles[k].loaded = true;
+            });
 
             this.$update();
         }, 100);
@@ -412,10 +463,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             flat = {},
             tree = this[type],
             rootParent = '$wiki:' + type;
-        items.rows.forEach(i => flat[i.doc._id] = new ITEM({ ...i.doc, loaded: true, changed: false }));
+        items.rows.forEach(i => flat[i.doc._id] = new ITEM({ ...i.doc }));
         this._localStore['expanded-' + type]?.forEach(k => flat[k] ? flat[k].expanded = true : '');
         Object.values(flat).forEach(f => {
-            f.loaded = true;
             if (f['parentId'] === rootParent) {
                 f.parent = tree[0];
                 tree[0].items.push(f);
@@ -433,26 +483,21 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 }
             }
         });
-        if (type === 'articles') this.selected = flat[this._localStore['selected-' + type]] || items[0];
-        else this.selectedTemplate = flat[this._localStore['selected-' + type]] || items[0];
         return flat;
     }
     async _setSelectedEditors() {
-        if (!this._selected?.setEditors && this._selected?.templatesId?.length) {
-            const temps = await this.dbWiki.allDocs({
-                keys: this.selected.templatesId,
-                include_docs: true
-            })
-            temps.rows.forEach(i => {
-                if (i.doc) {
-                    const box = new BOX({ ...i.doc, loaded: true, changed: true });
-                    this._selected.templates.push(box);
-                }
-            });
-            this._editors = this._editors || {};
-            this._selected.templates.forEach(i => this._editors[i._id] = i);
-            this._selected.setEditors = true;
-        }
+        if (!this._selected || this._selected.setEditors || !this._selected.templatesId) return;
+        this._editors = this._editors || {};
+        const temps = await this.dbWiki.allDocs({ keys: this.selected.templatesId, include_docs: true });
+        this._selected.templates.splice(0);
+        temps.rows.forEach(i => {
+            if (i.doc) {
+                const box = new BOX({ ...i.doc, loaded: true, changed: false });
+                this._selected.templates.push(box);
+                this._editors[i.id] = box;
+            }
+        });
+        this._selected.setEditors = true;
     }
 
     _moveSplitter() {

@@ -6,10 +6,10 @@ class baseITEM {
     type;
     created;
     _data = icaro({});
-    _observeKeys = ['label'];
+    _observeKeys = ['label', '_deleted'];
     _fnListen = (e) => {
         this.changed = true;
-        //console.log(e)
+        //console.log(this.label, e)
     }
     constructor(keys = [], props) {
         this._observeKeys = [...this._observeKeys, ...keys];
@@ -32,6 +32,8 @@ class baseITEM {
 
     get label() { return this._data.label }
     set label(v) { this._data.label = v }
+    get _deleted() { return this._data._deleted }
+    set _deleted(v) { this._data._deleted = v }
 }
 export class ITEM extends baseITEM {
     items = icaro([]);
@@ -48,8 +50,12 @@ export class ITEM extends baseITEM {
     get expanded() { return this._data.expanded }
     set expanded(v) { this._data.expanded = v }
 
-    get _itemsId() { return (this.items || []).map(i => i._id) || [] }
-    get _templatesId() { return (this.templates || []).map(i => i._id) || [] }
+    get _itemsId() {
+        return (this.items || []).map(i => i._id) || []
+    }
+    get _templatesId() {
+        return (this.templates || []).map(i => i._id) || []
+    }
 
     get doc() {
         return {
@@ -61,7 +67,7 @@ export class ITEM extends baseITEM {
             parentId: this.parentId,
             label: this.label,
             itemsId: this._itemsId,
-            templatesId: this._templatesId,
+            templatesId: this.setEditors || !this.templatesId?.length ? this._templatesId : this.templatesId,
         }
     }
 }
