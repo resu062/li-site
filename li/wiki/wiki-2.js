@@ -28,7 +28,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _widthL: { type: Number, default: 800, save: true },
             _expandItem: { type: Object, local: true },
             _lPanel: { type: String, default: 'articles' },
-            _hasSaveDB: { type: Boolean, save: true }
+            _loadDemoDB: { type: Boolean, default: true, save: true }
         }
     }
 
@@ -240,25 +240,24 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         (this.selectedEditors || []).forEach(i => i._deleted = true);
                     }
                 },
-                'Export db': () => {
-
-                    this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
+                'Export db': async () => {
+                    await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
                         if (error) console.error(error);
                         else {
                             const a = this.shadowRoot.getElementById('aaa')
                             const file = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
                             a.href = URL.createObjectURL(file);
-                            window.open(a.href ,'_blank');
+                            window.open(a.href, '_blank');
                         };
                     });
                 },
-                'Import db': ({target: {files: [file]}}) => {
+                'Import db': ({ target: { files: [file] } }) => {
                     if (file) {
                         const reader = new FileReader();
-                        reader.onload = ({ target: { result } }) => {
+                        reader.onload = async ({ target: { result } }) => {
                             result = JSON.parse(result);
-                            console.log(result)
-                            this.dbWiki.bulkDocs(
+                            //console.log(result)
+                            await this.dbWiki.bulkDocs(
                                 result,
                                 { new_edits: false }, // not change revision
                                 (...args) => {
@@ -411,12 +410,22 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         this.$update();
     }
 
-    firstUpdated() {
+    async firstUpdated() {
         super.firstUpdated();
         setTimeout(async () => {
             this.dbWiki = new PouchDB('wiki');
             this.dbLocalHost = new PouchDB('http://admin:54321@127.0.0.1:5984/wiki');
             this.dbWiki.sync(this.dbLocalHost, { live: true });
+
+            if (this._loadDemoDB) {
+                const response = await fetch('./data.json');
+                const text = await response.text();
+                await this.dbWiki.bulkDocs(
+                    JSON.parse(text),
+                    { new_edits: false }
+                );
+                this._loadDemoDB = false;
+            }
 
             try { this.rootArticle = await this.dbWiki.get('$wiki:articles') } catch (error) { }
             if (!this.rootArticle) {
