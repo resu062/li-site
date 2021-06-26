@@ -32,7 +32,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         }
     }
 
-    get article() {
+    get selectedEditors() {
         return this.selected?.templates || [];
     }
 
@@ -174,7 +174,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         <div class="main-panel main-left" style="width:${this._widthL}px" @dragover="${(e) => e.preventDefault()}">
                             ${this._expandItem ? html`
                                 <li-wiki-box .item="${this._expandItem}" style="height: calc(100% - 40px);"></li-wiki-box>` : html`
-                                ${(this.article || []).map((i, idx) => html`
+                                ${(this.selectedEditors.filter(i => !i._deleted) || []).map((i, idx) => html`
                                     ${this._item === i && this._action === 'box-move' ? html`
                                     <li-wiki-box-shadow></li-wiki-box-shadow>` : html`
                                     <li-wiki-box .item="${i}" .idx="${idx}"></li-wiki-box>`}`)}`}
@@ -182,9 +182,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     `}
                     <div class="splitter ${this._action === 'splitter-move' ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
-                        ${(this.article || []).map(i => html`
-                            ${!i.show ? html`` : i.type === 'showdown' ? html`
-                                <li-viewer-md src="${i.value || ''}"></li-viewer-md>` : i.type === 'iframe' ? html`
+                        ${(this.selectedEditors.filter(i => !i._deleted) || []).map(i => html`
+                            ${!i.show ? html`` : i.name === 'showdown' ? html`
+                                <li-viewer-md src="${i.value || ''}"></li-viewer-md>` : i.name === 'iframe' ? html`
                                 <iframe .srcdoc="${i.htmlValue || i.value || ''}" style="width:100%;border: none; height: ${i.h + 'px' || 'auto'}"></iframe>` : html`
                                 <div class="res" .item="${i}" .innerHTML="${i.htmlValue || i.value || ''}"></div>
                             `}
@@ -204,7 +204,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     _settings(e) {
         const id = e.target.id,
             w = this.$id.main.offsetWidth,
-            d = this.article || [],
+            d = this.selectedEditors || [],
             fn = {
                 s00: () => this._widthL = w / 2 - 20,
                 s01: () => this._widthL = this._widthL > 0 ? 0 : w / 2 - 20,
@@ -219,17 +219,21 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     let hidden = 0;
                     d.forEach(i => { if (i.hidden) ++hidden })
                     if (hidden && window.confirm(`Do you really want delete ${hidden} hidden box?`)) {
-                        this.article = d.filter(i => !i.hidden);
+                        (this.selectedEditors || []).forEach(i => i._deleted = i.hidden);
                     }
                 },
                 s10: () => {
                     let invisible = 0;
                     d.forEach(i => { if (!i.show) ++invisible })
                     if (invisible && window.confirm(`Do you really want delete ${invisible} invisible box?`)) {
-                        this.article = d.filter(i => i.show);
+                        (this.selectedEditors || []).forEach(i => i._deleted = i.show);
                     }
                 },
-                s11: () => { if (window.confirm(`Do you really want delete all?`)) this.article.splice(0); this._expandItem = undefined }
+                s11: () => {
+                    if (window.confirm(`Do you really want delete all?`)) {
+                        (this.selectedEditors || []).forEach(i => i._deleted = true);
+                    }
+                }
             }
         if (fn[id]) {
             this._item = this._expandItem = undefined;
@@ -293,26 +297,23 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             i = this[type],
             f = this['_' + type],
             toDelete = [],
-            toDeleteEditors = [],
             toUpdate = [],
-            toUpdateEditors = [],
             toSave = [],
-            toSaveEditors = [],
             expanded = [];
         Object.keys(f).forEach(k => {
             if (f[k].deleted) {
-                if (f[k].loaded) toDelete.push(k);
-                toDeleteEditors.push(...f[k].templates?.map(i => i.doc));
+                if (f[k].loaded) {
+                    toDelete.push(k);
+                    toDelete.push(...f[k].templates?.map(i => i._id));
+                }
                 f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
                 delete f[k];
-            } else if (f[k].changed) {
-                if (f[k].loaded) {
-                    toUpdateEditors.push(...f[k].templates?.map(i => i.doc));
-                    toUpdate.push(k);
-                } else {
-                    toSaveEditors.push(...f[k].templates?.map(i => i.doc));
-                    toSave.push(f[k].doc);
-                }
+            } else {
+                toDelete.push(...f[k].templates?.filter(i => i.changed && i.loaded && i._deleted).map(i => i._id));
+                if (f[k].changed && f[k].loaded) toUpdate.push(k);
+                toUpdate.push(...f[k].templates?.filter(i => i.changed && i.loaded).map(i => i._id));
+                if (f[k].changed && !f[k].loaded) toSave.push(f[k].doc);
+                toSave.push(...f[k].templates?.filter(i => i.changed && !i.loaded).map(i => i.doc));
             }
         })
         if (toDelete.length) {
@@ -328,14 +329,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             const items = await this.dbWiki.allDocs({ keys: toUpdate, include_docs: true });
             const res = items.rows.map(i => {
                 let doc = i.doc;
-                doc = { ...doc, ...f[i.key].doc };
+                if (doc._id.startsWith('editors')) doc = { ...doc, ...this._editors[doc._id].doc };
+                else doc = { ...doc, ...f[i.key].doc };
                 return doc;
             })
             await this.dbWiki.bulkDocs(res);
         }
         if (toSave.length) {
             await this.dbWiki.bulkDocs(toSave);
-            await this.dbWiki.bulkDocs(toSaveEditors);
         }
 
         Object.keys(f).map(k => { if (f[k]?.expanded) expanded.push(k) });
@@ -348,13 +349,20 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         _ls['expanded-' + type] = expanded;
         await this.dbWiki.put(_ls);
         this._localStore = await this.dbWiki.get('_local/store');
+
+        Object.keys(this._articles).forEach(k => this._articles[k].setEditors = false);
+        this._editors = {};
+        this._setSelectedEditors();
     }
 
     _addBox(e) {
         this._item = this._expandItem = undefined;
         const label = e.target.innerText;
-        let item = new BOX({ type: 'editors', label, show: true, h: 120, value: '', changed: true });
-        this.article.splice(this.article.length, 0, item);
+        let item = new BOX({ type: 'editors', name: label, label, show: true, h: 120, value: '', changed: true });
+        item.parent = this.selected;
+        this._editors = this._editors || {};
+        this._editors[item._id] = item;
+        this.selectedEditors.splice(this.selectedEditors.length, 0, item);
         this.$update();
     }
 
@@ -430,12 +438,20 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         return flat;
     }
     async _setSelectedEditors() {
-        if (this._selected?.templatesId?.length) {
+        if (!this._selected?.setEditors && this._selected?.templatesId?.length) {
             const temps = await this.dbWiki.allDocs({
                 keys: this.selected.templatesId,
                 include_docs: true
             })
-            this._selected.templates = temps.rows.map(i => i.doc);
+            temps.rows.forEach(i => {
+                if (i.doc) {
+                    const box = new BOX({ ...i.doc, loaded: true, changed: true });
+                    this._selected.templates.push(box);
+                }
+            });
+            this._editors = this._editors || {};
+            this._selected.templates.forEach(i => this._editors[i._id] = i);
+            this._selected.setEditors = true;
         }
     }
 
@@ -477,7 +493,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         }
     }
 
-    get article() {
+    get selectedEditors() {
         return this.selected?.templates || [];
     }
 
@@ -567,9 +583,9 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     }
 
     _stepMoveBox(v) {
-        let indx = this.article.indexOf(this.item);
-        let itm = this.article.splice(this.article.indexOf(this.item), 1);
-        this.article.splice(indx + v, 0, itm[0]);
+        let indx = this.selectedEditors.indexOf(this.item);
+        let itm = this.selectedEditors.splice(this.selectedEditors.indexOf(this.item), 1);
+        this.selectedEditors.splice(indx + v, 0, itm[0]);
         this.$update();
     }
     _collapseBox() {
@@ -600,9 +616,9 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         e.preventDefault();
         let shadowOffset = 1;
         if (e.target.className === 'header') shadowOffset = 0;
-        let itm = this.article.splice(this.article.indexOf(this._item), 1);
-        let indx = this.article.indexOf(this.item) + shadowOffset;
-        this.article.splice(indx, 0, itm[0]);
+        let itm = this.selectedEditors.splice(this.selectedEditors.indexOf(this._item), 1);
+        let indx = this.selectedEditors.indexOf(this.item) + shadowOffset;
+        this.selectedEditors.splice(indx, 0, itm[0]);
         this.$update();
     }
 });
