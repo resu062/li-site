@@ -61,7 +61,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     render() {
         return html`
             ${this.items.map(i => html`
-                <div class="row ${this.selected === i ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
+                <div class="row ${this.selected === i || this.selected?.ulid === i.ulid ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length ? html`
                             <li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
@@ -72,7 +72,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                         ${this.allowCheck ? html`
                             <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}" @blur="${() => this._ed = false}"></li-checkbox>
                         ` : html``}
-                        ${this._ed && this.selected === i && !i.deleted ? html`
+                        ${this._ed && (this.selected === i || this.selected?.ulid === i.ulid)  && !i.deleted ? html`
                             <input value="${i.label}" @change="${(e) => this._setLabel(e, i)}" style="color: gray; flex:1;padding:1px;width:${this.labelWidth}px;font-size:${this.fontSize};border: none;margin:1px;outline: none;"/>
                         ` : html`
                             <div style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize}; text-decoration:${i.deleted ? 'line-through solid red !important' : ''}"
