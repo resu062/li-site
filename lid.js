@@ -9,6 +9,7 @@ class baseITEM {
     _observeKeys = ['label'];
     _fnListen = (e) => {
         this.changed = true;
+        //console.log(e)
     }
     constructor(keys = [], props) {
         this._observeKeys = [...this._observeKeys, ...keys];
@@ -66,9 +67,11 @@ export class ITEM extends baseITEM {
 }
 export class BOX extends baseITEM {
     constructor(props) {
-        super(['h', 'show', 'hidden', 'value', 'htmlValue'], props);
+        super(['h', 'show', 'hidden', 'value', 'htmlValue', 'name'], props);
     }
 
+    get name() { return this._data.name }
+    set name(v) { this._data.name = v }
     get h() { return this._data.h }
     set h(v) { this._data.h = v }
     get show() { return this._data.show }
@@ -87,6 +90,7 @@ export class BOX extends baseITEM {
             ulid: this.ulid,
             type: this.type,
             created: this.created,
+            name: this.name,
             label: this.label,
             h: this.h,
             show: this.show,
