@@ -13,7 +13,7 @@ import '../checkbox/checkbox.js';
 import '../layout-tree/layout-tree.js';
 
 import '../../lib/pouchdb/pouchdb.js'
-import { ITEM } from '../../lid.js';
+import { ITEM, BOX } from '../../lid.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -198,13 +198,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         this._item = this._expandItem = undefined;
         if (this._lPanel === 'articles') this.selected = e.detail;
         else if (this._lPanel === 'templates') this.selectedTemplate = e.detail;
-        if (this._selected?.templatesId?.length) {
-            const temps = await this.dbWiki.allDocs({
-                keys: this.selected.templatesId,
-                include_docs: true
-            }) 
-            this._selected.templates = temps.rows.map(i => i.doc);
-        } 
+        await this._setSelectedEditors();
         this.$update()
     }
     _settings(e) {
@@ -304,20 +298,19 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             toUpdateEditors = [],
             toSave = [],
             toSaveEditors = [],
-            keys = Object.keys(f),
             expanded = [];
-        keys.forEach(k => {
+        Object.keys(f).forEach(k => {
             if (f[k].deleted) {
                 if (f[k].loaded) toDelete.push(k);
+                toDeleteEditors.push(...f[k].templates?.map(i => i.doc));
                 f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
                 delete f[k];
-                toDeleteEditors.push(...f[k].templates?.map(i => i.box));
             } else if (f[k].changed) {
                 if (f[k].loaded) {
+                    toUpdateEditors.push(...f[k].templates?.map(i => i.doc));
                     toUpdate.push(k);
-                    toUpdateEditors.push(...f[k].templates?.map(i => i.box));
                 } else {
-                    toSaveEditors.push(...f[k].templates?.map(i => i.box));
+                    toSaveEditors.push(...f[k].templates?.map(i => i.doc));
                     toSave.push(f[k].doc);
                 }
             }
@@ -345,8 +338,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             await this.dbWiki.bulkDocs(toSaveEditors);
         }
 
-        //if (i[0].expanded) expanded.push(i[0]._id);
-        keys.map(k => { if (f[k]?.expanded) expanded.push(k) });
+        Object.keys(f).map(k => { if (f[k]?.expanded) expanded.push(k) });
         let _ls = {};
         try {
             _ls = await this.dbWiki.get('_local/store')
@@ -361,85 +353,90 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     _addBox(e) {
         this._item = this._expandItem = undefined;
         const label = e.target.innerText;
-        let item = new ITEM({ type: 'editors', label, show: true, h: 120, value: '', changed: true });
+        let item = new BOX({ type: 'editors', label, show: true, h: 120, value: '', changed: true });
         this.article.splice(this.article.length, 0, item);
         this.$update();
     }
+
     firstUpdated() {
         super.firstUpdated();
         setTimeout(async () => {
             this.dbWiki = new PouchDB('wiki');
 
-            try {
+            try { this.rootArticle = await this.dbWiki.get('$wiki:articles') } catch (error) { }
+            if (!this.rootArticle) {
+                await this.dbWiki.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles', type: 'articles' })).doc);
                 this.rootArticle = await this.dbWiki.get('$wiki:articles');
+            }
+            this.rootArticle = new ITEM({ ...this.rootArticle, loaded: true, changed: false });
+            try { this.rootTemplate = await this.dbWiki.get('$wiki:templates') } catch (error) { }
+            if (!this.rootTemplate) {
+                await this.dbWiki.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates', type: 'templates' })).doc);
                 this.rootTemplate = await this.dbWiki.get('$wiki:templates');
-            } catch (error) { }
-
-            if (!this.rootArticle) await this.dbWiki.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles' })).doc);
-            this.rootArticle = await this.dbWiki.get('$wiki:articles');
-            this.rootArticle = new ITEM({ ...this.rootArticle, changed: false });
-            if (!this.rootTemplate) await this.dbWiki.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates' })).doc);
-            this.rootTemplate = await this.dbWiki.get('$wiki:templates');
-            this.rootTemplate = new ITEM({ ...this.rootTemplate, changed: false });
+            }
+            this.rootTemplate = new ITEM({ ...this.rootTemplate, loaded: true, changed: false });
 
             this.dbLocalHost = new PouchDB('http://admin:54321@127.0.0.1:5984/wiki');
             this.dbWiki.sync(this.dbLocalHost, { live: true });
 
             this.articles = [this.rootArticle];
             this.templates = [this.rootTemplate];
-
-            const createTree = async (type) => {
-                const
-                    items = await this.dbWiki.allDocs({ include_docs: true, startkey: type, endkey: type + '\ufff0' }),
-                    flat = {},
-                    tree = this[type],
-                    rootParent = '$wiki:' + type;
-                items.rows.forEach(i => {
-                    flat[i.doc._id] = new ITEM({ ...i.doc, changed: false });
-                    //console.log(flat[i.doc._id], flat[i.doc._id].items)
-                });
-
-                Object.values(flat).forEach(f => {
-                    f.loaded = true;
-                    if (f['parentId'] === rootParent) {
-                        f.parent = tree[0];
-                        tree[0].items.push(f);
-                    } else {
-                        const i = flat[f['parentId']];
-                        if (i) {
-                            i.items = i.items || [];
-                            f.parent = i;
-                            i.items.push(f);
-                        }
-                    }
-                });
-                return flat;
-            }
-            this._articles = await createTree('articles');
-            this._articles['$wiki:articles'] = this.articles[0];
-            this._articles['$wiki:articles'].loaded = true;
-            this._templates = await createTree('templates');
-            this._templates['$wiki:templates'] = this.templates[0];
-            this._templates['$wiki:templates'].loaded = true;
-
             try {
                 this._localStore = await this.dbWiki.get('_local/store');
             } catch (error) { }
             this._localStore = this._localStore || {};
 
-            const setFromLocalStore = (type) => {
-                const
-                    items = type === 'articles' ? this.articles : this.templates,
-                    flat = type === 'articles' ? this._articles : this._templates;
-                this._localStore['expanded-' + type]?.forEach(k => flat[k] ? flat[k].expanded = true : '');
-                items[0].expanded = true;
-                return flat[this._localStore['selected-' + type]] || items[0];
-            }
-            this.selected = await setFromLocalStore('articles');
-            this.selectedTemplate = await setFromLocalStore('templates');
+            this._articles = await this._createTree('articles');
+            this._articles['$wiki:articles'] = this.articles[0];
+            this._templates = await this._createTree('templates');
+            this._templates['$wiki:templates'] = this.templates[0];
+            this.articles[0].expanded = true;
+
+            this.selected = this.selected || this.articles[0];
+            await this._setSelectedEditors();
 
             this.$update();
         }, 100);
+    }
+    async _createTree(type) {
+        const
+            items = await this.dbWiki.allDocs({ include_docs: true, startkey: type, endkey: type + '\ufff0' }),
+            flat = {},
+            tree = this[type],
+            rootParent = '$wiki:' + type;
+        items.rows.forEach(i => flat[i.doc._id] = new ITEM({ ...i.doc, loaded: true, changed: false }));
+        this._localStore['expanded-' + type]?.forEach(k => flat[k] ? flat[k].expanded = true : '');
+        Object.values(flat).forEach(f => {
+            f.loaded = true;
+            if (f['parentId'] === rootParent) {
+                f.parent = tree[0];
+                tree[0].items.push(f);
+            } else {
+                const i = flat[f['parentId']];
+                if (i) {
+                    i.items = i.items || [];
+                    f.parent = i;
+                    i.items.push(f);
+                } else {
+                    f['parentId'] === rootParent;
+                    f.parent = tree[0];
+                    tree[0].items.push(f);
+                    f.deleted = true;
+                }
+            }
+        });
+        if (type === 'articles') this.selected = flat[this._localStore['selected-' + type]] || items[0];
+        else this.selectedTemplate = flat[this._localStore['selected-' + type]] || items[0];
+        return flat;
+    }
+    async _setSelectedEditors() {
+        if (this._selected?.templatesId?.length) {
+            const temps = await this.dbWiki.allDocs({
+                keys: this.selected.templatesId,
+                include_docs: true
+            })
+            this._selected.templates = temps.rows.map(i => i.doc);
+        }
     }
 
     _moveSplitter() {

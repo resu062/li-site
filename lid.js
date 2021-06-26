@@ -1,71 +1,98 @@
+import './lib/icaro/icaro.js';
 
-
-export class ITEM {
+class baseITEM {
     _id;
     ulid = LI.ulid();
-    items = [];
-    itemsId = [];
-    templates = [];
-    templatesId = [];
-    constructor(props) {
-        Object.keys(props || {}).forEach(k => {
-            this[k] = props[k];
-        })
-        this.dates = LI.dates(LI.ulidToDateTime(this.ulid));
-        if (this.type && !this._id) this._id = this.type + ':' + this.ulid;
-    }
-    get label() {
-        return this._label;
-    }
-    set label(v) {
-        if (this._label === v) return;
-        this._label = v;
+    type;
+    created;
+    _data = icaro({});
+    _observeKeys = ['label'];
+    _fnListen = (e) => {
         this.changed = true;
     }
-    get _itemsId() { return this.items.map(i => i._id) || [] }
-    get _templatesId() { return this.templates.map(i => i._id) || [] }
-    get doc() {
-        const
-            updates = this.updates || [],
-            itemsId = this.items.map(i => i._id) || [],
-            templatesId = this.templates.map(i => i._id) || [];
-        updates.push({
-            dates: LI.dates(new Date()),
-            owner: this.owner || 'anonim'
+    constructor(keys = [], props) {
+        this._observeKeys = [...this._observeKeys, ...keys];
+        Object.keys(props || {}).forEach(k => {
+            if (!['_data', '_observeKeys', '_fnListen'].includes(k)) {
+                if (this._observeKeys.includes(k))
+                    this._data[k] = props[k];
+                else if (Array.isArray(props[k])) {
+                    this[k] = icaro([]);
+                    this[k].listen(this._fnListen);
+                    this[k] = [...props[k]];
+                } else
+                    this[k] = props[k];
+            }
         })
+        this.created = this.created || LI.dates(LI.ulidToDateTime(this.ulid));
+        if (this.type && !this._id) this._id = this.type + ':' + this.ulid;
+        this._data.listen(this._fnListen);
+    }
+
+    get label() { return this._data.label }
+    set label(v) { this._data.label = v }
+}
+export class ITEM extends baseITEM {
+    items = icaro([]);
+    templates = icaro([]);
+    constructor(props) {
+        super(['parent', 'parentId', 'expanded'], props);
+        this.items.listen(this._fnListen);
+        this.templates.listen(this._fnListen);
+    }
+    get parent() { return this._data.parent }
+    set parent(v) { this._data.parent = v }
+    get parentId() { return this._data.parentId }
+    set parentId(v) { this._data.parentId = v }
+    get expanded() { return this._data.expanded }
+    set expanded(v) { this._data.expanded = v }
+
+    get _itemsId() { return (this.items || []).map(i => i._id) || [] }
+    get _templatesId() { return (this.templates || []).map(i => i._id) || [] }
+
+    get doc() {
         return {
             _id: this._id,
+            _ref: this._ref,
             ulid: this.ulid,
-            parentId: this.parentId,
             type: this.type,
+            created: this.created,
+            parentId: this.parentId,
             label: this.label,
-            dates: this.dates,
             itemsId: this._itemsId,
             templatesId: this._templatesId,
-            updates
         }
     }
-    get box() {
-        const
-            updates = this.updates || [],
-            itemsId = this.items.map(i => i._id) || [],
-            templatesId = this.templates.map(i => i._id) || [];
-        updates.push({
-            dates: LI.dates(new Date()),
-            owner: this.owner || 'anonim'
-        })
+}
+export class BOX extends baseITEM {
+    constructor(props) {
+        super(['h', 'show', 'hidden', 'value', 'htmlValue'], props);
+    }
+
+    get h() { return this._data.h }
+    set h(v) { this._data.h = v }
+    get show() { return this._data.show }
+    set show(v) { this._data.show = v }
+    get hidden() { return this._data.hidden }
+    set hidden(v) { this._data.hidden = v }
+    get value() { return this._data.value }
+    set value(v) { this._data.value = v }
+    get htmlValue() { return this._data.htmlValue }
+    set htmlValue(v) { this._data.htmlValue = v }
+
+    get doc() {
         return {
             _id: this._id,
+            _ref: this._ref,
             ulid: this.ulid,
             type: this.type,
+            created: this.created,
             label: this.label,
-            dates: this.dates,
             h: this.h,
-            label: this.label,
             show: this.show,
+            hidden: this.hidden,
             value: this.value,
             htmlValue: this.htmlValue,
-            updates
         }
     }
 }
