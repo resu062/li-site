@@ -157,7 +157,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         ` : this._lPanel === 'settings' ? html`
                             <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div class="lbl" style="color:gray; opacity: 0.7">version: 0.5.1</div>
+                            <div class="lbl" style="color:gray; opacity: 0.7">version: 0.7.2</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
@@ -171,7 +171,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <li-button id="Export db" @click="${this._settings}" width="auto">Export database</li-button>
                             <div class="lbl">Import database:</div>
                             <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
-                            <!-- <li-button id="Import db" @click="${this._settings}" width="auto">Import db</li-button> -->
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                         ` : html`
                             <b>${this._lPanel}</b>
@@ -183,7 +182,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <li-button name="cached" title="clear deleted" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="delete" title="delete" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="library-add" title="add new" size="20" @click="${this._treeActions}"></li-button>
-                                <!-- <li-button name="save" title="save" size="20" @click="${this._treeActions}"></li-button> -->
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${this.fnSelected}"
@@ -223,11 +221,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         if (this._lPanel === 'articles') {
             this.selected = e.detail;
             await this._setSelectedEditors();
-            console.log('articles - ', 'items: ', this.selected.items.length, ' templates: ', this.selected.templates.length)
+            //console.log('articles - ', 'items: ', this.selected.items.length, ' templates: ', this.selected.templates.length)
         }
         else if (this._lPanel === 'templates') {
             this.selectedTemplate = e.detail;
-            console.log('templates - ', 'items: ', this.selectedTemplate.items.length, ' templates: ', this.selectedTemplate.templates.length)
+            //console.log('templates - ', 'items: ', this.selectedTemplate.items.length, ' templates: ', this.selectedTemplate.templates.length)
         }
         this.$update()
     }
@@ -266,15 +264,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 },
                 'Compacting db': async () => {
                     if (!window.confirm(`Do you really want compacting current Database ?`)) return;
+                    this.dbWiki.compact().then(function(info) {
+                        console.log('compaction complete');
+                    }).catch(function(err) {
+                        return console.log(err); f
+                    });
                     this.dbLocalHost.compact().then(function(info) {
                         console.log('compaction complete');
                     }).catch(function(err) {
                         return console.log(err);
-                    });
-                    this.dbWiki.compact().then(function(info) {
-                        console.log('compaction complete');
-                    }).catch(function(err) {
-                        return console.log(err);f
                     });
                 },
                 'Export db': async () => {
@@ -312,7 +310,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                     this.dbWiki.sync(this.dbLocalHost, { live: true });
                                     await this.dbWiki.bulkDocs(
                                         result,
-                                        { new_edits: false }, // not change revision
+                                        { new_edits: false },
                                         (...args) => {
                                             this.$update();
                                             console.log('DONE', args)
@@ -356,20 +354,18 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 LID.arrSetItems(this._selected, 'expanded', true);
             },
             'delete': async () => {
-                const itemToDelete = LID.arrFindItem(this._items[0], 'checked', true);
+                this._items[0].checked = false;
+                let itemToDelete = LID.arrFindItem(this._items[0], 'checked', true);
                 if (!itemToDelete || (confirm && !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`))) return;
-                let itemsToDelete = LID.arrAllChildren(itemToDelete);
-                itemsToDelete.forEach(i => {
-                    if (i.checked) {
-                        i._deleted = true;
-                        i.checked = false;
+                itemToDelete = [];
+                Object.keys(this._flat).forEach(k => {
+                    if (this._flat[k].checked) {
+                        this._flat[k].checked = false;
+                        this._flat[k]._deleted = true;
+                        itemToDelete.push(this._flat[k]);
                     }
-                });
-                if (itemToDelete.checked) {
-                    itemToDelete._deleted = true;
-                    itemToDelete.checked = false;
-                }
-                this._treeActions(e, 'delete', false);
+                })
+                this._refreshTree = true;
             },
             'clear deleted': () => {
                 LID.arrSetItems(this._items[0], '_deleted', false);
@@ -377,9 +373,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             'save': async () => {
                 await this._saveTreeAction('articles');
                 await this._saveTreeAction('templates');
-                setTimeout(() => {
+                requestAnimationFrame(async () => {
+                    this._updateTree();
                     this._needSave = false;
-                }, 100);
+                });
             },
             'saveTreeState': async () => {
                 await this._saveTreeState();
@@ -390,7 +387,29 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.$update();
         }
     }
-
+    _updateTree() {
+        if (!this._refreshTree) return;
+        if (this._lPanel === 'articles') {
+            this._articles = {};
+            this.articles = undefined;
+            requestAnimationFrame(async () => {
+                this.rootArticle = new ITEM({ ...await this.dbWiki.get('$wiki:articles') });
+                this.articles = [this.rootArticle]
+                this._articles = await this._createTree('articles');
+                this.selected = this._articles[this._localStore['selected-articles']] || this.articles[0];
+            });
+        } else {
+            this._templates = {};
+            this.templates = undefined;
+            requestAnimationFrame(async () => {
+                this.rootTemplate = new ITEM({ ...await this.dbWiki.get('$wiki:templates') });
+                this.templates = [this.rootTemplate]
+                this._templates = await this._createTree('templates');
+                this.selectedTemplate = this._templates[this._localStore['selected-templates']] || this.templates[0];
+            });
+        }
+        this._refreshTree = false;
+    }
     async _saveTreeAction(type) {
         if (!type) return;
         const
@@ -404,11 +423,12 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 if (f[k].loaded) {
                     toDelete.push(k);
                     toDelete.push(...f[k].templates?.map(i => i._id));
+                    toDelete.push(...f[k].templatesId?.map(i => i));
                 }
                 f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
                 delete f[k];
             } else {
-                //toDelete.push(...f[k].templates?.filter(i => i.changed && i.loaded && i._deleted).map(i => i._id));
+                toDelete.push(...f[k].templates?.filter(i => i.changed && i.loaded && i._deleted).map(i => i._id));
                 if (f[k].changed && f[k].loaded) toUpdate.push(k);
                 toUpdate.push(...f[k].templates?.filter(i => i.changed && i.loaded && !i._deleted).map(i => i._id));
                 if (f[k].changed && !f[k].loaded) toSave.push(f[k].doc);
@@ -527,10 +547,12 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
             Object.keys(this._articles).forEach(k => {
                 this._articles[k].changed = false;
-                this._articles[k].loaded = true });
+                this._articles[k].loaded = true;
+            });
             Object.keys(this._templates).forEach(k => {
                 this._templates[k].changed = false;
-                this._templates[k].loaded = true });
+                this._templates[k].loaded = true;
+            });
             LI.listen(document, 'needSave', (e) => this._needSave = true);
 
             this.$update();
@@ -558,7 +580,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     f.parent = tree[0];
                     tree[0].items.push(f);
                     f._deleted = true;
-                    //f.checked = true;
                 }
             }
         });
