@@ -23,7 +23,7 @@ export const data =  [
             "show": true,
             "h": 80,
             "type": "html-editor",
-            "value": "<div style=\"color:blue;font-size:26px;font-weight:600;\">li-wiki (protype)</div>"
+            "value": "<div style=\"color:blue;font-size:26px;font-weight:600;\">li-wiki (prototype)</div>"
           },
           {
             "ulid": "01F7N9T3XECY0T7R3BKJ2F2ZG1",
