@@ -25,7 +25,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     }
 
     get items() {
-        return this.item && this.item.map ? this.item : this.item && this.item.items && this.item.items.map ? this.item.items : [];
+        return this.item && this.item.map ? this.item : this.item && this.item.items && this.item.items.map ? this.item.items : undefined;
     }
     get _ed() {
         return this.allowEdit && this._allowEdit;
@@ -60,7 +60,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
 
     render() {
         return html`
-            ${this.items.map(i => html`
+            ${!this.items ? html`` : this.items.map(i => html`
                 <div class="row ${this.selected === i || this.selected?.ulid === i.ulid ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length ? html`

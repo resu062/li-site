@@ -82,8 +82,10 @@ export class ITEM extends baseITEM {
     }
 }
 export class BOX extends baseITEM {
+    show = true;
+    hidden = false;
     constructor(props) {
-        super(['h', 'value', 'htmlValue', 'name'], props);
+        super(['h', 'value', 'htmlValue'], props);
     }
 
     get h() { return this._data.h }
