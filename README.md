@@ -24,4 +24,32 @@ Games of Life (canvas): https://resu062.github.io/li-js/li/life/
 
 Games of Life (svg): https://resu062.github.io/li-js/li/life/
 
-Wiki (prototype): https://resu062.github.io/li-js/li/wiki/
+### Wiki (prototype): https://resu062.github.io/li-js/li/wiki/
+
+Example of use Wiki as local server:
+
+Download the archive and unpack it to the required directory.
+Using local-web-server (https://github.com/lwsjs/local-web-server)
+
+In the terminal, enter the command: 
+#### npm install -g local-web-server
+on the unpacked folder, start the terminal and enter the command:
+#### ws
+or 
+#### ws --qr
+The answer would be like:
+#### Listening on http://mbp.local:8000, http://127.0.0.1:8000, http://192.168.0.100:8000
+The local server is running on the specified addresses.
+
+If the command was with a key --qr, the QR code will be shown for launching on mobile devices.
+
+You now have access to the wiki from any device on the local network.
+
+To access from anywhere on the Internet, set up a VPN server at home.
+
+I am using VPN server built-in router Mikrotik.
+
+The program uses a database PouchDB (https://pouchdb.com/) to store the input data on different devices even in the absence of the Internet, with subsequent synchronization when connected to a local network directly or via VPN.
+
+You can install the CouchDB server locally (https://couchdb.apache.org/) for complete synchronization.
+
