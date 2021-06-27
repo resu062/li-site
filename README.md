@@ -33,7 +33,7 @@ Using local-web-server (https://github.com/lwsjs/local-web-server)
 
 In the terminal, enter the command: 
 #### npm install -g local-web-server
-on the unpacked folder, start the terminal and enter the commandя:
+on the unpacked folder, start the terminal and enter the command:
 #### ws
 or 
 #### ws --qr
@@ -47,7 +47,7 @@ You now have access to the wiki from any device on the local network.
 
 To access from anywhere on the Internet, set up a VPN server at home.
 
-I am using Mikrotik built-in router.
+I am using VPN server built-in router Mikrotik.
 
 You can install the CouchDB server locally (https://couchdb.apache.org/) for complete synchronization.
 
