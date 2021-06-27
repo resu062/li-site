@@ -166,6 +166,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <li-button id="Replicate db" @click="${this._settings}" width="auto">Replicate from couchdb database</li-button>
                             <li-button id="Compacting db" @click="${this._settings}" width="auto">Compacting database</li-button>
                             <a id="aaa" href=""></a>
                             <li-button id="Export db" @click="${this._settings}" width="auto">Export database</li-button>
@@ -173,7 +174,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                         ` : html`
-                            <b>${this._lPanel}</b>
+                            <div style="display: flex"><b>${this._lPanel}</b>${this._lPanel === "templates" ? html`<div style="flex:1;"></div><div> Coming soon ...</div>` : html``}</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="display:flex">
                                 <li-button name="unfold-less" title="collapse" size="20" @click="${this._treeActions}"></li-button>
@@ -261,6 +262,25 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     if (window.confirm(`Do you really want delete all?`)) {
                         (this.selectedEditors || []).forEach(i => i._deleted = true);
                     }
+                },
+                'Replicate db': async () => {
+                    if (!window.confirm(`Do you really want replicate from couchdb Database ?`)) return;
+                    this.dbWiki.destroy((err, response) => {
+                        if (err) {
+                            return console.log(err);
+                        } else {
+                            console.log("Database Deleted");
+                        }
+                    });
+                    this.dbWiki = new PouchDB(this.dbName);
+                    this.dbWiki.replicate.from(this.dbLocalHost).on('complete', () => {
+                        console.log('replicate complete');
+                    }).on('error', (err) => {
+                        return console.log(err);
+                    });
+                    setTimeout(() => {
+                        document.location.reload();
+                    }, 500);
                 },
                 'Compacting db': async () => {
                     if (!window.confirm(`Do you really want compacting current Database ?`)) return;
