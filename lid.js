@@ -10,6 +10,7 @@ class baseITEM {
     _fnListen = (e) => {
         this.changed = true;
         //console.log(this.label, e)
+        LI.fire(document, 'needSave', this.label);
     }
     constructor(keys = [], props) {
         this._observeKeys = [...this._observeKeys, ...keys];
@@ -17,11 +18,7 @@ class baseITEM {
             if (!['_data', '_observeKeys', '_fnListen'].includes(k)) {
                 if (this._observeKeys.includes(k))
                     this._data[k] = props[k];
-                else if (Array.isArray(props[k])) {
-                    this[k] = icaro([]);
-                    this[k].listen(this._fnListen);
-                    this[k] = [...props[k]];
-                } else
+                else
                     this[k] = props[k];
             }
         })
@@ -38,23 +35,36 @@ class baseITEM {
 export class ITEM extends baseITEM {
     items = icaro([]);
     templates = icaro([]);
-    constructor(props) {
-        super(['parent', 'parentId', 'expanded'], props);
-        this.items.listen(this._fnListen);
-        this.templates.listen(this._fnListen);
+    _fnCheckItems = () => {
+        if (this._itemsId.join(',') !== (this.itemsId || []).join(',')) this.changed = true;
+        if (this.changed) {
+            LI.fire(document, 'needSave', this.label);
+            //console.log(this.label, this.changed, this._itemsId.join(','), this.itemsId.join(','))
+        }
     }
-    get parent() { return this._data.parent }
-    set parent(v) { this._data.parent = v }
+    _fnCheckTemplates = () => {
+        if (this._templatesId.join(',') !== (this.templatesId || []).join(',')) this.changed = true;
+        if (this.changed) {
+            LI.fire(document, 'needSave', this.label);
+            //console.log(this.label, this.changed, this._templatesId.join(','), this.templatesId.join(','))
+        }
+    }
+    constructor(props) {
+        super(['parentId'], props);
+        this.items.listen(this._fnCheckItems);
+        this.templates.listen(this._fnCheckTemplates);
+    }
+
     get parentId() { return this._data.parentId }
     set parentId(v) { this._data.parentId = v }
-    get expanded() { return this._data.expanded }
-    set expanded(v) { this._data.expanded = v }
 
     get _itemsId() {
-        return (this.items || []).map(i => i._id) || []
+        if (!this.items || !this.items.map) return [];
+        return (this.items).map(i => i._id);
     }
     get _templatesId() {
-        return (this.templates || []).map(i => i._id) || []
+        if (!this.templates || !this.templates.map) return [];
+        return (this.templates).map(i => i._id);
     }
 
     get doc() {
@@ -73,17 +83,11 @@ export class ITEM extends baseITEM {
 }
 export class BOX extends baseITEM {
     constructor(props) {
-        super(['h', 'show', 'hidden', 'value', 'htmlValue', 'name'], props);
+        super(['h', 'value', 'htmlValue', 'name'], props);
     }
 
-    get name() { return this._data.name }
-    set name(v) { this._data.name = v }
     get h() { return this._data.h }
     set h(v) { this._data.h = v }
-    get show() { return this._data.show }
-    set show(v) { this._data.show = v }
-    get hidden() { return this._data.hidden }
-    set hidden(v) { this._data.hidden = v }
     get value() { return this._data.value }
     set value(v) { this._data.value = v }
     get htmlValue() { return this._data.htmlValue }
@@ -99,8 +103,6 @@ export class BOX extends baseITEM {
             name: this.name,
             label: this.label,
             h: this.h,
-            show: this.show,
-            hidden: this.hidden,
             value: this.value,
             htmlValue: this.htmlValue,
         }
