@@ -504,6 +504,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
     async firstUpdated() {
         super.firstUpdated();
+        this.dbName = this.dbName || 'wiki';
+        this.dbIP = this.dbIP || 'http://admin:54321@localhost:5984/';
         setTimeout(async () => {
             this.dbWiki = new PouchDB(this.dbName);
             this.dbLocalHost = new PouchDB(this.dbIP + this.dbName);
