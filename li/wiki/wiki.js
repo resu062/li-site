@@ -399,11 +399,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this._editors = {};
                     this._setSelectedEditors();
                 }
-                setTimeout(() => {
-                    Object.keys(this._articles).forEach(k => this._articles[k].changed = this._articles[k].setEditors = false);
-                    Object.keys(this._templates).forEach(k => this._templates[k].changed = false);
-                    this._needSave = false;
-                }, 100);
+                Object.keys(this._articles).forEach(k => this._articles[k].changed = this._articles[k].setEditors = false);
+                Object.keys(this._templates).forEach(k => this._templates[k].changed = false);
+                setTimeout(() => { this._needSave = false }, 200);
             },
             'saveTreeState': async () => {
                 await this._saveTreeState();
@@ -472,8 +470,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             const res = [];
             items.rows.map(i => {
                 if (i.doc) {
-                    if (i.key.startsWith('editors')) i.doc = { ...i.doc, ...this._editors[i.key].doc };
-                    else i.doc = { ...i.doc, ...f[i.key].doc };
+                    if (i.key.startsWith('editors') && this._editors?.[i.key]) i.doc = { ...i.doc, ...this._editors[i.key].doc };
+                    else if (f[i.key]?.doc) i.doc = { ...i.doc, ...f[i.key].doc };
                     res.add(i.doc);
                 }
             })
