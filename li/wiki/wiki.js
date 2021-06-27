@@ -30,8 +30,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _lPanel: { type: String, default: 'articles' },
             _firstLoadDemoDB: { type: Boolean, default: true, save: true },
             _needSave: { type: Boolean },
-            dbName: { type: String, default: 'wiki', local: true },
-            dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', local: true }
+            dbName: { type: String, default: 'wiki', save: true },
+            dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', save: true }
         }
     }
 
@@ -162,8 +162,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}"></div>
-                            <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}"></div>
+                            <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}" @change="${(e) => this.dbName = e.target.value}"></div>
+                            <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <li-button id="Compacting db" @click="${this._settings}" width="auto">Compacting database</li-button>
