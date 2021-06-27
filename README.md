@@ -24,18 +24,18 @@ Games of Life (canvas): https://resu062.github.io/li-js/li/life/
 
 Games of Life (svg): https://resu062.github.io/li-js/li/life/
 
-Wiki (prototype): https://resu062.github.io/li-js/li/wiki/
+## Wiki (prototype): https://resu062.github.io/li-js/li/wiki/
 
 Example of use Wiki as local server:
 
 Download the archive and unpack it to the required directory.
 Using local-web-server (https://github.com/lwsjs/local-web-server)
 In the terminal, enter the command: 
-##### npm install -g local-web-server
+#### npm install -g local-web-server
 on the unpacked folder, start the terminal and enter the commandя:
-##### ws
+#### ws
 or 
-##### ws --qr
+#### ws --qr
 The answer would be like:
-##### Listening on http://mbp.local:8000, http://127.0.0.1:8000, http://192.168.0.100:8000
+#### Listening on http://mbp.local:8000, http://127.0.0.1:8000, http://192.168.0.100:8000
 If the command was with a key, the gr code will be shown for launching on mobile devices
