@@ -24,7 +24,7 @@ Games of Life (canvas): https://resu062.github.io/li-js/li/life/
 
 Games of Life (svg): https://resu062.github.io/li-js/li/life/
 
-## Wiki (prototype): https://resu062.github.io/li-js/li/wiki/
+### Wiki (prototype): https://resu062.github.io/li-js/li/wiki/
 
 Example of use Wiki as local server:
 
@@ -38,4 +38,5 @@ or
 #### ws --qr
 The answer would be like:
 #### Listening on http://mbp.local:8000, http://127.0.0.1:8000, http://192.168.0.100:8000
-If the command was with a key, the gr code will be shown for launching on mobile devices
+Еhe local server is running on the specified addresses.
+If the command was with a key --qr, the QR code will be shown for launching on mobile devices.
