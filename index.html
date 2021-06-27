@@ -1,13 +1,17 @@
-<script type="module" src="./li/app/app.js"></script>
-<link rel="stylesheet" href="./lib/awesome-notifications/style.css"></link>
+<meta charset="utf-8">
+<script type="module" src="./li/wiki/wiki.js"></script>
 
 <style>
     html * {
-        color: gray;
         font-family: Arial;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
     }
 </style>
 
-<body style="margin:0">
-    <li-app></li-app>
-</body>
+<li-wiki id="wiki"></li-wiki>
