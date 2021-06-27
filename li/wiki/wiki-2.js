@@ -373,10 +373,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             'save': async () => {
                 await this._saveTreeAction('articles');
                 await this._saveTreeAction('templates');
-                requestAnimationFrame(async () => {
-                    this._updateTree();
+                this._updateTree();
+
+                if (this._lPanel === 'articles') {
+                    this._editors = {};
+                    this._setSelectedEditors();
+                }
+                setTimeout(() => {
+                    Object.keys(this._articles).forEach(k => this._articles[k].changed = this._articles[k].setEditors = false);
+                    Object.keys(this._templates).forEach(k => this._templates[k].changed = false);
                     this._needSave = false;
-                });
+                }, 100);
             },
             'saveTreeState': async () => {
                 await this._saveTreeState();
@@ -420,45 +427,34 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             toSave = [];
         Object.keys(f).forEach(k => {
             if (f[k]._deleted) {
-                if (f[k].loaded) {
-                    toDelete.push(k);
-                    toDelete.push(...f[k].templates?.map(i => i._id));
-                    toDelete.push(...f[k].templatesId?.map(i => i));
-                }
+                toDelete.add(k);
+                if (f[k].templates && f[k].templates.map) toDelete.add(...f[k].templates.map(i => i._id));
+                if (f[k].templatesId && f[k].templatesId.map) toDelete.add(...f[k].templatesId.map(i => i));
                 f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
                 delete f[k];
             } else {
-                toDelete.push(...f[k].templates?.filter(i => i.changed && i.loaded && i._deleted).map(i => i._id));
-                if (f[k].changed && f[k].loaded) toUpdate.push(k);
-                toUpdate.push(...f[k].templates?.filter(i => i.changed && i.loaded && !i._deleted).map(i => i._id));
-                if (f[k].changed && !f[k].loaded) toSave.push(f[k].doc);
-                toSave.push(...f[k].templates?.filter(i => i.changed && !i.loaded).map(i => i.doc));
+                if (f[k].templates) toDelete.add(...f[k].templates.filter(i => i.changed && i._deleted).map(i => i._id));
+                if (f[k].templatesId) toDelete.add(...f[k].templatesId.filter(i => i.changed && i._deleted).map(i => i));
+                if (f[k].changed) toUpdate.add(k);
+                if (f[k].templates) toUpdate.add(...f[k].templates.filter(i => i.changed && !i._deleted).map(i => i._id));
+                if (f[k].templatesId) toUpdate.add(...f[k].templatesId.filter(i => i.changed && !i._deleted).map(i => i));
+                if (f[k].changed) toSave.add(f[k].doc);
+                if (f[k].templates) toSave.add(...f[k].templates.filter(i => i.changed).map(i => i.doc));
             }
         })
         if (this._editors && Object.keys(this._editors)?.length) {
             const toDel = Object.keys(this._editors).filter(k => this._editors[k]._deleted).map(k => this._editors[k]._id);
-            toDelete.push(...toDel);
-        }
-        if (toDelete.length) {
-            const items = await this.dbWiki.allDocs({ keys: toDelete, include_docs: true });
-            const res = items.rows.map(i => {
-                if (i.doc) {
-                    let doc = i.doc;
-                    doc._deleted = true;
-                    return doc;
-                }
-            })
-            await this.dbWiki.bulkDocs(res);
+            toDelete.add(...toDel);
         }
         //console.log(toDelete, toUpdate, toSave)
         if (toUpdate.length) {
             const items = await this.dbWiki.allDocs({ keys: toUpdate, include_docs: true });
-            const res = items.rows.map(i => {
+            const res = [];
+            items.rows.map(i => {
                 if (i.doc) {
-                    let doc = i.doc;
-                    if (doc._id.startsWith('editors')) doc = { ...doc, ...this._editors[doc._id].doc };
-                    else doc = { ...doc, ...f[i.key].doc };
-                    return doc;
+                    if (i.key.startsWith('editors')) i.doc = { ...i.doc, ...this._editors[i.key].doc };
+                    else i.doc = { ...i.doc, ...f[i.key].doc };
+                    res.add(i.doc);
                 }
             })
             await this.dbWiki.bulkDocs(res);
@@ -466,11 +462,16 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         if (toSave.length) {
             await this.dbWiki.bulkDocs(toSave);
         }
-
-        Object.keys(this._articles).forEach(k => this._articles[k].changed = this._articles[k].setEditors = false);
-        if (type === 'articles') {
-            this._editors = {};
-            this._setSelectedEditors();
+        if (toDelete.length) {
+            const items = await this.dbWiki.allDocs({ keys: toDelete, include_docs: true });
+            const res = [];
+            items.rows.map(i => {
+                if (i.doc) {
+                    i.doc._deleted = true;
+                    res.add(i.doc);
+                }
+            })
+            await this.dbWiki.bulkDocs(res);
         }
     }
     async _saveTreeState() {
@@ -545,14 +546,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
             await this._setSelectedEditors();
 
-            Object.keys(this._articles).forEach(k => {
-                this._articles[k].changed = false;
-                this._articles[k].loaded = true;
-            });
-            Object.keys(this._templates).forEach(k => {
-                this._templates[k].changed = false;
-                this._templates[k].loaded = true;
-            });
+            Object.keys(this._articles).forEach(k => this._articles[k].changed = false);
+            Object.keys(this._templates).forEach(k => this._templates[k].changed = false);
             LI.listen(document, 'needSave', (e) => this._needSave = true);
 
             this.$update();
@@ -594,7 +589,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         this._selected.templates.splice(0);
         temps.rows.forEach(i => {
             if (i.doc) {
-                const box = new BOX({ ...i.doc, loaded: true, changed: false });
+                const box = new BOX({ ...i.doc, changed: false });
                 this._selected.templates.push(box);
                 this._editors[i.id] = box;
             }
