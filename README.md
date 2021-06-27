@@ -40,5 +40,14 @@ or
 The answer would be like:
 #### Listening on http://mbp.local:8000, http://127.0.0.1:8000, http://192.168.0.100:8000
 The local server is running on the specified addresses.
+
 If the command was with a key --qr, the QR code will be shown for launching on mobile devices.
+
 You now have access to the wiki from any device on the local network.
+
+To access from anywhere on the Internet, set up a VPN server at home.
+
+I am using Mikrotik built-in router.
+
+You can install the CouchDB server locally (https://couchdb.apache.org/) for complete synchronization.
+
