@@ -49,5 +49,7 @@ To access from anywhere on the Internet, set up a VPN server at home.
 
 I am using VPN server built-in router Mikrotik.
 
+The program uses a database PouchDB (https://pouchdb.com/) to store the input data on different devices even in the absence of the Internet, with subsequent synchronization when connected to a local network directly or via VPN.
+
 You can install the CouchDB server locally (https://couchdb.apache.org/) for complete synchronization.
 
