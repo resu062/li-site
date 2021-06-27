@@ -72,10 +72,10 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                         ${this.allowCheck ? html`
                             <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}" @blur="${() => this._ed = false}"></li-checkbox>
                         ` : html``}
-                        ${this._ed && (this.selected === i || this.selected?.ulid === i.ulid)  && !i.deleted ? html`
+                        ${this._ed && (this.selected === i || this.selected?.ulid === i.ulid)  && !i._deleted ? html`
                             <input value="${i.label}" @change="${(e) => this._setLabel(e, i)}" style="color: gray; flex:1;padding:1px;width:${this.labelWidth}px;font-size:${this.fontSize};border: none;margin:1px;outline: none;"/>
                         ` : html`
-                            <div style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize}; text-decoration:${i.deleted ? 'line-through solid red !important' : ''}"
+                            <div style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize}; text-decoration:${i._deleted ? 'line-through solid red !important' : ''}"
                                 @dblclick="${() => this._ed = true}" @click="${(e) => this._focus(e, i)}">${i.label}</div>
                         `}
                     </div>
