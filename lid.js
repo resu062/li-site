@@ -8,9 +8,8 @@ class baseITEM {
     _data = icaro({});
     _observeKeys = ['label', '_deleted'];
     _fnListen = (e) => {
-        this.changed = true;
         //console.log(this.label, e)
-        LI.fire(document, 'needSave', this.label);
+        LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
     }
     constructor(keys = [], props) {
         this._observeKeys = [...this._observeKeys, ...keys];
@@ -30,22 +29,35 @@ class baseITEM {
     get label() { return this._data.label }
     set label(v) { this._data.label = v }
     get _deleted() { return this._data._deleted }
-    set _deleted(v) { this._data._deleted = v }
+    set _deleted(v) {
+        if (v) {
+            LI.fire(document, 'needSave', { type: '_deleted', _id: this._id });
+            if (this.items) {
+                this.items.forEach(i => {
+                    if (i.checked) i._delete = true;
+                })
+            }
+            if (this.templates) {
+                this.templates.forEach(i => {
+                    if (i.checked) i._delete = true;
+                })
+            }
+        }
+        this._data._deleted = v;
+    }
 }
 export class ITEM extends baseITEM {
     items = icaro([]);
     templates = icaro([]);
-    _fnCheckItems = () => {
-        if (this._itemsId.join(',') !== (this.itemsId || []).join(',')) this.changed = true;
-        if (this.changed) {
-            LI.fire(document, 'needSave', this.label);
+    _fnCheckItems = (e) => {
+        if (this._itemsId.join(',') !== (this.itemsId || []).join(',')) {
+            LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
             //console.log(this.label, this.changed, this._itemsId.join(','), this.itemsId.join(','))
         }
     }
-    _fnCheckTemplates = () => {
-        if (this._templatesId.join(',') !== (this.templatesId || []).join(',')) this.changed = true;
-        if (this.changed) {
-            LI.fire(document, 'needSave', this.label);
+    _fnCheckTemplates = (e) => {
+        if (this._templatesId.join(',') !== (this.templatesId || []).join(',')) {
+            LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
             //console.log(this.label, this.changed, this._templatesId.join(','), this.templatesId.join(','))
         }
     }
@@ -60,11 +72,19 @@ export class ITEM extends baseITEM {
 
     get _itemsId() {
         if (!this.items || !this.items.map) return [];
-        return (this.items).map(i => i._id);
+        const res = [];
+        this.items.map(i => {
+            if (!i._deleted) res.add(i._id);
+        })
+        return res;
     }
     get _templatesId() {
         if (!this.templates || !this.templates.map) return [];
-        return (this.templates).map(i => i._id);
+        const res = [];
+        this.templates.map(i => {
+            if (!i._deleted) res.add(i._id);
+        })
+        return res;
     }
 
     get doc() {
