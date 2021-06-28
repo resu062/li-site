@@ -29,15 +29,20 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _expandItem: { type: Object, local: true },
             _lPanel: { type: String, default: 'articles' },
             _firstLoadDemoDB: { type: Boolean, default: true, save: true },
-            _needSave: { type: Boolean },
             dbName: { type: String, default: 'wiki', save: true },
-            dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', save: true }
+            dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', save: true },
+            _changedList: { type: Array, default: [] },
+            _deletedList: { type: Array, default: [] }
         }
     }
 
     get selectedEditors() {
         return this.selected?.templates || [];
     }
+    get _needSave() {
+        if (this._changedList?.length || this._deletedList?.length) return true;
+        return false;
+    };
 
     static get styles() {
         return css`
@@ -365,6 +370,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this._selected.items.splice(this._selected.items.length, 0, item);
                 this._selected.expanded = true;
                 this._flat[item._id] = item;
+                this._changedList.add(item._id);
                 this.$update();
             },
             'collapse': () => {
@@ -375,14 +381,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             },
             'delete': async () => {
                 this._items[0].checked = false;
-                let itemToDelete = LID.arrFindItem(this._items[0], 'checked', true);
+                const itemToDelete = LID.arrFindItem(this._items[0], 'checked', true);
                 if (!itemToDelete || (confirm && !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`))) return;
-                itemToDelete = [];
                 Object.keys(this._flat).forEach(k => {
                     if (this._flat[k].checked) {
                         this._flat[k].checked = false;
                         this._flat[k]._deleted = true;
-                        itemToDelete.push(this._flat[k]);
+                        this._deletedList.add(k);
+                        this._flat[k]._templatesId?.forEach(i => this._deletedList.add(i));
+                        this._flat[k].templatesId?.forEach(i => this._deletedList.add(i));
                     }
                 })
                 this._refreshTree = true;
@@ -399,9 +406,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this._editors = {};
                     this._setSelectedEditors();
                 }
-                Object.keys(this._articles).forEach(k => this._articles[k].changed = this._articles[k].setEditors = false);
-                Object.keys(this._templates).forEach(k => this._templates[k].changed = false);
-                setTimeout(() => { this._needSave = false }, 200);
+                Object.keys(this._articles).forEach(k => this._articles[k].setEditors = false);
+                this._deletedList = [];
+                this._changedList = [];
             },
             'saveTreeState': async () => {
                 await this._saveTreeState();
@@ -437,51 +444,26 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     async _saveTreeAction(type) {
         if (!type) return;
-        const
-            i = this[type],
-            f = this['_' + type],
-            toDelete = [],
-            toUpdate = [],
-            toSave = [];
-        Object.keys(f).forEach(k => {
-            if (f[k]._deleted) {
-                toDelete.add(k);
-                if (f[k].templates && f[k].templates.map) toDelete.add(...f[k].templates.map(i => i._id));
-                if (f[k].templatesId && f[k].templatesId.map) toDelete.add(...f[k].templatesId.map(i => i));
-                f[k].parent.items.splice(f[k].parent.items.indexOf(f[k]), 1);
-                delete f[k];
-            } else {
-                if (f[k].templates) toDelete.add(...f[k].templates.filter(i => i.changed && i._deleted).map(i => i._id));
-                if (f[k].templatesId) toDelete.add(...f[k].templatesId.filter(i => i.changed && i._deleted).map(i => i));
-                if (f[k].changed) toUpdate.add(k);
-                if (f[k].templates) toUpdate.add(...f[k].templates.filter(i => i.changed && !i._deleted).map(i => i._id));
-                if (f[k].templatesId) toUpdate.add(...f[k].templatesId.filter(i => i.changed && !i._deleted).map(i => i));
-                if (f[k].changed) toSave.add(f[k].doc);
-                if (f[k].templates) toSave.add(...f[k].templates.filter(i => i.changed).map(i => i.doc));
-            }
-        })
-        if (this._editors && Object.keys(this._editors)?.length) {
-            const toDel = Object.keys(this._editors).filter(k => this._editors[k]._deleted).map(k => this._editors[k]._id);
-            toDelete.add(...toDel);
-        }
-        //console.log(toDelete, toUpdate, toSave)
-        if (toUpdate.length) {
-            const items = await this.dbWiki.allDocs({ keys: toUpdate, include_docs: true });
+        const f = this['_' + type];
+        if (this._changedList?.length) {
+            const items = await this.dbWiki.allDocs({ keys: this._changedList, include_docs: true });
             const res = [];
             items.rows.map(i => {
                 if (i.doc) {
                     if (i.key.startsWith('editors') && this._editors?.[i.key]) i.doc = { ...i.doc, ...this._editors[i.key].doc };
                     else if (f[i.key]?.doc) i.doc = { ...i.doc, ...f[i.key].doc };
                     res.add(i.doc);
+                    this._changedList.remove(i.key);
                 }
+            })
+            this._changedList.forEach(i => {
+                if (i.startsWith('editors') && this._editors?.[i]) res.add(this._editors[i].doc);
+                else if (f[i]) res.add(f[i].doc);
             })
             await this.dbWiki.bulkDocs(res);
         }
-        if (toSave.length) {
-            await this.dbWiki.bulkDocs(toSave);
-        }
-        if (toDelete.length) {
-            const items = await this.dbWiki.allDocs({ keys: toDelete, include_docs: true });
+        if (this._deletedList?.length) {
+            const items = await this.dbWiki.allDocs({ keys: this._deletedList, include_docs: true });
             const res = [];
             items.rows.map(i => {
                 if (i.doc) {
@@ -517,6 +499,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         this._editors = this._editors || {};
         this._editors[item._id] = item;
         this.selectedEditors.splice(this.selectedEditors.length, 0, item);
+        this._changedList.add(item._id);
         this.$update();
     }
 
@@ -568,7 +551,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
             Object.keys(this._articles).forEach(k => this._articles[k].changed = false);
             Object.keys(this._templates).forEach(k => this._templates[k].changed = false);
-            LI.listen(document, 'needSave', (e) => this._needSave = true);
+            LI.listen(document, 'needSave', (e) => {
+                console.log(e.detail);
+                if (e?.detail?._id && e?.detail?.type === '_deleted') this._deletedList.add(e.detail._id);
+                else if (e?.detail?._id && !this._deletedList.includes(e.detail._id)) this._changedList.add(e.detail._id);
+            });
 
             this.$update();
         }, 100);
@@ -751,6 +738,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             this.item._deleted = true;
             this.item.hidden = true;
             this._expandItem = undefined;
+            LI.fire(document, 'needSave', { type: 'changed', _id: this.selected._id, e: 'deleteBox' });
             this.$update();
         }
     }
