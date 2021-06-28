@@ -1,5 +1,4 @@
 import { LiElement, html, css } from '../../li.js';
-import '../../lid.js'
 
 import '../layout-app/layout-app.js';
 import '../editor-html/editor-html.js';
@@ -10,10 +9,12 @@ import '../editor-iframe/editor-iframe.js';
 import '../editor-suneditor/editor-suneditor.js';
 import '../button/button.js';
 import '../checkbox/checkbox.js';
+import '../../lib/li-utils/utils.js';
 import '../layout-tree/layout-tree.js';
 
-import '../../lib/pouchdb/pouchdb.js'
-import { ITEM, BOX } from '../../lid.js';
+import '../../lib/pouchdb/pouchdb.js';
+import '../../lib/li-utils/utils.js';
+import { ITEM, BOX } from './data.js';
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -552,7 +553,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             Object.keys(this._articles).forEach(k => this._articles[k].changed = false);
             Object.keys(this._templates).forEach(k => this._templates[k].changed = false);
             LI.listen(document, 'needSave', (e) => {
-                console.log(e.detail);
+                //console.log(e.detail);
                 if (e?.detail?._id && e?.detail?.type === '_deleted') this._deletedList.add(e.detail._id);
                 else if (e?.detail?._id && !this._deletedList.includes(e.detail._id)) this._changedList.add(e.detail._id);
             });
