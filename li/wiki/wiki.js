@@ -396,7 +396,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this._refreshTree = true;
             },
             'clear deleted': () => {
-                LIUtils.arrSetItems(this._items[0], '_deleted', false);
+                Object.keys(this._flat).forEach(k => {
+                    if (this._flat[k]._deleted) this._flat[k]._deleted = false;
+                })
+                //LIUtils.arrSetItems(this._items[0], '_deleted', false);
             },
             'save': async () => {
                 await this._saveTreeAction('articles');
