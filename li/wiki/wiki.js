@@ -213,7 +213,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
                         ${(this.selectedEditors.filter(i => !i._deleted && i.show ) || []).map(i => html`
                             ${i.name === 'showdown' ? html`
-                                <li-viewer-md rc="${i.value || ''}"></li-viewer-md>` : i.name === 'iframe' ? html`
+                                <li-viewer-md .src="${i.value || ''}"></li-viewer-md>` : i.name === 'iframe' ? html`
                                 <iframe .srcdoc="${i.htmlValue || i.value || ''}" style="width:100%;border: none; height: ${i.h + 'px' || 'auto'}"></iframe>` : html`
                                 <div class="res" .item="${i}" .innerHTML="${i.htmlValue || i.value || ''}"></div>
                             `}
