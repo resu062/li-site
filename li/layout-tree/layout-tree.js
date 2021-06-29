@@ -10,7 +10,6 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             item: { type: Object, default: {} },
             iconSize: { type: Number, default: 28 },
             margin: { type: Number, default: 0 },
-            fullBorder: { type: Boolean, default: false },
             colorBorder: { type: String, default: 'lightgray' },
             labelWidth: { type: Number, default: 128 },
             complex: { type: String, default: 'tree' },
@@ -20,7 +19,8 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
             noCheckChildren: { type: Boolean, default: false },
             selected: { type: Object, default: {} },
             fontSize: { type: String, default: 'medium' },
-            allowEdit: { type: Boolean, default: false }
+            allowEdit: { type: Boolean, default: false },
+            _dragRow: { type: Object, local: true }
         }
     }
 
@@ -61,7 +61,8 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     render() {
         return html`
             ${!this.items ? html`` : this.items.map(i => html`
-                <div class="row ${this.selected === i || this.selected?.ulid === i.ulid ? 'selected' : ''}" style="${this.fullBorder ? 'border-bottom: .5px solid ' + this.colorBorder : ''}">
+                <div draggable="true" @dragstart="${(e) => this._dragStart(e, i)}" @dragover=${(e) => this._dragOver(e, i)} @drop=${(e) => this._drop(e, i)}
+                    class="row ${this.selected === i || this.selected?.ulid === i.ulid ? 'selected' : ''}">
                     <div style="display:flex;align-items:center;margin-left:${this.margin}px;${!this.fullBorder ? 'border-bottom: 1px solid ' + this.colorBorder : ''}">
                         ${i.items && i.items.length ? html`
                             <li-button back="transparent" name="chevron-right" border="0" toggledClass="right90" ?toggled="${i.expanded}"
@@ -72,7 +73,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
                         ${this.allowCheck ? html`
                             <li-checkbox .size="${this.iconSize}" .item="${i}" @click="${(e) => this._checkChildren(e, i)}" @blur="${() => this._ed = false}"></li-checkbox>
                         ` : html``}
-                        ${this._ed && (this.selected === i || this.selected?.ulid === i.ulid)  && !i._deleted ? html`
+                        ${this._ed && (this.selected === i || this.selected?.ulid === i.ulid) && !i._deleted ? html`
                             <input value="${i.label}" @change="${(e) => this._setLabel(e, i)}" style="color: gray; flex:1;padding:1px;width:${this.labelWidth}px;font-size:${this.fontSize};border: none;margin:1px;outline: none;"/>
                         ` : html`
                             <div style="flex:1;padding:2px;width:${this.labelWidth}px;font-size:${this.fontSize}; text-decoration:${i._deleted ? 'line-through solid red !important' : ''}"
@@ -98,7 +99,7 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
         }
     }
     _checkChildren(e, i) {
-        if (!this.noCheckChildren) LID.arrSetItems(i, 'checked', e.target.toggled);
+        if (!this.noCheckChildren) LIUtils.arrSetItems(i, 'checked', e.target.toggled);
         //this.fire('changed', { type: 'checked', value: e.target.toggled, item: i });
         this.$update();
     }
@@ -110,6 +111,30 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     _focus(e, i) {
         this.selected = i;
         this.fire('selected', i);
+        this.$update();
+    }
+    _dragStart(e, i) {
+        this._dragRow = i;
+    }
+    _dragOver(e, i) {
+        let enableDrag = true;
+        let ulid = this._dragRow.ulid;
+        let root = i;
+        while (root) {
+            if (root.ulid === ulid) enableDrag = false;
+            root = root.parent || undefined;
+        }
+        if (enableDrag) {
+            e.preventDefault();
+        }
+    }
+    _drop(e, i) {
+        this._dragRow.parent.items.splice(this._dragRow.parent.items.indexOf(this._dragRow), 1);
+        i.items.splice(i.items.length, 0, this._dragRow);
+        this._dragRow.parentId = i._id;
+        this._dragRow.parent = i;
+        i.expanded = true;
+        this._dragRow = undefined;
         this.$update();
     }
 });

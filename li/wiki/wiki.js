@@ -375,14 +375,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this.$update();
             },
             'collapse': () => {
-                LID.arrSetItems(this._selected, 'expanded', false);
+                LIUtils.arrSetItems(this._selected, 'expanded', false);
             },
             'expand': () => {
-                LID.arrSetItems(this._selected, 'expanded', true);
+                LIUtils.arrSetItems(this._selected, 'expanded', true);
             },
             'delete': async () => {
                 this._items[0].checked = false;
-                const itemToDelete = LID.arrFindItem(this._items[0], 'checked', true);
+                const itemToDelete = LIUtils.arrFindItem(this._items[0], 'checked', true);
                 if (!itemToDelete || (confirm && !window.confirm(`Do you really want delete selected and all children ${this._lPanel}?`))) return;
                 Object.keys(this._flat).forEach(k => {
                     if (this._flat[k].checked) {
@@ -396,7 +396,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this._refreshTree = true;
             },
             'clear deleted': () => {
-                LID.arrSetItems(this._items[0], '_deleted', false);
+                LIUtils.arrSetItems(this._items[0], '_deleted', false);
             },
             'save': async () => {
                 await this._saveTreeAction('articles');
