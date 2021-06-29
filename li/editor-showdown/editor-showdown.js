@@ -11,7 +11,7 @@ customElements.define('li-editor-showdown', class LiEditorShowdown extends LiEle
     }
 
     get value() {
-        return this.editor.getValue() || '';
+        return this.editor.getValue() || undefined;
     }
     set value(v) {
         this.editor.setValue(v || '', -1);
@@ -53,7 +53,7 @@ customElements.define('li-editor-showdown', class LiEditorShowdown extends LiEle
         this.editor.setOptions({ fontSize: 16, maxLines: Infinity, minLines: 100, });
         this.value = this.src || this.item?.value || '';
         this.editor.getSession().on('change', () => {
-            if (this.item) {
+            if (this.item && this.value !== undefined) {
                 this.item.value = this.value;
                 this.$update();
             }
