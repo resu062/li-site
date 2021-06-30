@@ -181,10 +181,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <li-button id="Replicate db" @click="${this._settings}" height="auto" width="auto" padding="4px">Replicate from CouchDB</li-button>
-                                <li-button id="Compacting db" @click="${this._settings}" height="auto" width="auto" padding="4px">Compacting database</li-button>
-                                <li-button id="Clear db" @click="${this._settings}" height="auto" width="auto" padding="4px">Clear from _deleted in CouchDB if any</li-button>
+                                <li-button id="Compacting db" @click="${this._settings}" height="auto" width="auto" padding="4px">Compacting current database</li-button>
+                                <li-button id="Delete db" @click="${this._settings}" height="auto" width="auto" padding="4px">Delete current database</li-button>
                                 <li-button id="Export db" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db (open in new tab)</li-button>
-                                <li-button id="Export dbFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db to file (_data.json)</li-button>
+                                <li-button id="Export dbFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db to file</li-button>
                                 <div class="lbl">Import database:</div>
                                 <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -281,16 +281,16 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 },
                 'Replicate db': async () => {
                     if (!window.confirm(`Do you really want replicate from couchdb Database ?`)) return;
-                    this.dbWiki.destroy((err, response) => {
+                    this.dbLocal.destroy((err, response) => {
                         if (err) {
                             return console.log(err);
                         } else {
-                            console.log("Database Deleted");
+                            console.log("Local Database Deleted");
                         }
                     });
-                    this.dbWiki = new PouchDB(this.dbName);
-                    this.dbWiki.replicate.from(this.dbLocalHost).on('complete', () => {
-                        console.log('replicate complete');
+                    this.dbLocal = new PouchDB(this.dbName);
+                    this.dbLocal.replicate.from(this.dbRemote).on('complete', () => {
+                        console.log('Local replicate complete');
                         setTimeout(() => {
                             document.location.reload();
                         }, 500);
@@ -300,58 +300,38 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 },
                 'Compacting db': async () => {
                     if (!window.confirm(`Do you really want compacting current Database ?`)) return;
-                    this.dbWiki.compact().then(function(info) {
-                        console.log('compaction complete');
+                    this.dbLocal.compact().then(function(info) {
+                        console.log('Local compaction complete');
                     }).catch(function(err) {
                         return console.log(err); f
                     });
-                    this.dbLocalHost.compact().then(function(info) {
-                        console.log('compaction complete');
-                    }).catch(function(err) {
-                        return console.log(err);
-                    });
                 },
-                'Clear db': async () => {
-                    if (!window.confirm(`WARNING!!! Do you really want clear current local Database and remote CouchDB Database if any (clear from _deleted)?`)) return;
-                    let _doc;
-                    await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
-                        if (error) console.error(error);
-                        else {
-                            _doc = doc;
-                        };
-                    });
-                    if (!_doc) return;
-                    _doc = _doc.rows.map(({ doc }) => doc);
-                    await this.dbLocalHost.destroy((err, response) => {
+                'Delete db': async () => {
+                    if (!window.confirm(`Do you really want delete current local Database ?`)) return;
+                    if (window.confirm(`Also delete the remote CouchDB Database ?`)) {
+                        this.dbRemote.destroy((err, response) => {
+                            if (err) {
+                                return console.log(err);
+                            } else {
+                                console.log("Remote CouchDB Database Deleted");
+                            }
+                        });
+                    }
+                    this.dbLocal.destroy((err, response) => {
                         if (err) {
                             return console.log(err);
                         } else {
-                            console.log("Database Deleted");
+                            console.log("Local Database Deleted");
                         }
                     });
-                    await this.dbWiki.destroy((err, response) => {
-                        if (err) {
-                            return console.log(err);
-                        } else {
-                            console.log("Database Deleted");
-                        }
-                    });
-                    this.dbWiki = new PouchDB(this.dbName);
-                    this.dbLocalHost = new PouchDB(this.dbIP + this.dbName);
-                    this.dbWiki.sync(this.dbLocalHost, { live: true });
-                    await this.dbWiki.bulkDocs(
-                        _doc,
-                        { new_edits: false },
-                        (...args) => {
-                            console.log('DONE', args)
-                        }
-                    );
+                    this._firstLoadDemoDB = true;
+                    this.dbName = 'li-wiki';
                     setTimeout(() => {
                         document.location.reload();
                     }, 500);
                 },
                 'Export db': async () => {
-                    await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
+                    await this.dbLocal.allDocs({ include_docs: true }, (error, doc) => {
                         if (error) console.error(error);
                         else {
                             const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
@@ -360,37 +340,37 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     });
                 },
                 'Export dbFile': async () => {
-                    await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
+                    await this.dbLocal.allDocs({ include_docs: true }, (error, doc) => {
                         if (error) console.error(error);
                         else {
                             const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
-                            this._download(content, '_data.json');
+                            this._download(content, this.dbName + '.json');
                         };
                     });
                 },
                 'Import db': ({ target: { files: [file] } }) => {
                     if (!window.confirm(`Do you really want rewrite current Database ?`)) return;
                     if (file) {
-                        this.dbLocalHost.destroy((err, response) => {
+                        this.dbRemote.destroy((err, response) => {
                             if (err) {
                                 return console.log(err);
                             } else {
-                                console.log("Database Deleted");
+                                console.log("Remote Database Deleted");
                             }
                         });
-                        this.dbWiki.destroy(async (err, response) => {
+                        this.dbLocal.destroy(async (err, response) => {
                             if (err) {
                                 return console.log(err);
                             } else {
-                                console.log("Database Deleted");
+                                console.log("Local Database Deleted");
                                 const reader = new FileReader();
                                 reader.onload = async ({ target: { result } }) => {
                                     result = JSON.parse(result);
                                     console.log(result)
-                                    this.dbWiki = new PouchDB(this.dbName);
-                                    this.dbLocalHost = new PouchDB(this.dbIP + this.dbName);
-                                    this.dbWiki.sync(this.dbLocalHost, { live: true });
-                                    await this.dbWiki.bulkDocs(
+                                    this.dbLocal = new PouchDB(this.dbName);
+                                    this.dbRemote = new PouchDB(this.dbIP + this.dbName);
+                                    this.dbLocal.sync(this.dbRemote, { live: true });
+                                    await this.dbLocal.bulkDocs(
                                         result,
                                         { new_edits: false },
                                         (...args) => {
@@ -398,11 +378,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                             console.log('DONE', args)
                                         }
                                     );
+                                    setTimeout(() => {
+                                        document.location.reload();
+                                    }, 500);
                                 };
                                 reader.readAsText(file);
-                                setTimeout(() => {
-                                    document.location.reload();
-                                }, 500);
                             }
                         });
                     }
@@ -505,7 +485,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this._articles = {};
             this.articles = undefined;
             requestAnimationFrame(async () => {
-                this.rootArticle = new ITEM({ ...await this.dbWiki.get('$wiki:articles') });
+                this.rootArticle = new ITEM({ ...await this.dbLocal.get('$wiki:articles') });
                 this.articles = [this.rootArticle]
                 this._articles = await this._createTree('articles');
                 this.selected = this._articles[this._localStore['selected-articles']] || this.articles[0];
@@ -514,7 +494,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this._templates = {};
             this.templates = undefined;
             requestAnimationFrame(async () => {
-                this.rootTemplate = new ITEM({ ...await this.dbWiki.get('$wiki:templates') });
+                this.rootTemplate = new ITEM({ ...await this.dbLocal.get('$wiki:templates') });
                 this.templates = [this.rootTemplate]
                 this._templates = await this._createTree('templates');
                 this.selectedTemplate = this._templates[this._localStore['selected-templates']] || this.templates[0];
@@ -526,7 +506,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         if (!type) return;
         const f = this['_' + type];
         if (this._changedList?.length) {
-            const items = await this.dbWiki.allDocs({ keys: this._changedList, include_docs: true });
+            const items = await this.dbLocal.allDocs({ keys: this._changedList, include_docs: true });
             const res = [];
             items.rows.map(i => {
                 if (i.doc) {
@@ -540,10 +520,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 if (i.startsWith('editors') && this._editors?.[i]) res.add(this._editors[i].doc);
                 else if (f[i]) res.add(f[i].doc);
             })
-            await this.dbWiki.bulkDocs(res);
+            await this.dbLocal.bulkDocs(res);
         }
         if (this._deletedList?.length) {
-            const items = await this.dbWiki.allDocs({ keys: this._deletedList, include_docs: true });
+            const items = await this.dbLocal.allDocs({ keys: this._deletedList, include_docs: true });
             const res = [];
             items.rows.map(i => {
                 if (i.doc) {
@@ -551,7 +531,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     res.add(i.doc);
                 }
             })
-            await this.dbWiki.bulkDocs(res);
+            await this.dbLocal.bulkDocs(res);
         }
     }
     async _saveTreeState() {
@@ -562,14 +542,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         Object.keys(f).map(k => { if (f[k]?.expanded) expanded.push(k) });
         let _ls = {};
         try {
-            _ls = await this.dbWiki.get('_local/store')
+            _ls = await this.dbLocal.get('_local/store')
         } catch (error) { }
         _ls._id = '_local/store';
         _ls['selected-' + type] = type === 'articles' ? this.selected?._id || '' : this.selectedTemplate?._id || '';
         _ls['expanded-' + type] = expanded;
         _ls['starId-' + type] = this['_star-' + type]?._id || undefined;
-        await this.dbWiki.put(_ls);
-        this._localStore = await this.dbWiki.get('_local/store');
+        await this.dbLocal.put(_ls);
+        this._localStore = await this.dbLocal.get('_local/store');
     }
 
     _addBox(e) {
@@ -589,37 +569,37 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         this.dbName = this.dbName || 'wiki';
         this.dbIP = this.dbIP || 'http://admin:54321@localhost:5984/';
         setTimeout(async () => {
-            this.dbWiki = new PouchDB(this.dbName);
-            this.dbLocalHost = new PouchDB(this.dbIP + this.dbName);
-            this.dbWiki.sync(this.dbLocalHost, { live: true });
+            this.dbLocal = new PouchDB(this.dbName);
+            this.dbRemote = new PouchDB(this.dbIP + this.dbName);
+            this.dbLocal.sync(this.dbRemote, { live: true });
 
             if (this._firstLoadDemoDB) {
                 const response = await fetch(LI.$url.replace('li.js', 'li/wiki/data.json'));
                 const text = await response.text();
-                await this.dbWiki.bulkDocs(
+                await this.dbLocal.bulkDocs(
                     JSON.parse(text),
                     { new_edits: false }
                 );
                 this._firstLoadDemoDB = false;
             }
 
-            try { this.rootArticle = await this.dbWiki.get('$wiki:articles') } catch (error) { }
+            try { this.rootArticle = await this.dbLocal.get('$wiki:articles') } catch (error) { }
             if (!this.rootArticle) {
-                await this.dbWiki.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles', type: 'articles' })).doc);
-                this.rootArticle = await this.dbWiki.get('$wiki:articles');
+                await this.dbLocal.put((new ITEM({ _id: '$wiki:articles', label: 'wiki-articles', type: 'articles' })).doc);
+                this.rootArticle = await this.dbLocal.get('$wiki:articles');
             }
             this.rootArticle = new ITEM({ ...this.rootArticle });
-            try { this.rootTemplate = await this.dbWiki.get('$wiki:templates') } catch (error) { }
+            try { this.rootTemplate = await this.dbLocal.get('$wiki:templates') } catch (error) { }
             if (!this.rootTemplate) {
-                await this.dbWiki.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates', type: 'templates' })).doc);
-                this.rootTemplate = await this.dbWiki.get('$wiki:templates');
+                await this.dbLocal.put((new ITEM({ _id: '$wiki:templates', label: 'wiki-templates', type: 'templates' })).doc);
+                this.rootTemplate = await this.dbLocal.get('$wiki:templates');
             }
             this.rootTemplate = new ITEM({ ...this.rootTemplate });
 
             this.articles = [this.rootArticle];
             this.templates = [this.rootTemplate];
             try {
-                this._localStore = await this.dbWiki.get('_local/store');
+                this._localStore = await this.dbLocal.get('_local/store');
             } catch (error) { }
             this._localStore = this._localStore || {};
 
@@ -651,7 +631,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
     async _createTree(type) {
         const
-            items = await this.dbWiki.allDocs({ include_docs: true, startkey: type, endkey: type + '\ufff0' }),
+            items = await this.dbLocal.allDocs({ include_docs: true, startkey: type, endkey: type + '\ufff0' }),
             flat = {},
             tree = this[type],
             rootParent = '$wiki:' + type;
@@ -681,7 +661,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     async _setSelectedEditors() {
         if (!this._selected || this._selected.setEditors || !this._selected.templatesId) return;
         this._editors = this._editors || {};
-        const temps = await this.dbWiki.allDocs({ keys: this.selected.templatesId, include_docs: true });
+        const temps = await this.dbLocal.allDocs({ keys: this.selected.templatesId, include_docs: true });
         this._selected.templates.splice(0);
         temps.rows.forEach(i => {
             if (i.doc) {
