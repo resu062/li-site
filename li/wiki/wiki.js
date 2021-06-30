@@ -193,13 +193,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="display:flex">
                                 <li-button name="unfold-less" title="collapse" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="unfold-more" title="expand" size="20" @click="${this._treeActions}"></li-button>
+                                <li-button name="star-border" ref="star" toggledClass="ontoggled" title="set selected as root" size="20" @click="${this._treeActions}"
+                                    ?toggled="${this['_star-' + this._lPanel]}"></li-button>
                                 <div style="flex:1"></div>
                                 <li-button name="cached" title="clear deleted" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="delete" title="delete" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="library-add" title="add new" size="20" @click="${this._treeActions}"></li-button>
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <li-layout-tree .item="${this._items}" .selected="${this._selected}" @selected="${this.fnSelected}" style="overflow: auto;"
+                            <li-layout-tree .item="${this._star}" .selected="${this._selected}" @selected="${this.fnSelected}" style="overflow: auto;"
                                 allowEdit allowCheck iconSize="20" style="color: gray;" @changed="${this._changed}"></li-layout-tree>
                         `}
                     </div>
@@ -421,6 +423,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             window.open(a.href, '_blank');
         }
     }
+    get _star() { return this._lPanel === 'articles' ? this['_star-articles'] || this.articles : this['_star-templates'] || this.templates }
     get _items() { return this._lPanel === 'articles' ? this.articles : this.templates }
     get _flat() { return this._lPanel === 'articles' ? this._articles : this._templates }
     get _selected() { return this._lPanel === 'articles' ? this.selected : this.selectedTemplate }
@@ -441,6 +444,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             },
             'expand': () => {
                 LIUtils.arrSetItems(this._selected, 'expanded', true);
+            },
+            'set selected as root': (e) => {
+                if (e.target.toggled && this._selected?.items?.length)
+                    this['_star-' + this._lPanel] = this._selected;
+                else {
+                    this['_star-' + this._lPanel] = undefined;
+                    e.target.toggled = false;
+                }
             },
             'delete': async () => {
                 this._items[0].checked = false;
@@ -481,7 +492,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             }
         }
         if (fn[title]) {
-            fn[title]();
+            fn[title](e);
             this.$update();
         }
     }
@@ -553,6 +564,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         _ls._id = '_local/store';
         _ls['selected-' + type] = type === 'articles' ? this.selected?._id || '' : this.selectedTemplate?._id || '';
         _ls['expanded-' + type] = expanded;
+        _ls['starId-' + type] = this['_star-' + type]?._id || undefined;
         await this.dbWiki.put(_ls);
         this._localStore = await this.dbWiki.get('_local/store');
     }
@@ -612,6 +624,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this._templates = await this._createTree('templates');
             this.selected = this._articles[this._localStore['selected-articles']] || this.articles[0];
             this.selectedTemplate = this._templates[this._localStore['selected-templates']] || this.templates[0];
+            if (this._localStore['starId-articles']) {
+                this['_star-articles'] = this._articles[this._localStore['starId-articles']] || undefined;
+                this.$refs.star.toggled = true;
+            }
+            if (this._localStore['starId-templates']) {
+                this['_star-templates'] = this._templates[this._localStore['starId-templates']] || undefined;
+                //this.$refs.star.toggled = true;
+            }
 
             await this._setSelectedEditors();
 
