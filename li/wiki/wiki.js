@@ -124,7 +124,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 </div>
                 <div slot="app-left" class="panel">
                     <div style="display: flex">
-                        <li-button name="tree-structure" title="home" @click="${() => this._lPanel = 'articles'}"></li-button>
+                        <li-button name="tree-structure" title="articles" @click="${() => this._lPanel = 'articles'}"></li-button>
                         <li-button name="bookmark-border" title="templates" @click="${() => this._lPanel = 'templates'}"></li-button>
                         <li-button name="playlist-add" title="editors" @click="${() => this._lPanel = 'editors'}"></li-button>
                         <li-button name="check" title="actions" @click="${() => this._lPanel = 'actions'}"></li-button>
@@ -188,7 +188,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             </div>
                         ` : html`
-                            <div style="display: flex"><b>${this._lPanel}</b>${this._lPanel === "templates" ? html`<div style="flex:1;"></div><div> Coming soon ...</div>` : html``}</div>
+                            <b>${this._starLabel || this._lPanel}</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="display:flex">
                                 <li-button name="unfold-less" title="collapse" size="20" @click="${this._treeActions}"></li-button>
@@ -423,6 +423,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             window.open(a.href, '_blank');
         }
     }
+    get _starLabel() { return this._lPanel === 'articles' ? this['_star-articles']?.label : this['_star-templates']?.label };
     get _star() { return this._lPanel === 'articles' ? this['_star-articles'] || this.articles : this['_star-templates'] || this.templates }
     get _items() { return this._lPanel === 'articles' ? this.articles : this.templates }
     get _flat() { return this._lPanel === 'articles' ? this._articles : this._templates }
