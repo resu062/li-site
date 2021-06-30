@@ -35,6 +35,9 @@ customElements.define('li-layout-tree', class LiLayoutTree extends LiElement {
     }
     static get styles() {
         return css`
+            :host {
+                color: #707070;
+            }
             .complex {
                 overflow: hidden;
             }
