@@ -62,6 +62,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 border-top: 1px solid lightgray;
                 padding: 4px;
                 flex: 1;
+                overflow: hidden;
             }
             .main {
                 display: flex;
@@ -137,48 +138,55 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         ${this._lPanel === 'editors' ? html`
                             <b>editors</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            add editor:
-                            <li-button width="100%" @click="${this._addBox}">html-editor</li-button>
-                            <li-button width="100%" @click="${this._addBox}">suneditor</li-button>
-                            <li-button width="100%" @click="${this._addBox}">simplemde</li-button>
-                            <li-button width="100%" @click="${this._addBox}">showdown</li-button>
-                            <li-button width="100%" @click="${this._addBox}">iframe</li-button>
+                            <div style="display: flex; flex-direction: column; overflow: auto;">
+                                add editor:
+                                <li-button width="auto" @click="${this._addBox}">html-editor</li-button>
+                                <li-button width="auto" @click="${this._addBox}">suneditor</li-button>
+                                <li-button width="auto" @click="${this._addBox}">simplemde</li-button>
+                                <li-button width="auto" @click="${this._addBox}">showdown</li-button>
+                                <li-button width="auto" @click="${this._addBox}">iframe</li-button>
+                            </div>
                         ` : this._lPanel === 'actions' ? html`
                             <b>actions</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            editors:
-                            <div style="flex"><li-button id="s01" @click="${this._settings}">01</li-button> hide/show editors</div>
-                            <div style="flex"><li-button id="s02" @click="${this._settings}">02</li-button> hide all</div>
-                            <div style="flex"><li-button id="s03" @click="${this._settings}">03</li-button> show all</div>
-                            <div style="flex"><li-button id="s04" @click="${this._settings}">04</li-button> collapse all</div>
-                            <div style="flex"><li-button id="s05" @click="${this._settings}">05</li-button> expand all</div>
-                            result:
-                            <div style="flex"><li-button id="s06" @click="${this._settings}">06</li-button> hide/show result</div>
-                            <div style="flex"><li-button id="s07" @click="${this._settings}">07</li-button> invisible all</div>
-                            <div style="flex"><li-button id="s08" @click="${this._settings}">08</li-button> visible all</div>
-                            data:
-                            <div style="flex"><li-button id="s09" @click="${this._settings}" fill="tomato" borderColor="tomato">09</li-button> delete all hidden</div>
-                            <div style="flex"><li-button id="s10" @click="${this._settings}" fill="tomato" borderColor="tomato">10</li-button> delete all invisible</div>
-                            <div style="flex"><li-button id="s11" @click="${this._settings}" fill="tomato" borderColor="tomato">11</li-button> delete all</div>              
+                            <div style="display: flex; flex-direction: column; overflow: auto;">
+                                editors:
+                                <div style="flex"><li-button id="s01" @click="${this._settings}">01</li-button> hide/show editors</div>
+                                <div style="flex"><li-button id="s02" @click="${this._settings}">02</li-button> hide all</div>
+                                <div style="flex"><li-button id="s03" @click="${this._settings}">03</li-button> show all</div>
+                                <div style="flex"><li-button id="s04" @click="${this._settings}">04</li-button> collapse all</div>
+                                <div style="flex"><li-button id="s05" @click="${this._settings}">05</li-button> expand all</div>
+                                result:
+                                <div style="flex"><li-button id="s06" @click="${this._settings}">06</li-button> hide/show result</div>
+                                <div style="flex"><li-button id="s07" @click="${this._settings}">07</li-button> invisible all</div>
+                                <div style="flex"><li-button id="s08" @click="${this._settings}">08</li-button> visible all</div>
+                                data:
+                                <div style="flex"><li-button id="s09" @click="${this._settings}" fill="tomato" borderColor="tomato">09</li-button> delete all hidden</div>
+                                <div style="flex"><li-button id="s10" @click="${this._settings}" fill="tomato" borderColor="tomato">10</li-button> delete all invisible</div>
+                                <div style="flex"><li-button id="s11" @click="${this._settings}" fill="tomato" borderColor="tomato">11</li-button> delete all</div>              
+                            </div>
                         ` : this._lPanel === 'settings' ? html`
                             <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div class="lbl" style="color:gray; opacity: 0.7">version: 0.7.3</div>
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}" @change="${(e) => this.dbName = e.target.value}"></div>
-                            <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <li-button id="Replicate db" @click="${this._settings}" width="auto">Replicate from couchdb database</li-button>
-                            <li-button id="Compacting db" @click="${this._settings}" width="auto">Compacting database</li-button>
-                            <a id="aaa" href=""></a>
-                            <li-button id="Export db" @click="${this._settings}" width="auto">Export database</li-button>
-                            <div class="lbl">Import database:</div>
-                            <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
-                            <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            <div style="display: flex; flex-direction: column; overflow: auto;">
+                                <div class="lbl" style="color:gray; opacity: 0.7">version: 0.7.3</div>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}" @change="${(e) => this.dbName = e.target.value}"></div>
+                                <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <li-button id="Replicate db" @click="${this._settings}" height="auto" width="auto" padding="4px">Replicate from CouchDB database</li-button>
+                                <li-button id="Compacting db" @click="${this._settings}" height="auto" width="auto" padding="4px">Compacting database</li-button>
+                                <li-button id="Clear db" @click="${this._settings}" height="auto" width="auto" padding="4px">Clear database (clear from _deleted in CouchDB if any)</li-button>
+                                <a id="aaa" href=""></a>
+                                <li-button id="Export db" @click="${this._settings}" height="auto" width="auto" padding="4px">Export database</li-button>
+                                <div class="lbl">Import database:</div>
+                                <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                            </div>
                         ` : html`
                             <div style="display: flex"><b>${this._lPanel}</b>${this._lPanel === "templates" ? html`<div style="flex:1;"></div><div> Coming soon ...</div>` : html``}</div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -191,9 +199,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <li-button name="library-add" title="add new" size="20" @click="${this._treeActions}"></li-button>
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                            <li-layout-tree ?hidden="${this._lPanel !== 'articles'}" .item="${this.articles}" .selected="${this.selected}" @selected="${this.fnSelected}"
-                                allowEdit allowCheck iconSize="20" style="color: gray;" @changed="${this._changed}"></li-layout-tree>
-                            <li-layout-tree ?hidden="${this._lPanel !== 'templates'}" .item="${this.templates}" .selected="${this.selectedTemplate}" @selected="${this.fnSelected}"
+                            <li-layout-tree .item="${this._items}" .selected="${this._selected}" @selected="${this.fnSelected}" style="overflow: auto;"
                                 allowEdit allowCheck iconSize="20" style="color: gray;" @changed="${this._changed}"></li-layout-tree>
                         `}
                     </div>
@@ -281,12 +287,12 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this.dbWiki = new PouchDB(this.dbName);
                     this.dbWiki.replicate.from(this.dbLocalHost).on('complete', () => {
                         console.log('replicate complete');
+                        setTimeout(() => {
+                            document.location.reload();
+                        }, 500);
                     }).on('error', (err) => {
                         return console.log(err);
                     });
-                    setTimeout(() => {
-                        document.location.reload();
-                    }, 500);
                 },
                 'Compacting db': async () => {
                     if (!window.confirm(`Do you really want compacting current Database ?`)) return;
@@ -300,6 +306,45 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     }).catch(function(err) {
                         return console.log(err);
                     });
+                },
+                'Clear db': async () => {
+                    if (!window.confirm(`WARNING!!! Do you really want clear current local Database and remote CouchDB Database if any (clear from _deleted)?`)) return;
+                    let _doc;
+                    await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
+                        if (error) console.error(error);
+                        else {
+                            _doc = doc;
+                        };
+                    });
+                    if (!_doc) return;
+                    _doc = _doc.rows.map(({ doc }) => doc);
+                    await this.dbLocalHost.destroy((err, response) => {
+                        if (err) {
+                            return console.log(err);
+                        } else {
+                            console.log("Database Deleted");
+                        }
+                    });
+                    await this.dbWiki.destroy((err, response) => {
+                        if (err) {
+                            return console.log(err);
+                        } else {
+                            console.log("Database Deleted");
+                        }
+                    });
+                    this.dbWiki = new PouchDB(this.dbName);
+                    this.dbLocalHost = new PouchDB(this.dbIP + this.dbName);
+                    this.dbWiki.sync(this.dbLocalHost, { live: true });
+                    await this.dbWiki.bulkDocs(
+                        _doc,
+                        { new_edits: false },
+                        (...args) => {
+                            console.log('DONE', args)
+                        }
+                    );
+                    setTimeout(() => {
+                        document.location.reload();
+                    }, 500);
                 },
                 'Export db': async () => {
                     await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
@@ -347,7 +392,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 setTimeout(() => {
                                     document.location.reload();
                                 }, 500);
-
                             }
                         });
                     }
