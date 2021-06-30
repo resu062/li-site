@@ -178,11 +178,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                                <li-button id="Replicate db" @click="${this._settings}" height="auto" width="auto" padding="4px">Replicate from CouchDB database</li-button>
+                                <li-button id="Replicate db" @click="${this._settings}" height="auto" width="auto" padding="4px">Replicate from CouchDB</li-button>
                                 <li-button id="Compacting db" @click="${this._settings}" height="auto" width="auto" padding="4px">Compacting database</li-button>
-                                <li-button id="Clear db" @click="${this._settings}" height="auto" width="auto" padding="4px">Clear database (clear from _deleted in CouchDB if any)</li-button>
-                                <a id="aaa" href=""></a>
-                                <li-button id="Export db" @click="${this._settings}" height="auto" width="auto" padding="4px">Export database</li-button>
+                                <li-button id="Clear db" @click="${this._settings}" height="auto" width="auto" padding="4px">Clear from _deleted in CouchDB if any</li-button>
+                                <li-button id="Export db" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db (open in new tab)</li-button>
+                                <li-button id="Export dbFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db to file (_data.json)</li-button>
                                 <div class="lbl">Import database:</div>
                                 <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -217,7 +217,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     `}
                     <div class="splitter ${this._action === 'splitter-move' ? 'splitter-move' : ''}" @mousedown="${this._moveSplitter}"></div>
                     <div class="main-panel" style="flex: 1;" ?hidden="${this._widthL >= this.$id?.main.offsetWidth && !this._action !== 'splitter-move'}">
-                        ${(this.selectedEditors.filter(i => !i._deleted && i.show ) || []).map(i => html`
+                        ${(this.selectedEditors.filter(i => !i._deleted && i.show) || []).map(i => html`
                             ${i.name === 'showdown' ? html`
                                 <li-viewer-md .src="${i.value || ''}"></li-viewer-md>` : i.name === 'iframe' ? html`
                                 <iframe .srcdoc="${i.htmlValue || i.value || ''}" style="width:100%;border: none; height: ${i.h + 'px' || 'auto'}"></iframe>` : html`
@@ -350,10 +350,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
                         if (error) console.error(error);
                         else {
-                            const a = this.shadowRoot.getElementById('aaa')
-                            const file = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
-                            a.href = URL.createObjectURL(file);
-                            window.open(a.href, '_blank');
+                            const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
+                            this._download(content);
+                        };
+                    });
+                },
+                'Export dbFile': async () => {
+                    await this.dbWiki.allDocs({ include_docs: true }, (error, doc) => {
+                        if (error) console.error(error);
+                        else {
+                            const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
+                            this._download(content, '_data.json');
                         };
                     });
                 },
@@ -401,6 +408,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this._item = this._expandItem = undefined;
             fn[id](e);
             this.$update();
+        }
+    }
+    _download(content, fileName, contentType = 'text/plain') {
+        const a = document.createElement("a");
+        const file = new Blob([content], { type: contentType });
+        a.href = URL.createObjectURL(file);
+        if (fileName) {
+            a.download = fileName;
+            a.click();
+        } else {
+            window.open(a.href, '_blank');
         }
     }
     get _items() { return this._lPanel === 'articles' ? this.articles : this.templates }
