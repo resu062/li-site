@@ -204,7 +204,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             </div>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <li-layout-tree .item="${this._star}" .selected="${this._selected}" @selected="${this.fnSelected}" style="overflow: auto;"
-                                allowEdit allowCheck iconSize="20" style="color: gray;" @changed="${this._changed}"></li-layout-tree>
+                                allowEdit allowCheck iconSize="20" @changed="${this._changed}"></li-layout-tree>
                         `}
                     </div>
                 </div>
