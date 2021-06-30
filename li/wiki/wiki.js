@@ -30,7 +30,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _expandItem: { type: Object, local: true },
             _lPanel: { type: String, default: 'articles' },
             _firstLoadDemoDB: { type: Boolean, default: true, save: true },
-            dbName: { type: String, default: 'wiki', save: true },
+            dbName: { type: String, default: 'li-wiki', save: true },
             dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', save: true },
             _changedList: { type: Array, default: [] },
             _deletedList: { type: Array, default: [] }
@@ -48,8 +48,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     static get styles() {
         return css`
             .header {
-                font-weight: 700;
                 display: flex;
+                align-items: center;
+                color: gray;
+                font-size: large;
             }
             .panel {
                 display: flex;
@@ -117,10 +119,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             <div class="full-area" @mousemove="${this._mousemove}" @mouseup="${this._clearAction}" @mouseout="${this._clearAction}" style="z-index: ${this._indexFullArea}"></div>
             <li-layout-app hide="r" @drop="${this._clearAction}">
                 <div slot="app-top" class="header">
-                    <div style="flex:1"></div>li-wiki<div style="flex:1"></div>
-                    <li-button id="s06" name="filter-1" @click="${this._settings}" style="margin-right:4px"></li-button>
-                    <li-button id="s00" name="view-agenda" rotate="90" @click="${this._settings}" style="margin-right:4px"></li-button>
-                    <li-button id="s01" name="filter-2" @click="${this._settings}" style="margin-right:8px"></li-button>
+                    <div style="flex:1"></div>${this.dbName}<div style="flex:1"></div>
+                    <li-button size="26" id="s06" name="filter-1" @click="${this._settings}" style="margin-right:4px" border="none"></li-button>
+                    <li-button size="26" id="s00" name="more-vert" @click="${this._settings}" style="margin-right:4px" border="none"></li-button>
+                    <li-button size="26" id="s01" name="filter-2" @click="${this._settings}" style="margin-right:8px" border="none"></li-button>
                 </div>
                 <div slot="app-left" class="panel">
                     <div style="display: flex">
@@ -131,7 +133,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         <li-button name="settings" title="settings" @click="${() => this._lPanel = 'settings'}"></li-button>
                         <div style="flex:1"></div>
                         <li-button name="refresh" title="reload page" @click="${() => document.location.reload()}"></li-button>
-                        <li-button name="camera-enhance" title="save tree state" @click="${this._saveTreeState}"></li-button>
+                        <li-button name="camera" title="save tree state" @click="${this._saveTreeState}"></li-button>
                         <li-button name="save" title="save" @click="${this._treeActions}" .fill="${this._needSave ? 'red' : ''}" .color="${this._needSave ? 'red' : 'gray'}"></li-button>
                     </div>
                     <div class="panel-in">
