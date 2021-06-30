@@ -117,7 +117,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             <div class="full-area" @mousemove="${this._mousemove}" @mouseup="${this._clearAction}" @mouseout="${this._clearAction}" style="z-index: ${this._indexFullArea}"></div>
             <li-layout-app hide="r" @drop="${this._clearAction}">
                 <div slot="app-top" class="header">
-                    <div style="flex:1"></div>li-wiki (prototype)<div style="flex:1"></div>
+                    <div style="flex:1"></div>li-wiki<div style="flex:1"></div>
                     <li-button id="s06" name="filter-1" @click="${this._settings}" style="margin-right:4px"></li-button>
                     <li-button id="s00" name="view-agenda" rotate="90" @click="${this._settings}" style="margin-right:4px"></li-button>
                     <li-button id="s01" name="filter-2" @click="${this._settings}" style="margin-right:8px"></li-button>
@@ -169,7 +169,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="display: flex; flex-direction: column; overflow: auto;">
-                                <div class="lbl" style="color:gray; opacity: 0.7">version: 0.7.3</div>
+                                <div class="lbl" style="color:gray; opacity: 0.7">version: 0.8.1</div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
