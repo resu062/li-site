@@ -19,26 +19,26 @@ import { ITEM, BOX } from './data.js';
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
         return {
+            dbName: { type: String, default: 'li-wiki-demo', save: true },
+            dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', save: true },
+            _firstLoad: { type: Boolean, default: true, save: true },
             articles: { type: Array, default: [], local: true },
-            selected: { type: Object, local: true },
+            selectedArticle: { type: Object, local: true },
             templates: { type: Array, default: [], local: true },
             selectedTemplate: { type: Object },
-            _item: { type: Object, local: true },
+            _itemBox: { type: Object, local: true },
+            _expandedBox: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
             _widthL: { type: Number, default: 800, save: true },
-            _expandItem: { type: Object, local: true },
             _lPanel: { type: String, default: 'articles' },
-            _firstLoadDemoDB: { type: Boolean, default: true, save: true },
-            dbName: { type: String, default: 'li-wiki', save: true },
-            dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', save: true },
             _changedList: { type: Array, default: [] },
             _deletedList: { type: Array, default: [] }
         }
     }
 
     get selectedEditors() {
-        return this.selected?.templates || [];
+        return this.selectedArticle?.parts || [];
     }
     get _needSave() {
         if (this._changedList?.length || this._deletedList?.length) return true;
@@ -211,10 +211,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 <div slot="app-main" class="main" id="main">
                     ${this._widthL <= 0 ? html`` : html`
                         <div class="main-panel main-left" style="width:${this._widthL}px" @dragover="${(e) => e.preventDefault()}">
-                            ${this._expandItem ? html`
-                                <li-wiki-box .item="${this._expandItem}" style="height: calc(100% - 40px);"></li-wiki-box>` : html`
+                            ${this._expandedBox ? html`
+                                <li-wiki-box .item="${this._expandedBox}" style="height: calc(100% - 40px);"></li-wiki-box>` : html`
                                 ${(this.selectedEditors.filter(i => !i._deleted) || []).map((i, idx) => html`
-                                    ${this._item === i && this._action === 'box-move' ? html`
+                                    ${this._itemBox === i && this._action === 'box-move' ? html`
                                     <li-wiki-box-shadow></li-wiki-box-shadow>` : html`
                                     <li-wiki-box .item="${i}" .idx="${idx}"></li-wiki-box>`}`)}`}
                         </div>
@@ -234,15 +234,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         `;
     }
     async fnSelected(e) {
-        this._item = this._expandItem = undefined;
+        this._itemBox = this._expandedBox = undefined;
         if (this._lPanel === 'articles') {
-            this.selected = e.detail;
+            this.selectedArticle = e.detail;
             await this._setSelectedEditors();
-            //console.log('articles - ', 'items: ', this.selected.items.length, ' templates: ', this.selected.templates.length)
+            //console.log('articles - ', 'items: ', this.selectedArticle.items.length, ' parts: ', this.selectedArticle.parts.length)
         }
         else if (this._lPanel === 'templates') {
             this.selectedTemplate = e.detail;
-            //console.log('templates - ', 'items: ', this.selectedTemplate.items.length, ' templates: ', this.selectedTemplate.templates.length)
+            //console.log('templates - ', 'items: ', this.selectedTemplate.items.length, ' parts: ', this.selectedTemplate.parts.length)
         }
         this.$update()
     }
@@ -324,8 +324,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             console.log("Local Database Deleted");
                         }
                     });
-                    this._firstLoadDemoDB = true;
-                    this.dbName = 'li-wiki';
+                    this._firstLoad = true;
+                    this.dbName = 'li-wiki-demo';
                     setTimeout(() => {
                         document.location.reload();
                     }, 500);
@@ -389,7 +389,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 }
             }
         if (fn[id]) {
-            this._item = this._expandItem = undefined;
+            this._itemBox = this._expandedBox = undefined;
             fn[id](e);
             this.$update();
         }
@@ -409,7 +409,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     get _star() { return this._lPanel === 'articles' ? this['_star-articles'] || this.articles : this['_star-templates'] || this.templates }
     get _items() { return this._lPanel === 'articles' ? this.articles : this.templates }
     get _flat() { return this._lPanel === 'articles' ? this._articles : this._templates }
-    get _selected() { return this._lPanel === 'articles' ? this.selected : this.selectedTemplate }
+    get _selected() { return this._lPanel === 'articles' ? this.selectedArticle : this.selectedTemplate }
     get _label() { return this._lPanel === 'articles' ? 'new-article' : 'new-template' }
     _treeActions(e, title, confirm = true) {
         title = title || e.target.title;
@@ -445,8 +445,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         this._flat[k].checked = false;
                         this._flat[k]._deleted = true;
                         this._deletedList.add(k);
-                        this._flat[k]._templatesId?.forEach(i => this._deletedList.add(i));
-                        this._flat[k].templatesId?.forEach(i => this._deletedList.add(i));
+                        this._flat[k]._partsId?.forEach(i => this._deletedList.add(i));
+                        this._flat[k].partsId?.forEach(i => this._deletedList.add(i));
                     }
                 })
                 this._refreshTree = true;
@@ -466,7 +466,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this._editors = {};
                     this._setSelectedEditors();
                 }
-                Object.keys(this._articles).forEach(k => this._articles[k]._editorsLoaded = false);
+                Object.keys(this._articles).forEach(k => this._articles[k].partsLoaded = false);
                 this._deletedList = [];
                 this._changedList = [];
             },
@@ -488,7 +488,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this.rootArticle = new ITEM({ ...await this.dbLocal.get('$wiki:articles') });
                 this.articles = [this.rootArticle]
                 this._articles = await this._createTree('articles');
-                this.selected = this._articles[this._localStore['selected-articles']] || this.articles[0];
+                this.selectedArticle = this._articles[this._localStore['selected-articles']] || this.articles[0];
             });
         } else {
             this._templates = {};
@@ -545,7 +545,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             _ls = await this.dbLocal.get('_local/store')
         } catch (error) { }
         _ls._id = '_local/store';
-        _ls['selected-' + type] = type === 'articles' ? this.selected?._id || '' : this.selectedTemplate?._id || '';
+        _ls['selected-' + type] = type === 'articles' ? this.selectedArticle?._id || '' : this.selectedTemplate?._id || '';
         _ls['expanded-' + type] = expanded;
         _ls['starId-' + type] = this['_star-' + type]?._id || undefined;
         await this.dbLocal.put(_ls);
@@ -553,10 +553,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     }
 
     _addBox(e) {
-        this._item = this._expandItem = undefined;
+        this._itemBox = this._expandedBox = undefined;
         const label = e.target.innerText;
         let item = new BOX({ type: 'editors', name: label, label, show: true, h: 120, value: '', changed: true });
-        item.parent = this.selected;
+        item.parent = this.selectedArticle;
         this._editors = this._editors || {};
         this._editors[item._id] = item;
         this.selectedEditors.splice(this.selectedEditors.length, 0, item);
@@ -573,14 +573,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.dbRemote = new PouchDB(this.dbIP + this.dbName);
             this.dbLocal.sync(this.dbRemote, { live: true });
 
-            if (this._firstLoadDemoDB) {
-                const response = await fetch(LI.$url.replace('li.js', 'li/wiki/data.json'));
+            if (this._firstLoad) {
+                const response = await fetch(LI.$url.replace('li.js', 'li/wiki/li-wiki-demo.json'));
                 const text = await response.text();
                 await this.dbLocal.bulkDocs(
                     JSON.parse(text),
                     { new_edits: false }
                 );
-                this._firstLoadDemoDB = false;
+                this._firstLoad = false;
             }
 
             try { this.rootArticle = await this.dbLocal.get('$wiki:articles') } catch (error) { }
@@ -605,7 +605,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
             this._articles = await this._createTree('articles');
             this._templates = await this._createTree('templates');
-            this.selected = this._articles[this._localStore['selected-articles']] || this.articles[0];
+            this.selectedArticle = this._articles[this._localStore['selected-articles']] || this.articles[0];
             this.selectedTemplate = this._templates[this._localStore['selected-templates']] || this.templates[0];
             if (this._localStore['starId-articles']) {
                 this['_star-articles'] = this._articles[this._localStore['starId-articles']] || undefined;
@@ -659,18 +659,18 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         return flat;
     }
     async _setSelectedEditors() {
-        if (!this._selected || this._selected._editorsLoaded || !this._selected.templatesId) return;
+        if (!this._selected || this._selected.partsLoaded || !this._selected.partsId) return;
         this._editors = this._editors || {};
-        const temps = await this.dbLocal.allDocs({ keys: this.selected.templatesId, include_docs: true });
-        this._selected.templates.splice(0);
+        const temps = await this.dbLocal.allDocs({ keys: this.selectedArticle.partsId, include_docs: true });
+        this._selected.parts.splice(0);
         temps.rows.forEach(i => {
             if (i.doc) {
                 const box = new BOX({ ...i.doc, changed: false });
-                this._selected.templates.push(box);
+                this._selected.parts.push(box);
                 this._editors[i.id] = box;
             }
         });
-        this._selected._editorsLoaded = true;
+        this._selected.partsLoaded = true;
     }
 
     _moveSplitter() {
@@ -683,8 +683,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this._widthL = this._widthL + e.movementX;
             this._widthL = this._widthL <= 0 ? 0 : this._widthL >= this.$id?.main.offsetWidth ? this.$id.main.offsetWidth : this._widthL;
         } else if (this._action === 'set-box-height') {
-            this._item.h = this._item.h + e.movementY;
-            this._item.h = this._item.h > 0 ? this._item.h : 0;
+            this._itemBox.h = this._itemBox.h + e.movementY;
+            this._itemBox.h = this._itemBox.h > 0 ? this._itemBox.h : 0;
             this.$update();
         }
     }
@@ -692,7 +692,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         e.preventDefault();
         this._indexFullArea = -1;
         this._action = '';
-        this._item = this._expandItem = undefined;
+        this._itemBox = this._expandedBox = undefined;
     }
 });
 
@@ -700,19 +700,19 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     static get properties() {
         return {
             articles: { type: Array, local: true },
-            selected: { type: Object, default: {}, local: true },
+            selectedArticle: { type: Object, default: {}, local: true },
             item: { type: Object },
             shadow: { type: Number, default: 0 },
-            _item: { type: Object, local: true },
+            _itemBox: { type: Object, local: true },
+            _expandedBox: { type: Object, local: true },
             _indexFullArea: { type: Number, default: -1, local: true },
             _action: { type: String, local: true },
-            _expandItem: { type: Object, local: true },
             idx: { type: Number, default: 0 }
         }
     }
 
     get selectedEditors() {
-        return this.selected?.templates || [];
+        return this.selectedArticle?.parts || [];
     }
 
     static get styles() {
@@ -773,11 +773,11 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     render() {
         return html`
             ${this.item.hidden ? html`` : html`
-                <div draggable="${!this._expandItem}" class="header"
+                <div draggable="${!this._expandedBox}" class="header"
                         @dragstart="${this._dragStart}" 
-                        @dragend="${() => this._item = undefined}" 
+                        @dragend="${() => this._itemBox = undefined}" 
                         @dragover="${this._dragover}"
-                        @drop="${() => this._item = undefined}">
+                        @drop="${() => this._itemBox = undefined}">
                     ${(this.idx || 0) + 1 + '. ' + this.item?.label}
                     <div style="flex:1"></div>
                     <li-button class="btn" name="delete" title="delete box" @click="${this._deleteBox}" size="20"></li-button>
@@ -785,16 +785,16 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
                     <li-button class="btn" name="expand-more" title="down" @click="${() => { this._stepMoveBox(1) }}" size="20"></li-button>
                     <li-button class="btn" name="expand-less" title="up" @click="${() => { this._stepMoveBox(-1) }}" size="20"></li-button>
                     <li-button class="btn" name="fullscreen-exit" title="collapse" @click="${this._collapseBox}" size="20"></li-button>
-                    <li-button class="btn" name="aspect-ratio" title="expand/collapse" @click="${() => this._expandItem = this._expandItem ? undefined : this.item}" size="20"></li-button>
+                    <li-button class="btn" name="aspect-ratio" title="expand/collapse" @click="${() => this._expandedBox = this._expandedBox ? undefined : this.item}" size="20"></li-button>
                     <li-checkbox class="btn" @click="${(e) => this.item.show = e.target.toggled}" ?toggled="${this.item.show}" 
                         title="show in result" back="transparent" size="20"></li-checkbox>
                     <li-button class="btn" name="close" title="hide box" @click="${this._hideBox}" size="20"></li-button>
                 </div>
-                <div class="box" ?hidden="${!this._expandItem && (this.item?.h <= 0 || this.item.collapsed)}"
-                        style="height:${this._expandItem ? '100%' : this.item?.h + 'px'}">
+                <div class="box" ?hidden="${!this._expandedBox && (this.item?.h <= 0 || this.item.collapsed)}"
+                        style="height:${this._expandedBox ? '100%' : this.item?.h + 'px'}">
                     ${this._editor}
                 </div>
-                <div class="bottomSplitter ${this._item === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandItem}"
+                <div class="bottomSplitter ${this._itemBox === this.item ? 'bottomSplitter-move' : ''}" ?hidden="${this._expandedBox}"
                         @mousedown="${this._setBoxHeight}"
                         @dragover="${this._dragover}">
                 </div>
@@ -806,8 +806,8 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         if (window.confirm(`Do you really want delete box?`)) {
             this.item._deleted = true;
             this.item.hidden = true;
-            this._expandItem = undefined;
-            LI.fire(document, 'needSave', { type: 'changed', _id: this.selected._id, e: 'deleteBox' });
+            this._expandedBox = undefined;
+            LI.fire(document, 'needSave', { type: 'changed', _id: this.selectedArticle._id, e: 'deleteBox' });
             this.$update();
         }
     }
@@ -819,12 +819,12 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
     }
     _collapseBox() {
         this.item.collapsed = !this.item.collapsed;
-        this._expandItem = undefined;
+        this._expandedBox = undefined;
         this.requestUpdate();
     }
     _hideBox() {
         this.item.hidden = true;
-        this._expandItem = undefined;
+        this._expandedBox = undefined;
         this.$update();
     }
     _setBoxHeight(e) {
@@ -832,12 +832,12 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             this.item.h = 0;
             this.item.collapsed = false;
         }
-        this._item = this.item;
+        this._itemBox = this.item;
         this._action = 'set-box-height';
         this._indexFullArea = 999;
     }
     _dragStart() {
-        this._item = this.item;
+        this._itemBox = this.item;
         this._action = 'box-move';
     }
     _dragover(e) {
@@ -845,7 +845,7 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
         e.preventDefault();
         let shadowOffset = 1;
         if (e.target.className === 'header') shadowOffset = 0;
-        let itm = this.selectedEditors.splice(this.selectedEditors.indexOf(this._item), 1);
+        let itm = this.selectedEditors.splice(this.selectedEditors.indexOf(this._itemBox), 1);
         let indx = this.selectedEditors.indexOf(this.item) + shadowOffset;
         this.selectedEditors.splice(indx, 0, itm[0]);
         this.$update();
