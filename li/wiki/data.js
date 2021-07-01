@@ -1,29 +1,19 @@
-import '../../lib/icaro/icaro.js';
-
 class baseITEM {
     _id;
     ulid = LI.ulid();
-    type;
-    created;
-    _data = icaro({});
+    _data = LI.icaro({});
     _observeKeys = ['label', '_deleted'];
     _fnListen = (e) => {
-        console.log(this.label, e)
         let changed;
-        this._observeKeys.forEach(i => {
-            if (e.has(i)) changed = true;
-        })
-        if (changed)
-            LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
+        this._observeKeys.forEach(i => { if (e.has(i)) changed = true });
+        if (changed) LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
     }
     constructor(keys = [], props) {
         this._observeKeys = [...this._observeKeys, ...keys];
         Object.keys(props || {}).forEach(k => {
             if (!['_data', '_observeKeys', '_fnListen'].includes(k)) {
-                if (this._observeKeys.includes(k))
-                    this._data[k] = props[k];
-                else
-                    this[k] = props[k];
+                if (this._observeKeys.includes(k)) this._data[k] = props[k];
+                else this[k] = props[k];
             }
         })
         this.created = this.created || LI.dates(LI.ulidToDateTime(this.ulid));
@@ -37,43 +27,33 @@ class baseITEM {
     set _deleted(v) {
         if (v) {
             LI.fire(document, 'needSave', { type: '_deleted', _id: this._id });
-            if (this.items) {
-                this.items.forEach(i => {
-                    if (i.checked) i._delete = true;
-                })
-            }
-            if (this.templates) {
-                this.templates.forEach(i => {
-                    if (i.checked) i._delete = true;
-                })
-            }
+            if (this.items) this.items.forEach(i => { if (i.checked) i._delete = true });
+            if (this.parts) this.parts.forEach(i => { if (i.checked) i._delete = true });
         }
         this._data._deleted = v;
     }
 }
 export class ITEM extends baseITEM {
-    items = icaro([]);
-    templates = icaro([]);
+    items = LI.icaro([]);
+    parts = LI.icaro([]);
     _fnCheckTemplates = (e) => {
-        if (this._templatesId.join(',') !== (this.templatesId || []).join(',')) {
+        if (this._partsId.join(',') !== (this.partsId || []).join(',')) {
             LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
-            //console.log(this.label, this.changed, this._templatesId.join(','), this.templatesId.join(','))
+            //console.log(this.label, this.changed, this._partsId.join(','), this.partsId.join(','))
         }
     }
     constructor(props) {
         super(['parentId'], props);
-        this.templates.listen(this._fnCheckTemplates);
+        this.parts.listen(this._fnCheckTemplates);
     }
 
     get parentId() { return this._data.parentId }
     set parentId(v) { this._data.parentId = v }
 
-    get _templatesId() {
-        if (!this.templates || !this.templates.map) return [];
+    get _partsId() {
+        if (!this.parts || !this.parts.map) return [];
         const res = [];
-        this.templates.map(i => {
-            if (!i._deleted) res.add(i._id);
-        })
+        this.parts.map(i => { if (!i._deleted) res.add(i._id) });
         return res;
     }
 
@@ -83,10 +63,10 @@ export class ITEM extends baseITEM {
             _ref: this._ref,
             ulid: this.ulid,
             type: this.type,
+            label: this.label,
             created: this.created,
             parentId: this.parentId,
-            label: this.label,
-            templatesId: this._editorsLoaded || !this.templatesId?.length ? this._templatesId : this.templatesId
+            partsId: this.partsLoaded || !this.partsId?.length ? this._partsId : this.partsId
         }
     }
 }
@@ -110,12 +90,12 @@ export class BOX extends baseITEM {
             _ref: this._ref,
             ulid: this.ulid,
             type: this.type,
-            created: this.created,
             name: this.name,
             label: this.label,
+            created: this.created,
             h: this.h,
             value: this.value,
-            htmlValue: this.htmlValue,
+            htmlValue: this.htmlValue
         }
     }
 }
