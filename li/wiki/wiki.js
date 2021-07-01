@@ -171,7 +171,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="display: flex; flex-direction: column; overflow: auto;">
-                                <div class="lbl" style="color:gray; opacity: 0.7">version: 0.8.1</div>
+                                <div class="lbl" style="color:gray; opacity: 0.7">version: 0.8.5</div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
