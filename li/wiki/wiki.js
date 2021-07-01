@@ -47,6 +47,9 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
     static get styles() {
         return css`
+            :host {
+                color: #505050;
+            }
             .header {
                 display: flex;
                 align-items: center;
@@ -183,6 +186,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <li-button id="Replicate db" @click="${this._settings}" height="auto" width="auto" padding="4px">Replicate from CouchDB</li-button>
                                 <li-button id="Compacting db" @click="${this._settings}" height="auto" width="auto" padding="4px">Compacting current database</li-button>
                                 <li-button id="Delete db" @click="${this._settings}" height="auto" width="auto" padding="4px">Delete current database</li-button>
+                                <div style="display: flex; align-items: center;"><li-checkbox @change="${e => this._demoDB = e.detail}"></li-checkbox>Create demoDb after delete</div>
                                 <li-button id="Export db" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db (open in new tab)</li-button>
                                 <li-button id="Export dbFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db to file</li-button>
                                 <div class="lbl">Import database:</div>
@@ -324,8 +328,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             console.log("Local Database Deleted");
                         }
                     });
-                    this._firstLoad = true;
-                    this.dbName = 'li-wiki-demo';
+                    if (this._demoDB) {
+                        this._firstLoad = true;
+                        this.dbName = 'li-wiki-demo';
+                    }
                     setTimeout(() => {
                         document.location.reload();
                     }, 500);
@@ -564,9 +570,15 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         this.$update();
     }
 
+    constructor() {
+        super();
+        this._dbName = window.location.href.split('?')?.[1];
+        if (this._dbName) this.id = 'wiki_' + this._dbName;
+    }
+
     async firstUpdated() {
         super.firstUpdated();
-        this.dbName = this.dbName || 'wiki';
+        this.dbName = this._dbName || this.dbName || 'li-wiki-demo';
         this.dbIP = this.dbIP || 'http://admin:54321@localhost:5984/';
         setTimeout(async () => {
             this.dbLocal = new PouchDB(this.dbName);
