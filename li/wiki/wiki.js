@@ -21,6 +21,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         return {
             dbName: { type: String, default: 'li-wiki-demo', save: true },
             dbIP: { type: String, default: 'http://admin:54321@localhost:5984/', save: true },
+            autoSync: { type: Boolean, default: false, save: true },
             _firstLoad: { type: Boolean, default: true, save: true },
             articles: { type: Array, default: [], local: true },
             selectedArticle: { type: Object, local: true },
@@ -182,15 +183,17 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}" @change="${(e) => this.dbName = e.target.value}"></div>
                                 <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div style="display: flex; align-items: center;"><li-checkbox @change="${this._setAutoSync}" .toggled="${this.autoSync}"></li-checkbox>
+                                    Auto replication local and remote db</div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                                <li-button id="Replicate db" @click="${this._settings}" height="auto" width="auto" padding="4px">Replicate from CouchDB</li-button>
                                 <li-button id="Compacting db" @click="${this._settings}" height="auto" width="auto" padding="4px">Compacting current database</li-button>
                                 <li-button id="Delete db" @click="${this._settings}" height="auto" width="auto" padding="4px">Delete current database</li-button>
                                 <div style="display: flex; align-items: center;"><li-checkbox @change="${e => this._demoDB = e.detail}"></li-checkbox>Create demoDb after delete</div>
-                                <li-button id="Export db" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db (open in new tab)</li-button>
                                 <li-button id="Export dbFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db to file</li-button>
+                                <li-button id="Export focusedFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export focused article to file</li-button>
                                 <div class="lbl">Import database:</div>
                                 <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
+                                <div style="display: flex; align-items: center;"><li-checkbox @change="${e => this._importToFocused = e.detail}"></li-checkbox>Import to focused article</div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             </div>
                         ` : html`
@@ -250,6 +253,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         }
         this.$update()
     }
+    _setAutoSync(e) {
+        this.autoSync = e.detail;
+        if (this.autoSync) {
+            this.replicationHandler = this.dbLocal.sync(this.dbRemote, { live: true });
+        } else {
+            this.replicationHandler.cancel();
+        }
+    }
     _settings(e) {
         const id = e.target.id,
             w = this.$id.main.offsetWidth,
@@ -282,25 +293,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     if (window.confirm(`Do you really want delete all?`)) {
                         (this.selectedEditors || []).forEach(i => i._deleted = true);
                     }
-                },
-                'Replicate db': async () => {
-                    if (!window.confirm(`Do you really want replicate from couchdb Database ?`)) return;
-                    this.dbLocal.destroy((err, response) => {
-                        if (err) {
-                            return console.log(err);
-                        } else {
-                            console.log("Local Database Deleted");
-                        }
-                    });
-                    this.dbLocal = new PouchDB(this.dbName);
-                    this.dbLocal.replicate.from(this.dbRemote).on('complete', () => {
-                        console.log('Local replicate complete');
-                        setTimeout(() => {
-                            document.location.reload();
-                        }, 500);
-                    }).on('error', (err) => {
-                        return console.log(err);
-                    });
                 },
                 'Compacting db': async () => {
                     if (!window.confirm(`Do you really want compacting current Database ?`)) return;
@@ -336,15 +328,6 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         document.location.reload();
                     }, 500);
                 },
-                'Export db': async () => {
-                    await this.dbLocal.allDocs({ include_docs: true }, (error, doc) => {
-                        if (error) console.error(error);
-                        else {
-                            const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
-                            this._download(content);
-                        };
-                    });
-                },
                 'Export dbFile': async () => {
                     await this.dbLocal.allDocs({ include_docs: true }, (error, doc) => {
                         if (error) console.error(error);
@@ -354,43 +337,85 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                         };
                     });
                 },
-                'Import db': ({ target: { files: [file] } }) => {
-                    if (!window.confirm(`Do you really want rewrite current Database ?`)) return;
+                'Export focusedFile': async () => {
+                    const
+                        keys = [],
+                        root = '$wiki:articles',
+                        parent = this.selectedArticle._id,
+                        arr = LIUtils.arrAllChildren(this.selectedArticle);
+                    keys.add(parent);
+                    arr.map(i => {
+                        keys.add(i._id);
+                        i.doc.partsId.map(id => keys.add(id));
+                    })
+
+                    await this.dbLocal.allDocs({ include_docs: true, keys }, (error, doc) => {
+                        if (error) console.error(error);
+                        else {
+                            doc.rows.map(({ doc }) => {
+                                if (doc.parentId === parent) doc.parentId = root;
+                                if (doc._id === parent) doc._id = root;
+                            })
+
+                            const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
+                            this._download(content, this.selectedArticle.label + '.json');
+                        };
+                    });
+                },
+                'Import db': async ({ target: { files: [file] } }) => {
+                    if (this._importToFocused && !window.confirm(`Do you really want import to focused article ?`)) return;
+                    if (!this._importToFocused && !window.confirm(`Do you really want rewrite current Database ?`)) return;
                     if (file) {
-                        this.dbRemote.destroy((err, response) => {
-                            if (err) {
-                                return console.log(err);
-                            } else {
-                                console.log("Remote Database Deleted");
+                        if (!this._importToFocused) {
+                            await this.dbRemote.destroy((err, response) => {
+                                if (err) {
+                                    return console.log(err);
+                                } else {
+                                    console.log("Remote Database Deleted");
+                                }
+                            });
+                            await this.dbLocal.destroy(async (err, response) => {
+                                if (err) {
+                                    return console.log(err);
+                                } else {
+                                    console.log("Local Database Deleted");
+
+                                }
+                            });
+                        }
+                        const reader = new FileReader();
+                        reader.onload = async ({ target: { result } }) => {
+                            result = JSON.parse(result);
+                            if (this._importToFocused) {
+                                const ulid = LI.ulid();
+                                result.forEach(i => {
+                                    if (i._id === '$wiki:articles') {
+                                        i._id = 'articles:' + ulid;
+                                        i.ulid = LI.ulid();
+                                        i.parentId = this.selectedArticle._id;
+                                    }
+                                    if (i.parentId === '$wiki:articles') i.parentId = 'articles:' + ulid;
+                                })
                             }
-                        });
-                        this.dbLocal.destroy(async (err, response) => {
-                            if (err) {
-                                return console.log(err);
-                            } else {
-                                console.log("Local Database Deleted");
-                                const reader = new FileReader();
-                                reader.onload = async ({ target: { result } }) => {
-                                    result = JSON.parse(result);
-                                    console.log(result)
-                                    this.dbLocal = new PouchDB(this.dbName);
-                                    this.dbRemote = new PouchDB(this.dbIP + this.dbName);
-                                    this.dbLocal.sync(this.dbRemote, { live: true });
-                                    await this.dbLocal.bulkDocs(
-                                        result,
-                                        { new_edits: false },
-                                        (...args) => {
-                                            this.$update();
-                                            console.log('DONE', args)
-                                        }
-                                    );
-                                    setTimeout(() => {
-                                        document.location.reload();
-                                    }, 500);
-                                };
-                                reader.readAsText(file);
+                            //console.log(result)
+                            if (!this._importToFocused) {
+                                this.dbLocal = new PouchDB(this.dbName);
+                                this.dbRemote = new PouchDB(this.dbIP + this.dbName);
+                                if (this.autoSync) this.replicationHandler = this.dbLocal.sync(this.dbRemote, { live: true });
                             }
-                        });
+                            await this.dbLocal.bulkDocs(
+                                result,
+                                { new_edits: false },
+                                (...args) => {
+                                    this.$update();
+                                    console.log('DONE', args)
+                                }
+                            );
+                            setTimeout(() => {
+                                document.location.reload();
+                            }, 500);
+                        };
+                        reader.readAsText(file);
                     }
                 }
             }
@@ -583,7 +608,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         setTimeout(async () => {
             this.dbLocal = new PouchDB(this.dbName);
             this.dbRemote = new PouchDB(this.dbIP + this.dbName);
-            this.dbLocal.sync(this.dbRemote, { live: true });
+            if (this.autoSync) this.replicationHandler = this.dbLocal.sync(this.dbRemote, { live: true });
 
             if (this._firstLoad) {
                 const response = await fetch(LI.$url.replace('li.js', 'li/wiki/li-wiki-demo.json'));
