@@ -54,12 +54,6 @@ class baseITEM {
 export class ITEM extends baseITEM {
     items = icaro([]);
     templates = icaro([]);
-    _fnCheckItems = (e) => {
-        if (this._itemsId.join(',') !== (this.itemsId || []).join(',')) {
-            LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
-            //console.log(this.label, this.changed, this._itemsId.join(','), this.itemsId.join(','))
-        }
-    }
     _fnCheckTemplates = (e) => {
         if (this._templatesId.join(',') !== (this.templatesId || []).join(',')) {
             LI.fire(document, 'needSave', { type: 'changed', _id: this._id, e });
@@ -68,21 +62,12 @@ export class ITEM extends baseITEM {
     }
     constructor(props) {
         super(['parentId'], props);
-        this.items.listen(this._fnCheckItems);
         this.templates.listen(this._fnCheckTemplates);
     }
 
     get parentId() { return this._data.parentId }
     set parentId(v) { this._data.parentId = v }
 
-    get _itemsId() {
-        if (!this.items || !this.items.map) return [];
-        const res = [];
-        this.items.map(i => {
-            if (!i._deleted) res.add(i._id);
-        })
-        return res;
-    }
     get _templatesId() {
         if (!this.templates || !this.templates.map) return [];
         const res = [];
@@ -101,8 +86,7 @@ export class ITEM extends baseITEM {
             created: this.created,
             parentId: this.parentId,
             label: this.label,
-            itemsId: this._itemsId,
-            templatesId: this.setEditors || !this.templatesId?.length ? this._templatesId : this.templatesId,
+            templatesId: this._editorsLoaded || !this.templatesId?.length ? this._templatesId : this.templatesId
         }
     }
 }

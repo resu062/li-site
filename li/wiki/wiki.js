@@ -195,8 +195,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <div style="display:flex">
                                 <li-button name="unfold-less" title="collapse" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="unfold-more" title="expand" size="20" @click="${this._treeActions}"></li-button>
-                                <li-button name="star-border" ref="star" toggledClass="ontoggled" title="set selected as root" size="20" @click="${this._treeActions}"
-                                    ?toggled="${this['_star-' + this._lPanel]}"></li-button>
+                                <li-button name="${this['_star-' + this._lPanel] ? 'star' : 'star-border'}" ref="star" title="set selected as root" size="20" @click="${this._treeActions}"
+                                    borderColor="${this['_star-' + this._lPanel] ? 'orange' : ''}" fill="${this['_star-' + this._lPanel] ? 'orange' : ''}"></li-button>
                                 <div style="flex:1"></div>
                                 <li-button name="cached" title="clear deleted" size="20" @click="${this._treeActions}"></li-button>
                                 <li-button name="delete" title="delete" size="20" @click="${this._treeActions}"></li-button>
@@ -466,7 +466,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                     this._editors = {};
                     this._setSelectedEditors();
                 }
-                Object.keys(this._articles).forEach(k => this._articles[k].setEditors = false);
+                Object.keys(this._articles).forEach(k => this._articles[k]._editorsLoaded = false);
                 this._deletedList = [];
                 this._changedList = [];
             },
@@ -659,7 +659,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         return flat;
     }
     async _setSelectedEditors() {
-        if (!this._selected || this._selected.setEditors || !this._selected.templatesId) return;
+        if (!this._selected || this._selected._editorsLoaded || !this._selected.templatesId) return;
         this._editors = this._editors || {};
         const temps = await this.dbLocal.allDocs({ keys: this.selected.templatesId, include_docs: true });
         this._selected.templates.splice(0);
@@ -670,7 +670,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 this._editors[i.id] = box;
             }
         });
-        this._selected.setEditors = true;
+        this._selected._editorsLoaded = true;
     }
 
     _moveSplitter() {
