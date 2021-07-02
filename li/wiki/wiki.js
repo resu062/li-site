@@ -130,11 +130,11 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 </div>
                 <div slot="app-left" class="panel">
                     <div style="display: flex">
-                        <li-button name="tree-structure" title="articles" @click="${() => this._lPanel = 'articles'}"></li-button>
-                        <li-button name="bookmark-border" title="templates" @click="${() => this._lPanel = 'templates'}"></li-button>
-                        <li-button name="playlist-add" title="editors" @click="${() => this._lPanel = 'editors'}"></li-button>
-                        <li-button name="check" title="actions" @click="${() => this._lPanel = 'actions'}"></li-button>
-                        <li-button name="settings" title="settings" @click="${() => this._lPanel = 'settings'}"></li-button>
+                        <li-button name="tree-structure" title="articles" @click="${() => this._lPanel = 'articles'}" ?toggled="${this._lPanel === 'articles'}" toggledClass="ontoggled"></li-button>
+                        <li-button name="bookmark-border" title="templates" @click="${() => this._lPanel = 'templates'}" ?toggled="${this._lPanel === 'templates'}" toggledClass="ontoggled"></li-button></li-button>
+                        <li-button name="playlist-add" title="editors" @click="${() => this._lPanel = 'editors'}" ?toggled="${this._lPanel === 'editors'}" toggledClass="ontoggled"></li-button>
+                        <li-button name="check" title="actions" @click="${() => this._lPanel = 'actions'}" ?toggled="${this._lPanel === 'actions'}" toggledClass="ontoggled"></li-button>
+                        <li-button name="settings" title="settings" @click="${() => this._lPanel = 'settings'}" ?toggled="${this._lPanel === 'settings'}" toggledClass="ontoggled"></li-button>
                         <div style="flex:1"></div>
                         <li-button name="refresh" title="reload page" @click="${() => document.location.reload()}"></li-button>
                         <li-button name="camera" title="save tree state" @click="${this._saveTreeState}"></li-button>
@@ -175,25 +175,25 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             <b>settings</b>
                             <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             <div style="display: flex; flex-direction: column; overflow: auto;">
-                                <div class="lbl" style="color:gray; opacity: 0.7">version: 0.8.5</div>
+                                <div class="lbl" style="color:gray; opacity: 0.7">version: 0.8.7</div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}" @change="${this._setDbName}"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
-                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
-                                <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}" @change="${(e) => this.dbName = e.target.value}"></div>
                                 <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
-                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div style="display: flex; align-items: center;"><li-checkbox @change="${this._setAutoSync}" .toggled="${this.autoSync}"></li-checkbox>
                                     Auto replication local and remote db</div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <li-button id="Compacting db" @click="${this._settings}" height="auto" width="auto" padding="4px">Compacting current database</li-button>
                                 <li-button id="Delete db" @click="${this._settings}" height="auto" width="auto" padding="4px">Delete current database</li-button>
-                                <div style="display: flex; align-items: center;"><li-checkbox @change="${e => this._demoDB = e.detail}"></li-checkbox>Create demoDb after delete</div>
-                                <li-button id="Export dbFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db to file</li-button>
-                                <li-button id="Export focusedFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export focused article to file</li-button>
-                                <div class="lbl">Import database:</div>
-                                <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div class="lbl" style="color:gray; opacity: 0.7">Export database:</div>
+                                <div style="display: flex; align-items: center;"><li-checkbox @change="${e => this._exportToFocused = e.detail}"></li-checkbox>Export focused article</div>
+                                <li-button id="Export dbFile" @click="${this._settings}" height="auto" width="auto" padding="4px">Export db (or focused article) to file</li-button>
+                                <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
+                                <div class="lbl" style="color:gray; opacity: 0.7">Import database:</div>
                                 <div style="display: flex; align-items: center;"><li-checkbox @change="${e => this._importToFocused = e.detail}"></li-checkbox>Import to focused article</div>
+                                <input type="file" id="Import db" @change=${(e) => this._settings(e)}/>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                             </div>
                         ` : html`
@@ -252,6 +252,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             //console.log('templates - ', 'items: ', this.selectedTemplate.items.length, ' parts: ', this.selectedTemplate.parts.length)
         }
         this.$update()
+    }
+    _setDbName(e) {
+        this.dbName = e.target.value;
+        this.autoSync = false;
+        if (!this.dbName) this.dbName = 'li-wiki-demo';
+        window.location.href = window.location.href.split('#')?.[0] + '#' + this.dbName;
+        location.reload();
+
     }
     _setAutoSync(e) {
         this.autoSync = e.detail;
@@ -320,47 +328,42 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                             console.log("Local Database Deleted");
                         }
                     });
-                    if (this._demoDB) {
-                        this._firstLoad = true;
-                        this.dbName = 'li-wiki-demo';
-                    }
                     setTimeout(() => {
                         document.location.reload();
                     }, 500);
                 },
                 'Export dbFile': async () => {
-                    await this.dbLocal.allDocs({ include_docs: true }, (error, doc) => {
-                        if (error) console.error(error);
-                        else {
-                            const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
-                            this._download(content, this.dbName + '.json');
-                        };
-                    });
-                },
-                'Export focusedFile': async () => {
-                    const
-                        keys = [],
-                        root = '$wiki:articles',
-                        parent = this.selectedArticle._id,
-                        arr = LIUtils.arrAllChildren(this.selectedArticle);
-                    keys.add(parent);
-                    arr.map(i => {
-                        keys.add(i._id);
-                        i.doc.partsId.map(id => keys.add(id));
-                    })
-
-                    await this.dbLocal.allDocs({ include_docs: true, keys }, (error, doc) => {
-                        if (error) console.error(error);
-                        else {
-                            doc.rows.map(({ doc }) => {
-                                if (doc.parentId === parent) doc.parentId = root;
-                                if (doc._id === parent) doc._id = root;
-                            })
-
-                            const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
-                            this._download(content, this.selectedArticle.label + '.json');
-                        };
-                    });
+                    if (!this._exportToFocused) {
+                        await this.dbLocal.allDocs({ include_docs: true }, (error, doc) => {
+                            if (error) console.error(error);
+                            else {
+                                const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
+                                this._download(content, this.dbName + '.json');
+                            };
+                        });
+                    } else {
+                        const
+                            keys = [],
+                            root = '$wiki:articles',
+                            parent = this.selectedArticle._id,
+                            arr = LIUtils.arrAllChildren(this.selectedArticle);
+                        keys.add(parent);
+                        arr.map(i => {
+                            keys.add(i._id);
+                            i.doc.partsId.map(id => keys.add(id));
+                        })
+                        await this.dbLocal.allDocs({ include_docs: true, keys }, (error, doc) => {
+                            if (error) console.error(error);
+                            else {
+                                doc.rows.map(({ doc }) => {
+                                    if (doc.parentId === parent) doc.parentId = root;
+                                    if (doc._id === parent) doc._id = root;
+                                })
+                                const content = new Blob([JSON.stringify(doc.rows.map(({ doc }) => doc))], { type: 'text/plain' });
+                                this._download(content, this.selectedArticle.label + '.json');
+                            };
+                        });
+                    }
                 },
                 'Import db': async ({ target: { files: [file] } }) => {
                     if (this._importToFocused && !window.confirm(`Do you really want import to focused article ?`)) return;
@@ -597,7 +600,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
 
     constructor() {
         super();
-        this._dbName = window.location.href.split('?')?.[1];
+        this._dbName = window.location.href.split('#')?.[1];
         if (this._dbName) this.id = 'wiki_' + this._dbName;
     }
 
@@ -610,7 +613,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
             this.dbRemote = new PouchDB(this.dbIP + this.dbName);
             if (this.autoSync) this.replicationHandler = this.dbLocal.sync(this.dbRemote, { live: true });
 
-            if (this._firstLoad) {
+            if (this._firstLoad && this.dbName === 'li-wiki-demo') {
                 const response = await fetch(LI.$url.replace('li.js', 'li/wiki/li-wiki-demo.json'));
                 const text = await response.text();
                 await this.dbLocal.bulkDocs(
