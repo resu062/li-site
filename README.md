@@ -48,7 +48,7 @@ You now have access to the wiki from any device on the local network.
 
 To access from anywhere on the Internet, set up a VPN server at home.
 
-I am using VPN server built-in router Mikrotik.
+I am using VPN server built-in in router Mikrotik.
 
 The program uses a database PouchDB (https://pouchdb.com/) to store the input data on different devices, with subsequent synchronization when connected to a local network directly or via VPN.
 
