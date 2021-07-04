@@ -15,6 +15,7 @@ import '../layout-tree/layout-tree.js';
 import '../../lib/pouchdb/pouchdb.js';
 import '../../lib/li-utils/utils.js';
 import { ITEM, BOX } from './data.js';
+import { LZString } from '../../lib/lz-string/lz-string.js'
 
 customElements.define('li-wiki', class LiWiki extends LiElement {
     static get properties() {
@@ -180,7 +181,7 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                                 <div style="display: flex"><div class="lbl" style="width: 100px">db name:</div><input .value="${this.dbName}" @change="${this._setDbName}"></div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
                                 <div class="lbl" style="color:gray; opacity: 0.7">Couchdb settings:</div>
-                                <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${(e) => this.dbIP = e.target.value}"></div>
+                                <div style="display: flex"><div class="lbl" style="width: 100px">db ip:</div><input .value="${this.dbIP}" @change="${this._setDbIP}"></div>
                                 <div style="display: flex; align-items: center;"><li-checkbox @change="${this._setAutoSync}" .toggled="${this.autoSync}"></li-checkbox>
                                     Auto replication local and remote db</div>
                                 <div style="border-bottom:1px solid lightgray;width:100%;margin: 4px 0;"></div>
@@ -260,6 +261,10 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
         window.location.href = window.location.href.split('#')?.[0] + '#' + this.dbName;
         location.reload();
 
+    }
+    _setDbIP(e) {
+        this.dbIP = e.target.value;
+        localStorage.setItem('wiki_temp.temp', LZString.compress(this.dbIP));
     }
     _setAutoSync(e) {
         this.autoSync = e.detail;
@@ -607,7 +612,8 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
     async firstUpdated() {
         super.firstUpdated();
         this.dbName = this._dbName || this.dbName || 'li-wiki-demo';
-        this.dbIP = this.dbIP || 'http://admin:54321@localhost:5984/';
+        const ip = LZString.decompress(localStorage.getItem('wiki_temp.temp'));
+        this.dbIP = ip || this.dbIP || 'http://admin:54321@localhost:5984/';
         setTimeout(async () => {
             this.dbLocal = new PouchDB(this.dbName);
             this.dbRemote = new PouchDB(this.dbIP + this.dbName);
