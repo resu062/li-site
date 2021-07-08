@@ -812,6 +812,15 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             .btn {
                 opacity: .4;
             }
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
         `;
     }
 
