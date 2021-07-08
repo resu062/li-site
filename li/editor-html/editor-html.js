@@ -63,13 +63,14 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
                 background-color: rgb(230, 230, 230);
             }
 
-            *::-webkit-scrollbar {
+            ::-webkit-scrollbar {
                 width: 4px;
+                height: 4px;
             }
-            *::-webkit-scrollbar-track {
+            ::-webkit-scrollbar-track {
                 background: lightgray;
             }
-            *::-webkit-scrollbar-thumb {
+            ::-webkit-scrollbar-thumb {
                 background-color: gray;
             }
         `;

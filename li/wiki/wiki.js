@@ -117,13 +117,14 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 font-size: 18;
             }
             
-            *::-webkit-scrollbar {
+            ::-webkit-scrollbar {
                 width: 4px;
+                height: 4px;
             }
-            *::-webkit-scrollbar-track {
+            ::-webkit-scrollbar-track {
                 background: lightgray;
             }
-            *::-webkit-scrollbar-thumb {
+            ::-webkit-scrollbar-thumb {
                 background-color: gray;
             }
         `;
@@ -812,13 +813,14 @@ customElements.define('li-wiki-box', class LiWikiBox extends LiElement {
             .btn {
                 opacity: .4;
             }
-            *::-webkit-scrollbar {
+            ::-webkit-scrollbar {
                 width: 4px;
+                height: 4px;
             }
-            *::-webkit-scrollbar-track {
+            ::-webkit-scrollbar-track {
                 background: lightgray;
             }
-            *::-webkit-scrollbar-thumb {
+            ::-webkit-scrollbar-thumb {
                 background-color: gray;
             }
         `;
