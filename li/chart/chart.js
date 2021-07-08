@@ -25,7 +25,7 @@ customElements.define('li-chart', class LiChart extends LiElement {
 
     render() {
         return html`
-            <canvas ref="canvas" width="${this.width}" height="${this.height}"></canvas>
+            <canvas ref="canvas" width="${this.width}" height="${this.height}" style="max-width: 100%"></canvas>
         `;
     }
 
