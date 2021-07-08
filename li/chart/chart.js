@@ -29,6 +29,8 @@ customElements.define('li-chart', class LiChart extends LiElement {
         `;
     }
 
+    get defOptions() { return { responsive: true, maintainAspectRatio: false } }
+
     updated(changedProperties) {
         if (this.isFirstInit) {
             let update = false;
@@ -50,7 +52,7 @@ customElements.define('li-chart', class LiChart extends LiElement {
         this.chart = new Chart(this.ctx, {
             type: this.type,
             data: this.data,
-            options: this.options
+            options: { ...this.defOptions, ...this.options }
         });
     }
 });

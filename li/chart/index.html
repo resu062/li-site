@@ -13,60 +13,63 @@
 
 </style>
 
-<div style="display:flex;flex:1">
-    <li-chart id="chart1"></li-chart>
-    <li-chart id="chart2"></li-chart>
+<div style="display:flex;flex-direction: column">
+    <div style="display:flex">
+        <li-chart id="chart1" style="width:50vw;height:48vh"></li-chart>
+        <li-chart id="chart2" style="width:50vw;height:48vh"></li-chart>
+    </div>
+    <div style="display:flex">
+        <li-chart id="chart3" style="width:50vw;height:48vh"></li-chart>
+        <li-chart id="chart4" style="width:50vw;height:48vh"></li-chart>
+    </div>
 </div>
-<div style="display:flex;flex:1">
-    <li-chart id="chart3"></li-chart>
-    <li-chart id="chart4"></li-chart>
-</div>
+<!-- </oda-tester> -->
 
 <script type="module">
-    chart1.type = 'line';
-    chart2.type = 'bar';
-    chart3.type = 'pie';
-    chart4.type = 'radar';
-    chart1.data = chart2.data = chart3.data = chart4.data = {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [...[{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]]
-    };
-    chart1.options = chart2.options = chart3.options = chart4.options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
+chart1.type = 'line';
+chart2.type = 'bar';
+chart3.type = 'pie';
+chart4.type = 'radar';
+chart1.data = chart2.data = chart3.data = chart4.data = {
+    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    datasets: [...[{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+    }]]
+};
+chart1.options = chart2.options = chart3.options = chart4.options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        yAxes: [{
+            ticks: {
+                beginAtZero: true
+            }
+        }]
     }
-    const types = ['line', 'bar', 'pie', 'radar', 'doughnut', 'polarArea'];
-    setInterval(() => {
-        chart1.type = types[Math.round(-0.5 + Math.random() * 6)];
-        chart2.type = types[Math.round(-0.5 + Math.random() * 6)];
-        chart3.type = types[Math.round(-0.5 + Math.random() * 6)];
-        chart4.type = types[Math.round(-0.5 + Math.random() * 6)];
-    }, 2000);
+}
+const types = ['line', 'bar', 'pie', 'radar', 'doughnut', 'polarArea'];
+setInterval(() => {
+    chart1.type = types[Math.round(-0.5 + Math.random() * 6)];
+    chart2.type = types[Math.round(-0.5 + Math.random() * 6)];
+    chart3.type = types[Math.round(-0.5 + Math.random() * 6)];
+    chart4.type = types[Math.round(-0.5 + Math.random() * 6)];
+}, 2000);
 </script>
