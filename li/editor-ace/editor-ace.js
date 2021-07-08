@@ -1,4 +1,4 @@
-import { LiElement, html } from '../../li.js';
+import { LiElement, html, css } from '../../li.js';
 
 import './src/ace.js'
 let url = import.meta.url;
@@ -85,6 +85,20 @@ customElements.define('li-editor-ace', class LiAceEditor extends LiElement {
                 }
             }
         }
+    }
+
+    static get styles() {
+        return css`
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
+        `;
     }
 
     render() {

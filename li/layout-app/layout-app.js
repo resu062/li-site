@@ -126,6 +126,16 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
             .pnl-spl:active {
                 background: darkgray;
             }
+
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
         `;
     }
 

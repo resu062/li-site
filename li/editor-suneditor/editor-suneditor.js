@@ -17,6 +17,20 @@ customElements.define('li-editor-suneditor', class LiEditorSunEditor extends LiE
         this.editor.setContents(v);
     }
 
+    static get styles() {
+        return css`
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
+        `;
+    }
+    
     render() {
         return html`
             <link href="https://cdn.jsdelivr.net/npm/suneditor@latest/dist/css/suneditor.min.css" rel="stylesheet">
