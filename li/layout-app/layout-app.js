@@ -127,13 +127,14 @@ customElements.define('li-layout-app', class LiLayoutApp extends LiElement {
                 background: darkgray;
             }
 
-            *::-webkit-scrollbar {
+            ::-webkit-scrollbar {
                 width: 4px;
+                height: 4px;
             }
-            *::-webkit-scrollbar-track {
+            ::-webkit-scrollbar-track {
                 background: lightgray;
             }
-            *::-webkit-scrollbar-thumb {
+            ::-webkit-scrollbar-thumb {
                 background-color: gray;
             }
         `;
