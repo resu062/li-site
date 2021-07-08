@@ -19,6 +19,20 @@ customElements.define('li-editor-simplemde', class LiEditorSimpleMDE extends LiE
             this.item.htmlValue = this.value;
     }
 
+    static get styles() {
+        return css`
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
+        `;
+    }
+    
     render() {
         return html`
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">

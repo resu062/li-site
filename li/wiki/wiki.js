@@ -116,6 +116,16 @@ customElements.define('li-wiki', class LiWiki extends LiElement {
                 opacity: 0.9;
                 font-size: 18;
             }
+            
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
         `;
     }
 

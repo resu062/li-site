@@ -17,6 +17,20 @@ customElements.define('li-editor-iframe', class LiEditorIFrame extends LiElement
         this.editor.setValue(v || '', -1);
     }
 
+    static get styles() {
+        return css`
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
+        `;
+    }
+    
     render() {
         return html`
             <li-editor-ace ref="editor"></li-editor-ace>

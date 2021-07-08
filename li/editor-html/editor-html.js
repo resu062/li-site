@@ -62,6 +62,16 @@ customElements.define('li-editor-html', class LiEditorHTML extends LiElement {
             .pell-button:hover {
                 background-color: rgb(230, 230, 230);
             }
+
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
         `;
     }
     render() {

@@ -107,6 +107,16 @@ customElements.define('li-property-grid', class LiPropertyGrid extends LiElement
                 border-right: 1px solid lightgray;
                 height: 100%;
             }
+            
+            *::-webkit-scrollbar {
+                width: 4px;
+            }
+            *::-webkit-scrollbar-track {
+                background: lightgray;
+            }
+            *::-webkit-scrollbar-thumb {
+                background-color: gray;
+            }
         `;
     }
 
